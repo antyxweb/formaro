@@ -228,13 +228,10 @@ input:focus-visible, textarea:focus-visible, select:focus-visible,
 .gsearch-empty { padding: 1rem; color: var(--muted); font-size: .85rem; text-align: center; }
 
 /* ---------------- Футер таблицы: массовые действия + пагинация ---------------- */
-/* Bootstrap даёт .table-responsive overflow-x:auto, из-за чего браузер
-   неявно выставляет и overflow-y:auto — это ломает position:sticky у футера
-   таблицы (sticky "прилипает" к этому контейнеру, а не к окну). Возвращаем
-   overflow-y в обычный поток, горизонтальный скролл на узких экранах остаётся. */
-.table-responsive { overflow-y: visible; }
-
-.table-footer-cell { padding: 0 !important; border: none !important; position: sticky; bottom: 0; z-index: 5; }
+/* .table-footer-bar лежит СОСЕДОМ с .table-responsive внутри .card-body (не в
+   <tfoot>): иначе overflow-x:auto у .table-responsive делает его же scroll-
+   контейнером и position:sticky футера "прилипает" к нему, а не к окну.
+   Вынесенный из таблицы бар прилипает к низу вьюпорта, пока карточка в кадре. */
 .table-footer-bar {
     display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .6rem;
     padding: .7rem 1rem; background: var(--surface-2); border-top: 1px solid var(--border);

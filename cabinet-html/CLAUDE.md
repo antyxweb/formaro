@@ -73,9 +73,14 @@ Bootstrap Icons (`bootstrap-icons.css`) всё ещё подключены в `<
    перебивай `border-radius: N !important;` на самом элементе. НЕ убирай
    общее правило целиком.
 2. **`.table-responsive` даёт `overflow-x:auto`**, из-за чего браузер неявно
-   выставляет и `overflow-y:auto` — это ломает `position:sticky` у футера
-   таблицы. Исправлено `.table-responsive { overflow-y: visible; }` — не
-   убирай это правило.
+   выставляет и `overflow-y:auto` (спецификация: `visible` по одной оси при
+   не-`visible` по другой вычисляется в `auto`). Из-за этого `.table-responsive`
+   становится scroll-контейнером и `position:sticky; bottom:0` футера прилипает
+   к нему, а не к окну. Попытка `.table-responsive { overflow-y: visible }` не
+   помогала. **Решение:** футер (`.table-footer-bar`) вынесен из `<tfoot>` и
+   лежит СОСЕДОМ с `.table-responsive` внутри `.card-body` (см. `products.html`,
+   `index.html`). Контролы пагинации `initTablePager` ищет в рамках `.card`
+   (`$root.closest('.card')`), а не внутри `<table>`. Не возвращай футер в tfoot.
 3. **`<tfoot>` красит верхнюю границу в `currentColor`** (Bootstrap-дефолт) —
    без явного `border-top-color` в тёмной теме получается белая полоса.
    Исправлено правилом `.table > tfoot { border-top-color: var(--border-strong); }`.

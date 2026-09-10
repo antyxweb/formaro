@@ -708,23 +708,29 @@ function bindClearFilters(clearBtnSel, watchSel, resetFn) {
 
 /**
  * Футер таблицы: пагинация + выбор количества строк на странице (20/50/100/500,
- * запоминается в localStorage). Используется вместе с разметкой:
- *   <tfoot><tr><td class="table-footer-cell" colspan="N">
+ * запоминается в localStorage). .table-footer-bar лежит СОСЕДОМ с .table-responsive
+ * внутри .card-body (НЕ в <tfoot> — иначе overflow-x таблицы ломает sticky футера):
+ *   <div class="card"><div class="card-body p-0">
+ *     <div class="table-responsive"><table id="myTable">…</table></div>
  *     <div class="table-footer-bar">
- *       <div class="tf-left">...кнопка "Удалить выбранные" и счётчик...</div>
+ *       <div class="tf-left">…кнопка "Удалить выбранные" и счётчик…</div>
  *       <div class="tf-right">
- *         <div class="tf-pagesize">Показывать <select class="tf-pagesize-select">...</select></div>
+ *         <div class="tf-pagesize">Показывать <select class="tf-pagesize-select">…</select></div>
  *         <div class="tf-pager"></div>
  *       </div>
  *     </div>
- *   </td></tr></tfoot>
+ *   </div></div>
  * opts: {root: '#myTable', renderFn: function(pageRows){...}, storageKey: 'products_pagesize', countSel: '#tfCount'}
  */
 function initTablePager(opts) {
     var $root = $(opts.root);
-    var $pageSizeSelect = $root.find('.tf-pagesize-select');
-    var $pager = $root.find('.tf-pager');
-    var $count = opts.countSel ? $(opts.countSel) : $root.find('.tf-count');
+    // Футер таблицы (.tf-*) вынесен из <tfoot> в соседний .table-footer-bar внутри
+    // .card — поэтому ищем контролы в рамках карточки, а не самой таблицы.
+    var $scope = $root.closest('.card');
+    if (!$scope.length) $scope = $root;
+    var $pageSizeSelect = $scope.find('.tf-pagesize-select');
+    var $pager = $scope.find('.tf-pager');
+    var $count = opts.countSel ? $(opts.countSel) : $scope.find('.tf-count');
     var pageSize = parseInt(localStorage.getItem(opts.storageKey) || '20', 10);
     var currentPage = 1;
     var allRows = [];
