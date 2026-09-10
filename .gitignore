@@ -8,6 +8,9 @@
 gulp-project-*.zip
 /project/
 
+# Claude Code — локальные настройки
+/.claude/settings.local.json
+
 # OS / editor
 .DS_Store
 *.log
