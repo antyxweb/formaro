@@ -209,7 +209,7 @@ input:focus-visible, textarea:focus-visible, select:focus-visible,
     font-size: .87rem;
 }
 .topbar-search input:focus { border-color: var(--brand); background: var(--bg); }
-.topbar-search .ic-inline { position: absolute; left: .85rem; top: 50%; transform: translateY(-50%); color: var(--muted); }
+.topbar-search > .ic-inline { position: absolute; left: .85rem; top: 50%; transform: translateY(-50%); color: var(--muted); }
 
 .gsearch-dropdown {
     display: none;
