@@ -1,0 +1,291 @@
+[
+  {
+    "id": 101,
+    "name": "Куртка утеплённая \"Дорожник\"",
+    "slug": "kurtka-uteplennaya-dorozhnik",
+    "short_desc": "Тёплая куртка на синтепоне, оксфорд 240",
+    "full_desc": "Куртка для работы в зимних условиях, ткань оксфорд с ПВХ-пропиткой, утеплитель синтепон 200г, светоотражающие полосы.",
+    "preview_image": "https://placehold.co/300x300?text=Куртка+1",
+    "gallery": [
+      "https://placehold.co/500x500?text=Куртка+1",
+      "https://placehold.co/500x500?text=Куртка+1b"
+    ],
+    "sku": "СПЦ-1023",
+    "color": "Оранжевый/чёрный",
+    "size": "48-58",
+    "custom_props": [
+      {
+        "name": "Ткань",
+        "value": "Оксфорд 240"
+      },
+      {
+        "name": "Утеплитель",
+        "value": "Синтепон 200г"
+      }
+    ],
+    "status": "active",
+    "price": 4200,
+    "stock": 34,
+    "created_at": "2026-08-02T10:00:00",
+    "category_ids": [
+      8
+    ],
+    "partner_id": 1,
+    "variant_group_id": 101,
+    "is_preorder": false,
+    "tags": [
+      "new"
+    ]
+  },
+  {
+    "id": 102,
+    "name": "Куртка \"Норд\" с капюшоном",
+    "slug": "kurtka-nord",
+    "short_desc": "Куртка с отстёгивающимся капюшоном",
+    "full_desc": "Утеплённая куртка с отстёгивающимся капюшоном и регулируемыми манжетами, водоотталкивающая пропитка.",
+    "preview_image": "https://placehold.co/300x300?text=Куртка+2",
+    "gallery": [
+      "https://placehold.co/500x500?text=Куртка+2"
+    ],
+    "sku": "СПЦ-1024",
+    "color": "Синий/серый",
+    "size": "44-56",
+    "custom_props": [
+      {
+        "name": "Ткань",
+        "value": "Смесовая, 65/35"
+      }
+    ],
+    "status": "active",
+    "price": 5100,
+    "stock": 19,
+    "created_at": "2026-07-28T10:00:00",
+    "category_ids": [
+      8
+    ],
+    "partner_id": 1,
+    "variant_group_id": 101,
+    "is_preorder": false,
+    "tags": [
+      "bestseller",
+      "sale"
+    ]
+  },
+  {
+    "id": 103,
+    "name": "Костюм летний \"Стандарт\"",
+    "slug": "kostyum-letniy-standart",
+    "short_desc": "Куртка + брюки, хлопок 100%",
+    "full_desc": "Летний костюм для повседневной работы, хлопковая ткань, вентиляционные сетки под мышками.",
+    "preview_image": "https://placehold.co/300x300?text=Костюм+лето",
+    "gallery": [
+      "https://placehold.co/500x500?text=Костюм+лето"
+    ],
+    "sku": "СПЦ-2011",
+    "color": "Хаки",
+    "size": "44-60",
+    "custom_props": [],
+    "status": "active",
+    "price": 2450,
+    "stock": 58,
+    "created_at": "2026-06-14T10:00:00",
+    "category_ids": [
+      3
+    ],
+    "partner_id": 1,
+    "variant_group_id": null,
+    "is_preorder": false,
+    "tags": []
+  },
+  {
+    "id": 104,
+    "name": "Рубашка рабочая \"Комфорт\"",
+    "slug": "rubashka-komfort",
+    "short_desc": "Хлопковая рубашка с длинным рукавом",
+    "full_desc": "Рубашка из плотного хлопка, два накладных кармана, укреплённые локти.",
+    "preview_image": "https://placehold.co/300x300?text=Рубашка",
+    "gallery": [
+      "https://placehold.co/500x500?text=Рубашка"
+    ],
+    "sku": "СПЦ-2033",
+    "color": "Синий",
+    "size": "44-58",
+    "custom_props": [],
+    "status": "active",
+    "price": 1380,
+    "stock": 41,
+    "created_at": "2026-05-30T10:00:00",
+    "category_ids": [
+      3
+    ],
+    "partner_id": 1,
+    "variant_group_id": null,
+    "is_preorder": false,
+    "tags": []
+  },
+  {
+    "id": 105,
+    "name": "Ботинки зимние \"Медведь\"",
+    "slug": "botinki-medved",
+    "short_desc": "Утеплённые ботинки с металлическим подноском",
+    "full_desc": "Ботинки для работы при низких температурах, металлический подносок, маслобензостойкая подошва.",
+    "preview_image": "https://placehold.co/300x300?text=Ботинки",
+    "gallery": [
+      "https://placehold.co/500x500?text=Ботинки"
+    ],
+    "sku": "ОБВ-3301",
+    "color": "Чёрный",
+    "size": "40-46",
+    "custom_props": [
+      {
+        "name": "Подносок",
+        "value": "Стальной"
+      },
+      {
+        "name": "Температура",
+        "value": "до -40°C"
+      }
+    ],
+    "status": "active",
+    "price": 3900,
+    "stock": 22,
+    "created_at": "2026-08-10T10:00:00",
+    "category_ids": [
+      5
+    ],
+    "partner_id": 1,
+    "variant_group_id": null,
+    "is_preorder": false,
+    "tags": []
+  },
+  {
+    "id": 106,
+    "name": "Полуботинки летние \"Актив\"",
+    "slug": "polubotinki-aktiv",
+    "short_desc": "Лёгкая рабочая обувь с перфорацией",
+    "full_desc": "Лёгкие полуботинки для работы в тёплое время года, перфорация для вентиляции.",
+    "preview_image": "https://placehold.co/300x300?text=Полуботинки",
+    "gallery": [
+      "https://placehold.co/500x500?text=Полуботинки"
+    ],
+    "sku": "ОБВ-3312",
+    "color": "Чёрный",
+    "size": "39-47",
+    "custom_props": [],
+    "status": "active",
+    "price": 2600,
+    "stock": 15,
+    "created_at": "2026-07-02T10:00:00",
+    "category_ids": [
+      4
+    ],
+    "partner_id": 1,
+    "variant_group_id": null,
+    "is_preorder": false,
+    "tags": []
+  },
+  {
+    "id": 107,
+    "name": "Каска защитная \"Стандарт\"",
+    "slug": "kaska-standart",
+    "short_desc": "Каска с регулировкой размера",
+    "full_desc": "Защитная каска из ударопрочного пластика, регулируемый оголовок, вентиляционные отверстия.",
+    "preview_image": "https://placehold.co/300x300?text=Каска",
+    "gallery": [
+      "https://placehold.co/500x500?text=Каска"
+    ],
+    "sku": "СИЗ-4001",
+    "color": "Белый",
+    "size": "универсальный",
+    "custom_props": [],
+    "status": "active",
+    "price": 480,
+    "stock": 120,
+    "created_at": "2026-04-20T10:00:00",
+    "category_ids": [
+      6
+    ],
+    "partner_id": 1,
+    "variant_group_id": null,
+    "is_preorder": false,
+    "tags": []
+  },
+  {
+    "id": 108,
+    "name": "Перчатки рабочие с ПВХ-точкой",
+    "slug": "perchatki-pvh",
+    "short_desc": "Хлопковые перчатки с защитным покрытием",
+    "full_desc": "Перчатки трикотажные с ПВХ-точечным покрытием ладони для лучшего сцепления.",
+    "preview_image": "https://placehold.co/300x300?text=Перчатки",
+    "gallery": [
+      "https://placehold.co/500x500?text=Перчатки"
+    ],
+    "sku": "СИЗ-4015",
+    "color": "Серый",
+    "size": "универсальный",
+    "custom_props": [],
+    "status": "active",
+    "price": 55,
+    "stock": 900,
+    "created_at": "2026-08-15T10:00:00",
+    "category_ids": [
+      6
+    ],
+    "partner_id": 1,
+    "variant_group_id": null,
+    "is_preorder": false,
+    "tags": []
+  },
+  {
+    "id": 109,
+    "name": "Жилет сигнальный 2 класс",
+    "slug": "zhilet-signalnyy",
+    "short_desc": "Жилет повышенной видимости",
+    "full_desc": "Сигнальный жилет со световозвращающими полосами, 2 класс защиты, застёжка на липучке.",
+    "preview_image": "https://placehold.co/300x300?text=Жилет",
+    "gallery": [
+      "https://placehold.co/500x500?text=Жилет"
+    ],
+    "sku": "СИГ-5002",
+    "color": "Жёлтый",
+    "size": "48-56",
+    "custom_props": [],
+    "status": "active",
+    "price": 320,
+    "stock": 210,
+    "created_at": "2026-08-20T10:00:00",
+    "category_ids": [
+      7
+    ],
+    "partner_id": 1,
+    "variant_group_id": null,
+    "is_preorder": false,
+    "tags": []
+  },
+  {
+    "id": 110,
+    "name": "Полукомбинезон зимний \"Аляска\"",
+    "slug": "polukombinezon-alyaska",
+    "short_desc": "Утеплённый полукомбинезон",
+    "full_desc": "Полукомбинезон на лямках с утеплителем, усиленные наколенники.",
+    "preview_image": "https://placehold.co/300x300?text=Полукомбинезон",
+    "gallery": [
+      "https://placehold.co/500x500?text=Полукомбинезон"
+    ],
+    "sku": "СПЦ-1055",
+    "color": "Чёрный/серый",
+    "size": "44-60",
+    "custom_props": [],
+    "status": "hidden",
+    "price": 3700,
+    "stock": 0,
+    "created_at": "2026-03-11T10:00:00",
+    "category_ids": [
+      2
+    ],
+    "partner_id": 1,
+    "variant_group_id": null,
+    "is_preorder": false,
+    "tags": []
+  }
+]

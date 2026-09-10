@@ -1,0 +1,103 @@
+{
+  "available_balance": 41250,
+  "pending_balance": 20000,
+  "total_earned": 174850,
+  "transactions": [
+    {
+      "id": 1,
+      "type": "income",
+      "amount": 45600,
+      "status": "completed",
+      "description": "Выплата по заказам за период 18–24 августа",
+      "date": "2026-08-24T10:00:00"
+    },
+    {
+      "id": 8,
+      "type": "commission",
+      "amount": 4560,
+      "status": "completed",
+      "description": "Комиссия площадки за период 18–24 августа",
+      "date": "2026-08-24T10:05:00"
+    },
+    {
+      "id": 2,
+      "type": "income",
+      "amount": 38200,
+      "status": "completed",
+      "description": "Выплата по заказам за период 25–31 августа",
+      "date": "2026-08-31T10:00:00"
+    },
+    {
+      "id": 9,
+      "type": "commission",
+      "amount": 3820,
+      "status": "completed",
+      "description": "Комиссия площадки за период 25–31 августа",
+      "date": "2026-08-31T10:05:00"
+    },
+    {
+      "id": 3,
+      "type": "withdrawal",
+      "amount": 50000,
+      "status": "completed",
+      "description": "Вывод средств на расчётный счёт",
+      "date": "2026-09-01T12:00:00"
+    },
+    {
+      "id": 10,
+      "type": "refund",
+      "amount": 2600,
+      "status": "completed",
+      "description": "Возврат клиенту за заказ F-100205 (обувь не подошла по размеру)",
+      "date": "2026-09-03T14:20:00"
+    },
+    {
+      "id": 4,
+      "type": "income",
+      "amount": 61250,
+      "status": "completed",
+      "description": "Выплата по заказам за период 1–6 сентября",
+      "date": "2026-09-05T10:00:00"
+    },
+    {
+      "id": 11,
+      "type": "commission",
+      "amount": 6125,
+      "status": "completed",
+      "description": "Комиссия площадки за период 1–6 сентября",
+      "date": "2026-09-05T10:05:00"
+    },
+    {
+      "id": 5,
+      "type": "withdrawal",
+      "amount": 20000,
+      "status": "pending",
+      "description": "Заявка на вывод средств (в обработке)",
+      "date": "2026-09-06T09:15:00"
+    },
+    {
+      "id": 6,
+      "type": "income",
+      "amount": 29800,
+      "status": "completed",
+      "description": "Выплата по заказам за период 4–10 августа",
+      "date": "2026-08-10T10:00:00"
+    },
+    {
+      "id": 12,
+      "type": "commission",
+      "amount": 2980,
+      "status": "completed",
+      "description": "Комиссия площадки за период 4–10 августа",
+      "date": "2026-08-10T10:05:00"
+    },
+    {
+      "id": 7,
+      "type": "withdrawal",
+      "amount": 30000,
+      "status": "completed",
+      "description": "Вывод средств на расчётный счёт",
+      "date": "2026-08-12T12:00:00"
+    }
+  ]
+}

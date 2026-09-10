@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ru" class="h-100">
+<head>
+  //= template/head.html
+
+  <title>Страница партнера</title>
+</head>
+<body class="d-flex flex-column">
+//= template/header.html
+
+<script>
+  document.getElementById('header').classList.add('partner-page');
+</script>
+
+  <section id="partner-hero" class="section">
+    <div class="container-fluid">
+      <div class="partners-card">
+        <div class="partners-card__img d-md-none">
+          <div class="embed-responsive embed-responsive-16by9" style="background-image: url('/upload/hero-b.jpeg')"></div>
+        </div>
+        <div class="row mx-0">
+          <div class="col-12  col-lg-8 col-xl-10 partners-card__info order-2 order-lg-1">
+            <h1 class="h2 mb-4">NORR Спецодежда</h1>
+            <div class="text-secondary">
+              <p>Cras porttitor posuere sapien sed dictum. Proin vel dolor pulvinar diam commodo rhoncus. Suspendisse varius massa at est malesuada, ut tincidunt dolor mollis. Donec diam leo, semper at quam id, bibendum facilisis orci. Pellentesque at laoreet nunc, eu interdum nulla. Duis at auctor lectus. Maecenas sagittis, massa in porta tristique, purus libero eleifend nisi, quis aliquet odio dolor id orci. Phasellus augue leo, viverra a erat in, varius placerat justo. Suspendisse lacus leo, laoreet pharetra faucibus at, tincidunt nec justo. Suspendisse condimentum consectetur hendrerit.</p>
+              <p>Nulla malesuada risus vitae ornare hendrerit. Nunc eget est diam. Nullam blandit laoreet mollis. Suspendisse vel libero nisi. Fusce purus lacus, accumsan id justo eget, venenatis iaculis eros. Nam eget enim non libero semper hendrerit sit amet a est. Cras dui leo, ultricies non mattis finibus, maximus facilisis nibh. Suspendisse cursus magna placerat, aliquam ipsum condimentum, porta leo. Phasellus venenatis felis sed lorem molestie sodales. Cras laoreet, mi et vestibulum tempor, nunc orci placerat lorem, sit amet rutrum odio justo nec felis.</p>
+            </div>
+            <div class="pt-4 d-flex">
+              <a href="/html/catalog.html" class="f-button c-success">Каталог товаров</a>
+              <a href="/html/partner.html" class="f-button">Чат с продавцом</a>
+            </div>
+          </div>
+          <div class="col-12 col-lg-4 col-xl-2 py-md-3 pr-md-0 order-1 order-lg-2">
+            <div class="embed-responsive embed-responsive-4by3" style="background-image: url('/upload/partners/partner-logo-1.jpeg')"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+<section id="hero-search" class="section pt-0">
+  <div class="section-body">
+    <div class="container-fluid">
+      <div class="hero-search-block mb-5">
+        <div class="hero-search-group">
+          <div class="hero-search-input">
+            <input type="text" id="hero-search-input" class="search-input" placeholder="Начните поиск здесь...">
+            //= template/search-result-block.html
+            <svg class="hero-search-input-icon" width="24" height="24">
+              <use xlink:href="#icon-search"></use>
+            </svg>
+          </div>
+          <div class="hero-search-buttons">
+            <button class="f-button c-success f-clear mr-0 px-4" data-fancybox data-src="#filter-popup">
+              <svg width="16" height="16">
+                <use xlink:href="#icon-filter-white"></use>
+              </svg>
+              <span class="pl-2 text-uppercase d-sm-none d-md-inline">Фильтры</span>
+            </button>
+            <button class="f-button c-primary">
+              <svg width="16" height="16" class="d-none d-sm-inline d-md-none">
+                <use xlink:href="#icon-arrow-control"></use>
+              </svg>
+              <span class="pl-2 text-uppercase d-sm-none d-md-inline">Искать</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="d-none d-md-block">
+        //= template/products-grid.html
+      </div>
+      <style>
+        .hide-on-main {
+          display: none !important;
+        }
+      </style>
+
+      <div class="d-md-none">
+        //= template/products-search-slider.html
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section light-gray-stripe">
+  <div class="section-header mb-5">
+    <div class="container-fluid">
+      <div class="d-flex align-items-center">
+        <h3 class="h2"><span class="text-primary">Выгодные</span> предложения</h3>
+        <a href="/html/catalog.html" class="f-button c-gray ml-auto">
+          <svg width="16" height="16" class="d-md-none">
+            <use xlink:href="#icon-arrow-control"></use>
+          </svg>
+          <span class="pl-2 text-uppercase d-none d-md-inline">Перейти в каталог</span>
+        </a>
+      </div>
+    </div>
+  </div>
+  <div class="section-body">
+    <div class="container-fluid">
+
+      //= template/products-slider.html
+    </div>
+  </div>
+</section>
+
+
+
+<section class="section">
+  <div class="section-header mb-5">
+    <div class="container-fluid">
+      <div class="d-flex align-items-center">
+        <h3 class="h2"><span class="text-primary">Новые</span> поступления</h3>
+        <a href="/html/catalog.html" class="f-button c-gray ml-auto">
+          <svg width="16" height="16" class="d-md-none">
+            <use xlink:href="#icon-arrow-control"></use>
+          </svg>
+          <span class="pl-2 text-uppercase d-none d-md-inline">Перейти в каталог</span>
+        </a>
+      </div>
+    </div>
+  </div>
+  <div class="section-body">
+    <div class="container-fluid">
+
+      //= template/products-slider.html
+    </div>
+  </div>
+</section>
+
+<section class="section light-gray-stripe">
+  <div class="section-header mb-5">
+    <div class="container-fluid">
+      <div class="d-flex align-items-center">
+        <h3 class="h2"><span class="text-primary">Каталог</span> товаров партнера</h3>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-body">
+    <div class="container-fluid">
+      <div class="section-search mb-5">
+        <input class="section-search-input" type="text" placeholder="Поиск по категориям">
+        <button type="submit">
+          <svg width="20" height="20">
+            <use xlink:href="#icon-search"></use>
+          </svg>
+        </button>
+      </div>
+
+      //= template/category-list.html
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-header mb-5">
+    <div class="container-fluid">
+      <div class="d-flex align-items-center">
+        <h3 class="h2"><span class="text-primary">Новости</span> партнера</h3>
+        <a href="#" class="f-button c-gray ml-auto">
+          <svg width="16" height="16" class="d-md-none">
+            <use xlink:href="#icon-arrow-control"></use>
+          </svg>
+          <span class="pl-2 text-uppercase d-none d-md-inline">Все новости</span>
+        </a>
+      </div>
+    </div>
+  </div>
+  <div class="section-body">
+    <div class="container-fluid">
+
+      //= template/news-slider.html
+    </div>
+  </div>
+</section>
+
+
+//= template/footer.html
+
+<div id="filter-popup" style="display: none">
+  //= template/catalog-filter.html
+</div>
+</body>
+</html>

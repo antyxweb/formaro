@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script>(function(){var m=localStorage.getItem('formaro_theme_mode')||'auto';var r=(m==='light'||m==='dark')?m:((window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light');document.documentElement.setAttribute('data-theme',r);})();</script>
+<title>Предпросмотр — Formaro</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+<link href="assets/css/theme.css" rel="stylesheet">
+</head>
+<body style="background:var(--bg);">
+<div style="max-width:760px;margin:0 auto;padding:2rem 1rem;">
+  <div class="d-flex align-items-center gap-2 mb-4">
+    <div class="f-mark" style="position:relative;width:34px;height:34px;background:var(--brand);border-radius:9px;">
+      <span style="position:absolute;left:8px;top:9px;width:18px;height:3.5px;background:#fff;border-radius:2px;"></span>
+      <span style="position:absolute;left:8px;top:15px;width:13px;height:3.5px;background:#fff;border-radius:2px;"></span>
+      <span style="position:absolute;left:8px;top:21px;width:8px;height:3.5px;background:#fff;border-radius:2px;"></span>
+    </div>
+    <strong style="font-size:1.2rem;">formaro</strong>
+    <span class="text-muted-2 small ms-2">— предпросмотр публичной страницы (демо)</span>
+  </div>
+
+  <div id="previewCard" class="card"><div class="card-body text-center text-muted-2 py-5">Загрузка…</div></div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+<script src="assets/js/common.js"></script>
+<script>
+$(function () {
+    var type = getQueryParam('type');
+    var id = getQueryParam('id');
+    if (id === 'new') {
+        $('#previewCard').html('<div class="card-body text-center text-muted-2 py-5"><i class="bi bi-hourglass-split fs-2 d-block mb-2"></i>Сначала сохраните запись, чтобы увидеть предпросмотр.</div>');
+        return;
+    }
+    id = parseInt(id, 10);
+
+    if (type === 'category') {
+        dsLoad('categories', 'data/categories.json').done(function (rows) {
+            var c = rows.find(function (x) { return x.id === id; });
+            if (!c) return notFound();
+            $('#previewCard').html(
+                bgThumbHtml(c.full_image || c.preview_image, 'preview-banner') +
+                '<div class="card-body"><h3>' + esc(c.name) + '</h3>' +
+                '<p class="text-muted-2">' + esc(c.short_desc) + '</p><p>' + esc(c.full_desc) + '</p></div>'
+            );
+        });
+    } else if (type === 'product') {
+        dsLoad('products', 'data/products.json').done(function (rows) {
+            var p = rows.find(function (x) { return x.id === id; });
+            if (!p) return notFound();
+            var gallery = (p.gallery || []).map(function (g) { return bgThumbHtml(g, 'gimg'); }).join('');
+            var props = (p.custom_props || []).map(function (pr) { return '<li>' + esc(pr.name) + ': ' + esc(pr.value) + '</li>'; }).join('');
+            var variants = p.variant_group_id ? rows.filter(function (x) { return x.id !== p.id && x.variant_group_id === p.variant_group_id; }) : [];
+            var variantsHtml = '';
+            if (variants.length) {
+                variantsHtml = '<div class="mt-3"><strong>Другие варианты:</strong><div class="mt-2 d-flex flex-wrap gap-2">' +
+                    variants.map(function (v) {
+                        var label = [v.color, v.size].filter(Boolean).join(' / ') || v.name;
+                        return '<a href="preview.html?type=product&id=' + v.id + '" class="btn btn-outline-secondary btn-sm">' + esc(label) + '</a>';
+                    }).join('') + '</div></div>';
+            }
+            $('#previewCard').html(
+                bgThumbHtml(p.preview_image, 'preview-banner') +
+                '<div class="card-body">' +
+                '<h3>' + esc(p.name) + '</h3>' +
+                '<p class="fs-4 fw-bold" style="color:var(--brand);">' + fmtMoney(p.price) + '</p>' +
+                '<p class="text-muted-2">' + esc(p.short_desc) + '</p><p>' + esc(p.full_desc) + '</p>' +
+                '<p><strong>Артикул:</strong> ' + esc(p.sku) + ' &nbsp; <strong>Цвет:</strong> ' + esc(p.color) + ' &nbsp; <strong>Размер:</strong> ' + esc(p.size) + '</p>' +
+                (props ? '<ul>' + props + '</ul>' : '') +
+                '<div class="mt-2">' + gallery + '</div>' +
+                variantsHtml +
+                '</div>'
+            );
+        });
+    } else if (type === 'news') {
+        dsLoad('news', 'data/news.json').done(function (rows) {
+            var n = rows.find(function (x) { return x.id === id; });
+            if (!n) return notFound();
+            $('#previewCard').html(
+                bgThumbHtml(n.image, 'preview-banner') +
+                '<div class="card-body"><h3>' + esc(n.title) + '</h3>' +
+                '<p class="text-muted-2">' + fmtDate(n.created_at) + '</p>' +
+                '<p>' + esc(n.full_desc) + '</p></div>'
+            );
+        });
+    } else {
+        notFound();
+    }
+    function notFound() {
+        $('#previewCard').html('<div class="card-body text-center text-muted-2 py-5"><i class="bi bi-question-circle fs-2 d-block mb-2"></i>Запись не найдена.</div>');
+    }
+});
+</script>
+</body>
+</html>

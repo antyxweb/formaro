@@ -1,0 +1,19 @@
+@media print {
+  header#header,
+  footer#footer,
+  .printable-no,
+  .header-placeholder,
+  #bx-panel {
+    display: none !important;
+  }
+
+  .printable {
+    padding-left: 0 !important;
+    display: block !important;
+  }
+
+  section {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+  }
+}

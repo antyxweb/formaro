@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ru" class="h-100">
+<head>
+  //= template/head.html
+
+  <title>Партнеры платформы</title>
+</head>
+<body class="d-flex flex-column favorites-page">
+//= template/header.html
+
+  <section class="section section-first pb-3">
+    <div class="section-header">
+      <div class="container-fluid">
+        <div class="d-flex align-items-center mb-3 mb-lg-4">
+          <h1 class="h2"><span class="text-primary">Партнеры платформы</span></h1>
+        </div>
+        <div class="breadcrumbs">
+          <ul>
+            <li id="bx_breadcrumb_0" itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem">
+
+              <a href="/html/" title="Главная" itemprop="item">
+                <span itemprop="name" class="pl-0">Главная</span>
+              </a>
+              <meta itemprop="position" content="1">
+              &mdash;
+            </li>
+            <li>
+              <span>Партнеры</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+<section id="hero-search" class="section pt-0">
+  <div class="section-body">
+    <div class="container-fluid">
+      <div class="hero-search-block mb-5">
+        <div class="hero-search-group">
+          <div class="hero-search-input">
+            <input type="text" class="search-input" placeholder="Начните поиск здесь...">
+            //= template/search-result-block.html
+            <svg class="hero-search-input-icon" width="24" height="24">
+              <use xlink:href="#icon-search"></use>
+            </svg>
+          </div>
+          <div class="hero-search-buttons">
+            <button class="f-button c-primary">
+              <svg width="16" height="16" class="d-none d-sm-inline d-md-none">
+                <use xlink:href="#icon-arrow-control"></use>
+              </svg>
+              <span class="pl-2 text-uppercase d-sm-none d-md-inline">Искать</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      //= template/partners-grid.html
+    </div>
+  </div>
+</section>
+
+//= template/footer.html
+</body>
+</html>

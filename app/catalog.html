@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ru" class="h-100">
+<head>
+  //= template/head.html
+
+  <title>Каталог</title>
+</head>
+<body class="d-flex flex-column">
+//= template/header.html
+
+  <section class="section section-first">
+    <div class="section-header mb-5">
+      <div class="container-fluid">
+        <div class="d-flex align-items-center mb-4">
+          <h1 class="h2"><span class="text-primary">Каталог</span> товаров</h1>
+        </div>
+        <div class="breadcrumbs">
+          <ul>
+            <li id="bx_breadcrumb_0" itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem">
+
+              <a href="/html/" title="Главная" itemprop="item">
+                <span itemprop="name" class="pl-0">Главная</span>
+              </a>
+              <meta itemprop="position" content="1">
+              &mdash;
+            </li>
+            <li>
+              <span>Каталог</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-body">
+      <div class="container-fluid">
+        <div class="section-search mb-5">
+          <input class="section-search-input" type="text" placeholder="Поиск по категориям">
+          <button type="submit">
+            <svg width="20" height="20">
+              <use xlink:href="#icon-search"></use>
+            </svg>
+          </button>
+        </div>
+
+        //= template/category-list.html
+      </div>
+    </div>
+  </section>
+
+<section class="section light-gray-stripe">
+  <div class="section-header mb-5">
+    <div class="container-fluid">
+      <div class="d-flex align-items-center">
+        <h3 class="h2"><span class="text-primary">Выгодные</span> предложения</h3>
+      </div>
+    </div>
+  </div>
+  <div class="section-body">
+    <div class="container-fluid">
+
+      //= template/products-slider.html
+    </div>
+  </div>
+</section>
+
+
+
+<section class="section">
+  <div class="section-header mb-5">
+    <div class="container-fluid">
+      <div class="d-flex align-items-center">
+        <h3 class="h2"><span class="text-primary">Новые</span> поступления</h3>
+      </div>
+    </div>
+  </div>
+  <div class="section-body">
+    <div class="container-fluid">
+
+      //= template/products-slider.html
+    </div>
+  </div>
+</section>
+
+
+//= template/footer.html
+</body>
+</html>

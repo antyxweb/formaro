@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ru" class="h-100">
+<head>
+  //= template/head.html
+
+  <title>Заказы</title>
+</head>
+<body class="d-flex flex-column">
+//= template/header.html
+
+  <section class="section section-first pb-3">
+    <div class="section-header">
+      <div class="container-fluid">
+        <div class="d-flex align-items-center mb-3 mb-lg-4">
+          <h1 class="h2"><span class="text-primary">Ваши заказы</span></h1>
+        </div>
+        <div class="breadcrumbs">
+          <ul>
+            <li id="bx_breadcrumb_0" itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem">
+
+              <a href="/html/" title="Главная" itemprop="item">
+                <span itemprop="name" class="pl-0">Главная</span>
+              </a>
+              <meta itemprop="position" content="1">
+              &mdash;
+            </li>
+            <li>
+              <span>Заказы</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section pt-4">
+    <div class="section-body">
+      <div class="container-fluid">
+
+        <div class="row">
+          <div class="product-gallery-wrap col-12 col-xl-9">
+
+            <div class="orders mr-xl-5">
+
+              <div class="order-item">
+                <div class="main-carousel product-carousel" _data-flickity='{ "cellAlign": "left", "wrapAround": true, "pageDots": false }'>
+
+                  <div class="carousel-cell">
+                    //= template/product-card-1.html
+                  </div>
+                  <div class="carousel-cell">
+                    //= template/product-card-2.html
+                  </div>
+                  <div class="carousel-cell">
+                    //= template/product-card-3.html
+                  </div>
+                  <div class="carousel-cell">
+                    //= template/product-card-4.html
+                  </div>
+                  <div class="carousel-cell">
+                    //= template/product-card-5.html
+                  </div>
+                  <div class="carousel-cell">
+                    //= template/product-card-1.html
+                  </div>
+                  <div class="carousel-cell">
+                    //= template/product-card-2.html
+                  </div>
+                  <div class="carousel-cell">
+                    //= template/product-card-3.html
+                  </div>
+                  <div class="carousel-cell">
+                    //= template/product-card-4.html
+                  </div>
+                  <div class="carousel-cell">
+                    //= template/product-card-5.html
+                  </div>
+
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+          <div class="product-option-wrap col-12 col-xl-3">
+            <div id="product-option">
+              <div class="sidebar-menu bg-white py-4 px-3 px-lg-4">
+                <h4 class="mb-4"><span class="text-primary">Личный</span> кабинет</h4>
+
+                <ul class="personal-menu-list header__actions list-unstyled">
+                  <li>
+                    <a class="header__action-link d-flex justify-content-start" href="/html/profile.html" aria-label="Заказы">
+                      <svg class="header__action-icon" width="26" height="28" viewBox="0 0 26 28">
+                        <use xlink:href="#icon-profile"></use>
+                      </svg>
+                      <span>Личные данные</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a class="header__action-link d-flex justify-content-start" href="/html/orders.html" aria-label="Заказы">
+                      <svg class="header__action-icon" width="26" height="28" viewBox="0 0 26 28">
+                        <use xlink:href="#icon-order"></use>
+                      </svg>
+                      <small class="header__action-count">2</small>
+                      <span class="font-weight-bold">Ваши заказы</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a class="header__action-link d-flex justify-content-start" href="/html/cart.html" aria-label="Заказы">
+                      <svg class="header__action-icon" width="26" height="28" viewBox="0 0 26 28">
+                        <use xlink:href="#icon-shopping"></use>
+                      </svg>
+                      <small class="header__action-count">3</small>
+                      <span>Ваша корзина</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a class="header__action-link d-flex justify-content-start" href="/html/favorites.html" aria-label="Заказы">
+                      <svg class="header__action-icon" width="26" height="28" viewBox="0 0 26 28">
+                        <use xlink:href="#icon-favorites"></use>
+                      </svg>
+                      <small class="header__action-count">1</small>
+                      <span>Избранные товары</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a class="header__action-link d-flex justify-content-start" href="#" aria-label="Заказы">
+                      <svg class="header__action-icon" width="26" height="28" viewBox="0 0 26 28">
+                        <use xlink:href="#icon-availability"></use>
+                      </svg>
+                      <small class="header__action-count">1</small>
+                      <span>Ваши адреса</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a class="header__action-link d-flex justify-content-start" href="/html/" aria-label="Заказы">
+                      <svg class="header__action-icon" width="26" height="28" viewBox="0 0 26 28">
+                        <use xlink:href="#icon-close"></use>
+                      </svg>
+                      <span>Выйти</span>
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+<section class="section light-gray-stripe">
+  <div class="section-header mb-5">
+    <div class="container-fluid">
+      <div class="d-flex align-items-center">
+        <h3 class="h2"><span class="text-primary">Просмотренные</span> товары</h3>
+      </div>
+    </div>
+  </div>
+  <div class="section-body">
+    <div class="container-fluid">
+
+      //= template/products-slider.html
+    </div>
+  </div>
+</section>
+
+
+//= template/footer.html
+</body>
+</html>

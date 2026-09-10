@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script>(function(){var m=localStorage.getItem('formaro_theme_mode')||'auto';var r=(m==='light'||m==='dark')?m:((window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light');document.documentElement.setAttribute('data-theme',r);})();</script>
+<title>Новость — Formaro Partner</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/trumbowyg@2.27.3/dist/ui/trumbowyg.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" rel="stylesheet">
+<link href="assets/css/theme.css" rel="stylesheet">
+</head>
+<body>
+<div id="appShell">
+  <aside class="sidebar" id="sidebarPlaceholder"></aside>
+  <div class="app-main">
+    <header class="topbar" id="topbarPlaceholder"></header>
+    <div class="app-content">
+
+      <a href="news.html" class="btn btn-link px-0 mb-2"><i class="bi bi-arrow-left"></i> К списку новостей</a>
+
+      <div class="card">
+        <div class="card-header"><span id="formTitle">Новая новость</span></div>
+        <div class="card-body">
+          <form id="newsForm" onsubmit="return false;">
+            <input type="hidden" id="f_id">
+            <div class="row">
+              <div class="col-md-5 mb-3">
+                <label class="form-label">Заголовок *</label>
+                <input type="text" class="form-control" id="f_title" required maxlength="200" data-validate="text">
+              </div>
+              <div class="col-md-3 mb-3">
+                <label class="form-label">Код для ссылки</label>
+                <div class="input-group">
+                  <input type="text" class="form-control" id="f_code" placeholder="генерируется автоматически" data-validate="slug">
+                  <button type="button" class="btn btn-outline-secondary code-chain-btn active" id="codeChainBtn" title="Код генерируется автоматически из названия — нажмите, чтобы редактировать вручную">
+                    <svg class="ic-inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 17H7A5 5 0 0 1 7 7h2"></path><path d="M15 7h2a5 5 0 1 1 0 10h-2"></path><line x1="8" x2="16" y1="12" y2="12"></line></svg>
+                  </button>
+                </div>
+              </div>
+              <div class="col-md-2 mb-3">
+                <label class="form-label">Дата и время</label>
+                <input type="text" class="form-control" id="f_datetime" placeholder="дд.мм.гггг чч:мм" autocomplete="off">
+              </div>
+              <div class="col-md-2 mb-3">
+                <label class="form-label">Статус</label>
+                <select class="form-select" id="f_status"><option value="active">Активен</option><option value="hidden">Скрыт</option></select>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Краткое описание</label>
+              <textarea class="form-control autoheight-input" id="f_short_desc" rows="2" maxlength="300"></textarea>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Подробное описание</label>
+              <textarea id="f_full_desc"></textarea>
+            </div>
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label d-block">Картинка превью</label>
+                <div class="img-field">
+                  <div id="previewImg" class="thumb-detail bg-thumb mb-2" style="background-image:url('https://placehold.co/200x200?text=%20');"></div>
+                  <div class="img-actions">
+                    <label class="btn btn-outline-secondary mb-0">
+                      <svg class="ic-inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"></path><path d="m17 8-5-5-5 5"></path><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path></svg> Загрузить
+                      <input type="file" class="d-none" id="previewFile" accept="image/*">
+                    </label>
+                    <button type="button" class="btn btn-outline-danger" id="previewRemoveBtn"><svg class="ic-inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M3 6h18"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label d-block">Детальная картинка</label>
+                <div class="img-field">
+                  <div id="fullImg" class="thumb-detail bg-thumb mb-2" style="background-image:url('https://placehold.co/200x200?text=%20');"></div>
+                  <div class="img-actions">
+                    <label class="btn btn-outline-secondary mb-0">
+                      <svg class="ic-inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"></path><path d="m17 8-5-5-5 5"></path><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path></svg> Загрузить
+                      <input type="file" class="d-none" id="fullFile" accept="image/*">
+                    </label>
+                    <button type="button" class="btn btn-outline-danger" id="fullRemoveBtn"><svg class="ic-inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M3 6h18"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="detail-actionbar">
+          <button type="button" class="btn btn-primary" id="saveBtn"><svg class="ic-inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"></path><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"></path><path d="M7 3v4a1 1 0 0 0 1 1h7"></path></svg> Сохранить</button>
+          <button type="button" class="btn btn-outline-primary" id="applyBtn"><svg class="ic-inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg> Применить</button>
+          <a href="news.html" class="btn btn-light"><svg class="ic-inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg> Отмена</a>
+          <button type="button" class="btn btn-outline-danger d-none" id="deleteBtn"><svg class="ic-inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M3 6h18"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg> Удалить</button>
+          <div class="flex-spacer"></div>
+          <a href="preview.html?type=news&id=new" target="_blank" class="btn btn-outline-secondary" id="previewBtn" title="Открыть на сайте"><svg class="ic-inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"></path><circle cx="12" cy="12" r="3"></circle></svg> Предпросмотр</a>
+        </div>
+      </div>
+
+    </div>
+    <footer class="app-footer" id="footerPlaceholder"></footer>
+  </div>
+</div>
+
+<div class="modal fade" id="confirmModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+  <div class="modal-header"><h5 class="modal-title confirm-title">Подтвердите действие</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+  <div class="modal-body"><p class="confirm-message mb-0">Вы уверены?</p></div>
+  <div class="modal-footer"><button type="button" class="btn btn-light" data-bs-dismiss="modal">Отмена</button><button type="button" class="btn btn-primary confirm-ok-btn">Подтвердить</button></div>
+</div></div></div>
+
+<div class="modal fade" id="resultModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+  <div class="modal-header"><h5 class="modal-title result-title">Готово</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+  <div class="modal-body d-flex align-items-center gap-3"><div class="result-icon fs-2"></div><p class="result-message mb-0">Действие выполнено.</p></div>
+  <div class="modal-footer"><button type="button" class="btn btn-primary" data-bs-dismiss="modal">Ок</button></div>
+</div></div></div>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/trumbowyg@2.27.3/dist/trumbowyg.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/trumbowyg@2.27.3/dist/langs/ru.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ru.js"></script>
+<script src="assets/js/common.js"></script>
+<script src="assets/js/news-detail.js"></script>
+</body>
+</html>

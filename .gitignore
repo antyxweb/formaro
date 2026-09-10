@@ -1,0 +1,22 @@
+# Dependencies
+/node_modules/
+
+# Build output (регенерируется из app/ через `gulp build`)
+/html/
+
+# Архивы gulp zip
+gulp-project-*.zip
+/project/
+
+# OS / editor
+.DS_Store
+*.log
+.sass-cache/
+.cache/
+
+# JetBrains — общее держим, локальное игнорим
+/.idea/workspace.xml
+/.idea/shelf/
+/.idea/httpRequests/
+/.idea/dataSources/
+/.idea/dataSources.local.xml

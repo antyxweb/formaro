@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ru" class="h-100">
+<head>
+  //= template/head.html
+
+  <title>Избранное</title>
+</head>
+<body class="d-flex flex-column favorites-page">
+//= template/header.html
+
+  <section class="section section-first pb-3">
+    <div class="section-header">
+      <div class="container-fluid">
+        <div class="d-flex align-items-center mb-3 mb-lg-4">
+          <h1 class="h2"><span class="text-primary">Избранное</span></h1>
+        </div>
+        <div class="breadcrumbs">
+          <ul>
+            <li id="bx_breadcrumb_0" itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem">
+
+              <a href="/html/" title="Главная" itemprop="item">
+                <span itemprop="name" class="pl-0">Главная</span>
+              </a>
+              <meta itemprop="position" content="1">
+              &mdash;
+            </li>
+            <li>
+              <span>Избранное</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section pt-4">
+    <div class="section-body">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="filter-wrap col-12 col-xl-3 d-none d-xl-block">
+            //= template/catalog-filter.html
+          </div>
+          <div class="col-12 col-xl-9 catalog-section">
+            //= template/catalog-options.html
+            //= template/products-grid.html
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+//= template/footer.html
+</body>
+</html>

@@ -1,0 +1,164 @@
+<header id="header" class="_main-page _main-page-active _partner-page _overtop-page">
+  <div class="header d-flex">
+    <div class="logo">
+      <div class="f-letter show-bg-menu">
+        <div class="line-top"></div>
+        <div class="line-middle"></div>
+        <div class="line-bottom"></div>
+      </div>
+      <a href="/html/" class="name" id="logo">
+        <span>f</span>
+        <span>o</span>
+        <span>r</span>
+        <span>m</span>
+        <span>a</span>
+        <span>r</span>
+        <span>o</span>
+      </a>
+    </div>
+
+    <div class="header__menu d-none d-xl-flex">
+      <a href="/html/catalog.html">Каталог</a>
+      <a href="#">Покупателям</a>
+      <a href="/html/partners.html">Партнерам</a>
+    </div>
+
+    <div class="header__actions d-none d-sm-block d-xl-none mr-auto">
+      <button class="header__action-link bg-menu-open pl-0 d-xl-none" type="button" aria-label="Поиск" data-search-menu-toggle="">
+        <svg class="header__action-icon" width="20" height="20">
+          <use xlink:href="#icon-burger"></use>
+        </svg>
+        <svg class="header__action-icon" width="20" height="20">
+          <use xlink:href="#icon-close"></use>
+        </svg>
+        <span class="d-none d-md-inline">Меню</span>
+      </button>
+    </div>
+
+    <div class="header__search">
+      <div class="header__search-input">
+        <input id="header-search" class="search-input" type="text" placeholder="Поиск по каталогу">
+        //= search-result-block.html
+        <button class="header-search-icon" type="submit">
+          <svg width="20" height="20">
+            <use xlink:href="#icon-search"></use>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="header__actions ml-auto">
+      <button class="header__action-link header__action-link-search d-lg-none" type="button" aria-label="Поиск" data-search-menu-toggle="">
+        <svg class="header__action-icon" width="20" height="20">
+          <use xlink:href="#icon-search"></use>
+        </svg>
+      </button>
+      <a class="header__action-link d-none d-sm-flex" href="/html/orders.html" aria-label="Заказы">
+        <svg class="header__action-icon" width="26" height="28" viewBox="0 0 26 28">
+          <use xlink:href="#icon-order"></use>
+        </svg>
+        <small class="header__action-count">2</small>
+        <span class="d-none d-xl-inline">Заказы</span>
+      </a>
+      <a class="header__action-link d-none d-sm-flex" href="/html/favorites.html" aria-label="Избранное">
+        <svg class="header__action-icon" width="20" height="20">
+          <use xlink:href="#icon-favorites"></use>
+        </svg>
+        <small class="header__action-count">1</small>
+        <span class="d-none d-xl-inline">Избранное</span>
+      </a>
+      <a class="header__action-link" href="/html/cart.html" aria-label="Корзина">
+        <svg class="header__action-icon" width="20" height="20">
+          <use xlink:href="#icon-shopping"></use>
+        </svg>
+        <small class="header__action-count">3</small>
+        <span class="d-none d-xl-inline">Корзина</span>
+      </a>
+      <a class="header__action-link d-none d-sm-flex" href="/html/profile.html" data-popup-opener="profile" aria-label="Профиль">
+        <svg class="header__action-icon" width="20" height="20">
+          <use xlink:href="#icon-profile"></use>
+        </svg>
+        <span class="d-none d-sm-inline">Юрий</span>
+      </a>
+
+      <button class="header__action-link bg-menu-open d-sm-none" type="button" aria-label="Поиск" data-search-menu-toggle="">
+        <svg class="header__action-icon" width="20" height="20">
+          <use xlink:href="#icon-burger"></use>
+        </svg>
+        <svg class="header__action-icon" width="20" height="20">
+          <use xlink:href="#icon-close"></use>
+        </svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div id="bg-menu">
+  <div class="bg-menu-background">
+    <div class="bg-menu-background-inner">
+      <div class="container-fluid py-4 py-md-5">
+        <div class="row full-menu pb-5">
+          //= full-menu.html
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="d-none d-lg-block">
+    <div class="bg-menu-close button-icon">
+      <svg class="bg-menu-close-icon" width="20" height="20">
+        <use xlink:href="#icon-close"></use>
+      </svg>
+      <small class="sidebar-tooltip">Скрыть меню</small>
+    </div>
+    <div class="bg-menu-open button-icon">
+      <svg class="bg-menu-close-icon" width="20" height="20">
+        <use xlink:href="#icon-burger"></use>
+      </svg>
+      <small class="sidebar-tooltip">Показать меню</small>
+    </div>
+    <div class="sidebar-bg"></div>
+  </div>
+</div>
+
+<div class="sidebar overtop-page">
+  <div class="sidebar__actions">
+    <a href="tel:+7 495 792 70 80" class="button-icon">
+      <svg width="20" height="20">
+        <use xlink:href="#icon-tel"></use>
+      </svg>
+      <b class="sidebar-tooltip">+7 495 792 70 80</b>
+    </a>
+    <a href="https://wa.me/79651282114" class="button-icon">
+      <svg width="20" height="20">
+        <use xlink:href="#icon-whatsapp"></use>
+      </svg>
+      <small class="sidebar-tooltip">Напишите нам в WhatsApp</small>
+    </a>
+    <a href="mailto:info@formaro.ru" class="button-icon">
+      <svg width="20" height="20">
+        <use xlink:href="#icon-mail"></use>
+      </svg>
+      <small class="sidebar-tooltip">info@formaro.ru</small>
+    </a>
+    <a href="#" class="button-icon">
+      <svg width="20" height="20">
+        <use xlink:href="#icon-map-pin"></use>
+      </svg>
+      <small class="sidebar-tooltip">Московская область г. Химки, ул. Молодёжная 15А</small>
+    </a>
+    <div class="button-icon sidebar__actions-cookie _show">
+      <svg width="20" height="20">
+        <use xlink:href="#icon-info"></use>
+      </svg>
+      <small class="sidebar-tooltip"><span>Мы используем <a href="#">cookies</a>. Они помогают делать сайт лучше</span> <a href="javascript:void(0);" class="f-button f-button-inner c-primary">Хорошо</a></small>
+    </div>
+    <button class="button-icon sidebar__actions-up hide ml-auto">
+      <svg width="20" height="20">
+        <use xlink:href="#icon-arrow-up"></use>
+      </svg>
+      <small class="sidebar-tooltip">Перейти к началу</small>
+    </button>
+  </div>
+</div>
+
+<main id="main" class="flex-shrink-0 mb-auto">

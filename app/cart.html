@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ru" class="h-100">
+<head>
+  //= template/head.html
+
+  <title>Корзина</title>
+</head>
+<body class="d-flex flex-column">
+//= template/header.html
+
+  <section class="section section-first pb-3">
+    <div class="section-header">
+      <div class="container-fluid">
+        <div class="d-flex align-items-center mb-3 mb-lg-4">
+          <h1 class="h2"><span class="text-primary">Ваша корзина</span></h1>
+        </div>
+        <div class="breadcrumbs">
+          <ul>
+            <li id="bx_breadcrumb_0" itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem">
+
+              <a href="/html/" title="Главная" itemprop="item">
+                <span itemprop="name" class="pl-0">Главная</span>
+              </a>
+              <meta itemprop="position" content="1">
+              &mdash;
+            </li>
+            <li>
+              <span>Корзина</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section pt-4">
+    <div class="section-body">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="product-gallery-wrap col-12 col-xl-8">
+
+            <div class="catalog-options mb-3 mb-lg-4 d-flex align-items-center">
+
+              <button id="cart-check" class="button-icon bg-light">
+                <svg width="16" height="16">
+                  <use xlink:href="#icon-checkbox-tick"></use>
+                </svg>
+              </button>
+              <button id="cart-uncheck" class="button-icon">
+                <svg width="16" height="16">
+                  <use xlink:href="#icon-close"></use>
+                </svg>
+              </button>
+              <a href="/html/cart-empty.html" class="button-icon">
+                <svg width="16" height="16">
+                  <use xlink:href="#icon-delete"></use>
+                </svg>
+              </a>
+
+              <button class="f-button f-dropdown text-decoration-none ml-auto">
+                <svg width="16" height="16">
+                  <use xlink:href="#icon-sort-black"></use>
+                </svg>
+                <span class="pl-2 d-none d-sm-inline-block">Популярные</span>
+
+                <ul class="f-dropdown-list">
+                  <li><a class="dropdown-item small active" href="#">Популярные</a></li>
+                  <li><a class="dropdown-item small" href="#">Сначала новинки</a></li>
+                  <li><a class="dropdown-item small" href="#">Сначала дешевле</a></li>
+                  <li><a class="dropdown-item small" href="#">Сначала дороже</a></li>
+                </ul>
+              </button>
+            </div>
+
+            //= template/products-grid-cart.html
+
+            <h3 class="my-5">Способ доставки</h3>
+
+            <div class="support-list row">
+              <div class="col-12 col-lg-6 col-xl-3 mb-4 mb-xl-0">
+                <div class="support__link">
+                            <span class="support__icon-wrapper bg-primary">
+                                <svg class="support__link-icon" width="24" height="24">
+                                    <use xlink:href="#icon-availability"></use>
+                                </svg>
+                            </span>
+                  До адреса
+                </div>
+              </div>
+              <div class="col-12 col-lg-6 col-xl-3 mb-4 mb-xl-0">
+                <div class="support__link">
+                            <span class="support__icon-wrapper bg-secondary">
+                                <svg class="support__link-icon" width="24" height="24">
+                                    <use xlink:href="#icon-delivery"></use>
+                                </svg>
+                            </span>
+                  Самовывоз
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group pt-4">
+              <label for="exampleInputEmail1">Адрес доставки</label>
+              <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+              <small id="emailHelp" class="form-text text-muted">Укажите точный адрес, включая индекс</small>
+            </div>
+
+            <h3 class="my-5">Способ оплаты</h3>
+
+            <div class="support-list row">
+              <div class="col-12 col-lg-6 col-xl-3 mb-4 mb-xl-0">
+                <div class="support__link">
+                            <span class="support__icon-wrapper bg-primary">
+                                <svg class="support__link-icon" width="24" height="24">
+                                    <use xlink:href="#icon-wallet"></use>
+                                </svg>
+                            </span>
+                  Картой онлайн
+                </div>
+              </div>
+              <div class="col-12 col-lg-6 col-xl-3 mb-4 mb-xl-0">
+                <div class="support__link">
+                            <span class="support__icon-wrapper bg-secondary">
+                                <svg class="support__link-icon" width="24" height="24">
+                                    <use xlink:href="#icon-sbp"></use>
+                                </svg>
+                            </span>
+                  СБП
+                </div>
+              </div>
+              <div class="col-12 col-lg-6 col-xl-3 mb-4 mb-xl-0">
+                <div class="support__link">
+                            <span class="support__icon-wrapper bg-secondary">
+                                <svg class="support__link-icon" width="24" height="24">
+                                    <use xlink:href="#icon-list-done"></use>
+                                </svg>
+                            </span>
+                  По счету
+                </div>
+              </div>
+            </div>
+
+          </div>
+          <div class="product-option-wrap col-12 col-xl-4">
+            <div id="product-option">
+
+              <div class="bg-white py-4 px-3 px-lg-4">
+                <div class="promocode mb-4">
+                  <div class="input-group mb-2">
+                    <input type="text" class="form-control" placeholder="Промокод">
+                    <div class="input-group-append">
+                      <button class="btn btn-outline-secondary" type="button" id="promocode">Применить</button>
+                    </div>
+                  </div>
+                  <span class="badge badge-primary">Какой-то промокод</span>
+                </div>
+
+                <h6 class="mb-1">25 позиций на сумму:</h6>
+                <div class="lead text-secondary ml-auto mb-4">
+                  <b class="text-dark">51 922</b> <small class="mr-2">руб</small>
+                </div>
+
+                <h6 class="mb-1">Доставка до адреса:</h6>
+                <div class="lead text-secondary ml-auto mb-4">
+                  <b class="text-dark">1 800</b> <small class="mr-2">руб</small>
+                </div>
+
+                <h6 class="mb-1">Скидка по промокоду:</h6>
+                <div class="lead text-secondary ml-auto mb-4">
+                  <b class="text-dark">-1 000</b> <small class="mr-2">руб</small>
+                </div>
+
+                <h6>Итого с доставкой</h6>
+                <div class="price text-secondary">
+                  <b class="text-danger">52 722</b> <small class="mr-2">руб</small>
+                </div>
+
+              </div>
+
+              <div class="product-card__actions">
+                <button class="cart-add f-button c-success">Перейти к оформлению</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+<section class="section light-gray-stripe">
+  <div class="section-header mb-5">
+    <div class="container-fluid">
+      <div class="d-flex align-items-center">
+        <h3 class="h2"><span class="text-primary">Просмотренные</span> товары</h3>
+      </div>
+    </div>
+  </div>
+  <div class="section-body">
+    <div class="container-fluid">
+
+      //= template/products-slider.html
+    </div>
+  </div>
+</section>
+
+
+//= template/footer.html
+</body>
+</html>

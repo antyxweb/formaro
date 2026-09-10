@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script>(function(){var m=localStorage.getItem('formaro_theme_mode')||'auto';var r=(m==='light'||m==='dark')?m:((window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light');document.documentElement.setAttribute('data-theme',r);})();</script>
+<title>Уведомления — Formaro Partner</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+<link href="assets/css/theme.css" rel="stylesheet">
+</head>
+<body>
+<div id="appShell">
+  <aside class="sidebar" id="sidebarPlaceholder"></aside>
+  <div class="app-main">
+    <header class="topbar" id="topbarPlaceholder"></header>
+    <div class="app-content">
+
+      <div class="filter-bar d-flex justify-content-between align-items-center gap-3">
+        <div class="d-flex align-items-center gap-3">
+          <select class="form-select" id="typeFilter" style="min-width:160px;">
+            <option value="">Все типы</option>
+            <option value="order">Заказы</option>
+            <option value="chat">Чат</option>
+            <option value="product">Товары</option>
+            <option value="finance">Финансы</option>
+            <option value="support">Техподдержка</option>
+            <option value="system">Система</option>
+          </select>
+          <div class="form-check form-switch mb-0">
+            <input class="form-check-input" type="checkbox" id="unreadOnlyToggle">
+            <label class="form-check-label" for="unreadOnlyToggle">Только непрочитанные</label>
+          </div>
+        </div>
+        <button class="btn btn-light" id="markAllBtn"><svg class="ic-inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 7 17l-5-5"></path><path d="m22 10-7.5 7.5L13 16"></path></svg> Прочитать все <span id="unreadCountLabel"></span></button>
+      </div>
+
+      <div class="card" id="notifCard">
+        <div class="card-body p-0">
+          <div id="listBody">
+            <div class="text-center text-muted-2 py-4">Загрузка…</div>
+          </div>
+          <div class="table-footer-bar">
+            <div class="tf-left"><span class="tf-count"></span></div>
+            <div class="tf-right">
+              <div class="tf-pagesize">Показывать
+                <select class="form-select tf-pagesize-select">
+                  <option value="20">20</option><option value="50">50</option><option value="100">100</option><option value="500">500</option>
+                </select>
+              </div>
+              <div class="tf-pager"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <footer class="app-footer" id="footerPlaceholder"></footer>
+  </div>
+</div>
+
+<div class="modal fade" id="confirmModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+  <div class="modal-header"><h5 class="modal-title confirm-title">Подтвердите действие</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+  <div class="modal-body"><p class="confirm-message mb-0">Вы уверены?</p></div>
+  <div class="modal-footer"><button type="button" class="btn btn-light" data-bs-dismiss="modal">Отмена</button><button type="button" class="btn btn-primary confirm-ok-btn">Подтвердить</button></div>
+</div></div></div>
+<div class="modal fade" id="resultModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+  <div class="modal-header"><h5 class="modal-title result-title">Готово</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+  <div class="modal-body d-flex align-items-center gap-3"><div class="result-icon fs-2"></div><p class="result-message mb-0">Действие выполнено.</p></div>
+  <div class="modal-footer"><button type="button" class="btn btn-primary" data-bs-dismiss="modal">Ок</button></div>
+</div></div></div>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="assets/js/common.js"></script>
+<script src="assets/js/notifications.js"></script>
+</body>
+</html>

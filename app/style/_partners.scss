@@ -1,0 +1,68 @@
+.partners-card {
+  position: relative;
+  background: $white;
+
+  &:after {
+    box-sizing: border-box;
+    border-style: solid;
+    border-color: transparent;
+    border-width: 15px;
+    content: "";
+    display: block;
+    bottom: 0;
+    position: absolute;
+    height: 0;
+    border-bottom-color: $body-bg;
+    border-right-color: $body-bg;
+    right: 0;
+  }
+
+  .partners-card__img {
+    position: relative;
+    border-bottom: 1px solid $light-gray;
+  }
+
+  .embed-responsive-4by3 {
+    background-size: contain;
+  }
+
+  .partners-card__info {
+    padding: 15px 20px;
+
+    h3 {
+      font-size: 1rem;
+    }
+
+    .price {
+      b {
+        font-size: 1.3rem;
+      }
+    }
+
+    small, s {
+      display: block;
+    }
+
+    p {
+      margin-bottom: 10px;
+      @include lineClamp(3);
+    }
+  }
+
+  .partners-card__actions {
+    padding: 0 20px 15px 20px;
+
+    .f-button {
+      position: relative;
+      z-index: 4;
+    }
+  }
+
+  @include media-breakpoint-down(md) {
+    .embed-responsive-4by3 {
+      &:before {
+        padding-top: 30%;
+      }
+    }
+  }
+}

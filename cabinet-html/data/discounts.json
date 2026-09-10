@@ -1,0 +1,111 @@
+{
+  "discounts": [
+    {
+      "id": 1,
+      "name": "Скидка на зимнюю спецодежду",
+      "target_type": "category",
+      "target_ids": [
+        3
+      ],
+      "discount_type": "percent",
+      "value": 15,
+      "min_qty": 0,
+      "min_amount": 0,
+      "date_from": "2026-09-01",
+      "date_to": "2026-09-30",
+      "status": "active",
+      "partner_id": 1,
+      "created_at": "2026-08-28T10:00:00"
+    },
+    {
+      "id": 2,
+      "name": "Оптовая скидка на куртки Дорожник",
+      "target_type": "products",
+      "target_ids": [
+        101
+      ],
+      "discount_type": "fixed",
+      "value": 300,
+      "min_qty": 5,
+      "min_amount": 0,
+      "date_from": "2026-09-01",
+      "date_to": "2026-12-31",
+      "status": "active",
+      "partner_id": 1,
+      "created_at": "2026-08-20T10:00:00"
+    },
+    {
+      "id": 3,
+      "name": "Скидка при заказе от 20 000 ₽",
+      "target_type": "all",
+      "target_ids": [],
+      "discount_type": "percent",
+      "value": 5,
+      "min_qty": 0,
+      "min_amount": 20000,
+      "date_from": "2026-08-01",
+      "date_to": "2026-10-31",
+      "status": "active",
+      "partner_id": 1,
+      "created_at": "2026-07-25T10:00:00"
+    },
+    {
+      "id": 4,
+      "name": "Летняя распродажа (завершена)",
+      "target_type": "category",
+      "target_ids": [
+        1
+      ],
+      "discount_type": "percent",
+      "value": 20,
+      "min_qty": 0,
+      "min_amount": 0,
+      "date_from": "2026-06-01",
+      "date_to": "2026-06-30",
+      "status": "hidden",
+      "partner_id": 1,
+      "created_at": "2026-05-20T10:00:00"
+    }
+  ],
+  "coupons": [
+    {
+      "id": 1,
+      "code": "FORMARO10",
+      "discount_type": "percent",
+      "value": 10,
+      "usage_type": "multiple",
+      "used_count": 24,
+      "date_from": "2026-09-01",
+      "date_to": "2026-09-30",
+      "status": "active",
+      "partner_id": 1,
+      "created_at": "2026-08-25T10:00:00"
+    },
+    {
+      "id": 2,
+      "code": "WELCOME500",
+      "discount_type": "fixed",
+      "value": 500,
+      "usage_type": "single",
+      "used_count": 0,
+      "date_from": "2026-09-01",
+      "date_to": "2026-12-31",
+      "status": "active",
+      "partner_id": 1,
+      "created_at": "2026-08-15T10:00:00"
+    },
+    {
+      "id": 3,
+      "code": "SPRING2026",
+      "discount_type": "percent",
+      "value": 15,
+      "usage_type": "multiple",
+      "used_count": 137,
+      "date_from": "2026-03-01",
+      "date_to": "2026-05-31",
+      "status": "hidden",
+      "partner_id": 1,
+      "created_at": "2026-02-20T10:00:00"
+    }
+  ]
+}
