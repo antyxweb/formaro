@@ -11,6 +11,7 @@ Loader::includeModule('formaro.cabinet');
 use Formaro\Cabinet\Repository\CategoryRepository;
 use Formaro\Cabinet\Repository\CouponRepository;
 use Formaro\Cabinet\Repository\DiscountRepository;
+use Formaro\Cabinet\Repository\NewsRepository;
 use Formaro\Cabinet\Repository\OrderRepository;
 use Formaro\Cabinet\Repository\PartnerDocumentRepository;
 use Formaro\Cabinet\Repository\PartnerRepository;
@@ -24,11 +25,11 @@ use Formaro\Cabinet\Security\PartnerContext;
  * файл /cabinet/index.php, весь роутинг (обычные страницы + свой AJAX API)
  * разбирается здесь через CComponentEngine::ParseComponentPath.
  *
- * SEF_URL_TEMPLATES ниже — действия фаз 1-3 (см. план: модуль, вход,
- * профиль, категории, товары, заказы, скидки/купоны/финансы). Остальные
- * действия из целевой карты роутов (новости/поддержка/уведомления) появятся
- * в следующих фазах — их шаблоны ещё не существуют, поэтому регистрировать
- * их сейчас означало бы плодить страницы, которые сразу 404.
+ * SEF_URL_TEMPLATES ниже — действия фаз 1-4 (см. план: модуль, вход,
+ * профиль, категории, товары, заказы, скидки/купоны/финансы, новости).
+ * Остальные действия из целевой карты роутов (поддержка/уведомления)
+ * появятся в следующих фазах — их шаблоны ещё не существуют, поэтому
+ * регистрировать их сейчас означало бы плодить страницы, которые сразу 404.
  */
 class CabinetPartnerComponent extends CBitrixComponent
 {
@@ -48,6 +49,8 @@ class CabinetPartnerComponent extends CBitrixComponent
         'discount_edit' => 'discounts/edit/#ID#/',
         'coupon_edit' => 'discounts/coupons/edit/#ID#/',
         'finance' => 'finance/',
+        'news' => 'news/',
+        'news_edit' => 'news/edit/#ID#/',
     ];
 
     /** Действия, доступные БЕЗ авторизации (экраны входа) */
@@ -205,6 +208,7 @@ class CabinetPartnerComponent extends CBitrixComponent
             'discounts' => (new DiscountRepository())->listOwn($partnerId),
             'coupons' => (new CouponRepository())->listOwn($partnerId),
             'finance' => (new TransactionRepository())->getSummary($partnerId),
+            'news' => (new NewsRepository())->listOwn($partnerId),
             'partner' => (new PartnerRepository())->get($partnerId),
             'partner_documents' => (new PartnerDocumentRepository())->listByPartner($partnerId),
             'product_colors' => (new ProductColorRepository())->listAll(),
@@ -222,6 +226,7 @@ class CabinetPartnerComponent extends CBitrixComponent
             'orders' => (new OrderRepository())->save($partnerId, $row),
             'discounts' => (new DiscountRepository())->save($partnerId, $row),
             'coupons' => (new CouponRepository())->save($partnerId, $row),
+            'news' => (new NewsRepository())->save($partnerId, $row),
             'partner' => (new PartnerRepository())->save($partnerId, $row),
             default => throw new \RuntimeException('Сохранение "' . $entity . '" пока не реализовано'),
         };
@@ -237,6 +242,7 @@ class CabinetPartnerComponent extends CBitrixComponent
             'orders' => (new OrderRepository())->delete($partnerId, $id),
             'discounts' => (new DiscountRepository())->delete($partnerId, $id),
             'coupons' => (new CouponRepository())->delete($partnerId, $id),
+            'news' => (new NewsRepository())->delete($partnerId, $id),
             default => throw new \RuntimeException('Удаление "' . $entity . '" пока не реализовано'),
         };
     }
