@@ -165,8 +165,6 @@ function updateVariantTabVisibility() {
     updateProductDiscountsTab();
 }
 
-/** Раздел "Скидки и купоны" ещё не переведён на реальную БД (см. план, фаза
-    3) — dsLoad('discounts') вернёт [], список всегда будет пустым, без ошибок. */
 function updateProductDiscountsTab() {
     if (!productId) {
         $('#productDiscountsNewHint').show();
@@ -175,12 +173,14 @@ function updateProductDiscountsTab() {
     }
     $('#productDiscountsNewHint').hide();
     $('#productDiscountsWrap').show();
+    $('#createDiscountBtn')
+        .removeClass('disabled').removeAttr('aria-disabled').removeAttr('tabindex').removeAttr('title')
+        .attr('href', CABINET_URL + 'discounts/edit/new/?product_id=' + productId);
 
-    dsLoad('discounts').done(function (data) {
-        data = data || {};
+    dsLoad('discounts').done(function (rows) {
         var p = allProducts.find(function (x) { return x.id === productId; });
         var catIds = p ? (p.category_ids || []) : [];
-        var matches = ownOnly(data.discounts || []).filter(function (d) {
+        var matches = ownOnly(rows || []).filter(function (d) {
             if (d.target_type === 'all') return true;
             if (d.target_type === 'products') return (d.target_ids || []).indexOf(productId) !== -1;
             if (d.target_type === 'category') return (d.target_ids || []).some(function (cid) { return catIds.indexOf(cid) !== -1; });

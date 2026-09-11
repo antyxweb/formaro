@@ -9,11 +9,14 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
 Loader::includeModule('formaro.cabinet');
 
 use Formaro\Cabinet\Repository\CategoryRepository;
+use Formaro\Cabinet\Repository\CouponRepository;
+use Formaro\Cabinet\Repository\DiscountRepository;
 use Formaro\Cabinet\Repository\OrderRepository;
 use Formaro\Cabinet\Repository\PartnerDocumentRepository;
 use Formaro\Cabinet\Repository\PartnerRepository;
 use Formaro\Cabinet\Repository\ProductColorRepository;
 use Formaro\Cabinet\Repository\ProductRepository;
+use Formaro\Cabinet\Repository\TransactionRepository;
 use Formaro\Cabinet\Security\PartnerContext;
 
 /**
@@ -21,11 +24,11 @@ use Formaro\Cabinet\Security\PartnerContext;
  * файл /cabinet/index.php, весь роутинг (обычные страницы + свой AJAX API)
  * разбирается здесь через CComponentEngine::ParseComponentPath.
  *
- * SEF_URL_TEMPLATES ниже — действия фаз 1-2 (см. план: модуль, вход,
- * профиль, категории, товары, заказы). Остальные действия из целевой карты
- * роутов (скидки/новости/поддержка/уведомления) появятся в следующих фазах —
- * их шаблоны ещё не существуют, поэтому регистрировать их сейчас означало бы
- * плодить страницы, которые сразу 404.
+ * SEF_URL_TEMPLATES ниже — действия фаз 1-3 (см. план: модуль, вход,
+ * профиль, категории, товары, заказы, скидки/купоны/финансы). Остальные
+ * действия из целевой карты роутов (новости/поддержка/уведомления) появятся
+ * в следующих фазах — их шаблоны ещё не существуют, поэтому регистрировать
+ * их сейчас означало бы плодить страницы, которые сразу 404.
  */
 class CabinetPartnerComponent extends CBitrixComponent
 {
@@ -41,6 +44,10 @@ class CabinetPartnerComponent extends CBitrixComponent
         'product_edit' => 'products/edit/#ID#/',
         'orders' => 'orders/',
         'order_detail' => 'orders/edit/#ID#/',
+        'discounts' => 'discounts/',
+        'discount_edit' => 'discounts/edit/#ID#/',
+        'coupon_edit' => 'discounts/coupons/edit/#ID#/',
+        'finance' => 'finance/',
     ];
 
     /** Действия, доступные БЕЗ авторизации (экраны входа) */
@@ -174,6 +181,10 @@ class CabinetPartnerComponent extends CBitrixComponent
                     (string)($_REQUEST['file'] ?? '')
                 ),
                 'delete_document' => (new PartnerDocumentRepository())->delete($partnerId, (int)($_REQUEST['id'] ?? 0)),
+                'request_withdrawal' => (new TransactionRepository())->requestWithdrawal(
+                    $partnerId,
+                    (float)($_REQUEST['amount'] ?? 0)
+                ),
                 default => throw new \RuntimeException('Неизвестное действие: ' . $action),
             };
 
@@ -191,6 +202,9 @@ class CabinetPartnerComponent extends CBitrixComponent
             'categories' => (new CategoryRepository())->listVisible($partnerId),
             'products' => (new ProductRepository())->listOwn($partnerId),
             'orders' => (new OrderRepository())->listOwn($partnerId),
+            'discounts' => (new DiscountRepository())->listOwn($partnerId),
+            'coupons' => (new CouponRepository())->listOwn($partnerId),
+            'finance' => (new TransactionRepository())->getSummary($partnerId),
             'partner' => (new PartnerRepository())->get($partnerId),
             'partner_documents' => (new PartnerDocumentRepository())->listByPartner($partnerId),
             'product_colors' => (new ProductColorRepository())->listAll(),
@@ -206,6 +220,8 @@ class CabinetPartnerComponent extends CBitrixComponent
             'categories' => (new CategoryRepository())->save($partnerId, $row),
             'products' => (new ProductRepository())->save($partnerId, $row),
             'orders' => (new OrderRepository())->save($partnerId, $row),
+            'discounts' => (new DiscountRepository())->save($partnerId, $row),
+            'coupons' => (new CouponRepository())->save($partnerId, $row),
             'partner' => (new PartnerRepository())->save($partnerId, $row),
             default => throw new \RuntimeException('Сохранение "' . $entity . '" пока не реализовано'),
         };
@@ -219,6 +235,8 @@ class CabinetPartnerComponent extends CBitrixComponent
             'categories' => (new CategoryRepository())->delete($partnerId, $id),
             'products' => (new ProductRepository())->delete($partnerId, $id),
             'orders' => (new OrderRepository())->delete($partnerId, $id),
+            'discounts' => (new DiscountRepository())->delete($partnerId, $id),
+            'coupons' => (new CouponRepository())->delete($partnerId, $id),
             default => throw new \RuntimeException('Удаление "' . $entity . '" пока не реализовано'),
         };
     }

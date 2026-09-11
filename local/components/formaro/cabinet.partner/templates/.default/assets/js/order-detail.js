@@ -5,9 +5,9 @@
      только СВОИ товары партнёра (сервер фильтрует по PARTNER_ID) — в
      прототипе таким фильтром не было (позволяло добавить чужой товар),
      здесь это правильнее и без специального кода;
-   - раздел "Скидки и купоны" ещё не подключён к реальной базе (см. план,
-     фаза 3) — dsLoad('discounts') вернёт [], блок просто не предложит ни
-     одной скидки/купона, деградирует штатно;
+   - discounts.json прототипа хранил скидки и купоны одним объектом
+     {discounts, coupons} — теперь это два независимых entity ('discounts'
+     и 'coupons'), каждый — обычный плоский массив, как и everywhere else;
    - order_number для нового заказа теперь считает сервер (по настоящему
      id) — клиентский dsNextId был лишь временной прикидкой для локального
      состояния до реального сохранения. */
@@ -45,13 +45,12 @@ $(function () {
         allProductsForPicker = prods;
     });
 
-    dsLoad('discounts').done(function (data) {
-        data = data || {};
+    $.when(dsLoad('discounts'), dsLoad('coupons')).done(function (discountRows, couponRows) {
         var today = new Date().toISOString().slice(0, 10);
-        activeDiscounts = ownOnly(data.discounts || []).filter(function (d) {
+        activeDiscounts = ownOnly(discountRows || []).filter(function (d) {
             return d.status === 'active' && (!d.date_from || d.date_from <= today) && (!d.date_to || d.date_to >= today);
         });
-        allCouponsForOrder = ownOnly(data.coupons || []);
+        allCouponsForOrder = ownOnly(couponRows || []);
         var $sel = $('#applyDiscountSelect');
         activeDiscounts.forEach(function (d) {
             $sel.append('<option value="' + d.id + '">' + esc(d.name) + ' (' + (d.discount_type === 'percent' ? d.value + '%' : fmtMoney(d.value)) + ')</option>');

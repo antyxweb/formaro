@@ -169,7 +169,7 @@ require __DIR__ . '/inc/layout_app_top.php';
                     <svg class="ic-inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" x2="5" y1="5" y2="19"></line><circle cx="6.5" cy="6.5" r="2.5"></circle><circle cx="17.5" cy="17.5" r="2.5"></circle></svg>Сначала сохраните товар — потом здесь будут видны применимые к нему скидки.
                 </div>
                 <div id="productDiscountsWrap" style="display:none;">
-                    <p class="text-muted-2 small">Раздел «Скидки и купоны» ещё не подключён к реальной базе (появится в одной из следующих фаз) — здесь пока всегда будет пусто.</p>
+                    <p class="text-muted-2 small">Скидки, которые действуют на этот товар — напрямую, через категорию или как скидка на все товары. Список только для чтения, отредактировать скидку можно на её странице.</p>
                     <div id="productDiscountsEmpty" class="empty-state" style="display:none;">
                         <svg class="ic-inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" x2="5" y1="5" y2="19"></line><circle cx="6.5" cy="6.5" r="2.5"></circle><circle cx="17.5" cy="17.5" r="2.5"></circle></svg>На этот товар пока не действует ни одна скидка.
                     </div>
