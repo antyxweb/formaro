@@ -715,14 +715,19 @@ input[type="file"].form-control::file-selector-button:hover { background: var(--
 .cbtree-label:hover { color: var(--brand); }
 .cbtree-empty { color: var(--muted); font-size: .85rem; padding: .5rem; }
 
-/* ---------------- Подсказка цвета товара (свотч + datalist) ---------------- */
+/* ---------------- Подсказка цвета товара (свотч + свой дропдаун) ---------------- */
 .color-input-wrap { position: relative; }
 .color-input-wrap input { padding-left: 2.2rem; }
 .color-swatch {
-    position: absolute; left: .7rem; top: 50%; transform: translateY(-50%);
-    width: 14px; height: 14px; border-radius: 50% !important;
-    border: 1px solid var(--border); background: var(--surface-3); pointer-events: none;
+    display: inline-block; width: 14px; height: 14px; flex-shrink: 0;
+    border-radius: 50% !important; border: 1px solid var(--border); background: var(--surface-3);
 }
+/* свотч-индикатор прямо в поле — абсолютным позиционированием отличаем от
+   инлайновых свотчей в самих подсказках (см. .gsearch-item .color-swatch) */
+.color-input-wrap > .color-swatch {
+    position: absolute; left: .7rem; top: 50%; transform: translateY(-50%); pointer-events: none;
+}
+.gsearch-item .color-swatch { margin-right: .55rem; }
 
 /* ---------------- Таблица дополнительных свойств товара — чёткие поля ---------------- */
 .props-table { border: 1px solid var(--border); }

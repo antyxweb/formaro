@@ -7,6 +7,7 @@ var props = [];
 var customTags = [];
 var FIXED_TAGS = ['new', 'bestseller', 'sale'];
 var selectedCategoryIds = [];
+var allColors = [];
 var colorsByName = {};
 
 function updateColorSwatch() {
@@ -14,19 +15,41 @@ function updateColorSwatch() {
     $('#f_color_swatch').css('background-color', hex || '');
 }
 
+/** Свой дропдаун подсказок вместо нативного <datalist> — у него в части
+    браузеров фильтрация регистрозависимая (не находит "малиновый" при
+    сохранённом в справочнике "Малиновый"), а тут сравнение всегда через
+    toLowerCase(). */
+function renderColorSuggestions() {
+    var q = $('#f_color').val().trim().toLowerCase();
+    var $dd = $('#colorSuggestions');
+    if (!q) { $dd.removeClass('show').empty(); return; }
+    var matches = allColors.filter(function (c) {
+        return c.name.toLowerCase().indexOf(q) !== -1;
+    }).slice(0, 20);
+    if (!matches.length) { $dd.removeClass('show').empty(); return; }
+    var html = matches.map(function (c) {
+        return '<div class="gsearch-item cursor-pointer" data-color="' + esc(c.name) + '">' +
+            '<span class="color-swatch" style="background-color:' + c.hex + '"></span>' +
+            '<span>' + esc(c.name) + '</span></div>';
+    }).join('');
+    $dd.html(html).addClass('show');
+}
+
 $(function () {
     loadPartials('products', 'Товар');
 
     dsLoad('product_colors', 'data/product-colors.json').done(function (colors) {
-        var options = '';
-        colors.forEach(function (c) {
-            colorsByName[c.name.toLowerCase()] = c.hex;
-            options += '<option value="' + esc(c.name) + '">';
-        });
-        $('#colorSuggestions').html(options);
+        allColors = colors;
+        colors.forEach(function (c) { colorsByName[c.name.toLowerCase()] = c.hex; });
         updateColorSwatch();
     });
-    $('#f_color').on('input change', updateColorSwatch);
+    $('#f_color').on('input', function () { updateColorSwatch(); renderColorSuggestions(); });
+    $('#f_color').on('focus', renderColorSuggestions);
+    $('#colorSuggestions').on('click', '.gsearch-item', function () {
+        $('#f_color').val($(this).data('color'));
+        updateColorSwatch();
+        $('#colorSuggestions').removeClass('show').empty();
+    });
 
     var idParam = getQueryParam('id');
     productId = (idParam && idParam !== 'new') ? parseInt(idParam, 10) : 0;
@@ -111,6 +134,7 @@ $(function () {
     }, 250));
     $(document).on('click', function (e) {
         if (!$(e.target).closest('#variantSearch, #variantSearchResults').length) $('#variantSearchResults').removeClass('show');
+        if (!$(e.target).closest('.color-input-wrap').length) $('#colorSuggestions').removeClass('show');
     });
 });
 
