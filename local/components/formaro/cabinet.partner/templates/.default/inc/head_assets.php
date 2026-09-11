@@ -6,13 +6,14 @@
  * $APPLICATION, а не своими <link>/<script> — так они попадут в тот же
  * ShowHead(), что и стили сайта.
  *
- * ВАЖНО (см. отчёт после реализации): пока /cabinet/ использует общий шаблон
- * formaro_v1, публичное меню/футер сайта будет показываться ПОВЕРХ этого
- * контента — визуально задвоение шапки, пока не подключат отдельный/урезанный
- * шаблон для раздела (см. план, раздел "Фронтенд").
+ * Раздел /cabinet/ использует отдельный урезанный шаблон сайта
+ * (local/templates/cabinet_v1/) — без публичного меню/футера formaro_v1,
+ * подключается кодом из cabinet/index.php (SetTemplateName до header.php).
  *
- * @var bool $needRichText подключить trumbowyg (только на страницах с полем
- *                          "полное описание" — партнёр, категория, товар)
+ * @var bool $needRichText подключить trumbowyg (страницы с полем "полное
+ *                          описание" — партнёр, категория, товар)
+ * @var bool $needDatePicker подключить flatpickr (страницы с фильтром/полем
+ *                            по датам — список заказов)
  */
 global $APPLICATION;
 
@@ -23,6 +24,9 @@ $APPLICATION->SetAdditionalCSS('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.1
 if (!empty($needRichText)) {
     $APPLICATION->SetAdditionalCSS('https://cdn.jsdelivr.net/npm/trumbowyg@2.27.3/dist/ui/trumbowyg.min.css');
 }
+if (!empty($needDatePicker)) {
+    $APPLICATION->SetAdditionalCSS('https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css');
+}
 $APPLICATION->SetAdditionalCSS($assetsPath . '/css/theme.css');
 
 $APPLICATION->AddHeadScript('https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js');
@@ -30,5 +34,9 @@ $APPLICATION->AddHeadScript('https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/j
 if (!empty($needRichText)) {
     $APPLICATION->AddHeadScript('https://cdn.jsdelivr.net/npm/trumbowyg@2.27.3/dist/trumbowyg.min.js');
     $APPLICATION->AddHeadScript('https://cdn.jsdelivr.net/npm/trumbowyg@2.27.3/dist/langs/ru.min.js');
+}
+if (!empty($needDatePicker)) {
+    $APPLICATION->AddHeadScript('https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.js');
+    $APPLICATION->AddHeadScript('https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ru.js');
 }
 $APPLICATION->AddHeadScript($assetsPath . '/js/common.js');

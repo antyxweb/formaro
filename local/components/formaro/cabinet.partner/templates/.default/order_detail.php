@@ -1,0 +1,128 @@
+<?php
+/** @var array $arResult */
+$activeKey = 'orders';
+$routeId = $arResult['VARIABLES']['ID'] ?? 'new';
+$pageTitle = ($routeId === 'new' ? 'Новый заказ' : 'Заказ') . ' — Formaro Partner';
+require __DIR__ . '/inc/layout_app_top.php';
+?>
+<a href="<?= $arResult['SEF_FOLDER'] ?>orders/" class="btn btn-link px-0 mb-2"><svg class="ic-inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path></svg> К списку заказов</a>
+
+<div class="alert alert-info d-none" id="orderLockedBanner">
+    <i class="bi bi-lock"></i> Заказ подтверждён — состав товаров и данные покупателя больше нельзя менять. Доступны только статус, доставка, оплата и история.
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-8">
+        <div class="card mb-3">
+            <div class="card-header"><span>Заказ <span id="orderNumber">—</span></span> <span id="orderStatusPill"></span></div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table order-items-table mb-0">
+                        <thead><tr><th>Товар</th><th>Артикул</th><th>Цвет</th><th>Размер</th><th style="width:100px;">Кол-во</th><th>Цена</th><th>Сумма</th><th></th></tr></thead>
+                        <tbody id="itemsBody"></tbody>
+                        <tfoot>
+                            <tr id="subtotalRow"><th colspan="6" class="text-end text-muted-2">Подытог:</th><th id="orderSubtotal" class="text-muted-2">—</th><th></th></tr>
+                            <tr id="discountRow" class="d-none"><th colspan="6" class="text-end text-red" id="discountRowLabel">Скидка:</th><th id="orderDiscountAmount" class="text-red">—</th><th></th></tr>
+                            <tr><th colspan="6" class="text-end">Итого:</th><th id="orderTotal">—</th><th></th></tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+            <div class="card-body border-top">
+                <label class="form-label">Добавить товар в заказ</label>
+                <div class="position-relative">
+                    <input type="text" class="form-control" id="addProductSearch" placeholder="Начните вводить название или артикул (от 3 символов)…" autocomplete="off">
+                    <div class="gsearch-dropdown" id="addProductResults"></div>
+                </div>
+            </div>
+            <div class="card-body border-top" id="discountCouponBlock">
+                <label class="form-label">Скидка или купон на заказ</label>
+                <div class="row g-2 align-items-end">
+                    <div class="col-md-5">
+                        <select class="form-select" id="applyDiscountSelect"><option value="">Без скидки</option></select>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="input-group">
+                            <input type="text" class="form-control text-uppercase" id="couponCodeInput" placeholder="Промокод" maxlength="20">
+                            <button type="button" class="btn btn-outline-primary" id="applyCouponBtn">Применить</button>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="button" class="btn btn-outline-secondary w-100 d-none" id="removeAppliedBtn">Убрать</button>
+                    </div>
+                </div>
+                <div id="appliedInfo" class="mt-2"></div>
+                <div class="text-muted-2 small mt-2">Раздел «Скидки и купоны» ещё не подключён к реальной базе — появится в одной из следующих фаз.</div>
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-header">Данные покупателя</div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3"><label class="form-label">Имя / название компании</label><input type="text" class="form-control" id="custName" data-validate="text"></div>
+                    <div class="col-md-3 mb-3"><label class="form-label"><svg class="ic-inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;"><path d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384"></path></svg> Телефон</label><input type="text" class="form-control" id="custPhone" data-validate="phone" placeholder="+7 999 123-45-67"></div>
+                    <div class="col-md-3 mb-3"><label class="form-label"><svg class="ic-inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;"><path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7"></path><rect x="2" y="4" width="20" height="16" rx="2"></rect></svg> E-mail</label><input type="email" class="form-control" id="custEmail" data-validate="email"></div>
+                </div>
+                <div class="mb-3"><label class="form-label"><svg class="ic-inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path><circle cx="12" cy="10" r="3"></circle></svg> Адрес доставки</label><input type="text" class="form-control" id="custAddress"></div>
+                <div class="mb-0"><label class="form-label">Комментарий клиента</label><textarea class="form-control autoheight-input" id="custComment" rows="2"></textarea></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">История заказа</div>
+            <div class="card-body">
+                <div id="historyList" class="mb-3"></div>
+                <div class="d-flex gap-2 align-items-end">
+                    <div style="flex:1;">
+                        <label class="form-label">Комментарий менеджера</label>
+                        <input type="text" class="form-control" id="historyComment" placeholder="Например: связались с клиентом, уточнили адрес">
+                    </div>
+                    <button type="button" class="btn btn-outline-primary" id="addHistoryBtn"><svg class="ic-inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg> Добавить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4 sticky-side">
+        <div class="card mb-3">
+            <div class="card-header">Статус и оплата</div>
+            <div class="card-body">
+                <label class="form-label">Статус заказа</label>
+                <select class="form-select mb-3" id="statusSelect">
+                    <option value="new">Новый</option>
+                    <option value="processing">В обработке</option>
+                    <option value="confirmed">Подтверждён</option>
+                    <option value="shipped">Отправлен</option>
+                    <option value="completed">Выполнен</option>
+                    <option value="cancelled">Отменён</option>
+                </select>
+                <label class="form-label">Способ доставки</label>
+                <select class="form-select mb-3" id="deliverySelect">
+                    <option>Курьером по Москве</option>
+                    <option>Транспортной компанией (СДЭК)</option>
+                    <option>Самовывоз со склада</option>
+                    <option>Почтой России</option>
+                </select>
+                <label class="form-label">Способ оплаты</label>
+                <select class="form-select mb-3" id="paymentMethodSelect">
+                    <option>Банковской картой онлайн</option>
+                    <option>По счёту (безнал)</option>
+                    <option>Наличными при получении</option>
+                </select>
+                <label class="form-label">Статус оплаты</label>
+                <select class="form-select mb-3" id="paymentStatusSelect">
+                    <option value="awaiting">Ожидает оплаты</option>
+                    <option value="paid">Оплачен</option>
+                    <option value="refunded">Возврат</option>
+                </select>
+                <button class="btn btn-primary w-100" id="saveOrderBtn"><svg class="ic-inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"></path><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"></path><path d="M7 3v4a1 1 0 0 0 1 1h7"></path></svg> Сохранить заказ</button>
+                <div class="text-muted-2 small mt-2">Дата оформления: <span id="orderDate">—</span></div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>var ROUTE_ID = <?= json_encode($routeId) ?>;</script>
+<?php
+$pageScripts = ['order-detail.js'];
+require __DIR__ . '/inc/layout_app_bottom.php';
