@@ -1,15 +1,24 @@
 <?php
 
-use Formaro\Cabinet\Repository\CategoryRepository;
 use Formaro\Cabinet\Repository\PartnerRepository;
-use Formaro\Cabinet\Repository\ProductRepository;
 
-/** @var array $arResult */
+/**
+ * Главная — теперь порт реального дашборда прототипа (cabinet-html/index.html
+ * + assets/js/dashboard.js): статистика по заказам, топ товаров за период,
+ * последние заказы с фильтром по статусу. Раньше (фаза 1, до появления
+ * OrderRepository) здесь были только счётчики категорий/товаров — заменены
+ * на настоящий дизайн, т.к. смысла в промежуточной заглушке больше нет.
+ *
+ * Рендерится клиентским JS (dashboard.js, dsLoad('orders')) — как и все
+ * остальные списковые страницы кабинета, а не серверным PHP-циклом (в
+ * отличие от прежней версии этого файла) — ради единообразия с остальным
+ * приложением и ради интерактивных фильтров (период/статус) без перезагрузки
+ * страницы, как в прототипе.
+ *
+ * @var array $arResult
+ */
 $partnerId = $arResult['PARTNER_ID'];
-
 $partner = (new PartnerRepository())->get($partnerId);
-$ownCategories = array_filter((new CategoryRepository())->listVisible($partnerId), static fn($c) => !$c['is_system']);
-$ownProducts = (new ProductRepository())->listOwn($partnerId);
 
 $activeKey = 'dashboard';
 $pageTitle = 'Главная — Formaro Partner';
@@ -17,64 +26,90 @@ require __DIR__ . '/inc/layout_app_top.php';
 ?>
 <div class="mb-3">
     <h4 class="mb-1">Здравствуйте, <?= htmlspecialcharsbx($partner['name_short'] ?: $partner['name_full']) ?>!</h4>
-    <p class="text-muted-2">Кабинет партнёра сейчас на первой очереди — доступны каталог (категории и товары)
-        и профиль. Заказы, скидки, финансы, новости и поддержка появятся в следующих обновлениях.</p>
 </div>
 
 <div class="row g-3 mb-3">
     <div class="col-6 col-lg-3">
-        <a class="text-decoration-none" href="<?= $arResult['SEF_FOLDER'] ?>categories/">
-            <div class="stat-tile grad-blue">
-                <svg class="stat-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1h-2.5a1 1 0 0 1-.8-.4l-.9-1.2A1 1 0 0 0 15 3h-2a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1Z"></path><path d="M20 21a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1h-2.9a1 1 0 0 1-.88-.55l-.42-.85a1 1 0 0 0-.92-.6H13a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1Z"></path><path d="M3 5a2 2 0 0 0 2 2h3"></path><path d="M3 3v13a2 2 0 0 0 2 2h3"></path></svg>
-                <div><div class="stat-value"><?= count($ownCategories) ?></div><div class="stat-label">Своих категорий</div></div>
-            </div>
-        </a>
+        <div class="stat-tile grad-blue">
+            <svg class="stat-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m2.05 2.05 1.099-.028a1 1 0 0 1 1.008.815l2.69 14.347A1 1 0 0 0 7.83 18H18"></path><path d="M4.563 5h16.435a1 1 0 0 1 .981 1.204l-1.026 6.226A2 2 0 0 1 18.962 14H6.25"></path><circle cx="18" cy="20" r="2"></circle><circle cx="8" cy="20" r="2"></circle></svg>
+            <div><div class="stat-value" id="statOrders">—</div><div class="stat-label">Заказов</div></div>
+        </div>
     </div>
     <div class="col-6 col-lg-3">
-        <a class="text-decoration-none" href="<?= $arResult['SEF_FOLDER'] ?>products/">
-            <div class="stat-tile grad-green">
-                <svg class="stat-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"></path><path d="M12 22V12"></path><polyline points="3.29 7 12 12 20.71 7"></polyline><path d="m7.5 4.27 9 5.15"></path></svg>
-                <div><div class="stat-value"><?= count($ownProducts) ?></div><div class="stat-label">Товаров</div></div>
-            </div>
-        </a>
+        <div class="stat-tile grad-green">
+            <svg class="stat-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="12" x="2" y="6" rx="2"></rect><circle cx="12" cy="12" r="2"></circle><path d="M6 12h.01M18 12h.01"></path></svg>
+            <div><div class="stat-value" id="statRevenue">—</div><div class="stat-label">Сумма заказов</div></div>
+        </div>
     </div>
     <div class="col-6 col-lg-3">
         <div class="stat-tile grad-orange">
             <svg class="stat-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"></path></svg>
-            <div><div class="stat-value"><?= count(array_filter($ownProducts, static fn($p) => $p['status'] === 'active')) ?></div><div class="stat-label">Активных товаров</div></div>
+            <div><div class="stat-value" id="statNew">—</div><div class="stat-label">Новых заказов</div></div>
         </div>
     </div>
     <div class="col-6 col-lg-3">
         <div class="stat-tile grad-purple">
-            <svg class="stat-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472"></path></svg>
-            <div><div class="stat-value"><?= htmlspecialcharsbx(ucfirst($partner['verification_status'] === 'verified' ? 'Проверен' : ($partner['verification_status'] === 'rejected' ? 'Отклонён' : 'На проверке'))) ?></div><div class="stat-label">Статус партнёра</div></div>
+            <svg class="stat-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17V7"></path><path d="M16 8h-6a2 2 0 0 0 0 4h4a2 2 0 0 1 0 4H8"></path><path d="M4 3a1 1 0 0 1 1-1 1.3 1.3 0 0 1 .7.2l.933.6a1.3 1.3 0 0 0 1.4 0l.934-.6a1.3 1.3 0 0 1 1.4 0l.933.6a1.3 1.3 0 0 0 1.4 0l.933-.6a1.3 1.3 0 0 1 1.4 0l.934.6a1.3 1.3 0 0 0 1.4 0l.933-.6A1.3 1.3 0 0 1 19 2a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1 1.3 1.3 0 0 1-.7-.2l-.933-.6a1.3 1.3 0 0 0-1.4 0l-.934.6a1.3 1.3 0 0 1-1.4 0l-.933-.6a1.3 1.3 0 0 0-1.4 0l-.933.6a1.3 1.3 0 0 1-1.4 0l-.934-.6a1.3 1.3 0 0 0-1.4 0l-.933.6a1.3 1.3 0 0 1-.7.2 1 1 0 0 1-1-1z"></path></svg>
+            <div><div class="stat-value" id="statAvg">—</div><div class="stat-label">Средний чек</div></div>
         </div>
     </div>
 </div>
 
-<div class="card">
-    <div class="card-header"><span>Последние товары</span></div>
-    <div class="card-body p-0">
-        <div class="table-responsive">
-            <table class="table mb-0">
-                <thead><tr><th>Товар</th><th>Артикул</th><th>Цена</th><th>Статус</th></tr></thead>
-                <tbody>
-                <?php if (!$ownProducts): ?>
-                    <tr><td colspan="4" class="text-center text-muted-2 py-4">Товаров пока нет — <a href="<?= $arResult['SEF_FOLDER'] ?>products/edit/new/">добавьте первый</a>.</td></tr>
-                <?php else: foreach (array_slice($ownProducts, 0, 8) as $p): ?>
-                    <tr>
-                        <td><a href="<?= $arResult['SEF_FOLDER'] ?>products/edit/<?= $p['id'] ?>/"><?= htmlspecialcharsbx($p['name']) ?></a></td>
-                        <td class="text-muted-2 small"><?= htmlspecialcharsbx($p['sku'] ?: '—') ?></td>
-                        <td><?= number_format($p['price'], 0, ',', ' ') ?> ₽</td>
-                        <td><?= $p['status'] === 'active' ? '<span class="pill pill-green">Активен</span>' : '<span class="pill pill-gray">Скрыт</span>' ?></td>
-                    </tr>
-                <?php endforeach; endif; ?>
-                </tbody>
-            </table>
+<div class="row g-3">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <span>Топ товаров</span>
+                <select class="form-select" id="dateRangeSelect" style="max-width:180px;">
+                    <option value="today">Сегодня</option>
+                    <option value="yesterday">Вчера</option>
+                    <option value="week" selected>Неделя</option>
+                    <option value="month">Месяц</option>
+                    <option value="year">Год</option>
+                    <option value="all">Всё время</option>
+                </select>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table mb-0">
+                        <thead><tr><th>Товар</th><th>Продано, шт.</th><th>Выручка</th></tr></thead>
+                        <tbody id="topProductsBody"><tr><td colspan="3" class="text-center text-muted-2 py-4">Загрузка…</td></tr></tbody>
+                    </table>
+                </div>
+                <div class="table-footer-bar justify-content-end">
+                    <a href="<?= $arResult['SEF_FOLDER'] ?>products/" class="small">Все товары →</a>
+                </div>
+            </div>
         </div>
-        <div class="table-footer-bar justify-content-end">
-            <a href="<?= $arResult['SEF_FOLDER'] ?>products/" class="small">Все товары →</a>
+    </div>
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <span>Последние заказы</span>
+                <select class="form-select" id="statusFilter" style="max-width:180px;">
+                    <option value="">Все статусы</option>
+                    <option value="new">Новый</option>
+                    <option value="processing">В обработке</option>
+                    <option value="confirmed">Подтверждён</option>
+                    <option value="shipped">Отправлен</option>
+                    <option value="completed">Выполнен</option>
+                    <option value="cancelled">Отменён</option>
+                </select>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table mb-0">
+                        <thead><tr><th>№</th><th>Клиент</th><th>Сумма</th><th>Статус</th></tr></thead>
+                        <tbody id="recentOrdersBody"><tr><td colspan="4" class="text-center text-muted-2 py-4">Загрузка…</td></tr></tbody>
+                    </table>
+                </div>
+                <div class="table-footer-bar justify-content-end">
+                    <a href="<?= $arResult['SEF_FOLDER'] ?>orders/" class="small">Все заказы →</a>
+                </div>
+            </div>
         </div>
     </div>
 </div>
-<?php require __DIR__ . '/inc/layout_app_bottom.php'; ?>
+<?php
+$pageScripts = ['dashboard.js'];
+require __DIR__ . '/inc/layout_app_bottom.php';

@@ -13,6 +13,7 @@ use Formaro\Cabinet\Repository\ChatRepository;
 use Formaro\Cabinet\Repository\CouponRepository;
 use Formaro\Cabinet\Repository\DiscountRepository;
 use Formaro\Cabinet\Repository\NewsRepository;
+use Formaro\Cabinet\Repository\NotificationRepository;
 use Formaro\Cabinet\Repository\OrderRepository;
 use Formaro\Cabinet\Repository\PartnerDocumentRepository;
 use Formaro\Cabinet\Repository\PartnerRepository;
@@ -27,12 +28,9 @@ use Formaro\Cabinet\Security\PartnerContext;
  * файл /cabinet/index.php, весь роутинг (обычные страницы + свой AJAX API)
  * разбирается здесь через CComponentEngine::ParseComponentPath.
  *
- * SEF_URL_TEMPLATES ниже — действия фаз 1-5 (см. план: модуль, вход,
- * профиль, категории, товары, заказы, скидки/купоны/финансы, новости,
- * поддержка, чат с клиентами). Остальные действия из целевой карты роутов
- * (уведомления) появятся в следующей фазе — их шаблоны ещё не существуют,
- * поэтому регистрировать их сейчас означало бы плодить страницы, которые
- * сразу 404.
+ * SEF_URL_TEMPLATES ниже — действия всех фаз плана (модуль, вход, профиль,
+ * категории, товары, заказы, скидки/купоны/финансы, новости, поддержка,
+ * чат с клиентами, уведомления).
  */
 class CabinetPartnerComponent extends CBitrixComponent
 {
@@ -57,6 +55,7 @@ class CabinetPartnerComponent extends CBitrixComponent
         'support' => 'support/',
         'support_detail' => 'support/#ID#/',
         'chat' => 'chat/',
+        'notifications' => 'notifications/',
     ];
 
     /** Действия, доступные БЕЗ авторизации (экраны входа) */
@@ -223,6 +222,11 @@ class CabinetPartnerComponent extends CBitrixComponent
                     (int)($_REQUEST['thread_id'] ?? 0),
                     (int)($_REQUEST['message_id'] ?? 0)
                 ),
+                'mark_notification_read' => (new NotificationRepository())->markRead(
+                    $partnerId,
+                    (int)($_REQUEST['id'] ?? 0)
+                ),
+                'mark_all_notifications_read' => (new NotificationRepository())->markAllRead($partnerId),
                 default => throw new \RuntimeException('Неизвестное действие: ' . $action),
             };
 
@@ -247,6 +251,7 @@ class CabinetPartnerComponent extends CBitrixComponent
             'tickets' => (new TicketRepository())->listOwn($partnerId),
             'marketplace_contacts' => (new TicketRepository())->getMarketplaceContacts(),
             'chat' => (new ChatRepository())->listOwn($partnerId),
+            'notifications' => (new NotificationRepository())->listOwn($partnerId),
             'partner' => (new PartnerRepository())->get($partnerId),
             'partner_documents' => (new PartnerDocumentRepository())->listByPartner($partnerId),
             'product_colors' => (new ProductColorRepository())->listAll(),
