@@ -24,13 +24,13 @@ function renderColorSuggestions() {
     var $dd = $('#colorSuggestions');
     if (!q) { $dd.removeClass('show').empty(); return; }
     var matches = allColors.filter(function (c) {
-        return c.name.toLowerCase().indexOf(q) !== -1;
+        return c.name.toLowerCase().indexOf(q) !== -1 || (c.name_en || '').toLowerCase().indexOf(q) !== -1;
     }).slice(0, 20);
     if (!matches.length) { $dd.removeClass('show').empty(); return; }
     var html = matches.map(function (c) {
         return '<div class="gsearch-item cursor-pointer" data-color="' + esc(c.name) + '">' +
             '<span class="color-swatch" style="background-color:' + c.hex + '"></span>' +
-            '<span>' + esc(c.name) + '</span></div>';
+            '<span>' + esc(c.name) + (c.name_en ? ' <span class="text-muted-2">· ' + esc(c.name_en) + '</span>' : '') + '</span></div>';
     }).join('');
     $dd.html(html).addClass('show');
 }
