@@ -531,8 +531,17 @@ function autoHeightResize(sel) {
     в базовой поставке Trumbowyg их нет. Регистрация должна быть выполнена один
     раз, до первого вызова .trumbowyg(), поэтому делаем это здесь же, при загрузке
     common.js (которая всегда подключается ПОСЛЕ trumbowyg.min.js на страницах,
-    где редактор используется). */
-if (window.jQuery && $.trumbowyg && !$.trumbowyg.btnsDef.formatP) {
+    где редактор используется).
+    В версии 2.27.3 (CDN) реестр кнопок лежит в $.trumbowyg.defaultOptions.btnsDef,
+    а не в $.trumbowyg.btnsDef, как в старых версиях/примерах из документации —
+    обращение к несуществующему $.trumbowyg.btnsDef бросало TypeError прямо при
+    загрузке common.js и обрывало остаток файла (из-за этого, в частности,
+    переставал работать глобальный поиск на страницах с редактором — до места,
+    где определяется GSEARCH_ICONS, скрипт просто не доходил). */
+var trumbowygBtnsDef = window.jQuery && $.trumbowyg && $.trumbowyg.defaultOptions
+    ? $.trumbowyg.defaultOptions.btnsDef
+    : null;
+if (trumbowygBtnsDef && !trumbowygBtnsDef.formatP) {
     var blockBtn = function (tag, label, title) {
         return {
             fn: function (trumbowyg) { trumbowyg.execCmd('formatBlock', tag, true, true); },
@@ -541,14 +550,14 @@ if (window.jQuery && $.trumbowyg && !$.trumbowyg.btnsDef.formatP) {
             title: title
         };
     };
-    $.trumbowyg.btnsDef.formatP = blockBtn('p', 'Обычный текст', 'Обычный текст');
-    $.trumbowyg.btnsDef.formatH1 = blockBtn('h1', 'Заголовок 1', 'Заголовок 1 уровня');
-    $.trumbowyg.btnsDef.formatH2 = blockBtn('h2', 'Заголовок 2', 'Заголовок 2 уровня');
-    $.trumbowyg.btnsDef.formatH3 = blockBtn('h3', 'Заголовок 3', 'Заголовок 3 уровня');
-    $.trumbowyg.btnsDef.formatH4 = blockBtn('h4', 'Заголовок 4', 'Заголовок 4 уровня');
-    $.trumbowyg.btnsDef.formatQuote = blockBtn('blockquote', 'Цитата', 'Цитата');
+    trumbowygBtnsDef.formatP = blockBtn('p', 'Обычный текст', 'Обычный текст');
+    trumbowygBtnsDef.formatH1 = blockBtn('h1', 'Заголовок 1', 'Заголовок 1 уровня');
+    trumbowygBtnsDef.formatH2 = blockBtn('h2', 'Заголовок 2', 'Заголовок 2 уровня');
+    trumbowygBtnsDef.formatH3 = blockBtn('h3', 'Заголовок 3', 'Заголовок 3 уровня');
+    trumbowygBtnsDef.formatH4 = blockBtn('h4', 'Заголовок 4', 'Заголовок 4 уровня');
+    trumbowygBtnsDef.formatQuote = blockBtn('blockquote', 'Цитата', 'Цитата');
     // Группируем все варианты формата текста в один выпадающий список в панели
-    $.trumbowyg.btnsDef.formatting = {
+    trumbowygBtnsDef.formatting = {
         dropdown: ['formatP', 'formatH1', 'formatH2', 'formatH3', 'formatH4', 'formatQuote'],
         hasIcon: false,
         text: 'Формат',
