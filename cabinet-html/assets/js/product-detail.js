@@ -7,9 +7,26 @@ var props = [];
 var customTags = [];
 var FIXED_TAGS = ['new', 'bestseller', 'sale'];
 var selectedCategoryIds = [];
+var colorsByName = {};
+
+function updateColorSwatch() {
+    var hex = colorsByName[$('#f_color').val().trim().toLowerCase()];
+    $('#f_color_swatch').css('background-color', hex || '');
+}
 
 $(function () {
     loadPartials('products', 'Товар');
+
+    dsLoad('product_colors', 'data/product-colors.json').done(function (colors) {
+        var options = '';
+        colors.forEach(function (c) {
+            colorsByName[c.name.toLowerCase()] = c.hex;
+            options += '<option value="' + esc(c.name) + '">';
+        });
+        $('#colorSuggestions').html(options);
+        updateColorSwatch();
+    });
+    $('#f_color').on('input change', updateColorSwatch);
 
     var idParam = getQueryParam('id');
     productId = (idParam && idParam !== 'new') ? parseInt(idParam, 10) : 0;
@@ -69,6 +86,7 @@ $(function () {
                 if ($.fn.trumbowyg) $('#f_full_desc').trumbowyg('html', p.full_desc || '');
                 $('#f_sku').val(p.sku);
                 $('#f_color').val(p.color);
+                updateColorSwatch();
                 $('#f_size').val(p.size);
                 if (p.preview_image) { setBgImage('#previewImg', p.preview_image); previewDataUrl = p.preview_image; }
                 gallery = Array.isArray(p.gallery) ? p.gallery.slice() : [];

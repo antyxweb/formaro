@@ -1,0 +1,1925 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hiblock>
+	<hiblock>
+		<id>3</id>
+		<name>ProductColors</name>
+		<table_name>b_product_colors</table_name>
+	</hiblock>
+	<langs>
+		<lang>
+			<id>3</id>
+			<lid>ru</lid>
+			<name>Цвета товаров</name>
+		</lang>
+		<lang>
+			<id>3</id>
+			<lid>en</lid>
+			<name>Product colors</name>
+		</lang>
+	</langs>
+	<fields>
+		<field>
+			<id>11</id>
+			<entity_id>HLBLOCK_3</entity_id>
+			<field_name>UF_NAME_EN</field_name>
+			<user_type_id>string</user_type_id>
+			<xml_id />
+			<sort>100</sort>
+			<multiple>N</multiple>
+			<mandatory>N</mandatory>
+			<show_filter>S</show_filter>
+			<show_in_list>Y</show_in_list>
+			<edit_in_list>Y</edit_in_list>
+			<is_searchable>N</is_searchable>
+			<settings>
+				<size>20</size>
+				<rows>1</rows>
+				<regexp />
+				<min_length>0</min_length>
+				<max_length>0</max_length>
+				<default_value />
+			</settings>
+			<edit_form_label>
+				<en>English name</en>
+				<ru>Английское название</ru>
+			</edit_form_label>
+			<list_column_label>
+				<en>English name</en>
+				<ru>Английское название</ru>
+			</list_column_label>
+			<list_filter_label>
+				<en>English name</en>
+				<ru>Английское название</ru>
+			</list_filter_label>
+			<error_message>
+				<en>English name</en>
+				<ru>Английское название</ru>
+			</error_message>
+			<help_message>
+				<en>English name</en>
+				<ru>Английское название</ru>
+			</help_message>
+			<base_type>string</base_type>
+		</field>
+		<field>
+			<id>12</id>
+			<entity_id>HLBLOCK_3</entity_id>
+			<field_name>UF_NAME_RU</field_name>
+			<user_type_id>string</user_type_id>
+			<xml_id />
+			<sort>100</sort>
+			<multiple>N</multiple>
+			<mandatory>N</mandatory>
+			<show_filter>S</show_filter>
+			<show_in_list>Y</show_in_list>
+			<edit_in_list>Y</edit_in_list>
+			<is_searchable>N</is_searchable>
+			<settings>
+				<size>20</size>
+				<rows>1</rows>
+				<regexp />
+				<min_length>0</min_length>
+				<max_length>0</max_length>
+				<default_value />
+			</settings>
+			<edit_form_label>
+				<en>Russian name</en>
+				<ru>Русское название</ru>
+			</edit_form_label>
+			<list_column_label>
+				<en>Russian name</en>
+				<ru>Русское название</ru>
+			</list_column_label>
+			<list_filter_label>
+				<en>Russian name</en>
+				<ru>Русское название</ru>
+			</list_filter_label>
+			<error_message>
+				<en>Russian name</en>
+				<ru>Русское название</ru>
+			</error_message>
+			<help_message>
+				<en>Russian name</en>
+				<ru>Русское название</ru>
+			</help_message>
+			<base_type>string</base_type>
+		</field>
+		<field>
+			<id>13</id>
+			<entity_id>HLBLOCK_3</entity_id>
+			<field_name>UF_HEX</field_name>
+			<user_type_id>string</user_type_id>
+			<xml_id />
+			<sort>100</sort>
+			<multiple>N</multiple>
+			<mandatory>N</mandatory>
+			<show_filter>N</show_filter>
+			<show_in_list>Y</show_in_list>
+			<edit_in_list>Y</edit_in_list>
+			<is_searchable>N</is_searchable>
+			<settings>
+				<size>20</size>
+				<rows>1</rows>
+				<regexp />
+				<min_length>0</min_length>
+				<max_length>0</max_length>
+				<default_value />
+			</settings>
+			<edit_form_label>
+				<en>HEX</en>
+				<ru>HEX</ru>
+			</edit_form_label>
+			<list_column_label>
+				<en>HEX</en>
+				<ru>HEX</ru>
+			</list_column_label>
+			<list_filter_label>
+				<en>HEX</en>
+				<ru>HEX</ru>
+			</list_filter_label>
+			<error_message>
+				<en>HEX</en>
+				<ru>HEX</ru>
+			</error_message>
+			<help_message>
+				<en>HEX</en>
+				<ru>HEX</ru>
+			</help_message>
+			<base_type>string</base_type>
+		</field>
+		<field>
+			<id>14</id>
+			<entity_id>HLBLOCK_3</entity_id>
+			<field_name>UF_RGB</field_name>
+			<user_type_id>string</user_type_id>
+			<xml_id />
+			<sort>100</sort>
+			<multiple>N</multiple>
+			<mandatory>N</mandatory>
+			<show_filter>N</show_filter>
+			<show_in_list>Y</show_in_list>
+			<edit_in_list>Y</edit_in_list>
+			<is_searchable>N</is_searchable>
+			<settings>
+				<size>20</size>
+				<rows>1</rows>
+				<regexp />
+				<min_length>0</min_length>
+				<max_length>0</max_length>
+				<default_value />
+			</settings>
+			<edit_form_label>
+				<en>RGB</en>
+				<ru>RGB</ru>
+			</edit_form_label>
+			<list_column_label>
+				<en>RGB</en>
+				<ru>RGB</ru>
+			</list_column_label>
+			<list_filter_label>
+				<en>RGB</en>
+				<ru>RGB</ru>
+			</list_filter_label>
+			<error_message>
+				<en>RGB</en>
+				<ru>RGB</ru>
+			</error_message>
+			<help_message>
+				<en>RGB</en>
+				<ru>RGB</ru>
+			</help_message>
+			<base_type>string</base_type>
+		</field>
+	</fields>
+	<items>
+		<item>
+			<id>248</id>
+			<uf_name_en>Air Force Blue</uf_name_en>
+			<uf_name_ru>Военно-воздушный синий</uf_name_ru>
+			<uf_hex>#5D8AA8</uf_hex>
+			<uf_rgb>93,138,168</uf_rgb>
+		</item>
+		<item>
+			<id>249</id>
+			<uf_name_en>Alice Blue</uf_name_en>
+			<uf_name_ru>Синий Элис</uf_name_ru>
+			<uf_hex>#F0F8FF</uf_hex>
+			<uf_rgb>240,248,255</uf_rgb>
+		</item>
+		<item>
+			<id>250</id>
+			<uf_name_en>Alice Blue</uf_name_en>
+			<uf_name_ru>Рузвельт Лонгворт</uf_name_ru>
+			<uf_hex>#F0F8FF</uf_hex>
+			<uf_rgb>240,248,255</uf_rgb>
+		</item>
+		<item>
+			<id>251</id>
+			<uf_name_en>Alizarin Crimson</uf_name_en>
+			<uf_name_ru>Ализариновый красный</uf_name_ru>
+			<uf_hex>#E32636</uf_hex>
+			<uf_rgb>227,38,54</uf_rgb>
+		</item>
+		<item>
+			<id>252</id>
+			<uf_name_en>Almond</uf_name_en>
+			<uf_name_ru>Миндаль Крайола</uf_name_ru>
+			<uf_hex>#EFDECD</uf_hex>
+			<uf_rgb>239,222,205</uf_rgb>
+		</item>
+		<item>
+			<id>253</id>
+			<uf_name_en>Amaranth</uf_name_en>
+			<uf_name_ru>Амарантовый</uf_name_ru>
+			<uf_hex>#E52B50</uf_hex>
+			<uf_rgb>229,43,80</uf_rgb>
+		</item>
+		<item>
+			<id>254</id>
+			<uf_name_en>Amber</uf_name_en>
+			<uf_name_ru>Янтарный</uf_name_ru>
+			<uf_hex>#FFBF00</uf_hex>
+			<uf_rgb>255,191,0</uf_rgb>
+		</item>
+		<item>
+			<id>255</id>
+			<uf_name_en>American Rose</uf_name_en>
+			<uf_name_ru>Американская роза</uf_name_ru>
+			<uf_hex>#FF033E</uf_hex>
+			<uf_rgb>255,3,62</uf_rgb>
+		</item>
+		<item>
+			<id>256</id>
+			<uf_name_en>Amethyst</uf_name_en>
+			<uf_name_ru>Аметистовый</uf_name_ru>
+			<uf_hex>#9966CC</uf_hex>
+			<uf_rgb>153,102,204</uf_rgb>
+		</item>
+		<item>
+			<id>257</id>
+			<uf_name_en>Anti-flash White</uf_name_en>
+			<uf_name_ru>Матовый белый</uf_name_ru>
+			<uf_hex>#F2F3F4</uf_hex>
+			<uf_rgb>242,243,244</uf_rgb>
+		</item>
+		<item>
+			<id>258</id>
+			<uf_name_en>Antique White</uf_name_en>
+			<uf_name_ru>Античный белый</uf_name_ru>
+			<uf_hex>#FAEBD7</uf_hex>
+			<uf_rgb>250,235,215</uf_rgb>
+		</item>
+		<item>
+			<id>259</id>
+			<uf_name_en>Apple Green</uf_name_en>
+			<uf_name_ru>Яблочно-зелёный</uf_name_ru>
+			<uf_hex>#8DB600</uf_hex>
+			<uf_rgb>141,182,0</uf_rgb>
+		</item>
+		<item>
+			<id>260</id>
+			<uf_name_en>Asparagus</uf_name_en>
+			<uf_name_ru>Спаржа</uf_name_ru>
+			<uf_hex>#7BA05B</uf_hex>
+			<uf_rgb>123,160,91</uf_rgb>
+		</item>
+		<item>
+			<id>261</id>
+			<uf_name_en>Aqua</uf_name_en>
+			<uf_name_ru>Цвет морской волны</uf_name_ru>
+			<uf_hex>#00FFFF</uf_hex>
+			<uf_rgb>0,255,255</uf_rgb>
+		</item>
+		<item>
+			<id>262</id>
+			<uf_name_en>Aquamarine</uf_name_en>
+			<uf_name_ru>Аквамариновый</uf_name_ru>
+			<uf_hex>#7FFFD4</uf_hex>
+			<uf_rgb>127,255,212</uf_rgb>
+		</item>
+		<item>
+			<id>263</id>
+			<uf_name_en>Army Green</uf_name_en>
+			<uf_name_ru>Армейский зелёный</uf_name_ru>
+			<uf_hex>#4B5320</uf_hex>
+			<uf_rgb>75,83,32</uf_rgb>
+		</item>
+		<item>
+			<id>264</id>
+			<uf_name_en>Arsenic</uf_name_en>
+			<uf_name_ru>Мышьяковый</uf_name_ru>
+			<uf_hex>#3B444B</uf_hex>
+			<uf_rgb>59,68,75</uf_rgb>
+		</item>
+		<item>
+			<id>265</id>
+			<uf_name_en>Azure</uf_name_en>
+			<uf_name_ru>Лазурный</uf_name_ru>
+			<uf_hex>#007FFF</uf_hex>
+			<uf_rgb>0,127,255</uf_rgb>
+		</item>
+		<item>
+			<id>266</id>
+			<uf_name_en>Azure</uf_name_en>
+			<uf_name_ru>Азур</uf_name_ru>
+			<uf_hex>#007FFF</uf_hex>
+			<uf_rgb>0,127,255</uf_rgb>
+		</item>
+		<item>
+			<id>267</id>
+			<uf_name_en>Battleship Grey</uf_name_en>
+			<uf_name_ru>Голубовато-серый</uf_name_ru>
+			<uf_hex>#848482</uf_hex>
+			<uf_rgb>132,132,130</uf_rgb>
+		</item>
+		<item>
+			<id>268</id>
+			<uf_name_en>Beige</uf_name_en>
+			<uf_name_ru>Беж</uf_name_ru>
+			<uf_hex>#F5F5DC</uf_hex>
+			<uf_rgb>245,245,220</uf_rgb>
+		</item>
+		<item>
+			<id>269</id>
+			<uf_name_en>Beige</uf_name_en>
+			<uf_name_ru>Бежевый</uf_name_ru>
+			<uf_hex>#F5F5DC</uf_hex>
+			<uf_rgb>245,245,220</uf_rgb>
+		</item>
+		<item>
+			<id>270</id>
+			<uf_name_en>Bistre</uf_name_en>
+			<uf_name_ru>Бистр</uf_name_ru>
+			<uf_hex>#3D2B1F</uf_hex>
+			<uf_rgb>61,43,31</uf_rgb>
+		</item>
+		<item>
+			<id>271</id>
+			<uf_name_en>Bittersweet</uf_name_en>
+			<uf_name_ru>Горький розовый</uf_name_ru>
+			<uf_hex>#FE6F5E</uf_hex>
+			<uf_rgb>254,111,94</uf_rgb>
+		</item>
+		<item>
+			<id>272</id>
+			<uf_name_en>Black</uf_name_en>
+			<uf_name_ru>Чёрный</uf_name_ru>
+			<uf_hex>#000000</uf_hex>
+			<uf_rgb>0,0,0</uf_rgb>
+		</item>
+		<item>
+			<id>273</id>
+			<uf_name_en>Blond</uf_name_en>
+			<uf_name_ru>Белокурый</uf_name_ru>
+			<uf_hex>#FAF0BE</uf_hex>
+			<uf_rgb>250,240,190</uf_rgb>
+		</item>
+		<item>
+			<id>274</id>
+			<uf_name_en>Blue</uf_name_en>
+			<uf_name_ru>Синий</uf_name_ru>
+			<uf_hex>#0000FF</uf_hex>
+			<uf_rgb>0,0,255</uf_rgb>
+		</item>
+		<item>
+			<id>275</id>
+			<uf_name_en>Bondi Blue</uf_name_en>
+			<uf_name_ru>Вода пляжа Бонди</uf_name_ru>
+			<uf_hex>#0095B6</uf_hex>
+			<uf_rgb>0,149,182</uf_rgb>
+		</item>
+		<item>
+			<id>276</id>
+			<uf_name_en>Boston University Red</uf_name_en>
+			<uf_name_ru>Красный Университета Бостона</uf_name_ru>
+			<uf_hex>#CC0000</uf_hex>
+			<uf_rgb>204,0,0</uf_rgb>
+		</item>
+		<item>
+			<id>277</id>
+			<uf_name_en>Brass</uf_name_en>
+			<uf_name_ru>Латунный</uf_name_ru>
+			<uf_hex>#B5A642</uf_hex>
+			<uf_rgb>181,166,66</uf_rgb>
+		</item>
+		<item>
+			<id>278</id>
+			<uf_name_en>Bright green</uf_name_en>
+			<uf_name_ru>Ярко-зелёный</uf_name_ru>
+			<uf_hex>#66FF00</uf_hex>
+			<uf_rgb>102,255,0</uf_rgb>
+		</item>
+		<item>
+			<id>279</id>
+			<uf_name_en>Bright turquoise</uf_name_en>
+			<uf_name_ru>Ярко-бирюзовый</uf_name_ru>
+			<uf_hex>#08E8DE</uf_hex>
+			<uf_rgb>8,232,222</uf_rgb>
+		</item>
+		<item>
+			<id>280</id>
+			<uf_name_en>Bright violet</uf_name_en>
+			<uf_name_ru>Ярко-фиолетовый</uf_name_ru>
+			<uf_hex>#CD00CD</uf_hex>
+			<uf_rgb>205,0,205</uf_rgb>
+		</item>
+		<item>
+			<id>281</id>
+			<uf_name_en>Bronze</uf_name_en>
+			<uf_name_ru>Бронзовый</uf_name_ru>
+			<uf_hex>#CD7F32</uf_hex>
+			<uf_rgb>205,127,50</uf_rgb>
+		</item>
+		<item>
+			<id>282</id>
+			<uf_name_en>Brown</uf_name_en>
+			<uf_name_ru>Коричневый</uf_name_ru>
+			<uf_hex>#964B00</uf_hex>
+			<uf_rgb>150,75,0</uf_rgb>
+		</item>
+		<item>
+			<id>283</id>
+			<uf_name_en>Buff</uf_name_en>
+			<uf_name_ru>Кожа буйвола</uf_name_ru>
+			<uf_hex>#F0DC82</uf_hex>
+			<uf_rgb>240,220,130</uf_rgb>
+		</item>
+		<item>
+			<id>284</id>
+			<uf_name_en>Buff</uf_name_en>
+			<uf_name_ru>Палевый</uf_name_ru>
+			<uf_hex>#F0DC82</uf_hex>
+			<uf_rgb>240,220,130</uf_rgb>
+		</item>
+		<item>
+			<id>285</id>
+			<uf_name_en>Burgundy</uf_name_en>
+			<uf_name_ru>Бургундский</uf_name_ru>
+			<uf_hex>#900020</uf_hex>
+			<uf_rgb>144,0,32</uf_rgb>
+		</item>
+		<item>
+			<id>286</id>
+			<uf_name_en>Burnt Orange</uf_name_en>
+			<uf_name_ru>Выгоревший оранжевый</uf_name_ru>
+			<uf_hex>#CC5500</uf_hex>
+			<uf_rgb>204,85,0</uf_rgb>
+		</item>
+		<item>
+			<id>287</id>
+			<uf_name_en>Burnt Sienna</uf_name_en>
+			<uf_name_ru>Сиена жжёная</uf_name_ru>
+			<uf_hex>#E97451</uf_hex>
+			<uf_rgb>233,116,81</uf_rgb>
+		</item>
+		<item>
+			<id>288</id>
+			<uf_name_en>Burnt umber</uf_name_en>
+			<uf_name_ru>Коричневый</uf_name_ru>
+			<uf_hex>#8A3324</uf_hex>
+			<uf_rgb>138,51,36</uf_rgb>
+		</item>
+		<item>
+			<id>289</id>
+			<uf_name_en>Burnt umber</uf_name_en>
+			<uf_name_ru>Умбра жжёная</uf_name_ru>
+			<uf_hex>#8A3324</uf_hex>
+			<uf_rgb>138,51,36</uf_rgb>
+		</item>
+		<item>
+			<id>290</id>
+			<uf_name_en>Burnt umber</uf_name_en>
+			<uf_name_ru>Умбра</uf_name_ru>
+			<uf_hex>#8A3324</uf_hex>
+			<uf_rgb>138,51,36</uf_rgb>
+		</item>
+		<item>
+			<id>291</id>
+			<uf_name_en>Camel</uf_name_en>
+			<uf_name_ru>Желтовато-коричневый</uf_name_ru>
+			<uf_hex>#C19A6B</uf_hex>
+			<uf_rgb>194,154,107</uf_rgb>
+		</item>
+		<item>
+			<id>292</id>
+			<uf_name_en>Camel</uf_name_en>
+			<uf_name_ru>Камель</uf_name_ru>
+			<uf_hex>#C19A6B</uf_hex>
+			<uf_rgb>194,154,107</uf_rgb>
+		</item>
+		<item>
+			<id>293</id>
+			<uf_name_en>Camouflage green</uf_name_en>
+			<uf_name_ru>Хаки</uf_name_ru>
+			<uf_hex>#78866B</uf_hex>
+			<uf_rgb>120,134,107</uf_rgb>
+		</item>
+		<item>
+			<id>294</id>
+			<uf_name_en>Canonical aubergine</uf_name_en>
+			<uf_name_ru>Баклажановый Canonica</uf_name_ru>
+			<uf_hex>#772953</uf_hex>
+			<uf_rgb>119,41,83</uf_rgb>
+		</item>
+		<item>
+			<id>295</id>
+			<uf_name_en>Cardinal</uf_name_en>
+			<uf_name_ru>Тёмно-красный</uf_name_ru>
+			<uf_hex>#C41E3A</uf_hex>
+			<uf_rgb>196,30,58</uf_rgb>
+		</item>
+		<item>
+			<id>296</id>
+			<uf_name_en>Cardinal</uf_name_en>
+			<uf_name_ru>Кардинал</uf_name_ru>
+			<uf_hex>#C41E3A</uf_hex>
+			<uf_rgb>196,30,58</uf_rgb>
+		</item>
+		<item>
+			<id>297</id>
+			<uf_name_en>Carmine</uf_name_en>
+			<uf_name_ru>Карминово-красный</uf_name_ru>
+			<uf_hex>#960018</uf_hex>
+			<uf_rgb>150,0,24</uf_rgb>
+		</item>
+		<item>
+			<id>298</id>
+			<uf_name_en>Carrot</uf_name_en>
+			<uf_name_ru>Морковный</uf_name_ru>
+			<uf_hex>#ED9121</uf_hex>
+			<uf_rgb>237,145,33</uf_rgb>
+		</item>
+		<item>
+			<id>299</id>
+			<uf_name_en>Celadon</uf_name_en>
+			<uf_name_ru>Селадоновый</uf_name_ru>
+			<uf_hex>#ACE1AF</uf_hex>
+			<uf_rgb>172,225,175</uf_rgb>
+		</item>
+		<item>
+			<id>300</id>
+			<uf_name_en>Cerise</uf_name_en>
+			<uf_name_ru>Светлая вишня</uf_name_ru>
+			<uf_hex>#DE3163</uf_hex>
+			<uf_rgb>222,49,99</uf_rgb>
+		</item>
+		<item>
+			<id>301</id>
+			<uf_name_en>Cerulean</uf_name_en>
+			<uf_name_ru>Лазурный</uf_name_ru>
+			<uf_hex>#007BA7</uf_hex>
+			<uf_rgb>0,123,167</uf_rgb>
+		</item>
+		<item>
+			<id>302</id>
+			<uf_name_en>Cerulean blue</uf_name_en>
+			<uf_name_ru>Лазурно-синий</uf_name_ru>
+			<uf_hex>#2A52BE</uf_hex>
+			<uf_rgb>42,82,190</uf_rgb>
+		</item>
+		<item>
+			<id>303</id>
+			<uf_name_en>Chartreuse</uf_name_en>
+			<uf_name_ru>Салатовый</uf_name_ru>
+			<uf_hex>#7FFF00</uf_hex>
+			<uf_rgb>127,255,0</uf_rgb>
+		</item>
+		<item>
+			<id>304</id>
+			<uf_name_en>Chartreuse</uf_name_en>
+			<uf_name_ru>Шартрез</uf_name_ru>
+			<uf_hex>#7FFF00</uf_hex>
+			<uf_rgb>127,255,0</uf_rgb>
+		</item>
+		<item>
+			<id>305</id>
+			<uf_name_en>Chestnut</uf_name_en>
+			<uf_name_ru>Каштановый</uf_name_ru>
+			<uf_hex>#CD5C5C</uf_hex>
+			<uf_rgb>205,92,92</uf_rgb>
+		</item>
+		<item>
+			<id>306</id>
+			<uf_name_en>Chocolate</uf_name_en>
+			<uf_name_ru>Шоколадный</uf_name_ru>
+			<uf_hex>#D2691E</uf_hex>
+			<uf_rgb>210,105,30</uf_rgb>
+		</item>
+		<item>
+			<id>307</id>
+			<uf_name_en>Cinnamon</uf_name_en>
+			<uf_name_ru>Коричный</uf_name_ru>
+			<uf_hex>#7B3F00</uf_hex>
+			<uf_rgb>123,63,0</uf_rgb>
+		</item>
+		<item>
+			<id>308</id>
+			<uf_name_en>Cobalt</uf_name_en>
+			<uf_name_ru>Кобальт синий</uf_name_ru>
+			<uf_hex>#0047AB</uf_hex>
+			<uf_rgb>0,71,171</uf_rgb>
+		</item>
+		<item>
+			<id>309</id>
+			<uf_name_en>Copper</uf_name_en>
+			<uf_name_ru>Медный</uf_name_ru>
+			<uf_hex>#B87333</uf_hex>
+			<uf_rgb>184,115,51</uf_rgb>
+		</item>
+		<item>
+			<id>310</id>
+			<uf_name_en>Coral</uf_name_en>
+			<uf_name_ru>Коралловый</uf_name_ru>
+			<uf_hex>#FF7F50</uf_hex>
+			<uf_rgb>255,127,80</uf_rgb>
+		</item>
+		<item>
+			<id>311</id>
+			<uf_name_en>Coral</uf_name_en>
+			<uf_name_ru>Кораллово-красный</uf_name_ru>
+			<uf_hex>#FF7F50</uf_hex>
+			<uf_rgb>255,127,80</uf_rgb>
+		</item>
+		<item>
+			<id>312</id>
+			<uf_name_en>Corn</uf_name_en>
+			<uf_name_ru>Кукурузный</uf_name_ru>
+			<uf_hex>#FBEC5D</uf_hex>
+			<uf_rgb>251,236,93</uf_rgb>
+		</item>
+		<item>
+			<id>313</id>
+			<uf_name_en>Cornflower blue</uf_name_en>
+			<uf_name_ru>Васильковый</uf_name_ru>
+			<uf_hex>#6495ED</uf_hex>
+			<uf_rgb>100,149,237</uf_rgb>
+		</item>
+		<item>
+			<id>314</id>
+			<uf_name_en>Cream</uf_name_en>
+			<uf_name_ru>Кремовый</uf_name_ru>
+			<uf_hex>#FFFDD0</uf_hex>
+			<uf_rgb>255,253,208</uf_rgb>
+		</item>
+		<item>
+			<id>315</id>
+			<uf_name_en>Crimson</uf_name_en>
+			<uf_name_ru>Тёмно-красный</uf_name_ru>
+			<uf_hex>#DC143C</uf_hex>
+			<uf_rgb>220,20,60</uf_rgb>
+		</item>
+		<item>
+			<id>316</id>
+			<uf_name_en>Crimson</uf_name_en>
+			<uf_name_ru>Кровавый</uf_name_ru>
+			<uf_hex>#DC143C</uf_hex>
+			<uf_rgb>220,20,60</uf_rgb>
+		</item>
+		<item>
+			<id>317</id>
+			<uf_name_en>Crimson</uf_name_en>
+			<uf_name_ru>Малиновый</uf_name_ru>
+			<uf_hex>#DC143C</uf_hex>
+			<uf_rgb>220,20,60</uf_rgb>
+		</item>
+		<item>
+			<id>318</id>
+			<uf_name_en>Cyan</uf_name_en>
+			<uf_name_ru>Циан</uf_name_ru>
+			<uf_hex>#00FFFF</uf_hex>
+			<uf_rgb>0,255,255</uf_rgb>
+		</item>
+		<item>
+			<id>319</id>
+			<uf_name_en>Cyan</uf_name_en>
+			<uf_name_ru>Васильковый</uf_name_ru>
+			<uf_hex>#00FFFF</uf_hex>
+			<uf_rgb>0,255,255</uf_rgb>
+		</item>
+		<item>
+			<id>320</id>
+			<uf_name_en>Dark blue</uf_name_en>
+			<uf_name_ru>Тёмно-синий</uf_name_ru>
+			<uf_hex>#00008B</uf_hex>
+			<uf_rgb>0,0,139</uf_rgb>
+		</item>
+		<item>
+			<id>321</id>
+			<uf_name_en>Dark brown</uf_name_en>
+			<uf_name_ru>Тёмно-коричневый</uf_name_ru>
+			<uf_hex>#654321</uf_hex>
+			<uf_rgb>101,67,33</uf_rgb>
+		</item>
+		<item>
+			<id>322</id>
+			<uf_name_en>Dark cerulean</uf_name_en>
+			<uf_name_ru>Тёмно-лазурный</uf_name_ru>
+			<uf_hex>#08457E</uf_hex>
+			<uf_rgb>8,69,126</uf_rgb>
+		</item>
+		<item>
+			<id>323</id>
+			<uf_name_en>Dark chestnut</uf_name_en>
+			<uf_name_ru>Тёмно-каштановый</uf_name_ru>
+			<uf_hex>#986960</uf_hex>
+			<uf_rgb>152,105,96</uf_rgb>
+		</item>
+		<item>
+			<id>324</id>
+			<uf_name_en>Dark coral</uf_name_en>
+			<uf_name_ru>Тёмно-коралловый</uf_name_ru>
+			<uf_hex>#CD5B45</uf_hex>
+			<uf_rgb>205,91,69</uf_rgb>
+		</item>
+		<item>
+			<id>325</id>
+			<uf_name_en>Dark goldenrod</uf_name_en>
+			<uf_name_ru>Тёмно-золотой</uf_name_ru>
+			<uf_hex>#B8860B</uf_hex>
+			<uf_rgb>184,134,11</uf_rgb>
+		</item>
+		<item>
+			<id>326</id>
+			<uf_name_en>Dark green</uf_name_en>
+			<uf_name_ru>Тёмно-зелёный</uf_name_ru>
+			<uf_hex>#013220</uf_hex>
+			<uf_rgb>1,50,32</uf_rgb>
+		</item>
+		<item>
+			<id>327</id>
+			<uf_name_en>Dark Indigo</uf_name_en>
+			<uf_name_ru>Тёмный индиго</uf_name_ru>
+			<uf_hex>#310062</uf_hex>
+			<uf_rgb>49,0,98</uf_rgb>
+		</item>
+		<item>
+			<id>328</id>
+			<uf_name_en>Dark Indigo</uf_name_en>
+			<uf_name_ru>Индиго</uf_name_ru>
+			<uf_hex>#310062</uf_hex>
+			<uf_rgb>49,0,98</uf_rgb>
+		</item>
+		<item>
+			<id>329</id>
+			<uf_name_en>Dark Khaki</uf_name_en>
+			<uf_name_ru>Тёмный хаки</uf_name_ru>
+			<uf_hex>#BDB76B</uf_hex>
+			<uf_rgb>189,183,107</uf_rgb>
+		</item>
+		<item>
+			<id>330</id>
+			<uf_name_en>Dark Khaki</uf_name_en>
+			<uf_name_ru>Хаки</uf_name_ru>
+			<uf_hex>#BDB76B</uf_hex>
+			<uf_rgb>189,183,107</uf_rgb>
+		</item>
+		<item>
+			<id>331</id>
+			<uf_name_en>Dark Olive</uf_name_en>
+			<uf_name_ru>Тёмно-оливковый</uf_name_ru>
+			<uf_hex>#556832</uf_hex>
+			<uf_rgb>85,104,50</uf_rgb>
+		</item>
+		<item>
+			<id>332</id>
+			<uf_name_en>Dark pastel green</uf_name_en>
+			<uf_name_ru>Тёмный пастельно-зелёный</uf_name_ru>
+			<uf_hex>#03C03C</uf_hex>
+			<uf_rgb>3,192,60</uf_rgb>
+		</item>
+		<item>
+			<id>333</id>
+			<uf_name_en>Dark Peach</uf_name_en>
+			<uf_name_ru>Тёмно-персиковый</uf_name_ru>
+			<uf_hex>#FFDAB9</uf_hex>
+			<uf_rgb>255,218,185</uf_rgb>
+		</item>
+		<item>
+			<id>334</id>
+			<uf_name_en>Dark pink</uf_name_en>
+			<uf_name_ru>Тёмно-розовый</uf_name_ru>
+			<uf_hex>#E75480</uf_hex>
+			<uf_rgb>231,84,128</uf_rgb>
+		</item>
+		<item>
+			<id>335</id>
+			<uf_name_en>Dark salmon</uf_name_en>
+			<uf_name_ru>Тёмная лососина</uf_name_ru>
+			<uf_hex>#E9967A</uf_hex>
+			<uf_rgb>233,150,122</uf_rgb>
+		</item>
+		<item>
+			<id>336</id>
+			<uf_name_en>Dark Scarlet</uf_name_en>
+			<uf_name_ru>Тёмно-алый</uf_name_ru>
+			<uf_hex>#560319</uf_hex>
+			<uf_rgb>86,3,25</uf_rgb>
+		</item>
+		<item>
+			<id>337</id>
+			<uf_name_en>Dark slate gray</uf_name_en>
+			<uf_name_ru>Тёмно-аспидный серый</uf_name_ru>
+			<uf_hex>#2F4F4F</uf_hex>
+			<uf_rgb>47,79,79</uf_rgb>
+		</item>
+		<item>
+			<id>338</id>
+			<uf_name_en>Dark slate gray</uf_name_en>
+			<uf_name_ru>Аспидно-серый</uf_name_ru>
+			<uf_hex>#2F4F4F</uf_hex>
+			<uf_rgb>47,79,79</uf_rgb>
+		</item>
+		<item>
+			<id>339</id>
+			<uf_name_en>Dark spring green</uf_name_en>
+			<uf_name_ru>Тёмный весенне-зелёный</uf_name_ru>
+			<uf_hex>#177245</uf_hex>
+			<uf_rgb>23,114,69</uf_rgb>
+		</item>
+		<item>
+			<id>340</id>
+			<uf_name_en>Dark tan</uf_name_en>
+			<uf_name_ru>Тёмный жёлто-коричневый</uf_name_ru>
+			<uf_hex>#918151</uf_hex>
+			<uf_rgb>145,129,81</uf_rgb>
+		</item>
+		<item>
+			<id>341</id>
+			<uf_name_en>Dark tangerine</uf_name_en>
+			<uf_name_ru>Тёмно-мандариновый</uf_name_ru>
+			<uf_hex>#FFA812</uf_hex>
+			<uf_rgb>255,168,18</uf_rgb>
+		</item>
+		<item>
+			<id>342</id>
+			<uf_name_en>Dark Tea Green</uf_name_en>
+			<uf_name_ru>Тёмный зелёный чай</uf_name_ru>
+			<uf_hex>#BADBAD</uf_hex>
+			<uf_rgb>186,219,173</uf_rgb>
+		</item>
+		<item>
+			<id>343</id>
+			<uf_name_en>Dark turquoise</uf_name_en>
+			<uf_name_ru>Тёмно-бирюзовый</uf_name_ru>
+			<uf_hex>#116062</uf_hex>
+			<uf_rgb>17,96,98</uf_rgb>
+		</item>
+		<item>
+			<id>344</id>
+			<uf_name_en>Dark violet</uf_name_en>
+			<uf_name_ru>Глубокий фиолетовый</uf_name_ru>
+			<uf_hex>#423189</uf_hex>
+			<uf_rgb>66,49,137</uf_rgb>
+		</item>
+		<item>
+			<id>345</id>
+			<uf_name_en>Deep pink</uf_name_en>
+			<uf_name_ru>Глубокий розовый</uf_name_ru>
+			<uf_hex>#FF1493</uf_hex>
+			<uf_rgb>255,20,147</uf_rgb>
+		</item>
+		<item>
+			<id>346</id>
+			<uf_name_en>Deep sky blue</uf_name_en>
+			<uf_name_ru>Голубой</uf_name_ru>
+			<uf_hex>#00BFFF</uf_hex>
+			<uf_rgb>0,191,255</uf_rgb>
+		</item>
+		<item>
+			<id>347</id>
+			<uf_name_en>Denim</uf_name_en>
+			<uf_name_ru>Джинсовый синий</uf_name_ru>
+			<uf_hex>#1560BD</uf_hex>
+			<uf_rgb>21,96,189</uf_rgb>
+		</item>
+		<item>
+			<id>348</id>
+			<uf_name_en>Dodger blue</uf_name_en>
+			<uf_name_ru>Защитно-синий</uf_name_ru>
+			<uf_hex>#1E90FF</uf_hex>
+			<uf_rgb>30,144,255</uf_rgb>
+		</item>
+		<item>
+			<id>349</id>
+			<uf_name_en>Emerald</uf_name_en>
+			<uf_name_ru>Изумрудный</uf_name_ru>
+			<uf_hex>#50C878</uf_hex>
+			<uf_rgb>80,200,120</uf_rgb>
+		</item>
+		<item>
+			<id>350</id>
+			<uf_name_en>Eggplant</uf_name_en>
+			<uf_name_ru>Баклажановый</uf_name_ru>
+			<uf_hex>#990066</uf_hex>
+			<uf_rgb>153,0,102</uf_rgb>
+		</item>
+		<item>
+			<id>351</id>
+			<uf_name_en>Fawn</uf_name_en>
+			<uf_name_ru>Желтовато-коричневый</uf_name_ru>
+			<uf_hex>#E5AA70</uf_hex>
+			<uf_rgb>229,170,112</uf_rgb>
+		</item>
+		<item>
+			<id>352</id>
+			<uf_name_en>Fern green</uf_name_en>
+			<uf_name_ru>Зелёный папоротник</uf_name_ru>
+			<uf_hex>#4F7942</uf_hex>
+			<uf_rgb>79,121,66</uf_rgb>
+		</item>
+		<item>
+			<id>353</id>
+			<uf_name_en>Fire brick</uf_name_en>
+			<uf_name_ru>Кирпичный</uf_name_ru>
+			<uf_hex>#B22222</uf_hex>
+			<uf_rgb>178,34,34</uf_rgb>
+		</item>
+		<item>
+			<id>354</id>
+			<uf_name_en>Flax</uf_name_en>
+			<uf_name_ru>Льняной</uf_name_ru>
+			<uf_hex>#EEDC82</uf_hex>
+			<uf_rgb>238,220,130</uf_rgb>
+		</item>
+		<item>
+			<id>355</id>
+			<uf_name_en>Fuchsia</uf_name_en>
+			<uf_name_ru>Фуксия</uf_name_ru>
+			<uf_hex>#FF00FF</uf_hex>
+			<uf_rgb>255,0,255</uf_rgb>
+		</item>
+		<item>
+			<id>356</id>
+			<uf_name_en>Gamboge</uf_name_en>
+			<uf_name_ru>Гуммигут</uf_name_ru>
+			<uf_hex>#E49B0F</uf_hex>
+			<uf_rgb>228,155,15</uf_rgb>
+		</item>
+		<item>
+			<id>357</id>
+			<uf_name_en>Gold</uf_name_en>
+			<uf_name_ru>Золотой</uf_name_ru>
+			<uf_hex>#FFD700</uf_hex>
+			<uf_rgb>255,215,0</uf_rgb>
+		</item>
+		<item>
+			<id>358</id>
+			<uf_name_en>Goldenrod</uf_name_en>
+			<uf_name_ru>Золотисто-берёзовый</uf_name_ru>
+			<uf_hex>#DAA520</uf_hex>
+			<uf_rgb>218,165,32</uf_rgb>
+		</item>
+		<item>
+			<id>359</id>
+			<uf_name_en>Gray</uf_name_en>
+			<uf_name_ru>Серый</uf_name_ru>
+			<uf_hex>#808080</uf_hex>
+			<uf_rgb>128,128,128</uf_rgb>
+		</item>
+		<item>
+			<id>360</id>
+			<uf_name_en>Gray-asparagus</uf_name_en>
+			<uf_name_ru>Серая спаржа</uf_name_ru>
+			<uf_hex>#465945</uf_hex>
+			<uf_rgb>70,89,69</uf_rgb>
+		</item>
+		<item>
+			<id>361</id>
+			<uf_name_en>Gray-Tea Green</uf_name_en>
+			<uf_name_ru>Зелёный серый чай</uf_name_ru>
+			<uf_hex>#CADABA</uf_hex>
+			<uf_rgb>202,218,186</uf_rgb>
+		</item>
+		<item>
+			<id>362</id>
+			<uf_name_en>Green</uf_name_en>
+			<uf_name_ru>Зелёный</uf_name_ru>
+			<uf_hex>#00FF00</uf_hex>
+			<uf_rgb>0,255,0</uf_rgb>
+		</item>
+		<item>
+			<id>363</id>
+			<uf_name_en>Green-yellow</uf_name_en>
+			<uf_name_ru>Жёлто-зелёный</uf_name_ru>
+			<uf_hex>#ADFF2F</uf_hex>
+			<uf_rgb>173,255,47</uf_rgb>
+		</item>
+		<item>
+			<id>364</id>
+			<uf_name_en>Gradus Blue</uf_name_en>
+			<uf_name_ru>Синий Градуса</uf_name_ru>
+			<uf_hex>#007DFF</uf_hex>
+			<uf_rgb>0,125,255</uf_rgb>
+		</item>
+		<item>
+			<id>365</id>
+			<uf_name_en>Heliotrope</uf_name_en>
+			<uf_name_ru>Гелиотроп</uf_name_ru>
+			<uf_hex>#DF73FF</uf_hex>
+			<uf_rgb>223,115,255</uf_rgb>
+		</item>
+		<item>
+			<id>366</id>
+			<uf_name_en>Hot pink</uf_name_en>
+			<uf_name_ru>Ярко-розовый</uf_name_ru>
+			<uf_hex>#FC0FC0</uf_hex>
+			<uf_rgb>252,15,192</uf_rgb>
+		</item>
+		<item>
+			<id>367</id>
+			<uf_name_en>Indigo</uf_name_en>
+			<uf_name_ru>Индиго</uf_name_ru>
+			<uf_hex>#4B0082</uf_hex>
+			<uf_rgb>75,0,130</uf_rgb>
+		</item>
+		<item>
+			<id>368</id>
+			<uf_name_en>Safety orange</uf_name_en>
+			<uf_name_ru>Сигнальный оранжевый</uf_name_ru>
+			<uf_hex>#FF4F00</uf_hex>
+			<uf_rgb>255,79,0</uf_rgb>
+		</item>
+		<item>
+			<id>369</id>
+			<uf_name_en>International orange</uf_name_en>
+			<uf_name_ru>Международный оранжевый</uf_name_ru>
+			<uf_hex>#FF4F00</uf_hex>
+			<uf_rgb>255,79,0</uf_rgb>
+		</item>
+		<item>
+			<id>370</id>
+			<uf_name_en>Indian Red</uf_name_en>
+			<uf_name_ru>Индийский красный</uf_name_ru>
+			<uf_hex>#CD5C5C</uf_hex>
+			<uf_rgb>205,92,92</uf_rgb>
+		</item>
+		<item>
+			<id>371</id>
+			<uf_name_en>Indian Red</uf_name_en>
+			<uf_name_ru>Каштановый</uf_name_ru>
+			<uf_hex>#CD5C5C</uf_hex>
+			<uf_rgb>205,92,92</uf_rgb>
+		</item>
+		<item>
+			<id>372</id>
+			<uf_name_en>Jade</uf_name_en>
+			<uf_name_ru>Нефритовый</uf_name_ru>
+			<uf_hex>#00A86B</uf_hex>
+			<uf_rgb>0,168,107</uf_rgb>
+		</item>
+		<item>
+			<id>373</id>
+			<uf_name_en>Khaki</uf_name_en>
+			<uf_name_ru>Хаки</uf_name_ru>
+			<uf_hex>#C3B091</uf_hex>
+			<uf_rgb>195,176,145</uf_rgb>
+		</item>
+		<item>
+			<id>374</id>
+			<uf_name_en>Klein Blue</uf_name_en>
+			<uf_name_ru>Синий Клейна</uf_name_ru>
+			<uf_hex>#3A75C4</uf_hex>
+			<uf_rgb>58,117,196</uf_rgb>
+		</item>
+		<item>
+			<id>375</id>
+			<uf_name_en>Lavender</uf_name_en>
+			<uf_name_ru>Лавандово-синий</uf_name_ru>
+			<uf_hex>#E6E6FA</uf_hex>
+			<uf_rgb>230,230,250</uf_rgb>
+		</item>
+		<item>
+			<id>376</id>
+			<uf_name_en>Lavender</uf_name_en>
+			<uf_name_ru>Лаванда</uf_name_ru>
+			<uf_hex>#E6E6FA</uf_hex>
+			<uf_rgb>230,230,250</uf_rgb>
+		</item>
+		<item>
+			<id>377</id>
+			<uf_name_en>Lavender Blush</uf_name_en>
+			<uf_name_ru>Розово-лавандовый</uf_name_ru>
+			<uf_hex>#FFF0F5</uf_hex>
+			<uf_rgb>255,240,245</uf_rgb>
+		</item>
+		<item>
+			<id>378</id>
+			<uf_name_en>Lemon</uf_name_en>
+			<uf_name_ru>Лимонный</uf_name_ru>
+			<uf_hex>#FDE910</uf_hex>
+			<uf_rgb>253,233,16</uf_rgb>
+		</item>
+		<item>
+			<id>379</id>
+			<uf_name_en>Lemon Cream</uf_name_en>
+			<uf_name_ru>Лимонно-кремовый</uf_name_ru>
+			<uf_hex>#FFFACD</uf_hex>
+			<uf_rgb>255,250,205</uf_rgb>
+		</item>
+		<item>
+			<id>380</id>
+			<uf_name_en>Light brown</uf_name_en>
+			<uf_name_ru>Светло-коричневый</uf_name_ru>
+			<uf_hex>#CD853F</uf_hex>
+			<uf_rgb>205,133,63</uf_rgb>
+		</item>
+		<item>
+			<id>381</id>
+			<uf_name_en>Lilac</uf_name_en>
+			<uf_name_ru>Сиреневый</uf_name_ru>
+			<uf_hex>#C8A2C8</uf_hex>
+			<uf_rgb>200,162,200</uf_rgb>
+		</item>
+		<item>
+			<id>382</id>
+			<uf_name_en>Lime</uf_name_en>
+			<uf_name_ru>Лайм</uf_name_ru>
+			<uf_hex>#CCFF00</uf_hex>
+			<uf_rgb>204,255,0</uf_rgb>
+		</item>
+		<item>
+			<id>383</id>
+			<uf_name_en>Linen</uf_name_en>
+			<uf_name_ru>Льняной</uf_name_ru>
+			<uf_hex>#FAF0E6</uf_hex>
+			<uf_rgb>250,240,230</uf_rgb>
+		</item>
+		<item>
+			<id>384</id>
+			<uf_name_en>Lawn Green</uf_name_en>
+			<uf_name_ru>Зелёная лужайка</uf_name_ru>
+			<uf_hex>#7CFC00</uf_hex>
+			<uf_rgb>124,252,0</uf_rgb>
+		</item>
+		<item>
+			<id>385</id>
+			<uf_name_en>Magenta</uf_name_en>
+			<uf_name_ru>Малиновый</uf_name_ru>
+			<uf_hex>#FF00FF</uf_hex>
+			<uf_rgb>255,0,255</uf_rgb>
+		</item>
+		<item>
+			<id>386</id>
+			<uf_name_en>Magenta</uf_name_en>
+			<uf_name_ru>Фуксия</uf_name_ru>
+			<uf_hex>#FF00FF</uf_hex>
+			<uf_rgb>255,0,255</uf_rgb>
+		</item>
+		<item>
+			<id>387</id>
+			<uf_name_en>Magenta</uf_name_en>
+			<uf_name_ru>Пурпурный</uf_name_ru>
+			<uf_hex>#FF00FF</uf_hex>
+			<uf_rgb>255,0,255</uf_rgb>
+		</item>
+		<item>
+			<id>388</id>
+			<uf_name_en>Malachite</uf_name_en>
+			<uf_name_ru>Малахитовая зелень</uf_name_ru>
+			<uf_hex>#0BDA51</uf_hex>
+			<uf_rgb>11,218,81</uf_rgb>
+		</item>
+		<item>
+			<id>389</id>
+			<uf_name_en>Malachite</uf_name_en>
+			<uf_name_ru>Малахитовый</uf_name_ru>
+			<uf_hex>#0BDA51</uf_hex>
+			<uf_rgb>11,218,81</uf_rgb>
+		</item>
+		<item>
+			<id>390</id>
+			<uf_name_en>Maroon</uf_name_en>
+			<uf_name_ru>Коричнево-малиновый</uf_name_ru>
+			<uf_hex>#800000</uf_hex>
+			<uf_rgb>128,0,0</uf_rgb>
+		</item>
+		<item>
+			<id>391</id>
+			<uf_name_en>Mauve</uf_name_en>
+			<uf_name_ru>Розовато-лиловый</uf_name_ru>
+			<uf_hex>#993366</uf_hex>
+			<uf_rgb>153,51,102</uf_rgb>
+		</item>
+		<item>
+			<id>392</id>
+			<uf_name_en>Midnight Blue</uf_name_en>
+			<uf_name_ru>Полуночно-синий</uf_name_ru>
+			<uf_hex>#003366</uf_hex>
+			<uf_rgb>0,51,102</uf_rgb>
+		</item>
+		<item>
+			<id>393</id>
+			<uf_name_en>Mint Green</uf_name_en>
+			<uf_name_ru>Зелёная мята</uf_name_ru>
+			<uf_hex>#98FF98</uf_hex>
+			<uf_rgb>152,255,152</uf_rgb>
+		</item>
+		<item>
+			<id>394</id>
+			<uf_name_en>Mint Green</uf_name_en>
+			<uf_name_ru>Мятный</uf_name_ru>
+			<uf_hex>#98FF98</uf_hex>
+			<uf_rgb>152,255,152</uf_rgb>
+		</item>
+		<item>
+			<id>395</id>
+			<uf_name_en>Moss green</uf_name_en>
+			<uf_name_ru>Зелёный мох</uf_name_ru>
+			<uf_hex>#ADDFAD</uf_hex>
+			<uf_rgb>173,223,173</uf_rgb>
+		</item>
+		<item>
+			<id>396</id>
+			<uf_name_en>Mountbatten pink</uf_name_en>
+			<uf_name_ru>Розовый Маунтбэттена</uf_name_ru>
+			<uf_hex>#997A8D</uf_hex>
+			<uf_rgb>153,122,141</uf_rgb>
+		</item>
+		<item>
+			<id>397</id>
+			<uf_name_en>Mustard</uf_name_en>
+			<uf_name_ru>Горчичный</uf_name_ru>
+			<uf_hex>#FFDB58</uf_hex>
+			<uf_rgb>255,219,88</uf_rgb>
+		</item>
+		<item>
+			<id>398</id>
+			<uf_name_en>Navajo white</uf_name_en>
+			<uf_name_ru>Белый навахо</uf_name_ru>
+			<uf_hex>#FFDEAD</uf_hex>
+			<uf_rgb>255,222,173</uf_rgb>
+		</item>
+		<item>
+			<id>399</id>
+			<uf_name_en>Navy</uf_name_en>
+			<uf_name_ru>Тёмно-синий</uf_name_ru>
+			<uf_hex>#000080</uf_hex>
+			<uf_rgb>0,0,128</uf_rgb>
+		</item>
+		<item>
+			<id>400</id>
+			<uf_name_en>Navy</uf_name_en>
+			<uf_name_ru>Форма морских офицеров</uf_name_ru>
+			<uf_hex>#000080</uf_hex>
+			<uf_rgb>0,0,128</uf_rgb>
+		</item>
+		<item>
+			<id>401</id>
+			<uf_name_en>Ochre</uf_name_en>
+			<uf_name_ru>Охра</uf_name_ru>
+			<uf_hex>#CC7722</uf_hex>
+			<uf_rgb>204,119,34</uf_rgb>
+		</item>
+		<item>
+			<id>402</id>
+			<uf_name_en>Old Gold</uf_name_en>
+			<uf_name_ru>Старое золото</uf_name_ru>
+			<uf_hex>#CFB53B</uf_hex>
+			<uf_rgb>207,181,59</uf_rgb>
+		</item>
+		<item>
+			<id>403</id>
+			<uf_name_en>Olive</uf_name_en>
+			<uf_name_ru>Оливковый</uf_name_ru>
+			<uf_hex>#808000</uf_hex>
+			<uf_rgb>128,128,0</uf_rgb>
+		</item>
+		<item>
+			<id>404</id>
+			<uf_name_en>Olive Drab</uf_name_en>
+			<uf_name_ru>Нежно-оливковый</uf_name_ru>
+			<uf_hex>#6B8E23</uf_hex>
+			<uf_rgb>107,142,35</uf_rgb>
+		</item>
+		<item>
+			<id>405</id>
+			<uf_name_en>Orange</uf_name_en>
+			<uf_name_ru>Оранжевый</uf_name_ru>
+			<uf_hex>#FFA500</uf_hex>
+			<uf_rgb>255,165,0</uf_rgb>
+		</item>
+		<item>
+			<id>406</id>
+			<uf_name_en>Orchid</uf_name_en>
+			<uf_name_ru>Орхидея</uf_name_ru>
+			<uf_hex>#DA70D6</uf_hex>
+			<uf_rgb>218,112,214</uf_rgb>
+		</item>
+		<item>
+			<id>407</id>
+			<uf_name_en>Old Lace</uf_name_en>
+			<uf_name_ru>Старое кружево</uf_name_ru>
+			<uf_hex>#FDF5E6</uf_hex>
+			<uf_rgb>253,245,230</uf_rgb>
+		</item>
+		<item>
+			<id>408</id>
+			<uf_name_en>Pale Blue</uf_name_en>
+			<uf_name_ru>Бледно-синий</uf_name_ru>
+			<uf_hex>#AFEEEE</uf_hex>
+			<uf_rgb>175,238,238</uf_rgb>
+		</item>
+		<item>
+			<id>409</id>
+			<uf_name_en>Pale brown</uf_name_en>
+			<uf_name_ru>Бледно-коричневый</uf_name_ru>
+			<uf_hex>#987654</uf_hex>
+			<uf_rgb>152,118,84</uf_rgb>
+		</item>
+		<item>
+			<id>410</id>
+			<uf_name_en>Pale carmine</uf_name_en>
+			<uf_name_ru>Бледно-карминный</uf_name_ru>
+			<uf_hex>#AF4035</uf_hex>
+			<uf_rgb>175,64,53</uf_rgb>
+		</item>
+		<item>
+			<id>411</id>
+			<uf_name_en>Pale chestnut</uf_name_en>
+			<uf_name_ru>Бледно-каштановый</uf_name_ru>
+			<uf_hex>#DDADAF</uf_hex>
+			<uf_rgb>221,173,175</uf_rgb>
+		</item>
+		<item>
+			<id>412</id>
+			<uf_name_en>Pale cornflower blue</uf_name_en>
+			<uf_name_ru>Бледно-васильковый</uf_name_ru>
+			<uf_hex>#ABCDEF</uf_hex>
+			<uf_rgb>171,205,239</uf_rgb>
+		</item>
+		<item>
+			<id>413</id>
+			<uf_name_en>Pale magenta</uf_name_en>
+			<uf_name_ru>Бледно-пурпурный</uf_name_ru>
+			<uf_hex>#F984E5</uf_hex>
+			<uf_rgb>249,132,229</uf_rgb>
+		</item>
+		<item>
+			<id>414</id>
+			<uf_name_en>Pale mauve</uf_name_en>
+			<uf_name_ru>Бледный розовато-лиловый</uf_name_ru>
+			<uf_hex>#996666</uf_hex>
+			<uf_rgb>153,102,102</uf_rgb>
+		</item>
+		<item>
+			<id>415</id>
+			<uf_name_en>Pale pink</uf_name_en>
+			<uf_name_ru>Бледно-розовый</uf_name_ru>
+			<uf_hex>#FADADD</uf_hex>
+			<uf_rgb>250,218,221</uf_rgb>
+		</item>
+		<item>
+			<id>416</id>
+			<uf_name_en>Pale red-violet</uf_name_en>
+			<uf_name_ru>Лиловый</uf_name_ru>
+			<uf_hex>#DB7093</uf_hex>
+			<uf_rgb>219,112,147</uf_rgb>
+		</item>
+		<item>
+			<id>417</id>
+			<uf_name_en>Pale Sandy Brown</uf_name_en>
+			<uf_name_ru>Бледно-песочный</uf_name_ru>
+			<uf_hex>#DABDAB</uf_hex>
+			<uf_rgb>218,189,171</uf_rgb>
+		</item>
+		<item>
+			<id>418</id>
+			<uf_name_en>Pale yellow</uf_name_en>
+			<uf_name_ru>Палевый</uf_name_ru>
+			<uf_hex>#F0DC82</uf_hex>
+			<uf_rgb>240,220,130</uf_rgb>
+		</item>
+		<item>
+			<id>419</id>
+			<uf_name_en>Pang</uf_name_en>
+			<uf_name_ru>Панг</uf_name_ru>
+			<uf_hex>#C7FCEC</uf_hex>
+			<uf_rgb>199,252,236</uf_rgb>
+		</item>
+		<item>
+			<id>420</id>
+			<uf_name_en>Papaya whip</uf_name_en>
+			<uf_name_ru>Побег папайи</uf_name_ru>
+			<uf_hex>#FFEFD5</uf_hex>
+			<uf_rgb>255,239,213</uf_rgb>
+		</item>
+		<item>
+			<id>421</id>
+			<uf_name_en>Pastel green</uf_name_en>
+			<uf_name_ru>Пастельно-зелёный</uf_name_ru>
+			<uf_hex>#77DD77</uf_hex>
+			<uf_rgb>119,221,119</uf_rgb>
+		</item>
+		<item>
+			<id>422</id>
+			<uf_name_en>Pastel pink</uf_name_en>
+			<uf_name_ru>Пастельно-розовый</uf_name_ru>
+			<uf_hex>#FFD1DC</uf_hex>
+			<uf_rgb>255,209,220</uf_rgb>
+		</item>
+		<item>
+			<id>423</id>
+			<uf_name_en>Peach</uf_name_en>
+			<uf_name_ru>Персиковый</uf_name_ru>
+			<uf_hex>#FFE5B4</uf_hex>
+			<uf_rgb>255,229,180</uf_rgb>
+		</item>
+		<item>
+			<id>424</id>
+			<uf_name_en>Peach-orange</uf_name_en>
+			<uf_name_ru>Оранжево-персиковый</uf_name_ru>
+			<uf_hex>#FFCC99</uf_hex>
+			<uf_rgb>255,204,153</uf_rgb>
+		</item>
+		<item>
+			<id>425</id>
+			<uf_name_en>Peach-yellow</uf_name_en>
+			<uf_name_ru>Жёлто-персиковый</uf_name_ru>
+			<uf_hex>#FADFAD</uf_hex>
+			<uf_rgb>250,223,173</uf_rgb>
+		</item>
+		<item>
+			<id>426</id>
+			<uf_name_en>Pear</uf_name_en>
+			<uf_name_ru>Грушевый</uf_name_ru>
+			<uf_hex>#D1E231</uf_hex>
+			<uf_rgb>209,226,49</uf_rgb>
+		</item>
+		<item>
+			<id>427</id>
+			<uf_name_en>Periwinkle</uf_name_en>
+			<uf_name_ru>Барвинок</uf_name_ru>
+			<uf_hex>#CCCCFF</uf_hex>
+			<uf_rgb>204,204,255</uf_rgb>
+		</item>
+		<item>
+			<id>428</id>
+			<uf_name_en>Persian blue</uf_name_en>
+			<uf_name_ru>Персидский синий</uf_name_ru>
+			<uf_hex>#6600FF</uf_hex>
+			<uf_rgb>102,0,255</uf_rgb>
+		</item>
+		<item>
+			<id>429</id>
+			<uf_name_en>Pine Green</uf_name_en>
+			<uf_name_ru>Зелёная сосна</uf_name_ru>
+			<uf_hex>#01796F</uf_hex>
+			<uf_rgb>1,121,111</uf_rgb>
+		</item>
+		<item>
+			<id>430</id>
+			<uf_name_en>Pink</uf_name_en>
+			<uf_name_ru>Розовый</uf_name_ru>
+			<uf_hex>#FFC0CB</uf_hex>
+			<uf_rgb>255,192,203</uf_rgb>
+		</item>
+		<item>
+			<id>431</id>
+			<uf_name_en>Pink-orange</uf_name_en>
+			<uf_name_ru>Оранжево-розовый</uf_name_ru>
+			<uf_hex>#FF9966</uf_hex>
+			<uf_rgb>255,153,102</uf_rgb>
+		</item>
+		<item>
+			<id>432</id>
+			<uf_name_en>Plum</uf_name_en>
+			<uf_name_ru>Сливовый</uf_name_ru>
+			<uf_hex>#660066</uf_hex>
+			<uf_rgb>102,0,102</uf_rgb>
+		</item>
+		<item>
+			<id>433</id>
+			<uf_name_en>Powder blue</uf_name_en>
+			<uf_name_ru>Пороховая синь</uf_name_ru>
+			<uf_hex>#003399</uf_hex>
+			<uf_rgb>0,51,153</uf_rgb>
+		</item>
+		<item>
+			<id>434</id>
+			<uf_name_en>Puce</uf_name_en>
+			<uf_name_ru>Красновато-коричневый</uf_name_ru>
+			<uf_hex>#CC8899</uf_hex>
+			<uf_rgb>204,136,153</uf_rgb>
+		</item>
+		<item>
+			<id>435</id>
+			<uf_name_en>Puce</uf_name_en>
+			<uf_name_ru>Пюсовый</uf_name_ru>
+			<uf_hex>#CC8899</uf_hex>
+			<uf_rgb>204,136,153</uf_rgb>
+		</item>
+		<item>
+			<id>436</id>
+			<uf_name_en>Puce</uf_name_en>
+			<uf_name_ru>Тёмно-коричневый</uf_name_ru>
+			<uf_hex>#CC8899</uf_hex>
+			<uf_rgb>204,136,153</uf_rgb>
+		</item>
+		<item>
+			<id>437</id>
+			<uf_name_en>Puce</uf_name_en>
+			<uf_name_ru>Блошиный</uf_name_ru>
+			<uf_hex>#CC8899</uf_hex>
+			<uf_rgb>204,136,153</uf_rgb>
+		</item>
+		<item>
+			<id>438</id>
+			<uf_name_en>Prussian blue</uf_name_en>
+			<uf_name_ru>Берлинская лазурь</uf_name_ru>
+			<uf_hex>#003153</uf_hex>
+			<uf_rgb>0,49,83</uf_rgb>
+		</item>
+		<item>
+			<id>439</id>
+			<uf_name_en>Pumpkin</uf_name_en>
+			<uf_name_ru>Тыква</uf_name_ru>
+			<uf_hex>#FF7518</uf_hex>
+			<uf_rgb>255,117,24</uf_rgb>
+		</item>
+		<item>
+			<id>440</id>
+			<uf_name_en>Purple</uf_name_en>
+			<uf_name_ru>Фиолетовый</uf_name_ru>
+			<uf_hex>#800080</uf_hex>
+			<uf_rgb>128,0,128</uf_rgb>
+		</item>
+		<item>
+			<id>441</id>
+			<uf_name_en>Raw umber</uf_name_en>
+			<uf_name_ru>Умбра</uf_name_ru>
+			<uf_hex>#734A12</uf_hex>
+			<uf_rgb>115,74,18</uf_rgb>
+		</item>
+		<item>
+			<id>442</id>
+			<uf_name_en>Red</uf_name_en>
+			<uf_name_ru>Красный</uf_name_ru>
+			<uf_hex>#FF0000</uf_hex>
+			<uf_rgb>255,0,0</uf_rgb>
+		</item>
+		<item>
+			<id>443</id>
+			<uf_name_en>Red-violet</uf_name_en>
+			<uf_name_ru>Фиолетово-красный</uf_name_ru>
+			<uf_hex>#C71585</uf_hex>
+			<uf_rgb>199,21,133</uf_rgb>
+		</item>
+		<item>
+			<id>444</id>
+			<uf_name_en>Robin egg blue</uf_name_en>
+			<uf_name_ru>Цвет яйца дрозда</uf_name_ru>
+			<uf_hex>#00CCCC</uf_hex>
+			<uf_rgb>0,204,204</uf_rgb>
+		</item>
+		<item>
+			<id>445</id>
+			<uf_name_en>Royal Blue</uf_name_en>
+			<uf_name_ru>Ярко-синий</uf_name_ru>
+			<uf_hex>#4169E1</uf_hex>
+			<uf_rgb>65,105,225</uf_rgb>
+		</item>
+		<item>
+			<id>446</id>
+			<uf_name_en>Royal Blue</uf_name_en>
+			<uf_name_ru>Королевский синий</uf_name_ru>
+			<uf_hex>#4169E1</uf_hex>
+			<uf_rgb>65,105,225</uf_rgb>
+		</item>
+		<item>
+			<id>447</id>
+			<uf_name_en>Russet</uf_name_en>
+			<uf_name_ru>Красновато-коричневый</uf_name_ru>
+			<uf_hex>#755A57</uf_hex>
+			<uf_rgb>117,90,87</uf_rgb>
+		</item>
+		<item>
+			<id>448</id>
+			<uf_name_en>Rust</uf_name_en>
+			<uf_name_ru>Ржаво-коричневый</uf_name_ru>
+			<uf_hex>#B7410E</uf_hex>
+			<uf_rgb>183,65,14</uf_rgb>
+		</item>
+		<item>
+			<id>449</id>
+			<uf_name_en>Rosy Brown</uf_name_en>
+			<uf_name_ru>Розово-коричневый</uf_name_ru>
+			<uf_hex>#BC8F8F</uf_hex>
+			<uf_rgb>188,143,143</uf_rgb>
+		</item>
+		<item>
+			<id>450</id>
+			<uf_name_en>Safety Orange</uf_name_en>
+			<uf_name_ru>Сигнальный оранжевый</uf_name_ru>
+			<uf_hex>#FF9900</uf_hex>
+			<uf_rgb>255,153,0</uf_rgb>
+		</item>
+		<item>
+			<id>451</id>
+			<uf_name_en>Blaze Orange</uf_name_en>
+			<uf_name_ru>Сигнальный оранжевый</uf_name_ru>
+			<uf_hex>#FF9900</uf_hex>
+			<uf_rgb>255,153,0</uf_rgb>
+		</item>
+		<item>
+			<id>452</id>
+			<uf_name_en>Saffron</uf_name_en>
+			<uf_name_ru>Шафрановый</uf_name_ru>
+			<uf_hex>#F4C430</uf_hex>
+			<uf_rgb>244,196,48</uf_rgb>
+		</item>
+		<item>
+			<id>453</id>
+			<uf_name_en>Sapphire</uf_name_en>
+			<uf_name_ru>Сапфировый</uf_name_ru>
+			<uf_hex>#082567</uf_hex>
+			<uf_rgb>8,37,103</uf_rgb>
+		</item>
+		<item>
+			<id>454</id>
+			<uf_name_en>Sana</uf_name_en>
+			<uf_name_ru>Салутовый</uf_name_ru>
+			<uf_hex>#F39643</uf_hex>
+			<uf_rgb>210,134,200</uf_rgb>
+		</item>
+		<item>
+			<id>455</id>
+			<uf_name_en>Salmon</uf_name_en>
+			<uf_name_ru>Лососёвый</uf_name_ru>
+			<uf_hex>#FF8C69</uf_hex>
+			<uf_rgb>255,55,105</uf_rgb>
+		</item>
+		<item>
+			<id>456</id>
+			<uf_name_en>Sandy brown</uf_name_en>
+			<uf_name_ru>Песочный</uf_name_ru>
+			<uf_hex>#F4A460</uf_hex>
+			<uf_rgb>244,164,96</uf_rgb>
+		</item>
+		<item>
+			<id>457</id>
+			<uf_name_en>Sangria</uf_name_en>
+			<uf_name_ru>Сангрия</uf_name_ru>
+			<uf_hex>#92000A</uf_hex>
+			<uf_rgb>146,0,10</uf_rgb>
+		</item>
+		<item>
+			<id>458</id>
+			<uf_name_en>Scarlet</uf_name_en>
+			<uf_name_ru>Ярко-красный, алый</uf_name_ru>
+			<uf_hex>#FF2400</uf_hex>
+			<uf_rgb>255,36,0</uf_rgb>
+		</item>
+		<item>
+			<id>459</id>
+			<uf_name_en>School bus yellow</uf_name_en>
+			<uf_name_ru>Цвет жёлтого школьного автобуса</uf_name_ru>
+			<uf_hex>#FFD800</uf_hex>
+			<uf_rgb>255,216,0</uf_rgb>
+		</item>
+		<item>
+			<id>460</id>
+			<uf_name_en>Sea Green</uf_name_en>
+			<uf_name_ru>Зелёное море</uf_name_ru>
+			<uf_hex>#2E8B57</uf_hex>
+			<uf_rgb>46,139,87</uf_rgb>
+		</item>
+		<item>
+			<id>461</id>
+			<uf_name_en>Seashell</uf_name_en>
+			<uf_name_ru>Цвет морской пены</uf_name_ru>
+			<uf_hex>#FFF5EE</uf_hex>
+			<uf_rgb>255,245,238</uf_rgb>
+		</item>
+		<item>
+			<id>462</id>
+			<uf_name_en>Selective yellow</uf_name_en>
+			<uf_name_ru>Отборный жёлтый</uf_name_ru>
+			<uf_hex>#FFBA00</uf_hex>
+			<uf_rgb>255,186,0</uf_rgb>
+		</item>
+		<item>
+			<id>463</id>
+			<uf_name_en>Sepia</uf_name_en>
+			<uf_name_ru>Сепия</uf_name_ru>
+			<uf_hex>#704214</uf_hex>
+			<uf_rgb>112,66,20</uf_rgb>
+		</item>
+		<item>
+			<id>464</id>
+			<uf_name_en>Silver</uf_name_en>
+			<uf_name_ru>Серебряный</uf_name_ru>
+			<uf_hex>#C0C0C0</uf_hex>
+			<uf_rgb>192,192,192</uf_rgb>
+		</item>
+		<item>
+			<id>465</id>
+			<uf_name_en>Slate gray</uf_name_en>
+			<uf_name_ru>Серый шифер</uf_name_ru>
+			<uf_hex>#708090</uf_hex>
+			<uf_rgb>112,128,144</uf_rgb>
+		</item>
+		<item>
+			<id>466</id>
+			<uf_name_en>Spring Green</uf_name_en>
+			<uf_name_ru>Зелёная весна</uf_name_ru>
+			<uf_hex>#00FF7F</uf_hex>
+			<uf_rgb>0,255,127</uf_rgb>
+		</item>
+		<item>
+			<id>467</id>
+			<uf_name_en>Steel blue</uf_name_en>
+			<uf_name_ru>Синяя сталь</uf_name_ru>
+			<uf_hex>#4682B4</uf_hex>
+			<uf_rgb>70,130,180</uf_rgb>
+		</item>
+		<item>
+			<id>468</id>
+			<uf_name_en>Swamp green</uf_name_en>
+			<uf_name_ru>Болотный</uf_name_ru>
+			<uf_hex>#ACB78E</uf_hex>
+			<uf_rgb>172,183,142</uf_rgb>
+		</item>
+		<item>
+			<id>469</id>
+			<uf_name_en>Tan</uf_name_en>
+			<uf_name_ru>Цвет загара</uf_name_ru>
+			<uf_hex>#D2B48C</uf_hex>
+			<uf_rgb>210,180,140</uf_rgb>
+		</item>
+		<item>
+			<id>470</id>
+			<uf_name_en>Tenne</uf_name_en>
+			<uf_name_ru>Краснобуро-оранжевый</uf_name_ru>
+			<uf_hex>#CD5700</uf_hex>
+			<uf_rgb>205,87,0</uf_rgb>
+		</item>
+		<item>
+			<id>471</id>
+			<uf_name_en>Tangerine</uf_name_en>
+			<uf_name_ru>Мандариновый</uf_name_ru>
+			<uf_hex>#FFCC00</uf_hex>
+			<uf_rgb>255,204,0</uf_rgb>
+		</item>
+		<item>
+			<id>472</id>
+			<uf_name_en>Tea Green</uf_name_en>
+			<uf_name_ru>Зелёный чай</uf_name_ru>
+			<uf_hex>#D0F0C0</uf_hex>
+			<uf_rgb>208,240,192</uf_rgb>
+		</item>
+		<item>
+			<id>473</id>
+			<uf_name_en>Teal</uf_name_en>
+			<uf_name_ru>Сине-зелёный</uf_name_ru>
+			<uf_hex>#008080</uf_hex>
+			<uf_rgb>0,128,128</uf_rgb>
+		</item>
+		<item>
+			<id>474</id>
+			<uf_name_en>Thistle</uf_name_en>
+			<uf_name_ru>Чертополох</uf_name_ru>
+			<uf_hex>#D8BFD8</uf_hex>
+			<uf_rgb>216,191,216</uf_rgb>
+		</item>
+		<item>
+			<id>475</id>
+			<uf_name_en>Turquoise</uf_name_en>
+			<uf_name_ru>Бирюзовый</uf_name_ru>
+			<uf_hex>#30D5C8</uf_hex>
+			<uf_rgb>48,213,200</uf_rgb>
+		</item>
+		<item>
+			<id>476</id>
+			<uf_name_en>Titian</uf_name_en>
+			<uf_name_ru>Тициановый</uf_name_ru>
+			<uf_hex>#d53e07</uf_hex>
+			<uf_rgb>213,62,7</uf_rgb>
+		</item>
+		<item>
+			<id>477</id>
+			<uf_name_en>Transport Red</uf_name_en>
+			<uf_name_ru>Транспортный красный</uf_name_ru>
+			<uf_hex>#CC0605</uf_hex>
+			<uf_rgb>204,6,5</uf_rgb>
+		</item>
+		<item>
+			<id>478</id>
+			<uf_name_en>Tomato</uf_name_en>
+			<uf_name_ru>Томатный</uf_name_ru>
+			<uf_hex>#FF6347</uf_hex>
+			<uf_rgb>255,99,71</uf_rgb>
+		</item>
+		<item>
+			<id>479</id>
+			<uf_name_en>Ultramarine</uf_name_en>
+			<uf_name_ru>Ультрамариновый</uf_name_ru>
+			<uf_hex>#120A8F</uf_hex>
+			<uf_rgb>18,10,143</uf_rgb>
+		</item>
+		<item>
+			<id>480</id>
+			<uf_name_en>United Nations Blue</uf_name_en>
+			<uf_name_ru>Цвет флага ООН</uf_name_ru>
+			<uf_hex>#5B92E5</uf_hex>
+			<uf_rgb>91,146,229</uf_rgb>
+		</item>
+		<item>
+			<id>481</id>
+			<uf_name_en>Ubuntu orange</uf_name_en>
+			<uf_name_ru>Оранжевый Ubuntu</uf_name_ru>
+			<uf_hex>#DD4814</uf_hex>
+			<uf_rgb>221,72,20</uf_rgb>
+		</item>
+		<item>
+			<id>482</id>
+			<uf_name_en>Vanilla</uf_name_en>
+			<uf_name_ru>Ванильный</uf_name_ru>
+			<uf_hex>#F3E5AB</uf_hex>
+			<uf_rgb>243,229,171</uf_rgb>
+		</item>
+		<item>
+			<id>483</id>
+			<uf_name_en>Vermilion</uf_name_en>
+			<uf_name_ru>Киноварь</uf_name_ru>
+			<uf_hex>#E34234</uf_hex>
+			<uf_rgb>227,66,52</uf_rgb>
+		</item>
+		<item>
+			<id>484</id>
+			<uf_name_en>Violet</uf_name_en>
+			<uf_name_ru>Фиолетовый</uf_name_ru>
+			<uf_hex>#8B00FF</uf_hex>
+			<uf_rgb>139,0,255</uf_rgb>
+		</item>
+		<item>
+			<id>485</id>
+			<uf_name_en>Violet-eggplant</uf_name_en>
+			<uf_name_ru>Фиолетово-баклажанный</uf_name_ru>
+			<uf_hex>#991199</uf_hex>
+			<uf_rgb>153,17,153</uf_rgb>
+		</item>
+		<item>
+			<id>486</id>
+			<uf_name_en>Viridian</uf_name_en>
+			<uf_name_ru>Ядовито-зелёный</uf_name_ru>
+			<uf_hex>#40826D</uf_hex>
+			<uf_rgb>64,130,109</uf_rgb>
+		</item>
+		<item>
+			<id>487</id>
+			<uf_name_en>Wheat</uf_name_en>
+			<uf_name_ru>Пшеничный</uf_name_ru>
+			<uf_hex>#F5DEB3</uf_hex>
+			<uf_rgb>245,222,179</uf_rgb>
+		</item>
+		<item>
+			<id>488</id>
+			<uf_name_en>White</uf_name_en>
+			<uf_name_ru>Белый</uf_name_ru>
+			<uf_hex>#FFFFFF</uf_hex>
+			<uf_rgb>255,255,255</uf_rgb>
+		</item>
+		<item>
+			<id>489</id>
+			<uf_name_en>Wisteria</uf_name_en>
+			<uf_name_ru>Глициния</uf_name_ru>
+			<uf_hex>#C9A0DC</uf_hex>
+			<uf_rgb>201,160,220</uf_rgb>
+		</item>
+		<item>
+			<id>490</id>
+			<uf_name_en>Wine</uf_name_en>
+			<uf_name_ru>Вино</uf_name_ru>
+			<uf_hex>#722F37</uf_hex>
+			<uf_rgb>114,47,55</uf_rgb>
+		</item>
+		<item>
+			<id>491</id>
+			<uf_name_en>Xanadu</uf_name_en>
+			<uf_name_ru>Занаду</uf_name_ru>
+			<uf_hex>#738678</uf_hex>
+			<uf_rgb>115,134,120</uf_rgb>
+		</item>
+		<item>
+			<id>492</id>
+			<uf_name_en>Yellow</uf_name_en>
+			<uf_name_ru>Жёлтый</uf_name_ru>
+			<uf_hex>#FFFF00</uf_hex>
+			<uf_rgb>255,255,0</uf_rgb>
+		</item>
+		<item>
+			<id>493</id>
+			<uf_name_en>Zinnwaldite</uf_name_en>
+			<uf_name_ru>Циннвальдит</uf_name_ru>
+			<uf_hex>#EBC2AF</uf_hex>
+			<uf_rgb>235,194,175</uf_rgb>
+		</item>
+		<item>
+			<id>494</id>
+			<uf_name_en>Zaffre</uf_name_en>
+			<uf_name_ru>Кобальтовая синь</uf_name_ru>
+			<uf_hex>#0014A8</uf_hex>
+			<uf_rgb>0,20,168</uf_rgb>
+		</item>
+	</items>
+</hiblock>

@@ -715,6 +715,15 @@ input[type="file"].form-control::file-selector-button:hover { background: var(--
 .cbtree-label:hover { color: var(--brand); }
 .cbtree-empty { color: var(--muted); font-size: .85rem; padding: .5rem; }
 
+/* ---------------- Подсказка цвета товара (свотч + datalist) ---------------- */
+.color-input-wrap { position: relative; }
+.color-input-wrap input { padding-left: 2.2rem; }
+.color-swatch {
+    position: absolute; left: .7rem; top: 50%; transform: translateY(-50%);
+    width: 14px; height: 14px; border-radius: 50% !important;
+    border: 1px solid var(--border); background: var(--surface-3); pointer-events: none;
+}
+
 /* ---------------- Таблица дополнительных свойств товара — чёткие поля ---------------- */
 .props-table { border: 1px solid var(--border); }
 .props-table-head { display: grid; grid-template-columns: 1fr 1fr 40px; background: var(--surface-2); font-size: .78rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .03em; padding: .5rem .6rem; }

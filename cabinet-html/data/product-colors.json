@@ -1,0 +1,1237 @@
+[
+  {
+    "name": "Азур",
+    "name_en": "Azure",
+    "hex": "#007FFF"
+  },
+  {
+    "name": "Аквамариновый",
+    "name_en": "Aquamarine",
+    "hex": "#7FFFD4"
+  },
+  {
+    "name": "Ализариновый красный",
+    "name_en": "Alizarin Crimson",
+    "hex": "#E32636"
+  },
+  {
+    "name": "Амарантовый",
+    "name_en": "Amaranth",
+    "hex": "#E52B50"
+  },
+  {
+    "name": "Американская роза",
+    "name_en": "American Rose",
+    "hex": "#FF033E"
+  },
+  {
+    "name": "Аметистовый",
+    "name_en": "Amethyst",
+    "hex": "#9966CC"
+  },
+  {
+    "name": "Античный белый",
+    "name_en": "Antique White",
+    "hex": "#FAEBD7"
+  },
+  {
+    "name": "Армейский зелёный",
+    "name_en": "Army Green",
+    "hex": "#4B5320"
+  },
+  {
+    "name": "Аспидно-серый",
+    "name_en": "Dark slate gray",
+    "hex": "#2F4F4F"
+  },
+  {
+    "name": "Баклажановый",
+    "name_en": "Eggplant",
+    "hex": "#990066"
+  },
+  {
+    "name": "Баклажановый Canonica",
+    "name_en": "Canonical aubergine",
+    "hex": "#772953"
+  },
+  {
+    "name": "Барвинок",
+    "name_en": "Periwinkle",
+    "hex": "#CCCCFF"
+  },
+  {
+    "name": "Беж",
+    "name_en": "Beige",
+    "hex": "#F5F5DC"
+  },
+  {
+    "name": "Бежевый",
+    "name_en": "Beige",
+    "hex": "#F5F5DC"
+  },
+  {
+    "name": "Белокурый",
+    "name_en": "Blond",
+    "hex": "#FAF0BE"
+  },
+  {
+    "name": "Белый",
+    "name_en": "White",
+    "hex": "#FFFFFF"
+  },
+  {
+    "name": "Белый навахо",
+    "name_en": "Navajo white",
+    "hex": "#FFDEAD"
+  },
+  {
+    "name": "Берлинская лазурь",
+    "name_en": "Prussian blue",
+    "hex": "#003153"
+  },
+  {
+    "name": "Бирюзовый",
+    "name_en": "Turquoise",
+    "hex": "#30D5C8"
+  },
+  {
+    "name": "Бистр",
+    "name_en": "Bistre",
+    "hex": "#3D2B1F"
+  },
+  {
+    "name": "Бледно-васильковый",
+    "name_en": "Pale cornflower blue",
+    "hex": "#ABCDEF"
+  },
+  {
+    "name": "Бледно-карминный",
+    "name_en": "Pale carmine",
+    "hex": "#AF4035"
+  },
+  {
+    "name": "Бледно-каштановый",
+    "name_en": "Pale chestnut",
+    "hex": "#DDADAF"
+  },
+  {
+    "name": "Бледно-коричневый",
+    "name_en": "Pale brown",
+    "hex": "#987654"
+  },
+  {
+    "name": "Бледно-песочный",
+    "name_en": "Pale Sandy Brown",
+    "hex": "#DABDAB"
+  },
+  {
+    "name": "Бледно-пурпурный",
+    "name_en": "Pale magenta",
+    "hex": "#F984E5"
+  },
+  {
+    "name": "Бледно-розовый",
+    "name_en": "Pale pink",
+    "hex": "#FADADD"
+  },
+  {
+    "name": "Бледно-синий",
+    "name_en": "Pale Blue",
+    "hex": "#AFEEEE"
+  },
+  {
+    "name": "Бледный розовато-лиловый",
+    "name_en": "Pale mauve",
+    "hex": "#996666"
+  },
+  {
+    "name": "Блошиный",
+    "name_en": "Puce",
+    "hex": "#CC8899"
+  },
+  {
+    "name": "Болотный",
+    "name_en": "Swamp green",
+    "hex": "#ACB78E"
+  },
+  {
+    "name": "Бронзовый",
+    "name_en": "Bronze",
+    "hex": "#CD7F32"
+  },
+  {
+    "name": "Бургундский",
+    "name_en": "Burgundy",
+    "hex": "#900020"
+  },
+  {
+    "name": "Ванильный",
+    "name_en": "Vanilla",
+    "hex": "#F3E5AB"
+  },
+  {
+    "name": "Васильковый",
+    "name_en": "Cornflower blue",
+    "hex": "#6495ED"
+  },
+  {
+    "name": "Васильковый",
+    "name_en": "Cyan",
+    "hex": "#00FFFF"
+  },
+  {
+    "name": "Вино",
+    "name_en": "Wine",
+    "hex": "#722F37"
+  },
+  {
+    "name": "Вода пляжа Бонди",
+    "name_en": "Bondi Blue",
+    "hex": "#0095B6"
+  },
+  {
+    "name": "Военно-воздушный синий",
+    "name_en": "Air Force Blue",
+    "hex": "#5D8AA8"
+  },
+  {
+    "name": "Выгоревший оранжевый",
+    "name_en": "Burnt Orange",
+    "hex": "#CC5500"
+  },
+  {
+    "name": "Гелиотроп",
+    "name_en": "Heliotrope",
+    "hex": "#DF73FF"
+  },
+  {
+    "name": "Глициния",
+    "name_en": "Wisteria",
+    "hex": "#C9A0DC"
+  },
+  {
+    "name": "Глубокий розовый",
+    "name_en": "Deep pink",
+    "hex": "#FF1493"
+  },
+  {
+    "name": "Глубокий фиолетовый",
+    "name_en": "Dark violet",
+    "hex": "#423189"
+  },
+  {
+    "name": "Голубовато-серый",
+    "name_en": "Battleship Grey",
+    "hex": "#848482"
+  },
+  {
+    "name": "Голубой",
+    "name_en": "Deep sky blue",
+    "hex": "#00BFFF"
+  },
+  {
+    "name": "Горчичный",
+    "name_en": "Mustard",
+    "hex": "#FFDB58"
+  },
+  {
+    "name": "Горький розовый",
+    "name_en": "Bittersweet",
+    "hex": "#FE6F5E"
+  },
+  {
+    "name": "Грушевый",
+    "name_en": "Pear",
+    "hex": "#D1E231"
+  },
+  {
+    "name": "Гуммигут",
+    "name_en": "Gamboge",
+    "hex": "#E49B0F"
+  },
+  {
+    "name": "Джинсовый синий",
+    "name_en": "Denim",
+    "hex": "#1560BD"
+  },
+  {
+    "name": "Желтовато-коричневый",
+    "name_en": "Camel",
+    "hex": "#C19A6B"
+  },
+  {
+    "name": "Желтовато-коричневый",
+    "name_en": "Fawn",
+    "hex": "#E5AA70"
+  },
+  {
+    "name": "Жёлто-зелёный",
+    "name_en": "Green-yellow",
+    "hex": "#ADFF2F"
+  },
+  {
+    "name": "Жёлто-персиковый",
+    "name_en": "Peach-yellow",
+    "hex": "#FADFAD"
+  },
+  {
+    "name": "Жёлтый",
+    "name_en": "Yellow",
+    "hex": "#FFFF00"
+  },
+  {
+    "name": "Занаду",
+    "name_en": "Xanadu",
+    "hex": "#738678"
+  },
+  {
+    "name": "Защитно-синий",
+    "name_en": "Dodger blue",
+    "hex": "#1E90FF"
+  },
+  {
+    "name": "Зелёная весна",
+    "name_en": "Spring Green",
+    "hex": "#00FF7F"
+  },
+  {
+    "name": "Зелёная лужайка",
+    "name_en": "Lawn Green",
+    "hex": "#7CFC00"
+  },
+  {
+    "name": "Зелёная мята",
+    "name_en": "Mint Green",
+    "hex": "#98FF98"
+  },
+  {
+    "name": "Зелёная сосна",
+    "name_en": "Pine Green",
+    "hex": "#01796F"
+  },
+  {
+    "name": "Зелёное море",
+    "name_en": "Sea Green",
+    "hex": "#2E8B57"
+  },
+  {
+    "name": "Зелёный",
+    "name_en": "Green",
+    "hex": "#00FF00"
+  },
+  {
+    "name": "Зелёный мох",
+    "name_en": "Moss green",
+    "hex": "#ADDFAD"
+  },
+  {
+    "name": "Зелёный папоротник",
+    "name_en": "Fern green",
+    "hex": "#4F7942"
+  },
+  {
+    "name": "Зелёный серый чай",
+    "name_en": "Gray-Tea Green",
+    "hex": "#CADABA"
+  },
+  {
+    "name": "Зелёный чай",
+    "name_en": "Tea Green",
+    "hex": "#D0F0C0"
+  },
+  {
+    "name": "Золотисто-берёзовый",
+    "name_en": "Goldenrod",
+    "hex": "#DAA520"
+  },
+  {
+    "name": "Золотой",
+    "name_en": "Gold",
+    "hex": "#FFD700"
+  },
+  {
+    "name": "Изумрудный",
+    "name_en": "Emerald",
+    "hex": "#50C878"
+  },
+  {
+    "name": "Индиго",
+    "name_en": "Dark Indigo",
+    "hex": "#310062"
+  },
+  {
+    "name": "Индиго",
+    "name_en": "Indigo",
+    "hex": "#4B0082"
+  },
+  {
+    "name": "Индийский красный",
+    "name_en": "Indian Red",
+    "hex": "#CD5C5C"
+  },
+  {
+    "name": "Камель",
+    "name_en": "Camel",
+    "hex": "#C19A6B"
+  },
+  {
+    "name": "Кардинал",
+    "name_en": "Cardinal",
+    "hex": "#C41E3A"
+  },
+  {
+    "name": "Карминово-красный",
+    "name_en": "Carmine",
+    "hex": "#960018"
+  },
+  {
+    "name": "Каштановый",
+    "name_en": "Chestnut",
+    "hex": "#CD5C5C"
+  },
+  {
+    "name": "Каштановый",
+    "name_en": "Indian Red",
+    "hex": "#CD5C5C"
+  },
+  {
+    "name": "Киноварь",
+    "name_en": "Vermilion",
+    "hex": "#E34234"
+  },
+  {
+    "name": "Кирпичный",
+    "name_en": "Fire brick",
+    "hex": "#B22222"
+  },
+  {
+    "name": "Кобальт синий",
+    "name_en": "Cobalt",
+    "hex": "#0047AB"
+  },
+  {
+    "name": "Кобальтовая синь",
+    "name_en": "Zaffre",
+    "hex": "#0014A8"
+  },
+  {
+    "name": "Кожа буйвола",
+    "name_en": "Buff",
+    "hex": "#F0DC82"
+  },
+  {
+    "name": "Кораллово-красный",
+    "name_en": "Coral",
+    "hex": "#FF7F50"
+  },
+  {
+    "name": "Коралловый",
+    "name_en": "Coral",
+    "hex": "#FF7F50"
+  },
+  {
+    "name": "Коричнево-малиновый",
+    "name_en": "Maroon",
+    "hex": "#800000"
+  },
+  {
+    "name": "Коричневый",
+    "name_en": "Brown",
+    "hex": "#964B00"
+  },
+  {
+    "name": "Коричневый",
+    "name_en": "Burnt umber",
+    "hex": "#8A3324"
+  },
+  {
+    "name": "Коричный",
+    "name_en": "Cinnamon",
+    "hex": "#7B3F00"
+  },
+  {
+    "name": "Королевский синий",
+    "name_en": "Royal Blue",
+    "hex": "#4169E1"
+  },
+  {
+    "name": "Краснобуро-оранжевый",
+    "name_en": "Tenne",
+    "hex": "#CD5700"
+  },
+  {
+    "name": "Красновато-коричневый",
+    "name_en": "Puce",
+    "hex": "#CC8899"
+  },
+  {
+    "name": "Красновато-коричневый",
+    "name_en": "Russet",
+    "hex": "#755A57"
+  },
+  {
+    "name": "Красный",
+    "name_en": "Red",
+    "hex": "#FF0000"
+  },
+  {
+    "name": "Красный Университета Бостона",
+    "name_en": "Boston University Red",
+    "hex": "#CC0000"
+  },
+  {
+    "name": "Кремовый",
+    "name_en": "Cream",
+    "hex": "#FFFDD0"
+  },
+  {
+    "name": "Кровавый",
+    "name_en": "Crimson",
+    "hex": "#DC143C"
+  },
+  {
+    "name": "Кукурузный",
+    "name_en": "Corn",
+    "hex": "#FBEC5D"
+  },
+  {
+    "name": "Лаванда",
+    "name_en": "Lavender",
+    "hex": "#E6E6FA"
+  },
+  {
+    "name": "Лавандово-синий",
+    "name_en": "Lavender",
+    "hex": "#E6E6FA"
+  },
+  {
+    "name": "Лазурно-синий",
+    "name_en": "Cerulean blue",
+    "hex": "#2A52BE"
+  },
+  {
+    "name": "Лазурный",
+    "name_en": "Azure",
+    "hex": "#007FFF"
+  },
+  {
+    "name": "Лазурный",
+    "name_en": "Cerulean",
+    "hex": "#007BA7"
+  },
+  {
+    "name": "Лайм",
+    "name_en": "Lime",
+    "hex": "#CCFF00"
+  },
+  {
+    "name": "Латунный",
+    "name_en": "Brass",
+    "hex": "#B5A642"
+  },
+  {
+    "name": "Лиловый",
+    "name_en": "Pale red-violet",
+    "hex": "#DB7093"
+  },
+  {
+    "name": "Лимонно-кремовый",
+    "name_en": "Lemon Cream",
+    "hex": "#FFFACD"
+  },
+  {
+    "name": "Лимонный",
+    "name_en": "Lemon",
+    "hex": "#FDE910"
+  },
+  {
+    "name": "Лососёвый",
+    "name_en": "Salmon",
+    "hex": "#FF8C69"
+  },
+  {
+    "name": "Льняной",
+    "name_en": "Flax",
+    "hex": "#EEDC82"
+  },
+  {
+    "name": "Льняной",
+    "name_en": "Linen",
+    "hex": "#FAF0E6"
+  },
+  {
+    "name": "Малахитовая зелень",
+    "name_en": "Malachite",
+    "hex": "#0BDA51"
+  },
+  {
+    "name": "Малахитовый",
+    "name_en": "Malachite",
+    "hex": "#0BDA51"
+  },
+  {
+    "name": "Малиновый",
+    "name_en": "Crimson",
+    "hex": "#DC143C"
+  },
+  {
+    "name": "Малиновый",
+    "name_en": "Magenta",
+    "hex": "#FF00FF"
+  },
+  {
+    "name": "Мандариновый",
+    "name_en": "Tangerine",
+    "hex": "#FFCC00"
+  },
+  {
+    "name": "Матовый белый",
+    "name_en": "Anti-flash White",
+    "hex": "#F2F3F4"
+  },
+  {
+    "name": "Медный",
+    "name_en": "Copper",
+    "hex": "#B87333"
+  },
+  {
+    "name": "Международный оранжевый",
+    "name_en": "International orange",
+    "hex": "#FF4F00"
+  },
+  {
+    "name": "Миндаль Крайола",
+    "name_en": "Almond",
+    "hex": "#EFDECD"
+  },
+  {
+    "name": "Морковный",
+    "name_en": "Carrot",
+    "hex": "#ED9121"
+  },
+  {
+    "name": "Мышьяковый",
+    "name_en": "Arsenic",
+    "hex": "#3B444B"
+  },
+  {
+    "name": "Мятный",
+    "name_en": "Mint Green",
+    "hex": "#98FF98"
+  },
+  {
+    "name": "Нежно-оливковый",
+    "name_en": "Olive Drab",
+    "hex": "#6B8E23"
+  },
+  {
+    "name": "Нефритовый",
+    "name_en": "Jade",
+    "hex": "#00A86B"
+  },
+  {
+    "name": "Оливковый",
+    "name_en": "Olive",
+    "hex": "#808000"
+  },
+  {
+    "name": "Оранжево-персиковый",
+    "name_en": "Peach-orange",
+    "hex": "#FFCC99"
+  },
+  {
+    "name": "Оранжево-розовый",
+    "name_en": "Pink-orange",
+    "hex": "#FF9966"
+  },
+  {
+    "name": "Оранжевый",
+    "name_en": "Orange",
+    "hex": "#FFA500"
+  },
+  {
+    "name": "Оранжевый Ubuntu",
+    "name_en": "Ubuntu orange",
+    "hex": "#DD4814"
+  },
+  {
+    "name": "Орхидея",
+    "name_en": "Orchid",
+    "hex": "#DA70D6"
+  },
+  {
+    "name": "Отборный жёлтый",
+    "name_en": "Selective yellow",
+    "hex": "#FFBA00"
+  },
+  {
+    "name": "Охра",
+    "name_en": "Ochre",
+    "hex": "#CC7722"
+  },
+  {
+    "name": "Палевый",
+    "name_en": "Buff",
+    "hex": "#F0DC82"
+  },
+  {
+    "name": "Палевый",
+    "name_en": "Pale yellow",
+    "hex": "#F0DC82"
+  },
+  {
+    "name": "Панг",
+    "name_en": "Pang",
+    "hex": "#C7FCEC"
+  },
+  {
+    "name": "Пастельно-зелёный",
+    "name_en": "Pastel green",
+    "hex": "#77DD77"
+  },
+  {
+    "name": "Пастельно-розовый",
+    "name_en": "Pastel pink",
+    "hex": "#FFD1DC"
+  },
+  {
+    "name": "Персидский синий",
+    "name_en": "Persian blue",
+    "hex": "#6600FF"
+  },
+  {
+    "name": "Персиковый",
+    "name_en": "Peach",
+    "hex": "#FFE5B4"
+  },
+  {
+    "name": "Песочный",
+    "name_en": "Sandy brown",
+    "hex": "#F4A460"
+  },
+  {
+    "name": "Побег папайи",
+    "name_en": "Papaya whip",
+    "hex": "#FFEFD5"
+  },
+  {
+    "name": "Полуночно-синий",
+    "name_en": "Midnight Blue",
+    "hex": "#003366"
+  },
+  {
+    "name": "Пороховая синь",
+    "name_en": "Powder blue",
+    "hex": "#003399"
+  },
+  {
+    "name": "Пурпурный",
+    "name_en": "Magenta",
+    "hex": "#FF00FF"
+  },
+  {
+    "name": "Пшеничный",
+    "name_en": "Wheat",
+    "hex": "#F5DEB3"
+  },
+  {
+    "name": "Пюсовый",
+    "name_en": "Puce",
+    "hex": "#CC8899"
+  },
+  {
+    "name": "Ржаво-коричневый",
+    "name_en": "Rust",
+    "hex": "#B7410E"
+  },
+  {
+    "name": "Розовато-лиловый",
+    "name_en": "Mauve",
+    "hex": "#993366"
+  },
+  {
+    "name": "Розово-коричневый",
+    "name_en": "Rosy Brown",
+    "hex": "#BC8F8F"
+  },
+  {
+    "name": "Розово-лавандовый",
+    "name_en": "Lavender Blush",
+    "hex": "#FFF0F5"
+  },
+  {
+    "name": "Розовый",
+    "name_en": "Pink",
+    "hex": "#FFC0CB"
+  },
+  {
+    "name": "Розовый Маунтбэттена",
+    "name_en": "Mountbatten pink",
+    "hex": "#997A8D"
+  },
+  {
+    "name": "Рузвельт Лонгворт",
+    "name_en": "Alice Blue",
+    "hex": "#F0F8FF"
+  },
+  {
+    "name": "Салатовый",
+    "name_en": "Chartreuse",
+    "hex": "#7FFF00"
+  },
+  {
+    "name": "Салутовый",
+    "name_en": "Sana",
+    "hex": "#F39643"
+  },
+  {
+    "name": "Сангрия",
+    "name_en": "Sangria",
+    "hex": "#92000A"
+  },
+  {
+    "name": "Сапфировый",
+    "name_en": "Sapphire",
+    "hex": "#082567"
+  },
+  {
+    "name": "Светлая вишня",
+    "name_en": "Cerise",
+    "hex": "#DE3163"
+  },
+  {
+    "name": "Светло-коричневый",
+    "name_en": "Light brown",
+    "hex": "#CD853F"
+  },
+  {
+    "name": "Селадоновый",
+    "name_en": "Celadon",
+    "hex": "#ACE1AF"
+  },
+  {
+    "name": "Сепия",
+    "name_en": "Sepia",
+    "hex": "#704214"
+  },
+  {
+    "name": "Серая спаржа",
+    "name_en": "Gray-asparagus",
+    "hex": "#465945"
+  },
+  {
+    "name": "Серебряный",
+    "name_en": "Silver",
+    "hex": "#C0C0C0"
+  },
+  {
+    "name": "Серый",
+    "name_en": "Gray",
+    "hex": "#808080"
+  },
+  {
+    "name": "Серый шифер",
+    "name_en": "Slate gray",
+    "hex": "#708090"
+  },
+  {
+    "name": "Сигнальный оранжевый",
+    "name_en": "Safety orange",
+    "hex": "#FF4F00"
+  },
+  {
+    "name": "Сигнальный оранжевый",
+    "name_en": "Safety Orange",
+    "hex": "#FF9900"
+  },
+  {
+    "name": "Сигнальный оранжевый",
+    "name_en": "Blaze Orange",
+    "hex": "#FF9900"
+  },
+  {
+    "name": "Сиена жжёная",
+    "name_en": "Burnt Sienna",
+    "hex": "#E97451"
+  },
+  {
+    "name": "Сине-зелёный",
+    "name_en": "Teal",
+    "hex": "#008080"
+  },
+  {
+    "name": "Синий",
+    "name_en": "Blue",
+    "hex": "#0000FF"
+  },
+  {
+    "name": "Синий Градуса",
+    "name_en": "Gradus Blue",
+    "hex": "#007DFF"
+  },
+  {
+    "name": "Синий Клейна",
+    "name_en": "Klein Blue",
+    "hex": "#3A75C4"
+  },
+  {
+    "name": "Синий Элис",
+    "name_en": "Alice Blue",
+    "hex": "#F0F8FF"
+  },
+  {
+    "name": "Синяя сталь",
+    "name_en": "Steel blue",
+    "hex": "#4682B4"
+  },
+  {
+    "name": "Сиреневый",
+    "name_en": "Lilac",
+    "hex": "#C8A2C8"
+  },
+  {
+    "name": "Сливовый",
+    "name_en": "Plum",
+    "hex": "#660066"
+  },
+  {
+    "name": "Спаржа",
+    "name_en": "Asparagus",
+    "hex": "#7BA05B"
+  },
+  {
+    "name": "Старое золото",
+    "name_en": "Old Gold",
+    "hex": "#CFB53B"
+  },
+  {
+    "name": "Старое кружево",
+    "name_en": "Old Lace",
+    "hex": "#FDF5E6"
+  },
+  {
+    "name": "Тициановый",
+    "name_en": "Titian",
+    "hex": "#d53e07"
+  },
+  {
+    "name": "Томатный",
+    "name_en": "Tomato",
+    "hex": "#FF6347"
+  },
+  {
+    "name": "Транспортный красный",
+    "name_en": "Transport Red",
+    "hex": "#CC0605"
+  },
+  {
+    "name": "Тыква",
+    "name_en": "Pumpkin",
+    "hex": "#FF7518"
+  },
+  {
+    "name": "Тёмная лососина",
+    "name_en": "Dark salmon",
+    "hex": "#E9967A"
+  },
+  {
+    "name": "Тёмно-алый",
+    "name_en": "Dark Scarlet",
+    "hex": "#560319"
+  },
+  {
+    "name": "Тёмно-аспидный серый",
+    "name_en": "Dark slate gray",
+    "hex": "#2F4F4F"
+  },
+  {
+    "name": "Тёмно-бирюзовый",
+    "name_en": "Dark turquoise",
+    "hex": "#116062"
+  },
+  {
+    "name": "Тёмно-зелёный",
+    "name_en": "Dark green",
+    "hex": "#013220"
+  },
+  {
+    "name": "Тёмно-золотой",
+    "name_en": "Dark goldenrod",
+    "hex": "#B8860B"
+  },
+  {
+    "name": "Тёмно-каштановый",
+    "name_en": "Dark chestnut",
+    "hex": "#986960"
+  },
+  {
+    "name": "Тёмно-коралловый",
+    "name_en": "Dark coral",
+    "hex": "#CD5B45"
+  },
+  {
+    "name": "Тёмно-коричневый",
+    "name_en": "Dark brown",
+    "hex": "#654321"
+  },
+  {
+    "name": "Тёмно-коричневый",
+    "name_en": "Puce",
+    "hex": "#CC8899"
+  },
+  {
+    "name": "Тёмно-красный",
+    "name_en": "Cardinal",
+    "hex": "#C41E3A"
+  },
+  {
+    "name": "Тёмно-красный",
+    "name_en": "Crimson",
+    "hex": "#DC143C"
+  },
+  {
+    "name": "Тёмно-лазурный",
+    "name_en": "Dark cerulean",
+    "hex": "#08457E"
+  },
+  {
+    "name": "Тёмно-мандариновый",
+    "name_en": "Dark tangerine",
+    "hex": "#FFA812"
+  },
+  {
+    "name": "Тёмно-оливковый",
+    "name_en": "Dark Olive",
+    "hex": "#556832"
+  },
+  {
+    "name": "Тёмно-персиковый",
+    "name_en": "Dark Peach",
+    "hex": "#FFDAB9"
+  },
+  {
+    "name": "Тёмно-розовый",
+    "name_en": "Dark pink",
+    "hex": "#E75480"
+  },
+  {
+    "name": "Тёмно-синий",
+    "name_en": "Dark blue",
+    "hex": "#00008B"
+  },
+  {
+    "name": "Тёмно-синий",
+    "name_en": "Navy",
+    "hex": "#000080"
+  },
+  {
+    "name": "Тёмный весенне-зелёный",
+    "name_en": "Dark spring green",
+    "hex": "#177245"
+  },
+  {
+    "name": "Тёмный жёлто-коричневый",
+    "name_en": "Dark tan",
+    "hex": "#918151"
+  },
+  {
+    "name": "Тёмный зелёный чай",
+    "name_en": "Dark Tea Green",
+    "hex": "#BADBAD"
+  },
+  {
+    "name": "Тёмный индиго",
+    "name_en": "Dark Indigo",
+    "hex": "#310062"
+  },
+  {
+    "name": "Тёмный пастельно-зелёный",
+    "name_en": "Dark pastel green",
+    "hex": "#03C03C"
+  },
+  {
+    "name": "Тёмный хаки",
+    "name_en": "Dark Khaki",
+    "hex": "#BDB76B"
+  },
+  {
+    "name": "Ультрамариновый",
+    "name_en": "Ultramarine",
+    "hex": "#120A8F"
+  },
+  {
+    "name": "Умбра",
+    "name_en": "Burnt umber",
+    "hex": "#8A3324"
+  },
+  {
+    "name": "Умбра",
+    "name_en": "Raw umber",
+    "hex": "#734A12"
+  },
+  {
+    "name": "Умбра жжёная",
+    "name_en": "Burnt umber",
+    "hex": "#8A3324"
+  },
+  {
+    "name": "Фиолетово-баклажанный",
+    "name_en": "Violet-eggplant",
+    "hex": "#991199"
+  },
+  {
+    "name": "Фиолетово-красный",
+    "name_en": "Red-violet",
+    "hex": "#C71585"
+  },
+  {
+    "name": "Фиолетовый",
+    "name_en": "Purple",
+    "hex": "#800080"
+  },
+  {
+    "name": "Фиолетовый",
+    "name_en": "Violet",
+    "hex": "#8B00FF"
+  },
+  {
+    "name": "Форма морских офицеров",
+    "name_en": "Navy",
+    "hex": "#000080"
+  },
+  {
+    "name": "Фуксия",
+    "name_en": "Fuchsia",
+    "hex": "#FF00FF"
+  },
+  {
+    "name": "Фуксия",
+    "name_en": "Magenta",
+    "hex": "#FF00FF"
+  },
+  {
+    "name": "Хаки",
+    "name_en": "Camouflage green",
+    "hex": "#78866B"
+  },
+  {
+    "name": "Хаки",
+    "name_en": "Dark Khaki",
+    "hex": "#BDB76B"
+  },
+  {
+    "name": "Хаки",
+    "name_en": "Khaki",
+    "hex": "#C3B091"
+  },
+  {
+    "name": "Цвет жёлтого школьного автобуса",
+    "name_en": "School bus yellow",
+    "hex": "#FFD800"
+  },
+  {
+    "name": "Цвет загара",
+    "name_en": "Tan",
+    "hex": "#D2B48C"
+  },
+  {
+    "name": "Цвет морской волны",
+    "name_en": "Aqua",
+    "hex": "#00FFFF"
+  },
+  {
+    "name": "Цвет морской пены",
+    "name_en": "Seashell",
+    "hex": "#FFF5EE"
+  },
+  {
+    "name": "Цвет флага ООН",
+    "name_en": "United Nations Blue",
+    "hex": "#5B92E5"
+  },
+  {
+    "name": "Цвет яйца дрозда",
+    "name_en": "Robin egg blue",
+    "hex": "#00CCCC"
+  },
+  {
+    "name": "Циан",
+    "name_en": "Cyan",
+    "hex": "#00FFFF"
+  },
+  {
+    "name": "Циннвальдит",
+    "name_en": "Zinnwaldite",
+    "hex": "#EBC2AF"
+  },
+  {
+    "name": "Чертополох",
+    "name_en": "Thistle",
+    "hex": "#D8BFD8"
+  },
+  {
+    "name": "Чёрный",
+    "name_en": "Black",
+    "hex": "#000000"
+  },
+  {
+    "name": "Шартрез",
+    "name_en": "Chartreuse",
+    "hex": "#7FFF00"
+  },
+  {
+    "name": "Шафрановый",
+    "name_en": "Saffron",
+    "hex": "#F4C430"
+  },
+  {
+    "name": "Шоколадный",
+    "name_en": "Chocolate",
+    "hex": "#D2691E"
+  },
+  {
+    "name": "Яблочно-зелёный",
+    "name_en": "Apple Green",
+    "hex": "#8DB600"
+  },
+  {
+    "name": "Ядовито-зелёный",
+    "name_en": "Viridian",
+    "hex": "#40826D"
+  },
+  {
+    "name": "Янтарный",
+    "name_en": "Amber",
+    "hex": "#FFBF00"
+  },
+  {
+    "name": "Ярко-бирюзовый",
+    "name_en": "Bright turquoise",
+    "hex": "#08E8DE"
+  },
+  {
+    "name": "Ярко-зелёный",
+    "name_en": "Bright green",
+    "hex": "#66FF00"
+  },
+  {
+    "name": "Ярко-красный, алый",
+    "name_en": "Scarlet",
+    "hex": "#FF2400"
+  },
+  {
+    "name": "Ярко-розовый",
+    "name_en": "Hot pink",
+    "hex": "#FC0FC0"
+  },
+  {
+    "name": "Ярко-синий",
+    "name_en": "Royal Blue",
+    "hex": "#4169E1"
+  },
+  {
+    "name": "Ярко-фиолетовый",
+    "name_en": "Bright violet",
+    "hex": "#CD00CD"
+  }
+]
