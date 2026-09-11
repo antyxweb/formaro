@@ -9,6 +9,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
 Loader::includeModule('formaro.cabinet');
 
 use Formaro\Cabinet\Repository\CategoryRepository;
+use Formaro\Cabinet\Repository\ChatRepository;
 use Formaro\Cabinet\Repository\CouponRepository;
 use Formaro\Cabinet\Repository\DiscountRepository;
 use Formaro\Cabinet\Repository\NewsRepository;
@@ -17,6 +18,7 @@ use Formaro\Cabinet\Repository\PartnerDocumentRepository;
 use Formaro\Cabinet\Repository\PartnerRepository;
 use Formaro\Cabinet\Repository\ProductColorRepository;
 use Formaro\Cabinet\Repository\ProductRepository;
+use Formaro\Cabinet\Repository\TicketRepository;
 use Formaro\Cabinet\Repository\TransactionRepository;
 use Formaro\Cabinet\Security\PartnerContext;
 
@@ -25,11 +27,12 @@ use Formaro\Cabinet\Security\PartnerContext;
  * файл /cabinet/index.php, весь роутинг (обычные страницы + свой AJAX API)
  * разбирается здесь через CComponentEngine::ParseComponentPath.
  *
- * SEF_URL_TEMPLATES ниже — действия фаз 1-4 (см. план: модуль, вход,
- * профиль, категории, товары, заказы, скидки/купоны/финансы, новости).
- * Остальные действия из целевой карты роутов (поддержка/уведомления)
- * появятся в следующих фазах — их шаблоны ещё не существуют, поэтому
- * регистрировать их сейчас означало бы плодить страницы, которые сразу 404.
+ * SEF_URL_TEMPLATES ниже — действия фаз 1-5 (см. план: модуль, вход,
+ * профиль, категории, товары, заказы, скидки/купоны/финансы, новости,
+ * поддержка, чат с клиентами). Остальные действия из целевой карты роутов
+ * (уведомления) появятся в следующей фазе — их шаблоны ещё не существуют,
+ * поэтому регистрировать их сейчас означало бы плодить страницы, которые
+ * сразу 404.
  */
 class CabinetPartnerComponent extends CBitrixComponent
 {
@@ -51,6 +54,9 @@ class CabinetPartnerComponent extends CBitrixComponent
         'finance' => 'finance/',
         'news' => 'news/',
         'news_edit' => 'news/edit/#ID#/',
+        'support' => 'support/',
+        'support_detail' => 'support/#ID#/',
+        'chat' => 'chat/',
     ];
 
     /** Действия, доступные БЕЗ авторизации (экраны входа) */
@@ -188,6 +194,35 @@ class CabinetPartnerComponent extends CBitrixComponent
                     $partnerId,
                     (float)($_REQUEST['amount'] ?? 0)
                 ),
+                'create_ticket' => (new TicketRepository())->create(
+                    $partnerId,
+                    (string)($_REQUEST['subject'] ?? ''),
+                    (string)($_REQUEST['text'] ?? ''),
+                    $this->decodeAttachments()
+                ),
+                'reply_ticket' => (new TicketRepository())->reply(
+                    $partnerId,
+                    (int)($_REQUEST['ticket_id'] ?? 0),
+                    (string)($_REQUEST['text'] ?? ''),
+                    $this->decodeAttachments()
+                ),
+                'delete_ticket_message' => (new TicketRepository())->deleteMessage(
+                    $partnerId,
+                    (int)($_REQUEST['ticket_id'] ?? 0),
+                    (int)($_REQUEST['message_id'] ?? 0)
+                ),
+                'send_chat_message' => (new ChatRepository())->sendMessage(
+                    $partnerId,
+                    (int)($_REQUEST['thread_id'] ?? 0),
+                    (string)($_REQUEST['text'] ?? ''),
+                    $this->decodeAttachments()
+                ),
+                'mark_thread_read' => (new ChatRepository())->markRead($partnerId, (int)($_REQUEST['thread_id'] ?? 0)),
+                'delete_chat_message' => (new ChatRepository())->deleteMessage(
+                    $partnerId,
+                    (int)($_REQUEST['thread_id'] ?? 0),
+                    (int)($_REQUEST['message_id'] ?? 0)
+                ),
                 default => throw new \RuntimeException('Неизвестное действие: ' . $action),
             };
 
@@ -209,11 +244,20 @@ class CabinetPartnerComponent extends CBitrixComponent
             'coupons' => (new CouponRepository())->listOwn($partnerId),
             'finance' => (new TransactionRepository())->getSummary($partnerId),
             'news' => (new NewsRepository())->listOwn($partnerId),
+            'tickets' => (new TicketRepository())->listOwn($partnerId),
+            'marketplace_contacts' => (new TicketRepository())->getMarketplaceContacts(),
+            'chat' => (new ChatRepository())->listOwn($partnerId),
             'partner' => (new PartnerRepository())->get($partnerId),
             'partner_documents' => (new PartnerDocumentRepository())->listByPartner($partnerId),
             'product_colors' => (new ProductColorRepository())->listAll(),
             default => [],
         };
+    }
+
+    /** @return array [{name, type, data}] — общий разбор для create_ticket/reply_ticket/send_chat_message */
+    private function decodeAttachments(): array
+    {
+        return json_decode((string)($_REQUEST['attachments'] ?? '[]'), true) ?: [];
     }
 
     private function ajaxSave(string $entity, int $partnerId)

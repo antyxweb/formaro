@@ -900,8 +900,8 @@ function refreshSidebarCounts() {
         }, 0);
         $('.side-count[data-count="chat"]').text(n).toggleClass('attention', n > 0).toggle(n > 0);
     });
-    dsLoad('tickets').done(function (data) {
-        var n = ((data && data.tickets) || []).filter(function (t) { return t.status !== 'closed'; }).length;
+    dsLoad('tickets').done(function (rows) {
+        var n = (rows || []).filter(function (t) { return t.status !== 'closed'; }).length;
         $('.side-count[data-count="support"]').text(n).toggleClass('attention', n > 0).toggle(n > 0);
     });
     dsLoad('finance').done(function (data) {
@@ -920,8 +920,8 @@ function refreshTopbarCounts() {
         }, 0);
         $('#chatDot').text(n).toggle(n > 0);
     });
-    dsLoad('tickets').done(function (data) {
-        var n = ((data && data.tickets) || []).filter(function (t) { return t.status !== 'closed'; }).length;
+    dsLoad('tickets').done(function (rows) {
+        var n = (rows || []).filter(function (t) { return t.status !== 'closed'; }).length;
         $('#supportDot').text(n).toggle(n > 0);
     });
 }

@@ -17,9 +17,15 @@ class FileUploader
     /**
      * @param string $dataUrl "data:image/png;base64,...."
      * @param string $subdir подпапка в /upload/ (например "cabinet/catalog")
+     * @param string|null $originalName реальное имя файла (как в attachmentFromFile()
+     *                                  в common.js) — сохраняется как ORIGINAL_NAME
+     *                                  в b_file вместо сгенерированного (нужно там, где
+     *                                  имя файла показывается пользователю, например
+     *                                  вложения тикетов/чата); картинкам полей это не
+     *                                  важно — там имя не показывается, генерируем сами.
      * @return int|null ID файла (b_file), null если строка не похожа на data:-URL
      */
-    public static function saveFromDataUrl(string $dataUrl, string $subdir): ?int
+    public static function saveFromDataUrl(string $dataUrl, string $subdir, ?string $originalName = null): ?int
     {
         if (!preg_match('#^data:([a-z0-9/+.\-]+);base64,(.+)$#is', $dataUrl, $m)) {
             return null;
@@ -31,9 +37,11 @@ class FileUploader
             return null;
         }
 
-        $ext = self::extensionFromMime($mime);
+        $name = $originalName !== null && $originalName !== ''
+            ? $originalName
+            : uniqid('img_', true) . '.' . self::extensionFromMime($mime);
         $fileArray = [
-            'name' => uniqid('img_', true) . '.' . $ext,
+            'name' => $name,
             'type' => $mime,
             'content' => $binary,
         ];
@@ -59,6 +67,31 @@ class FileUploader
         if ($fileId) {
             CFile::Delete($fileId);
         }
+    }
+
+    /**
+     * Вложение сообщения (тикет/чат) в формате прототипа —
+     * {name, type: 'image'|'file', data: URL}, см. attachmentFromFile() в
+     * common.js. В отличие от полей-картинок, здесь важно оригинальное имя
+     * файла (см. saveFromDataUrl()) — оно и приходит обратно в ORIGINAL_NAME.
+     *
+     * @return array{name: string, type: string, data: string}|null
+     */
+    public static function getAttachment(?int $fileId): ?array
+    {
+        if (!$fileId) {
+            return null;
+        }
+        $fileArray = CFile::GetFileArray($fileId);
+        if (!$fileArray) {
+            return null;
+        }
+
+        return [
+            'name' => $fileArray['ORIGINAL_NAME'] ?: $fileArray['FILE_NAME'],
+            'type' => strpos((string)$fileArray['CONTENT_TYPE'], 'image') === 0 ? 'image' : 'file',
+            'data' => self::getPath($fileId) ?? '',
+        ];
     }
 
     private static function extensionFromMime(string $mime): string
