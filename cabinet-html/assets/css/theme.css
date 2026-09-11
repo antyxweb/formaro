@@ -733,6 +733,7 @@ input[type="file"].form-control::file-selector-button:hover { background: var(--
 .props-table { border: 1px solid var(--border); }
 .props-table-head { display: grid; grid-template-columns: 1fr 1fr 40px; background: var(--surface-2); font-size: .78rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .03em; padding: .5rem .6rem; }
 .props-table-row { display: grid; grid-template-columns: 1fr 1fr 40px; gap: .5rem; align-items: center; padding: .5rem .6rem; border-top: 1px solid var(--border); }
+.prop-name-wrap { position: relative; }
 /* поля свойств теперь наследуют общий стиль .form-control, без своего фона/рамки */
 .props-table-empty { padding: .9rem .6rem; color: var(--muted); font-size: .85rem; }
 

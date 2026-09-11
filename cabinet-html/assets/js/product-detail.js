@@ -9,6 +9,7 @@ var FIXED_TAGS = ['new', 'bestseller', 'sale'];
 var selectedCategoryIds = [];
 var allColors = [];
 var colorsByName = {};
+var ALL_PROPERTY_NAMES = [];
 
 function updateColorSwatch() {
     var hex = colorsByName[$('#f_color').val().trim().toLowerCase()];
@@ -49,6 +50,15 @@ $(function () {
         $('#f_color').val($(this).data('color'));
         updateColorSwatch();
         $('#colorSuggestions').removeClass('show').empty();
+    });
+
+    dsLoad('property_names', 'data/property-names.json').done(function (names) { ALL_PROPERTY_NAMES = names; });
+    $('#propsContainer').on('input focus', '.prop-name', function () { renderPropNameSuggestions($(this)); });
+    $('#propsContainer').on('click', '.gsearch-item', function () {
+        var $wrap = $(this).closest('.prop-name-wrap');
+        $wrap.find('.prop-name').val($(this).data('name'));
+        $wrap.find('.prop-name-suggest').removeClass('show').empty();
+        syncPropsFromInputs();
     });
 
     var idParam = getQueryParam('id');
@@ -135,6 +145,7 @@ $(function () {
     $(document).on('click', function (e) {
         if (!$(e.target).closest('#variantSearch, #variantSearchResults').length) $('#variantSearchResults').removeClass('show');
         if (!$(e.target).closest('.color-input-wrap').length) $('#colorSuggestions').removeClass('show');
+        if (!$(e.target).closest('.prop-name-wrap').length) $('.prop-name-suggest').removeClass('show').empty();
     });
 });
 
@@ -302,12 +313,33 @@ function renderProps() {
     props.forEach(function (pr, idx) {
         $c.append(
             '<div class="props-table-row">' +
-              '<input type="text" class="form-control prop-name" placeholder="Например, Материал" value="' + esc(pr.name) + '" data-idx="' + idx + '">' +
+              '<div class="prop-name-wrap">' +
+                '<input type="text" class="form-control prop-name" placeholder="Например, Материал" value="' + esc(pr.name) + '" data-idx="' + idx + '" autocomplete="off">' +
+                '<div class="gsearch-dropdown prop-name-suggest"></div>' +
+              '</div>' +
               '<input type="text" class="form-control prop-value" placeholder="Например, Хлопок" value="' + esc(pr.value) + '" data-idx="' + idx + '">' +
               '<button type="button" class="btn btn-sm btn-outline-danger" onclick="removeProp(' + idx + ')"><svg class="ic-inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M3 6h18"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>' +
             '</div>'
         );
     });
+}
+
+/** Подсказки для поля "Название" доп.свойства — тот же паттерн, что и у
+    цвета (свой дропдаун, а не datalist), но список общий справочник
+    common.js-стиля (data/property-names.json), т.к. строки добавляются/
+    удаляются динамически — обработчики на #propsContainer делегированные. */
+function renderPropNameSuggestions($input) {
+    var q = $input.val().trim().toLowerCase();
+    var $dd = $input.closest('.prop-name-wrap').find('.prop-name-suggest');
+    if (!q) { $dd.removeClass('show').empty(); return; }
+    var matches = ALL_PROPERTY_NAMES.filter(function (n) {
+        return n.toLowerCase().indexOf(q) !== -1;
+    }).slice(0, 15);
+    if (!matches.length) { $dd.removeClass('show').empty(); return; }
+    var html = matches.map(function (n) {
+        return '<div class="gsearch-item cursor-pointer" data-name="' + esc(n) + '">' + esc(n) + '</div>';
+    }).join('');
+    $dd.html(html).addClass('show');
 }
 function removeProp(idx) { syncPropsFromInputs(); props.splice(idx, 1); renderProps(); }
 function syncPropsFromInputs() {
