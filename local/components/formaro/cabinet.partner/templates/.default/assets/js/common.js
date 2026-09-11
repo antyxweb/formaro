@@ -485,7 +485,15 @@ function autoHeightResize(sel) {
     });
 }
 
-if (window.jQuery && $.trumbowyg && !$.trumbowyg.btnsDef.formatP) {
+/* В версии 2.27.3 (CDN) реестр кнопок лежит в $.trumbowyg.defaultOptions.btnsDef,
+   а не в $.trumbowyg.btnsDef — обращение к несуществующему свойству бросало
+   TypeError прямо при разборе common.js и обрывало остаток файла (из-за
+   этого, в частности, переставал работать глобальный поиск на страницах с
+   редактором — см. тот же фикс в cabinet-html/assets/js/common.js). */
+var trumbowygBtnsDef = window.jQuery && $.trumbowyg && $.trumbowyg.defaultOptions
+    ? $.trumbowyg.defaultOptions.btnsDef
+    : null;
+if (trumbowygBtnsDef && !trumbowygBtnsDef.formatP) {
     var blockBtn = function (tag, label, title) {
         return {
             fn: function (trumbowyg) { trumbowyg.execCmd('formatBlock', tag, true, true); },
@@ -494,13 +502,13 @@ if (window.jQuery && $.trumbowyg && !$.trumbowyg.btnsDef.formatP) {
             title: title
         };
     };
-    $.trumbowyg.btnsDef.formatP = blockBtn('p', 'Обычный текст', 'Обычный текст');
-    $.trumbowyg.btnsDef.formatH1 = blockBtn('h1', 'Заголовок 1', 'Заголовок 1 уровня');
-    $.trumbowyg.btnsDef.formatH2 = blockBtn('h2', 'Заголовок 2', 'Заголовок 2 уровня');
-    $.trumbowyg.btnsDef.formatH3 = blockBtn('h3', 'Заголовок 3', 'Заголовок 3 уровня');
-    $.trumbowyg.btnsDef.formatH4 = blockBtn('h4', 'Заголовок 4', 'Заголовок 4 уровня');
-    $.trumbowyg.btnsDef.formatQuote = blockBtn('blockquote', 'Цитата', 'Цитата');
-    $.trumbowyg.btnsDef.formatting = {
+    trumbowygBtnsDef.formatP = blockBtn('p', 'Обычный текст', 'Обычный текст');
+    trumbowygBtnsDef.formatH1 = blockBtn('h1', 'Заголовок 1', 'Заголовок 1 уровня');
+    trumbowygBtnsDef.formatH2 = blockBtn('h2', 'Заголовок 2', 'Заголовок 2 уровня');
+    trumbowygBtnsDef.formatH3 = blockBtn('h3', 'Заголовок 3', 'Заголовок 3 уровня');
+    trumbowygBtnsDef.formatH4 = blockBtn('h4', 'Заголовок 4', 'Заголовок 4 уровня');
+    trumbowygBtnsDef.formatQuote = blockBtn('blockquote', 'Цитата', 'Цитата');
+    trumbowygBtnsDef.formatting = {
         dropdown: ['formatP', 'formatH1', 'formatH2', 'formatH3', 'formatH4', 'formatQuote'],
         hasIcon: false,
         text: 'Формат',
