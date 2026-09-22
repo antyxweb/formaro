@@ -197,6 +197,8 @@ class NewsRepository
         ];
     }
 
+    /** PREVIEW_PICTURE — нативное поле элемента; требует $_FILES-подобный
+     *  массив, не голый ID файла (см. докблок FileUploader::dataUrlToFileArray()). */
     private function applyImage(array &$fields, ?string $newValue, ?string $oldValue): void
     {
         if ($newValue === null || $newValue === $oldValue) {
@@ -206,9 +208,9 @@ class NewsRepository
             $fields['PREVIEW_PICTURE'] = false;
             return;
         }
-        $fileId = FileUploader::saveFromDataUrl($newValue, self::UPLOAD_SUBDIR);
-        if ($fileId) {
-            $fields['PREVIEW_PICTURE'] = $fileId;
+        $fileArray = FileUploader::dataUrlToFileArray($newValue);
+        if ($fileArray) {
+            $fields['PREVIEW_PICTURE'] = $fileArray;
         }
     }
 }

@@ -183,6 +183,9 @@ class PartnerRepository
         return (int)$enum['ID'];
     }
 
+    /** PREVIEW_PICTURE/DETAIL_PICTURE — нативные поля элемента, не обычные
+     *  File-свойства; требуют $_FILES-подобный массив, не голый ID файла
+     *  (см. докблок FileUploader::dataUrlToFileArray()). */
     private function applyImage(array &$fields, string $fieldCode, ?string $newValue, ?string $oldValue): void
     {
         if ($newValue === null || $newValue === $oldValue) {
@@ -192,9 +195,9 @@ class PartnerRepository
             $fields[$fieldCode] = false;
             return;
         }
-        $fileId = FileUploader::saveFromDataUrl($newValue, self::UPLOAD_SUBDIR);
-        if ($fileId) {
-            $fields[$fieldCode] = $fileId;
+        $fileArray = FileUploader::dataUrlToFileArray($newValue);
+        if ($fileArray) {
+            $fields[$fieldCode] = $fileArray;
         }
     }
 }

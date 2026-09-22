@@ -51,6 +51,54 @@ class FileUploader
         return $fileId ?: null;
     }
 
+    /**
+     * Для нативных полей элемента PREVIEW_PICTURE/DETAIL_PICTURE — их нельзя
+     * обновить просто передав ID файла (как обычные File-свойства через
+     * SetPropertyValuesEx): CIBlockElement::Update()/Add() для этих двух
+     * полей при получении целого числа ждёт файл, уже зарегистрированный
+     * как "временный" именно для этого элемента через специальный WF-workflow
+     * механизм (см. CIBlockElement::DeleteFile() внутри UpdateInternal()), и
+     * с обычным CFile::SaveFile()'овским ID падает с "Ошибка сохранения
+     * картинки для анонса". Нужен $_FILES-подобный массив с tmp_name —
+     * тогда Update() сам создаст файл через CFile::SaveFile(). Пишем во
+     * временную папку ядра (CTempFile — сама подчищает себя по shutdown),
+     * не через саму CFile::SaveFile(), чтобы не плодить лишнюю orphan-запись
+     * в b_file, которая осталась бы от предварительного сохранения.
+     *
+     * @param string $dataUrl "data:image/png;base64,...."
+     * @return array{name: string, type: string, tmp_name: string, size: int, error: int}|null
+     */
+    public static function dataUrlToFileArray(string $dataUrl, ?string $originalName = null): ?array
+    {
+        if (!preg_match('#^data:([a-z0-9/+.\-]+);base64,(.+)$#is', $dataUrl, $m)) {
+            return null;
+        }
+
+        $mime = $m[1];
+        $binary = base64_decode($m[2]);
+        if ($binary === false) {
+            return null;
+        }
+
+        $name = $originalName !== null && $originalName !== ''
+            ? $originalName
+            : uniqid('img_', true) . '.' . self::extensionFromMime($mime);
+
+        $tmpName = \CTempFile::GetFileName($name);
+        \CheckDirPath($tmpName);
+        if (file_put_contents($tmpName, $binary) === false) {
+            return null;
+        }
+
+        return [
+            'name' => $name,
+            'type' => $mime,
+            'tmp_name' => $tmpName,
+            'size' => strlen($binary),
+            'error' => 0,
+        ];
+    }
+
     /** @return string|null публичный относительный путь ("/upload/..."), null если файла нет */
     public static function getPath(?int $fileId): ?string
     {
