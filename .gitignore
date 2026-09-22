@@ -1,3 +1,10 @@
+# Ядро 1С-Битрикс — живёт на сервере/в Docker-окружении (см. docker-compose.yml
+# уровнем выше), здесь только кастом (см. корневой README проекта).
+/bitrix/
+
+# Загруженные файлы (реальные production-данные из бэкапа) — не версионируем.
+/upload/
+
 # Dependencies
 /node_modules/
 
@@ -8,18 +15,8 @@
 gulp-project-*.zip
 /project/
 
-# Claude Code — локальные настройки
-/.claude/settings.local.json
-
 # OS / editor
 .DS_Store
 *.log
 .sass-cache/
 .cache/
-
-# JetBrains — общее держим, локальное игнорим
-/.idea/workspace.xml
-/.idea/shelf/
-/.idea/httpRequests/
-/.idea/dataSources/
-/.idea/dataSources.local.xml

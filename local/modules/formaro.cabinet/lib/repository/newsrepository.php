@@ -23,6 +23,10 @@ class NewsRepository
     private const SECTION_CODE = 'partners';
     private const UPLOAD_SUBDIR = 'cabinet/news';
 
+    /** См. ProductRepository::SELECT_FIELDS — 'PROPERTY_*' отдаёт значения
+     *  по ID свойства, а не по коду, который читает toArray(). */
+    private const SELECT_FIELDS = ['*', 'PREVIEW_TEXT', 'DETAIL_TEXT', 'PROPERTY_PARTNER_ID'];
+
     private int $iblockId;
     private int $sectionId;
 
@@ -41,7 +45,7 @@ class NewsRepository
             ['IBLOCK_ID' => $this->iblockId, 'PROPERTY_PARTNER_ID' => $partnerId, 'CHECK_PERMISSIONS' => 'N'],
             false,
             false,
-            ['*', 'PREVIEW_TEXT', 'DETAIL_TEXT', 'PROPERTY_*']
+            self::SELECT_FIELDS
         );
         while ($el = $res->Fetch()) {
             $rows[] = $this->toArray($el);
@@ -57,7 +61,7 @@ class NewsRepository
             ['IBLOCK_ID' => $this->iblockId, 'ID' => $id, 'CHECK_PERMISSIONS' => 'N'],
             false,
             false,
-            ['*', 'PREVIEW_TEXT', 'DETAIL_TEXT', 'PROPERTY_*']
+            self::SELECT_FIELDS
         )->Fetch();
 
         return $el ? $this->toArray($el) : null;
@@ -137,7 +141,9 @@ class NewsRepository
 
         FileUploader::delete($row['image_file_id'] ?? null);
 
-        return CIBlockElement::Delete($id);
+        // См. CategoryRepository::delete() — ::Delete() без типа возврата
+        // в самом ядре, приводим явно к bool под наше ": bool".
+        return (bool)CIBlockElement::Delete($id);
     }
 
     private function resolveIblockId(): int

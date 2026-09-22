@@ -161,7 +161,10 @@ class CategoryRepository
         $this->deleteImage($row['preview_image_file_id'] ?? null);
         $this->deleteImage($row['full_image_file_id'] ?? null);
 
-        return CIBlockSection::Delete($id);
+        // CIBlockSection::Delete() не имеет типизированной сигнатуры и на
+        // успешном пути реально возвращает CDBResult (не bool) — приводим
+        // явно, иначе PHP 8 падает с TypeError на объявленном ": bool" тут.
+        return (bool)CIBlockSection::Delete($id);
     }
 
     private function resolveIblockId(): int

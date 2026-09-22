@@ -28,6 +28,18 @@ class PartnerContext
         return $USER && $USER->IsAuthorized();
     }
 
+    /** Сбрасывает кэш этого запроса — нужно вызвать сразу после успешного
+     *  $USER->Login()/Logout() в рамках одного PHP-запроса (например, в
+     *  login.php), иначе hasAccess()/getPartnerId(), вызванные ДО логина
+     *  (см. guardAccess() в class.php — он проверяет доступ ещё для
+     *  неавторизованного запроса на /login/), отдадут закэшированный
+     *  результат "не авторизован" и после успешного входа в этом же запросе. */
+    public static function reset(): void
+    {
+        self::$partnerId = null;
+        self::$resolved = false;
+    }
+
     public static function hasAccess(): bool
     {
         if (!self::isAuthorized()) {

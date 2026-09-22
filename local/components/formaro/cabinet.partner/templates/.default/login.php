@@ -8,10 +8,20 @@ global $USER;
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email'], $_POST['password'])) {
-    $login = trim((string)$_POST['email']);
+    $email = trim((string)$_POST['email']);
     $password = (string)$_POST['password'];
 
+    // CUser::Login() матчит только по полю LOGIN, не по EMAIL — форма
+    // собирает e-mail (так задумано для партнёров), поэтому сперва находим
+    // логин пользователя по точному совпадению e-mail.
+    $login = $email;
+    $byEmail = CUser::GetList($by = 'id', $order = 'asc', ['=EMAIL' => $email], ['SELECT' => ['ID', 'LOGIN']])->Fetch();
+    if ($byEmail) {
+        $login = $byEmail['LOGIN'];
+    }
+
     $result = $USER->Login($login, $password, 'Y');
+    PartnerContext::reset(); // см. PartnerContext::reset() — иначе hasAccess() ниже отдаст кэш "не авторизован" от guardAccess() этого же запроса
     if ($result !== true) {
         $error = 'Неверный e-mail или пароль';
     } elseif (!PartnerContext::hasAccess()) {

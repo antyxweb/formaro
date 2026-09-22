@@ -32,14 +32,8 @@ $assetsJsPath = '/local/components/formaro/cabinet.partner/templates/.default/as
   <div class="modal-footer"><button type="button" class="btn btn-primary" data-bs-dismiss="modal">Ок</button></div>
 </div></div></div>
 
-<script>
-window.CABINET_BOOTSTRAP = {
-    partnerId: <?= (int)($arResult['PARTNER_ID'] ?? 0) ?>,
-    ajaxUrl: <?= json_encode($arResult['SEF_FOLDER'], JSON_UNESCAPED_SLASHES) ?>,
-    cabinetUrl: <?= json_encode($arResult['SEF_FOLDER'], JSON_UNESCAPED_SLASHES) ?>,
-    assetsUrl: <?= json_encode('/local/components/formaro/cabinet.partner/templates/.default/assets', JSON_UNESCAPED_SLASHES) ?>
-};
-</script>
+<?php // CABINET_BOOTSTRAP теперь объявляется в <head> (layout_app_top.php) —
+      // ДО common.js, который читает его синхронно при загрузке скрипта. ?>
 <?php foreach ($pageScripts ?? [] as $script): ?>
 <script src="<?= $assetsJsPath . '/' . $script ?>"></script>
 <?php endforeach; ?>

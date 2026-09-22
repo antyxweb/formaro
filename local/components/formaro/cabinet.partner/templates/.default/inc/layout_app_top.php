@@ -14,6 +14,25 @@ global $APPLICATION;
 $cabinetUrl = $arResult['SEF_FOLDER'];
 
 $APPLICATION->SetTitle(($pageTitle ?? '') ?: 'Кабинет партнёра');
+
+// ВАЖНО: CABINET_BOOTSTRAP должен попасть в <head> ДО common.js (который
+// читает window.CABINET_BOOTSTRAP.partnerId в CURRENT_PARTNER_ID один раз,
+// при загрузке скрипта). common.js подключается через head_assets.php ниже
+// как <script src> в <head> — если бы CABINET_BOOTSTRAP объявлялся в конце
+// <body> (как было раньше), common.js читал бы ещё не существующий
+// window.CABINET_BOOTSTRAP и CURRENT_PARTNER_ID навсегда застревал бы на 0
+// (баг был найден вручную: "Только мои" у категорий не находил ничего,
+// хотя партнёр реально владел записью).
+$cabinetBootstrapScript = '<script>window.CABINET_BOOTSTRAP = '
+    . json_encode([
+        'partnerId' => (int)($arResult['PARTNER_ID'] ?? 0),
+        'ajaxUrl' => $arResult['SEF_FOLDER'],
+        'cabinetUrl' => $arResult['SEF_FOLDER'],
+        'assetsUrl' => '/local/components/formaro/cabinet.partner/templates/.default/assets',
+    ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
+    . ';</script>';
+$APPLICATION->AddHeadString($cabinetBootstrapScript, true);
+
 require __DIR__ . '/head_assets.php';
 
 $themeInitScript = <<<'HTML'

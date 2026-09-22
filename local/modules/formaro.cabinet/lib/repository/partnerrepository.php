@@ -24,6 +24,18 @@ class PartnerRepository
     private const IBLOCK_TYPE = 'marketplace';
     private const UPLOAD_SUBDIR = 'cabinet/partners';
 
+    /** См. ProductRepository::SELECT_FIELDS — 'PROPERTY_*' отдаёт значения
+     *  по ID свойства, а не по коду, который читает toArray(). */
+    private const SELECT_FIELDS = [
+        '*', 'PREVIEW_TEXT', 'DETAIL_TEXT',
+        'PROPERTY_NAME_SHORT', 'PROPERTY_VERIFICATION_STATUS',
+        'PROPERTY_LEGAL_INN', 'PROPERTY_LEGAL_OGRN', 'PROPERTY_LEGAL_ADDRESS',
+        'PROPERTY_LEGAL_BANK_NAME', 'PROPERTY_LEGAL_BIK', 'PROPERTY_LEGAL_ACCOUNT',
+        'PROPERTY_LEGAL_CORR_ACCOUNT', 'PROPERTY_LEGAL_CEO_NAME',
+        'PROPERTY_CONTACT_PHONE', 'PROPERTY_CONTACT_EMAIL',
+        'PROPERTY_CONTACT_PERSON', 'PROPERTY_CONTACT_POSITION',
+    ];
+
     private int $iblockId;
 
     public function __construct()
@@ -39,7 +51,7 @@ class PartnerRepository
             ['IBLOCK_ID' => $this->iblockId, 'ID' => $partnerId, 'CHECK_PERMISSIONS' => 'N'],
             false,
             false,
-            ['*', 'PREVIEW_TEXT', 'DETAIL_TEXT', 'PROPERTY_*']
+            self::SELECT_FIELDS
         )->Fetch();
 
         return $el ? $this->toArray($el) : null;

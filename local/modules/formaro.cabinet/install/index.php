@@ -49,28 +49,58 @@ class formaro_cabinet extends CModule
 
         RegisterModule($this->MODULE_ID);
 
-        // urlrewrite.php на сервере не входит в репозиторий (ядро деплоится
-        // отдельно) — программно дописывать его отсюда небезопасно без
-        // проверки актуальной сигнатуры CUrlRewriter::Add на боевом ядре.
-        // Правило нужно добавить один раз вручную — либо через административную
-        // панель (Настройки → Инструменты → Настройки продукта → Маршрутизация
-        // (ЧПУ) → добавить правило для сайта), либо вписать в bitrix/urlrewrite.php:
-        //
-        // array(
-        //     "CONDITION" => "#^/cabinet/#",
-        //     "RULE"      => "",
-        //     "ID"        => "formaro:cabinet.partner",
-        //     "PATH"      => "/cabinet/index.php",
-        //     "SORT"      => 100,
-        // ),
+        $this->registerUrlRewrite();
+        $this->registerSiteTemplate();
 
         return true;
     }
 
     public function DoUninstall()
     {
+        \Bitrix\Main\SiteTemplateTable::deleteByFilter(['=TEMPLATE' => 'cabinet_v1']);
+
         UnRegisterModule($this->MODULE_ID);
 
         return true;
+    }
+
+    /** SEF-роутинг для /cabinet/ — CUrlRewriter::Add идемпотентен (не дублирует
+     *  правило с тем же CONDITION при повторной установке модуля). */
+    private function registerUrlRewrite(): void
+    {
+        foreach (\Bitrix\Main\SiteTable::getList(['select' => ['LID']])->fetchAll() as $site) {
+            CUrlRewriter::Add([
+                'SITE_ID' => $site['LID'],
+                'CONDITION' => '#^/cabinet/#',
+                'RULE' => '',
+                'ID' => 'formaro:cabinet.partner',
+                'PATH' => '/cabinet/index.php',
+                'SORT' => 100,
+            ]);
+        }
+    }
+
+    /** Шаблон cabinet_v1 (local/templates/cabinet_v1) назначается по условию
+     *  URL, а не программным $APPLICATION->SetTemplateName() из cabinet/
+     *  index.php — так надёжнее (решение принято после того, как в реальной
+     *  установке SetTemplateName() из index.php не сработал: движок уже
+     *  закэшировал шаблон .default к этому моменту исполнения). */
+    private function registerSiteTemplate(): void
+    {
+        foreach (\Bitrix\Main\SiteTable::getList(['select' => ['LID']])->fetchAll() as $site) {
+            $exists = \Bitrix\Main\SiteTemplateTable::getList([
+                'filter' => ['=SITE_ID' => $site['LID'], '=TEMPLATE' => 'cabinet_v1'],
+            ])->fetch();
+            if ($exists) {
+                continue;
+            }
+
+            \Bitrix\Main\SiteTemplateTable::add([
+                'SITE_ID' => $site['LID'],
+                'CONDITION' => 'strpos($_SERVER["REQUEST_URI"], "/cabinet/") === 0',
+                'SORT' => 100,
+                'TEMPLATE' => 'cabinet_v1',
+            ]);
+        }
     }
 }

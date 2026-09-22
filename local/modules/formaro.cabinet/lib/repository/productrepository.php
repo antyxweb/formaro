@@ -20,6 +20,17 @@ class ProductRepository
     private const IBLOCK_TYPE = 'catalog';
     private const UPLOAD_SUBDIR = 'cabinet/products';
 
+    /** 'PROPERTY_*' в select почему-то отдаёт значения по ID свойства
+     *  (PROPERTY_41), а не по коду (PROPERTY_PARTNER_ID_VALUE, который читает
+     *  toArray()) — баг найден вручную (сохранённые товары не находились по
+     *  партнёру/показывали нулевую цену). Перечисляем коды явно. */
+    private const SELECT_FIELDS = [
+        '*', 'PREVIEW_TEXT', 'DETAIL_TEXT',
+        'PROPERTY_SKU', 'PROPERTY_COLOR', 'PROPERTY_SIZE', 'PROPERTY_PRICE', 'PROPERTY_STOCK',
+        'PROPERTY_GALLERY', 'PROPERTY_CUSTOM_PROPS_JSON', 'PROPERTY_IS_PREORDER', 'PROPERTY_TAGS',
+        'PROPERTY_VARIANT_GROUP_ID', 'PROPERTY_PARTNER_ID',
+    ];
+
     private int $iblockId;
 
     public function __construct()
@@ -37,7 +48,7 @@ class ProductRepository
             ['IBLOCK_ID' => $this->iblockId, 'PROPERTY_PARTNER_ID' => $partnerId, 'CHECK_PERMISSIONS' => 'N'],
             false,
             false,
-            ['*', 'PREVIEW_TEXT', 'DETAIL_TEXT', 'PROPERTY_*']
+            self::SELECT_FIELDS
         );
         while ($el = $res->Fetch()) {
             $rows[] = $this->toArray($el);
@@ -53,7 +64,7 @@ class ProductRepository
             ['IBLOCK_ID' => $this->iblockId, 'ID' => $id, 'CHECK_PERMISSIONS' => 'N'],
             false,
             false,
-            ['*', 'PREVIEW_TEXT', 'DETAIL_TEXT', 'PROPERTY_*']
+            self::SELECT_FIELDS
         )->Fetch();
 
         return $el ? $this->toArray($el) : null;
@@ -145,7 +156,9 @@ class ProductRepository
             FileUploader::delete($fileId);
         }
 
-        return CIBlockElement::Delete($id);
+        // См. CategoryRepository::delete() — ::Delete() без типа возврата
+        // в самом ядре, приводим явно к bool под наше ": bool".
+        return (bool)CIBlockElement::Delete($id);
     }
 
     private function resolveIblockId(): int
@@ -163,6 +176,19 @@ class ProductRepository
         }
 
         return (int)$iblock['ID'];
+    }
+
+    /** CIBlockElement::GetElementGroups() возвращает объект результата
+     *  запроса (CDBResult), а не массив — нужно вычитывать через Fetch(). */
+    private function getCategoryIds(int $elementId): array
+    {
+        $ids = [];
+        $res = CIBlockElement::GetElementGroups($elementId, true);
+        while ($section = $res->Fetch()) {
+            $ids[] = (int)$section['ID'];
+        }
+
+        return $ids;
     }
 
     private function toArray(array $el): array
@@ -191,7 +217,7 @@ class ProductRepository
             'tags' => $tags,
             'variant_group_id' => (int)($el['PROPERTY_VARIANT_GROUP_ID_VALUE'] ?? 0),
             'partner_id' => (int)($el['PROPERTY_PARTNER_ID_VALUE'] ?? 0),
-            'category_ids' => array_map('intval', CIBlockElement::GetElementGroups($el['ID'], true)),
+            'category_ids' => $this->getCategoryIds((int)$el['ID']),
             'status' => $el['ACTIVE'] === 'N' ? 'hidden' : 'active',
             'created_at' => $el['DATE_CREATE'] ?? null,
         ];
