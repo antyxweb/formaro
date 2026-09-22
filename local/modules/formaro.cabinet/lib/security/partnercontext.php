@@ -9,15 +9,25 @@ use CUser;
  * захардкоженной CURRENT_PARTNER_ID из cabinet-html/assets/js/common.js.
  * Партнёр = ELEMENT_ID элемента в инфоблоке cabinet_partners, на который
  * указывает UF_CABINET_PARTNER_ID текущего пользователя (поле заводится
- * миграцией Version20260911193006). Доступ в /cabinet/ требует ОБА условия:
- * членство в группе CABINET_PARTNERS И заполненное значение поля — так
- * администратор сайта (не партнёр) не проваливается в кабинет случайно,
- * даже если ему по ошибке проставят UF-поле, и наоборот.
+ * миграцией Version20260911193006). Обычному пользователю доступ в
+ * /cabinet/ требует ОБА условия: членство в группе CABINET_PARTNERS И
+ * заполненное значение поля.
+ *
+ * Сквозная авторизация для администратора сайта: $USER->IsAdmin() (реальные
+ * админ-права, а не жёстко заданная группа) даёт доступ в кабинет без
+ * отдельного логина на /cabinet/login/ — сессии общие, раз уже вошёл в
+ * /bitrix/admin/, тот же $USER уже авторизован и для /cabinet/. Если у
+ * самого администратора своего UF_CABINET_PARTNER_ID нет, подставляется
+ * первый активный партнёр (см. resolveDefaultPartnerId()) — чтобы сразу
+ * был рабочий контекст для проверки/поддержки кабинета, без завода
+ * отдельной тестовой учётки на каждый раз.
  */
 class PartnerContext
 {
     private const GROUP_CODE = 'CABINET_PARTNERS';
     private const UF_FIELD = 'UF_CABINET_PARTNER_ID';
+    private const PARTNERS_IBLOCK_CODE = 'cabinet_partners';
+    private const PARTNERS_IBLOCK_TYPE = 'marketplace';
 
     private static ?int $partnerId = null;
     private static bool $resolved = false;
@@ -47,7 +57,7 @@ class PartnerContext
         }
 
         global $USER;
-        if (!in_array(self::getGroupId(), $USER->GetUserGroupArray(), false)) {
+        if (!$USER->IsAdmin() && !in_array(self::getGroupId(), $USER->GetUserGroupArray(), false)) {
             return false;
         }
 
@@ -75,7 +85,13 @@ class PartnerContext
             $value = $userFields[self::UF_FIELD] ?? null;
         }
 
-        self::$partnerId = (int)$value;
+        $partnerId = (int)$value;
+
+        if ($partnerId <= 0 && $USER->IsAdmin()) {
+            $partnerId = self::resolveDefaultPartnerId();
+        }
+
+        self::$partnerId = $partnerId;
 
         return self::$partnerId;
     }
@@ -89,5 +105,31 @@ class PartnerContext
         }
 
         return $groupId;
+    }
+
+    /** Первый активный партнёр — рабочий контекст для администратора без
+     *  собственной привязки к партнёру (см. докблок класса). */
+    private static function resolveDefaultPartnerId(): int
+    {
+        \Bitrix\Main\Loader::includeModule('iblock');
+
+        $iblock = \CIBlock::GetList([], [
+            'CODE' => self::PARTNERS_IBLOCK_CODE,
+            'TYPE' => self::PARTNERS_IBLOCK_TYPE,
+            'CHECK_PERMISSIONS' => 'N',
+        ])->Fetch();
+        if (!$iblock) {
+            return 0;
+        }
+
+        $el = \CIBlockElement::GetList(
+            ['ID' => 'ASC'],
+            ['IBLOCK_ID' => $iblock['ID'], 'ACTIVE' => 'Y', 'CHECK_PERMISSIONS' => 'N'],
+            false,
+            false,
+            ['ID']
+        )->Fetch();
+
+        return $el ? (int)$el['ID'] : 0;
     }
 }
