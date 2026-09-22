@@ -16,14 +16,48 @@ var coverDataUrl = (window.INITIAL_PARTNER && window.INITIAL_PARTNER.image) || '
 var partnerDocs = [];
 var MAX_DOC_SIZE = 20 * 1024 * 1024; // 20 МБ
 
+/* Панель "Отправить на проверку" на вкладке "Основное": сервер прячет её
+   (класс d-none), только если партнёр уже "Проверен" — тогда она снова
+   появляется, как только пользователь реально что-то поменял на вкладке
+   (см. $mainBarHidden в profile.php). Для остальных статусов панель видна
+   с самого начала, markMainDirty() тут просто не нужен. */
+function markMainDirty() {
+    $('#mainActionBar').removeClass('d-none');
+}
+
+/* Логотип/обложка/полное описание — не обычные <input data-validate>
+   (картинки — background-image у div, полное описание — редактор
+   trumbowyg поверх скрытой textarea), поэтому обязательность для них
+   подсвечивается отдельно от общего initFormValidation() в common.js. */
+function checkImageRequired(dataUrl, thumbSel) {
+    $(thumbSel).toggleClass('is-invalid', !dataUrl);
+}
+function checkFullDescRequired() {
+    var html = $.fn.trumbowyg ? $('#f_full_desc').trumbowyg('html') : $('#f_full_desc').val();
+    var filled = !!$('<div>').html(html).text().trim();
+    $('.trumbowyg-box').toggleClass('is-invalid', !filled);
+    $('#fullDescHint').toggle(!filled);
+    return filled;
+}
+
 $(function () {
-    bindImagePreview('#logoFile', '#logoImg', function (url) { logoDataUrl = url; });
-    bindImagePreview('#coverFile', '#coverImg', function (url) { coverDataUrl = url; });
-    bindImageRemove('#logoRemoveBtn', '#logoImg', 'https://placehold.co/135x135?text=%20', function () { logoDataUrl = ''; });
-    bindImageRemove('#coverRemoveBtn', '#coverImg', 'https://placehold.co/560x220?text=%20', function () { coverDataUrl = ''; });
+    bindImagePreview('#logoFile', '#logoImg', function (url) { logoDataUrl = url; checkImageRequired(url, '#logoImg'); markMainDirty(); });
+    bindImagePreview('#coverFile', '#coverImg', function (url) { coverDataUrl = url; checkImageRequired(url, '#coverImg'); markMainDirty(); });
+    bindImageRemove('#logoRemoveBtn', '#logoImg', 'https://placehold.co/135x135?text=%20', function () { logoDataUrl = ''; checkImageRequired('', '#logoImg'); markMainDirty(); });
+    bindImageRemove('#coverRemoveBtn', '#coverImg', 'https://placehold.co/560x220?text=%20', function () { coverDataUrl = ''; checkImageRequired('', '#coverImg'); markMainDirty(); });
     initRichText('#f_full_desc');
     bindAutoHeight('#f_short_desc');
     autoHeightResize('#f_short_desc');
+
+    checkImageRequired(logoDataUrl, '#logoImg');
+    checkImageRequired(coverDataUrl, '#coverImg');
+    checkFullDescRequired();
+    $('#f_full_desc').on('tbwchange', function () { checkFullDescRequired(); markMainDirty(); });
+
+    /* Любое поле вкладки "Основное" (включая f_phone/f_email из блока
+       "Контактные данные") — показать панель сохранения, если она была
+       скрыта (партнёр уже "Проверен", см. markMainDirty()). */
+    $('#partnerForm').on('input change', markMainDirty);
 
     loadDocs();
 
@@ -59,7 +93,7 @@ $(function () {
         });
     });
 
-    $('#saveBtn').on('click', function () {
+    $('#saveMainBtn').on('click', function () {
         var payload = {
             name_full: $('#f_name_full').val(),
             name_short: $('#f_name_short').val(),
@@ -78,6 +112,16 @@ $(function () {
                 contact_position: $('#f_contact_position').val()
             }
         };
+        dsSaveOne('partner', payload).done(function () {
+            showResult(true, 'Данные отправлены на проверку');
+        });
+    });
+
+    /* Вкладка "Авторизация" — отдельная кнопка, всегда "Сохранить": это
+       данные для входа самого пользователя (b_user), не компании, поэтому
+       сохранение здесь никогда не трогает статус верификации партнёра
+       (см. UserProfileRepository vs PartnerRepository::save()). */
+    $('#saveAuthBtn').on('click', function () {
         var fio = $.trim($('#f_auth_fio').val()).split(/\s+/);
         var authPayload = {
             name: fio.shift() || '',
@@ -86,8 +130,8 @@ $(function () {
             work_phone: $('#f_auth_phone').val(),
             work_position: $('#f_auth_position').val()
         };
-        $.when(dsSaveOne('partner', payload), saveUserProfile(authPayload)).done(function () {
-            showResult(true, 'Данные отправлены на проверку');
+        saveUserProfile(authPayload).done(function () {
+            showResult(true, 'Данные сохранены');
         });
     });
 });

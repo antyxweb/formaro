@@ -591,6 +591,8 @@ input[type="file"].form-control::file-selector-button:hover { background: var(--
 
 .img-field { margin-bottom: 1rem; }
 .img-field .img-actions { margin-top: .5rem; display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; }
+/* Подсветка обязательных изображений/рич-текста без загруженного значения — см. checkImageRequired()/checkFullDescRequired() в partner.js */
+.thumb-logo.is-invalid, .thumb-cover.is-invalid, .trumbowyg-box.is-invalid { border-color: var(--red) !important; }
 
 /* ---------------- List group (уведомления) ---------------- */
 .list-group-item {

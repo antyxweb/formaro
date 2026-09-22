@@ -107,21 +107,24 @@ var VALIDATORS = {
     phone: function (val) { return /^\+7 \d{3} \d{3}-\d{2}-\d{2}$/.test(val.trim()); },
     email: function (val) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.trim()); },
     password: function (val) { return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-zА-Яа-я0-9\s]).{6,}$/.test(val); },
-    slug: function (val) { return /^[A-Za-z0-9_-]+$/.test(val.trim()); }
+    slug: function (val) { return /^[A-Za-z0-9_-]+$/.test(val.trim()); },
+    required: function (val) { return val.trim().length > 0; }
 };
 var VALIDATION_HINTS = {
     text: '',
     phone: 'Формат: +7 999 123-45-67',
     email: 'Например: partner@company.ru',
     password: 'Заглавные и строчные буквы, минимум 1 цифра и 1 спецсимвол',
-    slug: 'Латиница, цифры, тире и нижнее подчёркивание'
+    slug: 'Латиница, цифры, тире и нижнее подчёркивание',
+    required: ''
 };
 var VALIDATION_ERRORS = {
     text: 'Слишком коротко — минимум 3 символа',
     phone: 'Проверьте номер — формат +7 999 123-45-67',
     email: 'Некорректный e-mail',
     password: 'Нужны заглавная, строчная буквы, цифра и спецсимвол',
-    slug: 'Только латиница, цифры, тире и нижнее подчёркивание'
+    slug: 'Только латиница, цифры, тире и нижнее подчёркивание',
+    required: 'Обязательное поле'
 };
 
 function bindPhoneMask($el) {
@@ -152,9 +155,24 @@ function initFormValidation(root) {
         if ($groupParent.length) { $groupParent.after($hint); } else { $el.after($hint); }
         if (type === 'phone') bindPhoneMask($el);
 
+        /* data-required (или type="required" сам по себе) — пустое значение
+           это ошибка, а не нейтральное состояние (в отличие от обычных
+           необязательных data-validate-полей в других формах приложения). */
+        var isRequired = type === 'required' || $el.is('[data-required]');
+
         function check() {
             var val = $el.val().trim();
-            if (!val) { $el.removeClass('is-valid is-invalid'); $hint.attr('class', 'field-hint').text(VALIDATION_HINTS[type] || ''); return; }
+            if (!val) {
+                if (isRequired) {
+                    $el.addClass('is-invalid').removeClass('is-valid');
+                    $hint.attr('class', 'field-hint field-hint-err')
+                        .html('<i class="bi bi-exclamation-circle-fill"></i> Обязательное поле');
+                } else {
+                    $el.removeClass('is-valid is-invalid');
+                    $hint.attr('class', 'field-hint').text(VALIDATION_HINTS[type] || '');
+                }
+                return;
+            }
             var ok = VALIDATORS[type](val);
             $el.toggleClass('is-valid', ok).toggleClass('is-invalid', !ok);
             $hint.attr('class', 'field-hint ' + (ok ? 'field-hint-ok' : 'field-hint-err'))
@@ -162,6 +180,7 @@ function initFormValidation(root) {
         }
         $el.on('input', check);
         $el.on('blur', check);
+        if (isRequired) check();
     });
 
     $(root || document).find('[data-validate-match]').each(function () {

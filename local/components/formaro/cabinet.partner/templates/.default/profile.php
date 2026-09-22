@@ -45,6 +45,12 @@ $partner = $partnerRepo->get($partnerId);
 $documents = $documentRepo->listByPartner($partnerId);
 $userProfile = (new UserProfileRepository())->get((int)$USER->GetID());
 
+/** Панель "Отправить на проверку" на вкладке "Основное": для уже
+ *  проверенного партнёра скрыта, пока он ничего не поменял (см.
+ *  markMainDirty() в partner.js) — незачем гонять на повторную проверку
+ *  профиль, который никто не трогал. Для остальных статусов видна сразу. */
+$mainBarHidden = $partner['verification_status'] === 'verified';
+
 $activeKey = 'partner';
 $pageTitle = 'Данные партнёра — Formaro Partner';
 $needRichText = true;
@@ -84,11 +90,15 @@ require __DIR__ . '/inc/layout_app_top.php';
                     <div class="card-body">
                         <form id="partnerForm" onsubmit="return false;">
                             <div class="row">
-                                <div class="col-md-6 mb-3"><label class="form-label">Полное название</label><input type="text" class="form-control" id="f_name_full" data-validate="text" value="<?= htmlspecialcharsbx($partner['name_full']) ?>"></div>
-                                <div class="col-md-6 mb-3"><label class="form-label">Краткое название</label><input type="text" class="form-control" id="f_name_short" data-validate="text" value="<?= htmlspecialcharsbx($partner['name_short']) ?>"></div>
+                                <div class="col-md-6 mb-3"><label class="form-label">Полное название</label><input type="text" class="form-control" id="f_name_full" data-validate="text" data-required value="<?= htmlspecialcharsbx($partner['name_full']) ?>"></div>
+                                <div class="col-md-6 mb-3"><label class="form-label">Краткое название</label><input type="text" class="form-control" id="f_name_short" data-validate="text" data-required value="<?= htmlspecialcharsbx($partner['name_short']) ?>"></div>
                             </div>
-                            <div class="mb-3"><label class="form-label">Краткое описание</label><textarea class="form-control autoheight-input" id="f_short_desc" rows="2"><?= htmlspecialcharsbx($partner['short_desc']) ?></textarea></div>
-                            <div class="mb-3"><label class="form-label">Полное описание</label><textarea id="f_full_desc"><?= $partner['full_desc'] ?></textarea></div>
+                            <div class="mb-3"><label class="form-label">Краткое описание</label><textarea class="form-control autoheight-input" id="f_short_desc" rows="2" data-validate="required"><?= htmlspecialcharsbx($partner['short_desc']) ?></textarea></div>
+                            <div class="mb-3">
+                                <label class="form-label">Полное описание</label>
+                                <textarea id="f_full_desc"><?= $partner['full_desc'] ?></textarea>
+                                <div class="field-hint field-hint-err" id="fullDescHint" style="display:none;"><i class="bi bi-exclamation-circle-fill"></i> Обязательное поле</div>
+                            </div>
 
                             <div class="row">
                                 <div class="col-md-4 mb-3">
@@ -122,33 +132,36 @@ require __DIR__ . '/inc/layout_app_top.php';
                             <hr>
                             <h6 class="mb-3">Юридические реквизиты</h6>
                             <div class="row">
-                                <div class="col-md-6 mb-3"><label class="form-label">ИНН</label><input type="text" class="form-control" id="f_inn" value="<?= htmlspecialcharsbx($partner['legal']['inn']) ?>"></div>
-                                <div class="col-md-6 mb-3"><label class="form-label">ОГРН</label><input type="text" class="form-control" id="f_ogrn" value="<?= htmlspecialcharsbx($partner['legal']['ogrn']) ?>"></div>
+                                <div class="col-md-6 mb-3"><label class="form-label">ИНН</label><input type="text" class="form-control" id="f_inn" data-validate="required" value="<?= htmlspecialcharsbx($partner['legal']['inn']) ?>"></div>
+                                <div class="col-md-6 mb-3"><label class="form-label">ОГРН</label><input type="text" class="form-control" id="f_ogrn" data-validate="required" value="<?= htmlspecialcharsbx($partner['legal']['ogrn']) ?>"></div>
                             </div>
                             <div class="row">
-                                <div class="col-md-6 mb-3"><label class="form-label">Банк</label><input type="text" class="form-control" id="f_bank_name" value="<?= htmlspecialcharsbx($partner['legal']['bank_name']) ?>"></div>
-                                <div class="col-md-6 mb-3"><label class="form-label">БИК банка</label><input type="text" class="form-control" id="f_bik" value="<?= htmlspecialcharsbx($partner['legal']['bik']) ?>"></div>
+                                <div class="col-md-6 mb-3"><label class="form-label">Банк</label><input type="text" class="form-control" id="f_bank_name" data-validate="required" value="<?= htmlspecialcharsbx($partner['legal']['bank_name']) ?>"></div>
+                                <div class="col-md-6 mb-3"><label class="form-label">БИК банка</label><input type="text" class="form-control" id="f_bik" data-validate="required" value="<?= htmlspecialcharsbx($partner['legal']['bik']) ?>"></div>
                             </div>
                             <div class="row">
-                                <div class="col-md-6 mb-3"><label class="form-label">Расчётный счёт</label><input type="text" class="form-control" id="f_account" value="<?= htmlspecialcharsbx($partner['legal']['account']) ?>"></div>
-                                <div class="col-md-6 mb-3"><label class="form-label">Корр. счёт</label><input type="text" class="form-control" id="f_corr_account" value="<?= htmlspecialcharsbx($partner['legal']['corr_account']) ?>"></div>
+                                <div class="col-md-6 mb-3"><label class="form-label">Расчётный счёт</label><input type="text" class="form-control" id="f_account" data-validate="required" value="<?= htmlspecialcharsbx($partner['legal']['account']) ?>"></div>
+                                <div class="col-md-6 mb-3"><label class="form-label">Корр. счёт</label><input type="text" class="form-control" id="f_corr_account" data-validate="required" value="<?= htmlspecialcharsbx($partner['legal']['corr_account']) ?>"></div>
                             </div>
                             <div class="row">
-                                <div class="col-md-6 mb-3"><label class="form-label">Юридический адрес</label><input type="text" class="form-control" id="f_legal_address" value="<?= htmlspecialcharsbx($partner['legal']['legal_address']) ?>"></div>
-                                <div class="col-md-6 mb-3"><label class="form-label">ФИО руководителя</label><input type="text" class="form-control" id="f_ceo_name" value="<?= htmlspecialcharsbx($partner['legal']['ceo_name']) ?>"></div>
+                                <div class="col-md-6 mb-3"><label class="form-label">Юридический адрес</label><input type="text" class="form-control" id="f_legal_address" data-validate="required" value="<?= htmlspecialcharsbx($partner['legal']['legal_address']) ?>"></div>
+                                <div class="col-md-6 mb-3"><label class="form-label">ФИО руководителя</label><input type="text" class="form-control" id="f_ceo_name" data-validate="required" value="<?= htmlspecialcharsbx($partner['legal']['ceo_name']) ?>"></div>
                             </div>
 
                             <hr>
                             <h6 class="mb-3">Контактные данные</h6>
                             <div class="row">
-                                <div class="col-md-6 mb-3"><label class="form-label">Контактное лицо</label><input type="text" class="form-control" id="f_contact_person" value="<?= htmlspecialcharsbx($partner['contacts']['contact_person']) ?>"></div>
-                                <div class="col-md-6 mb-3"><label class="form-label">Должность контактного лица</label><input type="text" class="form-control" id="f_contact_position" value="<?= htmlspecialcharsbx($partner['contacts']['contact_position']) ?>"></div>
+                                <div class="col-md-6 mb-3"><label class="form-label">Контактное лицо</label><input type="text" class="form-control" id="f_contact_person" data-validate="required" value="<?= htmlspecialcharsbx($partner['contacts']['contact_person']) ?>"></div>
+                                <div class="col-md-6 mb-3"><label class="form-label">Должность контактного лица</label><input type="text" class="form-control" id="f_contact_position" data-validate="required" value="<?= htmlspecialcharsbx($partner['contacts']['contact_position']) ?>"></div>
                             </div>
                             <div class="row">
-                                <div class="col-md-6 mb-3"><label class="form-label">Телефон</label><input type="text" class="form-control" id="f_phone" data-validate="phone" value="<?= htmlspecialcharsbx($partner['contacts']['phone']) ?>"></div>
-                                <div class="col-md-6 mb-3"><label class="form-label">E-mail</label><input type="email" class="form-control" id="f_email" data-validate="email" value="<?= htmlspecialcharsbx($partner['contacts']['email']) ?>"></div>
+                                <div class="col-md-6 mb-3"><label class="form-label">Телефон</label><input type="text" class="form-control" id="f_phone" data-validate="phone" data-required value="<?= htmlspecialcharsbx($partner['contacts']['phone']) ?>"></div>
+                                <div class="col-md-6 mb-3"><label class="form-label">E-mail</label><input type="email" class="form-control" id="f_email" data-validate="email" data-required value="<?= htmlspecialcharsbx($partner['contacts']['email']) ?>"></div>
                             </div>
                         </form>
+                        <div class="detail-actionbar<?= $mainBarHidden ? ' d-none' : '' ?>" id="mainActionBar">
+                            <button type="button" class="btn btn-primary" id="saveMainBtn"><svg class="ic-inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"></path><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"></path><path d="M7 3v4a1 1 0 0 0 1 1h7"></path></svg> Отправить на проверку</button>
+                        </div>
                     </div>
                 </div>
                 <div class="tab-pane fade" id="tabAuth">
@@ -180,6 +193,9 @@ require __DIR__ . '/inc/layout_app_top.php';
                             <div class="col-12"><button type="submit" class="btn btn-outline-primary"><i class="bi bi-key"></i> Изменить пароль</button></div>
                         </form>
                     </div>
+                    <div class="detail-actionbar">
+                        <button type="button" class="btn btn-primary" id="saveAuthBtn"><svg class="ic-inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"></path><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"></path><path d="M7 3v4a1 1 0 0 0 1 1h7"></path></svg> Сохранить</button>
+                    </div>
                 </div>
                 <div class="tab-pane fade" id="tabDocs">
                     <div class="card-body">
@@ -191,9 +207,6 @@ require __DIR__ . '/inc/layout_app_top.php';
                         </label>
                     </div>
                 </div>
-            </div>
-            <div class="detail-actionbar">
-                <button type="button" class="btn btn-primary" id="saveBtn"><svg class="ic-inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"></path><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"></path><path d="M7 3v4a1 1 0 0 0 1 1h7"></path></svg> Отправить на проверку</button>
             </div>
         </div>
 <?php
