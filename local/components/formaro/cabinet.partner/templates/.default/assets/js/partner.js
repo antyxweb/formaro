@@ -25,34 +25,16 @@ function markMainDirty() {
     $('#mainActionBar').removeClass('d-none');
 }
 
-/* Логотип/обложка/полное описание — не обычные <input data-validate>
-   (картинки — background-image у div, полное описание — редактор
-   trumbowyg поверх скрытой textarea), поэтому обязательность для них
-   подсвечивается отдельно от общего initFormValidation() в common.js. */
-function checkImageRequired(dataUrl, thumbSel) {
-    $(thumbSel).toggleClass('is-invalid', !dataUrl);
-}
-function checkFullDescRequired() {
-    var html = $.fn.trumbowyg ? $('#f_full_desc').trumbowyg('html') : $('#f_full_desc').val();
-    var filled = !!$('<div>').html(html).text().trim();
-    $('.trumbowyg-box').toggleClass('is-invalid', !filled);
-    $('#fullDescHint').toggle(!filled);
-    return filled;
-}
-
 $(function () {
-    bindImagePreview('#logoFile', '#logoImg', function (url) { logoDataUrl = url; checkImageRequired(url, '#logoImg'); markMainDirty(); });
-    bindImagePreview('#coverFile', '#coverImg', function (url) { coverDataUrl = url; checkImageRequired(url, '#coverImg'); markMainDirty(); });
-    bindImageRemove('#logoRemoveBtn', '#logoImg', 'https://placehold.co/135x135?text=%20', function () { logoDataUrl = ''; checkImageRequired('', '#logoImg'); markMainDirty(); });
-    bindImageRemove('#coverRemoveBtn', '#coverImg', 'https://placehold.co/560x220?text=%20', function () { coverDataUrl = ''; checkImageRequired('', '#coverImg'); markMainDirty(); });
+    bindImagePreview('#logoFile', '#logoImg', function (url) { logoDataUrl = url; markMainDirty(); });
+    bindImagePreview('#coverFile', '#coverImg', function (url) { coverDataUrl = url; markMainDirty(); });
+    bindImageRemove('#logoRemoveBtn', '#logoImg', 'https://placehold.co/135x135?text=%20', function () { logoDataUrl = ''; markMainDirty(); });
+    bindImageRemove('#coverRemoveBtn', '#coverImg', 'https://placehold.co/560x220?text=%20', function () { coverDataUrl = ''; markMainDirty(); });
     initRichText('#f_full_desc');
     bindAutoHeight('#f_short_desc');
     autoHeightResize('#f_short_desc');
 
-    checkImageRequired(logoDataUrl, '#logoImg');
-    checkImageRequired(coverDataUrl, '#coverImg');
-    checkFullDescRequired();
-    $('#f_full_desc').on('tbwchange', function () { checkFullDescRequired(); markMainDirty(); });
+    $('#f_full_desc').on('tbwchange', markMainDirty);
 
     /* Любое поле вкладки "Основное" (включая f_phone/f_email из блока
        "Контактные данные") — показать панель сохранения, если она была
@@ -94,12 +76,7 @@ $(function () {
     });
 
     $('#saveMainBtn').on('click', function () {
-        var formOk = validateRoot('#partnerForm');
-        checkImageRequired(logoDataUrl, '#logoImg');
-        checkImageRequired(coverDataUrl, '#coverImg');
-        var descOk = checkFullDescRequired();
-        var imagesOk = !!logoDataUrl && !!coverDataUrl;
-        if (!formOk || !descOk || !imagesOk) {
+        if (!validateRoot('#partnerForm')) {
             showResult(false, 'Заполните все обязательные поля');
             return;
         }

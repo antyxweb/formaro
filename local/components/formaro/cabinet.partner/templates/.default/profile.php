@@ -93,11 +93,10 @@ require __DIR__ . '/inc/layout_app_top.php';
                                 <div class="col-md-6 mb-3"><label class="form-label">Полное название</label><input type="text" class="form-control" id="f_name_full" data-validate="text" data-required value="<?= htmlspecialcharsbx($partner['name_full']) ?>"></div>
                                 <div class="col-md-6 mb-3"><label class="form-label">Краткое название</label><input type="text" class="form-control" id="f_name_short" data-validate="text" data-required value="<?= htmlspecialcharsbx($partner['name_short']) ?>"></div>
                             </div>
-                            <div class="mb-3"><label class="form-label">Краткое описание</label><textarea class="form-control autoheight-input" id="f_short_desc" rows="2" data-validate="required"><?= htmlspecialcharsbx($partner['short_desc']) ?></textarea></div>
+                            <div class="mb-3"><label class="form-label">Краткое описание</label><textarea class="form-control autoheight-input" id="f_short_desc" rows="2"><?= htmlspecialcharsbx($partner['short_desc']) ?></textarea></div>
                             <div class="mb-3">
                                 <label class="form-label">Полное описание</label>
                                 <textarea id="f_full_desc"><?= $partner['full_desc'] ?></textarea>
-                                <div class="field-hint field-hint-err" id="fullDescHint" style="display:none;"><i class="bi bi-exclamation-circle-fill"></i> Обязательное поле</div>
                             </div>
 
                             <div class="row">
