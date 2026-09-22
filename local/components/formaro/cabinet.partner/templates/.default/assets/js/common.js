@@ -180,7 +180,18 @@ function initFormValidation(root) {
         }
         $el.on('input', check);
         $el.on('blur', check);
-        if (isRequired) check();
+        /* На загрузке подсвечиваем только пустые обязательные поля (чтобы
+           сразу было видно, чего не хватает) — "Всё верно" для уже
+           заполненных значений НЕ показываем здесь: это статус момента
+           правильного заполнения полем самим пользователем (см. check()
+           выше), а не факт того, что где-то в БД уже лежит валидное
+           значение. Полную проверку (включая формат уже заполненных
+           полей) форсирует validateRoot() при попытке сохранить форму. */
+        if (isRequired && !$el.val().trim()) {
+            $el.addClass('is-invalid');
+            $hint.attr('class', 'field-hint field-hint-err')
+                .html('<i class="bi bi-exclamation-circle-fill"></i> Обязательное поле');
+        }
     });
 
     $(root || document).find('[data-validate-match]').each(function () {
@@ -204,6 +215,17 @@ function initFormValidation(root) {
     });
 }
 $(function () { initFormValidation(); });
+
+/** Форсирует полную проверку всех [data-validate]-полей внутри root (в т.ч.
+ *  уже заполненных — на загрузке для них check() не запускался, см. выше)
+ *  и возвращает true, только если ни одно поле не помечено is-invalid.
+ *  Дёргать перед сохранением формы, где часть/все поля обязательны —
+ *  просто подсветки при вводе недостаточно, форма не должна сохраняться
+ *  с пустыми обязательными полями. */
+function validateRoot(root) {
+    $(root || document).find('[data-validate], [data-validate-match]').trigger('input');
+    return $(root || document).find('.is-invalid').length === 0;
+}
 
 function statusPill(status) {
     var map = {

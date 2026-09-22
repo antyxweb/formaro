@@ -94,6 +94,15 @@ $(function () {
     });
 
     $('#saveMainBtn').on('click', function () {
+        var formOk = validateRoot('#partnerForm');
+        checkImageRequired(logoDataUrl, '#logoImg');
+        checkImageRequired(coverDataUrl, '#coverImg');
+        var descOk = checkFullDescRequired();
+        var imagesOk = !!logoDataUrl && !!coverDataUrl;
+        if (!formOk || !descOk || !imagesOk) {
+            showResult(false, 'Заполните все обязательные поля');
+            return;
+        }
         var payload = {
             name_full: $('#f_name_full').val(),
             name_short: $('#f_name_short').val(),
