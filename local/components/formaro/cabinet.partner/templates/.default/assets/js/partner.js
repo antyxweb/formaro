@@ -131,6 +131,10 @@ $(function () {
        сохранение здесь никогда не трогает статус верификации партнёра
        (см. UserProfileRepository vs PartnerRepository::save()). */
     $('#saveAuthBtn').on('click', function () {
+        if (!validateRoot('#authForm')) {
+            showResult(false, 'Заполните все обязательные поля');
+            return;
+        }
         var fio = $.trim($('#f_auth_fio').val()).split(/\s+/);
         var authPayload = {
             name: fio.shift() || '',

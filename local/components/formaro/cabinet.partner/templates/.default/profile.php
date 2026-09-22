@@ -168,12 +168,12 @@ require __DIR__ . '/inc/layout_app_top.php';
                     <div class="card-body">
                         <form id="authForm" onsubmit="return false;">
                             <div class="row">
-                                <div class="col-md-6 mb-3"><label class="form-label">ФИО</label><input type="text" class="form-control" id="f_auth_fio" data-validate="text" value="<?= htmlspecialcharsbx(trim($userProfile['name'] . ' ' . $userProfile['last_name'])) ?>"></div>
-                                <div class="col-md-6 mb-3"><label class="form-label">E-mail (логин)</label><input type="email" class="form-control" id="f_auth_email" data-validate="email" value="<?= htmlspecialcharsbx($userProfile['email']) ?>"></div>
+                                <div class="col-md-6 mb-3"><label class="form-label">ФИО</label><input type="text" class="form-control" id="f_auth_fio" data-validate="text" data-required value="<?= htmlspecialcharsbx(trim($userProfile['name'] . ' ' . $userProfile['last_name'])) ?>"></div>
+                                <div class="col-md-6 mb-3"><label class="form-label">E-mail (логин)</label><input type="email" class="form-control" id="f_auth_email" data-validate="email" data-required value="<?= htmlspecialcharsbx($userProfile['email']) ?>"></div>
                             </div>
                             <div class="row">
-                                <div class="col-md-6 mb-3"><label class="form-label">Телефон (рабочий)</label><input type="text" class="form-control" id="f_auth_phone" data-validate="phone" value="<?= htmlspecialcharsbx($userProfile['work_phone']) ?>"></div>
-                                <div class="col-md-6 mb-3"><label class="form-label">Должность</label><input type="text" class="form-control" id="f_auth_position" value="<?= htmlspecialcharsbx($userProfile['work_position']) ?>"></div>
+                                <div class="col-md-6 mb-3"><label class="form-label">Телефон (рабочий)</label><input type="text" class="form-control" id="f_auth_phone" data-validate="phone" data-required value="<?= htmlspecialcharsbx($userProfile['work_phone']) ?>"></div>
+                                <div class="col-md-6 mb-3"><label class="form-label">Должность</label><input type="text" class="form-control" id="f_auth_position" data-validate="required" value="<?= htmlspecialcharsbx($userProfile['work_position']) ?>"></div>
                             </div>
                         </form>
 
