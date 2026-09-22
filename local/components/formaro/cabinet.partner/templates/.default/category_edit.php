@@ -1,7 +1,7 @@
 <?php
 /** @var array $arResult */
 $activeKey = 'categories';
-$pageTitle = 'Категория — Formaro Partner';
+$pageTitle = 'Категория';
 $needRichText = true;
 $routeId = $arResult['VARIABLES']['ID'] ?? 'new';
 require __DIR__ . '/inc/layout_app_top.php';

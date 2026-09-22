@@ -1,7 +1,7 @@
 <?php
 /** @var array $arResult */
 $activeKey = 'orders';
-$pageTitle = 'Заказы — Formaro Partner';
+$pageTitle = 'Заказы';
 $needDatePicker = true;
 require __DIR__ . '/inc/layout_app_top.php';
 ?>

@@ -52,7 +52,7 @@ $userProfile = (new UserProfileRepository())->get((int)$USER->GetID());
 $mainBarHidden = $partner['verification_status'] === 'verified';
 
 $activeKey = 'partner';
-$pageTitle = 'Данные партнёра — Formaro Partner';
+$pageTitle = 'Данные партнёра';
 $needRichText = true;
 require __DIR__ . '/inc/layout_app_top.php';
 ?>

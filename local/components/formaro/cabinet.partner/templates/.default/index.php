@@ -1,6 +1,7 @@
 <?php
 
 use Formaro\Cabinet\Repository\PartnerRepository;
+use Formaro\Cabinet\Repository\UserProfileRepository;
 
 /**
  * Главная — теперь порт реального дашборда прототипа (cabinet-html/index.html
@@ -17,15 +18,19 @@ use Formaro\Cabinet\Repository\PartnerRepository;
  *
  * @var array $arResult
  */
+global $USER;
+
 $partnerId = $arResult['PARTNER_ID'];
 $partner = (new PartnerRepository())->get($partnerId);
+$userProfile = (new UserProfileRepository())->get((int)$USER->GetID());
+$userName = trim($userProfile['name'] . ' ' . $userProfile['last_name']) ?: $USER->GetLogin();
 
 $activeKey = 'dashboard';
-$pageTitle = 'Главная — Formaro Partner';
+$pageTitle = 'Главная';
 require __DIR__ . '/inc/layout_app_top.php';
 ?>
 <div class="mb-3">
-    <h4 class="mb-1">Здравствуйте, <?= htmlspecialcharsbx($partner['name_short'] ?: $partner['name_full']) ?>!</h4>
+    <h4 class="mb-1">Здравствуйте, <?= htmlspecialcharsbx($userName) ?>!</h4>
 </div>
 
 <div class="row g-3 mb-3">

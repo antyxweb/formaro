@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['email'])) {
     $sent = true;
 }
 
-$pageTitle = 'Восстановление пароля — Formaro Partner';
+$pageTitle = 'Восстановление пароля';
 require __DIR__ . '/inc/layout_auth_top.php';
 
 if ($sent): ?>

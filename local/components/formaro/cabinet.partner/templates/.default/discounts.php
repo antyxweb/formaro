@@ -1,7 +1,7 @@
 <?php
 /** @var array $arResult */
 $activeKey = 'discounts';
-$pageTitle = 'Скидки и купоны — Formaro Partner';
+$pageTitle = 'Скидки и купоны';
 require __DIR__ . '/inc/layout_app_top.php';
 ?>
 <ul class="nav nav-tabs product-tabs mb-3" id="mainTabs">

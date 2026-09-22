@@ -1,7 +1,7 @@
 <?php
 /** @var array $arResult */
 $activeKey = 'news';
-$pageTitle = 'Новость — Formaro Partner';
+$pageTitle = 'Новость';
 $needRichText = true;
 $needDatePicker = true;
 $routeId = $arResult['VARIABLES']['ID'] ?? 'new';

@@ -33,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email'], $_POST['pass
     }
 }
 
-$pageTitle = 'Вход — Formaro Partner';
+$pageTitle = 'Вход';
 require __DIR__ . '/inc/layout_auth_top.php';
 ?>
     <p class="text-muted-2 mb-4">Кабинет партнёра маркетплейса</p>

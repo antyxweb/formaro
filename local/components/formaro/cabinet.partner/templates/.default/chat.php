@@ -1,7 +1,7 @@
 <?php
 /** @var array $arResult */
 $activeKey = 'chat';
-$pageTitle = 'Чат с клиентами — Formaro Partner';
+$pageTitle = 'Чат с клиентами';
 require __DIR__ . '/inc/layout_app_top.php';
 ?>
 <div class="filter-bar d-flex flex-wrap gap-2 align-items-end">

@@ -1,7 +1,7 @@
 <?php
 /** @var array $arResult */
 $activeKey = 'support';
-$pageTitle = 'Обращение — Formaro Partner';
+$pageTitle = 'Обращение';
 $routeId = $arResult['VARIABLES']['ID'] ?? 0;
 require __DIR__ . '/inc/layout_app_top.php';
 ?>

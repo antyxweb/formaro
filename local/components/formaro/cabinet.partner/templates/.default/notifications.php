@@ -1,7 +1,7 @@
 <?php
 /** @var array $arResult */
 $activeKey = 'notifications';
-$pageTitle = 'Уведомления — Formaro Partner';
+$pageTitle = 'Уведомления';
 require __DIR__ . '/inc/layout_app_top.php';
 ?>
 <div class="filter-bar d-flex justify-content-between align-items-center gap-3">

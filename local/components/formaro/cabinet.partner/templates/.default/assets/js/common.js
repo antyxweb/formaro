@@ -796,7 +796,7 @@ function initCabinetChrome(pageTitle) {
     $('.sidebar .side-link').on('click', closeMobileSidebar);
 
     $('#topbarTitle').text(pageTitle || '');
-    document.title = (pageTitle ? pageTitle + ' — ' : '') + 'Formaro Partner';
+    document.title = pageTitle || 'Кабинет партнёра';
 
     initTopbarWidgets();
     refreshSidebarCounts();

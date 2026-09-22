@@ -2,7 +2,7 @@
 /** @var array $arResult */
 $activeKey = 'discounts';
 $routeId = $arResult['VARIABLES']['ID'] ?? 'new';
-$pageTitle = 'Купон — Formaro Partner';
+$pageTitle = 'Купон';
 $needDatePicker = true;
 require __DIR__ . '/inc/layout_app_top.php';
 ?>
