@@ -23,6 +23,3 @@ global $APPLICATION;
     <title><?php $APPLICATION->ShowTitle(); ?></title>
 </head>
 <body>
-    <div id="panel">
-        <?php $APPLICATION->ShowPanel(); ?>
-    </div>
