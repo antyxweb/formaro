@@ -76,8 +76,16 @@ function slugifyClient(text) {
     }
     return out.replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').replace(/-+/g, '-');
 }
+/** Короткий случайный хвост для кода (см. bindCodeChain) — чтобы транслит
+ *  двух одинаковых/похожих названий ("Товар" и "Товар") не давал один и тот
+ *  же код. Один вызов на форму (при открытии страницы создания), не на
+ *  каждый ввод — иначе код "прыгал" бы при каждом нажатии клавиши. */
+function generateUniqueSlugSuffix() {
+    return Math.random().toString(36).slice(2, 8);
+}
 function bindCodeChain(nameSel, codeSel, chainBtnSel) {
     var auto = true;
+    var uniqueSuffix = generateUniqueSlugSuffix();
     function updateBtn() { $(chainBtnSel).toggleClass('active', auto); }
     $(chainBtnSel).on('click', function () { auto = !auto; updateBtn(); });
     $(codeSel).on('input', function () {
@@ -90,7 +98,11 @@ function bindCodeChain(nameSel, codeSel, chainBtnSel) {
             this.setSelectionRange(pos, pos);
         }
     });
-    $(nameSel).on('input', function () { if (auto) $(codeSel).val(slugifyClient($(this).val())); });
+    $(nameSel).on('input', function () {
+        if (!auto) return;
+        var base = slugifyClient($(this).val());
+        $(codeSel).val(base ? base + '-' + uniqueSuffix : '');
+    });
     return {
         setExisting: function () { auto = false; updateBtn(); },
         setNew: function () { auto = true; updateBtn(); }
