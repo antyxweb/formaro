@@ -50,16 +50,16 @@ class PartnerRepository
     }
 
     /**
-     * Если правки вкладки "Основное" отправлялись, пока партнёр уже был
-     * "Проверен", они лежат черновиком в свойстве PENDING_CHANGES вместо
-     * боевых полей (см. save()). Здесь, при каждом чтении: если статус
-     * СЕЙЧАС "Проверен" и черновик есть — значит, площадка успела заново
-     * подтвердить партнёра (статус меняют не через этот репозиторий, а
-     * вручную в админке битрикса) — переносим черновик в боевые поля и
-     * очищаем PENDING_CHANGES (commitPending()). Иначе (статус ещё не
-     * "Проверен") — просто подмешиваем черновик поверх боевых данных, чтобы
-     * партнёр видел на форме то, что сам последним отправил, а не то, что
-     * видно на публичной витрине до одобрения.
+     * Любое сохранение вкладки "Основное" из кабинета партнёра (см. save())
+     * всегда лежит черновиком в свойстве PENDING_CHANGES, а не в боевых
+     * полях — независимо от текущего статуса верификации. Здесь, при
+     * каждом чтении: если статус СЕЙЧАС "Проверен" и черновик есть —
+     * значит, площадка (пере)подтвердила партнёра (статус меняют не через
+     * этот репозиторий, а вручную в админке битрикса) — переносим черновик
+     * в боевые поля и очищаем PENDING_CHANGES (commitPending()). Иначе
+     * (статус ещё не "Проверен") — просто подмешиваем черновик поверх
+     * боевых данных, чтобы партнёр видел на форме то, что сам последним
+     * отправил, а не то, что видно на публичной витрине до одобрения.
      */
     public function get(int $partnerId): ?array
     {
@@ -115,12 +115,12 @@ class PartnerRepository
 
     /**
      * Кнопка на форме — не нейтральный "Сохранить", а "Отправить на
-     * проверку": любое сохранение переводит статус в "На проверке" — см.
-     * profile.php. Если партнёр СЕЙЧАС "Проверен" — правки не применяются
-     * к боевым полям сразу (площадка уже показывает эти данные публично),
-     * а складываются черновиком в PENDING_CHANGES (saveAsPending()) и
-     * переносятся в боевые поля только когда партнёра проверят заново (см.
-     * get()/commitPending()). Иначе — как раньше, применяются сразу.
+     * проверку": любое сохранение вкладки "Основное", независимо от
+     * текущего статуса, складывается черновиком в PENDING_CHANGES, а не
+     * применяется к боевым полям напрямую (saveAsPending()) — переводя
+     * статус в "На проверке" (см. profile.php). В боевые поля черновик
+     * попадает только когда партнёра проверят/перепроверят (статус снова
+     * станет "Проверен") — см. get()/commitPending().
      */
     public function save(int $partnerId, array $payload): array
     {
@@ -132,45 +132,7 @@ class PartnerRepository
         $legal = (array)($payload['legal'] ?? []);
         $contacts = (array)($payload['contacts'] ?? []);
 
-        if ($existing['verification_status'] === self::STATUS_VERIFIED) {
-            $this->saveAsPending($partnerId, $payload, $existing, $legal, $contacts);
-
-            return $this->get($partnerId);
-        }
-
-        $fields = [
-            'NAME' => (string)($payload['name_full'] ?? $existing['name_full']),
-            'PREVIEW_TEXT' => (string)($payload['short_desc'] ?? ''),
-            'DETAIL_TEXT' => (string)($payload['full_desc'] ?? ''),
-        ];
-
-        $this->applyImage($fields, 'PREVIEW_PICTURE', $payload['logo'] ?? null, $existing['logo'] ?? null);
-        $this->applyImage($fields, 'DETAIL_PICTURE', $payload['image'] ?? null, $existing['image'] ?? null);
-
-        $ok = (new CIBlockElement())->Update($partnerId, $fields);
-        if (!$ok) {
-            throw new \RuntimeException('Не удалось сохранить профиль партнёра');
-        }
-
-        CIBlockElement::SetPropertyValuesEx($partnerId, $this->iblockId, [
-            'NAME_SHORT' => (string)($payload['name_short'] ?? ''),
-            'LEGAL_INN' => (string)($legal['inn'] ?? ''),
-            'LEGAL_OGRN' => (string)($legal['ogrn'] ?? ''),
-            'LEGAL_ADDRESS' => (string)($legal['legal_address'] ?? ''),
-            'LEGAL_BANK_NAME' => (string)($legal['bank_name'] ?? ''),
-            'LEGAL_BIK' => (string)($legal['bik'] ?? ''),
-            'LEGAL_ACCOUNT' => (string)($legal['account'] ?? ''),
-            'LEGAL_CORR_ACCOUNT' => (string)($legal['corr_account'] ?? ''),
-            'LEGAL_CEO_NAME' => (string)($legal['ceo_name'] ?? ''),
-            'CONTACT_PHONE' => (string)($contacts['phone'] ?? ''),
-            'CONTACT_EMAIL' => (string)($contacts['email'] ?? ''),
-            'CONTACT_PERSON' => (string)($contacts['contact_person'] ?? ''),
-            'CONTACT_POSITION' => (string)($contacts['contact_position'] ?? ''),
-            self::STATUS_PROPERTY_CODE => $this->resolveEnumIdByXmlId(self::STATUS_PENDING),
-            // Правка не из черновика (обходит staging) — старый черновик, если
-            // остался с прошлого раза, больше не актуален.
-            self::PENDING_PROPERTY_CODE => '',
-        ]);
+        $this->saveAsPending($partnerId, $payload, $existing, $legal, $contacts);
 
         return $this->get($partnerId);
     }
@@ -368,23 +330,5 @@ class PartnerRepository
         }
 
         return (int)$enum['ID'];
-    }
-
-    /** PREVIEW_PICTURE/DETAIL_PICTURE — нативные поля элемента, не обычные
-     *  File-свойства; требуют $_FILES-подобный массив, не голый ID файла
-     *  (см. докблок FileUploader::dataUrlToFileArray()). */
-    private function applyImage(array &$fields, string $fieldCode, ?string $newValue, ?string $oldValue): void
-    {
-        if ($newValue === null || $newValue === $oldValue) {
-            return;
-        }
-        if ($newValue === '') {
-            $fields[$fieldCode] = false;
-            return;
-        }
-        $fileArray = FileUploader::dataUrlToFileArray($newValue);
-        if ($fileArray) {
-            $fields[$fieldCode] = $fileArray;
-        }
     }
 }
