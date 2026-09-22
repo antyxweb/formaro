@@ -136,6 +136,17 @@ require __DIR__ . '/inc/layout_app_top.php';
                                 <div class="col-md-6 mb-3"><label class="form-label">Юридический адрес</label><input type="text" class="form-control" id="f_legal_address" value="<?= htmlspecialcharsbx($partner['legal']['legal_address']) ?>"></div>
                                 <div class="col-md-6 mb-3"><label class="form-label">ФИО руководителя</label><input type="text" class="form-control" id="f_ceo_name" value="<?= htmlspecialcharsbx($partner['legal']['ceo_name']) ?>"></div>
                             </div>
+
+                            <hr>
+                            <h6 class="mb-3">Контактные данные</h6>
+                            <div class="row">
+                                <div class="col-md-6 mb-3"><label class="form-label">Контактное лицо</label><input type="text" class="form-control" id="f_contact_person" value="<?= htmlspecialcharsbx($partner['contacts']['contact_person']) ?>"></div>
+                                <div class="col-md-6 mb-3"><label class="form-label">Должность контактного лица</label><input type="text" class="form-control" id="f_contact_position" value="<?= htmlspecialcharsbx($partner['contacts']['contact_position']) ?>"></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3"><label class="form-label">Телефон</label><input type="text" class="form-control" id="f_phone" data-validate="phone" value="<?= htmlspecialcharsbx($partner['contacts']['phone']) ?>"></div>
+                                <div class="col-md-6 mb-3"><label class="form-label">E-mail</label><input type="email" class="form-control" id="f_email" data-validate="email" value="<?= htmlspecialcharsbx($partner['contacts']['email']) ?>"></div>
+                            </div>
                         </form>
                     </div>
                 </div>
@@ -143,7 +154,7 @@ require __DIR__ . '/inc/layout_app_top.php';
                     <div class="card-body">
                         <form id="authForm" onsubmit="return false;">
                             <div class="row">
-                                <div class="col-md-6 mb-3"><label class="form-label">Контактное лицо (ФИО)</label><input type="text" class="form-control" id="f_auth_fio" data-validate="text" value="<?= htmlspecialcharsbx(trim($userProfile['name'] . ' ' . $userProfile['last_name'])) ?>"></div>
+                                <div class="col-md-6 mb-3"><label class="form-label">ФИО</label><input type="text" class="form-control" id="f_auth_fio" data-validate="text" value="<?= htmlspecialcharsbx(trim($userProfile['name'] . ' ' . $userProfile['last_name'])) ?>"></div>
                                 <div class="col-md-6 mb-3"><label class="form-label">E-mail (логин)</label><input type="email" class="form-control" id="f_auth_email" data-validate="email" value="<?= htmlspecialcharsbx($userProfile['email']) ?>"></div>
                             </div>
                             <div class="row">
