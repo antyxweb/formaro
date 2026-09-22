@@ -32,8 +32,6 @@ class PartnerRepository
         'PROPERTY_LEGAL_INN', 'PROPERTY_LEGAL_OGRN', 'PROPERTY_LEGAL_ADDRESS',
         'PROPERTY_LEGAL_BANK_NAME', 'PROPERTY_LEGAL_BIK', 'PROPERTY_LEGAL_ACCOUNT',
         'PROPERTY_LEGAL_CORR_ACCOUNT', 'PROPERTY_LEGAL_CEO_NAME',
-        'PROPERTY_CONTACT_PHONE', 'PROPERTY_CONTACT_EMAIL',
-        'PROPERTY_CONTACT_PERSON', 'PROPERTY_CONTACT_POSITION',
     ];
 
     private int $iblockId;
@@ -79,7 +77,6 @@ class PartnerRepository
         }
 
         $legal = (array)($payload['legal'] ?? []);
-        $contacts = (array)($payload['contacts'] ?? []);
 
         CIBlockElement::SetPropertyValuesEx($partnerId, $this->iblockId, [
             'NAME_SHORT' => (string)($payload['name_short'] ?? ''),
@@ -91,10 +88,6 @@ class PartnerRepository
             'LEGAL_ACCOUNT' => (string)($legal['account'] ?? ''),
             'LEGAL_CORR_ACCOUNT' => (string)($legal['corr_account'] ?? ''),
             'LEGAL_CEO_NAME' => (string)($legal['ceo_name'] ?? ''),
-            'CONTACT_PHONE' => (string)($contacts['phone'] ?? ''),
-            'CONTACT_EMAIL' => (string)($contacts['email'] ?? ''),
-            'CONTACT_PERSON' => (string)($contacts['contact_person'] ?? ''),
-            'CONTACT_POSITION' => (string)($contacts['contact_position'] ?? ''),
         ]);
 
         return $this->get($partnerId);
@@ -139,12 +132,6 @@ class PartnerRepository
                 'account' => $el['PROPERTY_LEGAL_ACCOUNT_VALUE'] ?? '',
                 'corr_account' => $el['PROPERTY_LEGAL_CORR_ACCOUNT_VALUE'] ?? '',
                 'ceo_name' => $el['PROPERTY_LEGAL_CEO_NAME_VALUE'] ?? '',
-            ],
-            'contacts' => [
-                'phone' => $el['PROPERTY_CONTACT_PHONE_VALUE'] ?? '',
-                'email' => $el['PROPERTY_CONTACT_EMAIL_VALUE'] ?? '',
-                'contact_person' => $el['PROPERTY_CONTACT_PERSON_VALUE'] ?? '',
-                'contact_position' => $el['PROPERTY_CONTACT_POSITION_VALUE'] ?? '',
             ],
         ];
     }

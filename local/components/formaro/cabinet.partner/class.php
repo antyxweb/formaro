@@ -21,6 +21,7 @@ use Formaro\Cabinet\Repository\ProductColorRepository;
 use Formaro\Cabinet\Repository\ProductRepository;
 use Formaro\Cabinet\Repository\TicketRepository;
 use Formaro\Cabinet\Repository\TransactionRepository;
+use Formaro\Cabinet\Repository\UserProfileRepository;
 use Formaro\Cabinet\Security\PartnerContext;
 
 /**
@@ -227,6 +228,7 @@ class CabinetPartnerComponent extends CBitrixComponent
                     (int)($_REQUEST['id'] ?? 0)
                 ),
                 'mark_all_notifications_read' => (new NotificationRepository())->markAllRead($partnerId),
+                'save_user_profile' => $this->ajaxSaveUserProfile(),
                 default => throw new \RuntimeException('Неизвестное действие: ' . $action),
             };
 
@@ -263,6 +265,17 @@ class CabinetPartnerComponent extends CBitrixComponent
     private function decodeAttachments(): array
     {
         return json_decode((string)($_REQUEST['attachments'] ?? '[]'), true) ?: [];
+    }
+
+    /** Данные авторизации (вкладка "Авторизация" в профиле) — поля
+     *  пользователя b_user, не партнёра-элемента, поэтому вне общего
+     *  ajaxSave($entity, $partnerId) — сохраняет по ID текущего $USER. */
+    private function ajaxSaveUserProfile(): array
+    {
+        global $USER;
+        $row = json_decode((string)($_REQUEST['row'] ?? '{}'), true) ?: [];
+
+        return (new UserProfileRepository())->save((int)$USER->GetID(), $row);
     }
 
     private function ajaxSave(string $entity, int $partnerId)

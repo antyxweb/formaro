@@ -2,6 +2,7 @@
 
 use Formaro\Cabinet\Repository\PartnerDocumentRepository;
 use Formaro\Cabinet\Repository\PartnerRepository;
+use Formaro\Cabinet\Repository\UserProfileRepository;
 
 /** @var array $arResult */
 global $USER;
@@ -42,6 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['form'] ?? '') === 'passwor
 
 $partner = $partnerRepo->get($partnerId);
 $documents = $documentRepo->listByPartner($partnerId);
+$userProfile = (new UserProfileRepository())->get((int)$USER->GetID());
 
 $activeKey = 'partner';
 $pageTitle = 'Данные партнёра — Formaro Partner';
@@ -69,12 +71,11 @@ require __DIR__ . '/inc/layout_app_top.php';
     </div>
 </div>
 
-<div class="row g-3">
-    <div class="col-lg-8">
-        <div class="card mb-3">
-            <div class="card-header"><span>Информация о компании</span></div>
+<div class="card mb-3">
+    <div class="card-header"><span>Информация о компании</span></div>
             <ul class="nav nav-tabs product-tabs" id="partnerTabs">
                 <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tabMain" type="button">Основное</button></li>
+                <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabAuth" type="button">Авторизация</button></li>
                 <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabDocs" type="button">Документы <span class="side-count" id="docsCountBadge"><?= count($documents) ?></span></button></li>
             </ul>
             <div class="tab-content">
@@ -135,17 +136,36 @@ require __DIR__ . '/inc/layout_app_top.php';
                                 <div class="col-md-6 mb-3"><label class="form-label">Юридический адрес</label><input type="text" class="form-control" id="f_legal_address" value="<?= htmlspecialcharsbx($partner['legal']['legal_address']) ?>"></div>
                                 <div class="col-md-6 mb-3"><label class="form-label">ФИО руководителя</label><input type="text" class="form-control" id="f_ceo_name" value="<?= htmlspecialcharsbx($partner['legal']['ceo_name']) ?>"></div>
                             </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="tabAuth">
+                    <div class="card-body">
+                        <form id="authForm" onsubmit="return false;">
+                            <div class="row">
+                                <div class="col-md-6 mb-3"><label class="form-label">Контактное лицо (ФИО)</label><input type="text" class="form-control" id="f_auth_fio" data-validate="text" value="<?= htmlspecialcharsbx(trim($userProfile['name'] . ' ' . $userProfile['last_name'])) ?>"></div>
+                                <div class="col-md-6 mb-3"><label class="form-label">E-mail (логин)</label><input type="email" class="form-control" id="f_auth_email" data-validate="email" value="<?= htmlspecialcharsbx($userProfile['email']) ?>"></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3"><label class="form-label">Телефон (рабочий)</label><input type="text" class="form-control" id="f_auth_phone" data-validate="phone" value="<?= htmlspecialcharsbx($userProfile['work_phone']) ?>"></div>
+                                <div class="col-md-6 mb-3"><label class="form-label">Должность</label><input type="text" class="form-control" id="f_auth_position" value="<?= htmlspecialcharsbx($userProfile['work_position']) ?>"></div>
+                            </div>
+                        </form>
 
-                            <hr>
-                            <h6 class="mb-3">Контактные данные</h6>
-                            <div class="row">
-                                <div class="col-md-6 mb-3"><label class="form-label">Телефон</label><input type="text" class="form-control" id="f_phone" data-validate="phone" value="<?= htmlspecialcharsbx($partner['contacts']['phone']) ?>"></div>
-                                <div class="col-md-6 mb-3"><label class="form-label">E-mail</label><input type="email" class="form-control" id="f_email" data-validate="email" value="<?= htmlspecialcharsbx($partner['contacts']['email']) ?>"></div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6 mb-3"><label class="form-label">Контактное лицо</label><input type="text" class="form-control" id="f_contact_person" value="<?= htmlspecialcharsbx($partner['contacts']['contact_person']) ?>"></div>
-                                <div class="col-md-6 mb-3"><label class="form-label">Должность</label><input type="text" class="form-control" id="f_contact_position" value="<?= htmlspecialcharsbx($partner['contacts']['contact_position']) ?>"></div>
-                            </div>
+                        <hr>
+                        <h6 class="mb-3">Смена пароля</h6>
+                        <?php if ($passwordOk): ?>
+                            <div class="alert alert-success small">Пароль изменён</div>
+                        <?php elseif ($passwordError): ?>
+                            <div class="alert alert-danger small"><?= htmlspecialcharsbx($passwordError) ?></div>
+                        <?php endif; ?>
+                        <form method="post" class="row">
+                            <input type="hidden" name="form" value="password">
+                            <?= bitrix_sessid_post() ?>
+                            <div class="col-md-4 mb-3"><label class="form-label">Текущий пароль</label><input type="password" name="p_current" class="form-control" required></div>
+                            <div class="col-md-4 mb-3"><label class="form-label">Новый пароль</label><input type="password" name="p_new" class="form-control" id="p_new" required minlength="6" data-validate="password"></div>
+                            <div class="col-md-4 mb-3"><label class="form-label">Повтор нового пароля</label><input type="password" name="p_new2" class="form-control" required minlength="6" data-validate-match="#p_new"></div>
+                            <div class="col-12"><button type="submit" class="btn btn-outline-primary"><i class="bi bi-key"></i> Изменить пароль</button></div>
                         </form>
                     </div>
                 </div>
@@ -164,29 +184,6 @@ require __DIR__ . '/inc/layout_app_top.php';
                 <button type="button" class="btn btn-primary" id="saveBtn"><svg class="ic-inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"></path><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"></path><path d="M7 3v4a1 1 0 0 0 1 1h7"></path></svg> Сохранить</button>
             </div>
         </div>
-    </div>
-
-    <div class="col-lg-4 sticky-side">
-        <div class="card">
-            <div class="card-header">Смена пароля</div>
-            <div class="card-body">
-                <?php if ($passwordOk): ?>
-                    <div class="alert alert-success small">Пароль изменён</div>
-                <?php elseif ($passwordError): ?>
-                    <div class="alert alert-danger small"><?= htmlspecialcharsbx($passwordError) ?></div>
-                <?php endif; ?>
-                <form method="post">
-                    <input type="hidden" name="form" value="password">
-                    <?= bitrix_sessid_post() ?>
-                    <div class="mb-3"><label class="form-label">Текущий пароль</label><input type="password" name="p_current" class="form-control" required></div>
-                    <div class="mb-3"><label class="form-label">Новый пароль</label><input type="password" name="p_new" class="form-control" id="p_new" required minlength="6" data-validate="password"></div>
-                    <div class="mb-3"><label class="form-label">Повтор нового пароля</label><input type="password" name="p_new2" class="form-control" required minlength="6" data-validate-match="#p_new"></div>
-                    <button type="submit" class="btn btn-outline-primary w-100"><i class="bi bi-key"></i> Изменить пароль</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
 <?php
 $pageScripts = ['partner.js'];
 require __DIR__ . '/inc/layout_app_bottom.php';

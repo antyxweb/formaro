@@ -72,17 +72,25 @@ $(function () {
                 legal_address: $('#f_legal_address').val(), bank_name: $('#f_bank_name').val(),
                 account: $('#f_account').val(), corr_account: $('#f_corr_account').val(),
                 ceo_name: $('#f_ceo_name').val()
-            },
-            contacts: {
-                phone: $('#f_phone').val(), email: $('#f_email').val(), contact_person: $('#f_contact_person').val(),
-                contact_position: $('#f_contact_position').val()
             }
         };
-        dsSaveOne('partner', payload).done(function () {
+        var fio = $.trim($('#f_auth_fio').val()).split(/\s+/);
+        var authPayload = {
+            name: fio.shift() || '',
+            last_name: fio.join(' '),
+            email: $('#f_auth_email').val(),
+            work_phone: $('#f_auth_phone').val(),
+            work_position: $('#f_auth_position').val()
+        };
+        $.when(dsSaveOne('partner', payload), saveUserProfile(authPayload)).done(function () {
             showResult(true, 'Данные партнёра сохранены');
         });
     });
 });
+
+function saveUserProfile(payload) {
+    return cabinetAjax({ajax_action: 'save_user_profile', row: JSON.stringify(payload)});
+}
 
 function addPartnerDocument(name, dataUrl) {
     return cabinetAjax({ajax_action: 'add_document', name: name, file: dataUrl});
