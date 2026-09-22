@@ -87,7 +87,7 @@ $(function () {
             work_position: $('#f_auth_position').val()
         };
         $.when(dsSaveOne('partner', payload), saveUserProfile(authPayload)).done(function () {
-            showResult(true, 'Данные партнёра сохранены');
+            showResult(true, 'Данные отправлены на проверку');
         });
     });
 });

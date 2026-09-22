@@ -23,6 +23,9 @@ class PartnerRepository
     private const IBLOCK_CODE = 'cabinet_partners';
     private const IBLOCK_TYPE = 'marketplace';
     private const UPLOAD_SUBDIR = 'cabinet/partners';
+    private const STATUS_PROPERTY_CODE = 'VERIFICATION_STATUS';
+    private const STATUS_NOT_VERIFIED = 'not_verified';
+    private const STATUS_PENDING = 'pending';
 
     /** См. ProductRepository::SELECT_FIELDS — 'PROPERTY_*' отдаёт значения
      *  по ID свойства, а не по коду, который читает toArray(). */
@@ -57,6 +60,12 @@ class PartnerRepository
         return $el ? $this->toArray($el) : null;
     }
 
+    /**
+     * Кнопка на форме — не нейтральный "Сохранить", а "Отправить на
+     * проверку": любое сохранение (кроме уже "Проверен" тоже, площадка
+     * должна перепроверить изменённые данные) переводит статус в
+     * "На проверке" — см. profile.php.
+     */
     public function save(int $partnerId, array $payload): array
     {
         $existing = $this->get($partnerId);
@@ -95,6 +104,7 @@ class PartnerRepository
             'CONTACT_EMAIL' => (string)($contacts['email'] ?? ''),
             'CONTACT_PERSON' => (string)($contacts['contact_person'] ?? ''),
             'CONTACT_POSITION' => (string)($contacts['contact_position'] ?? ''),
+            self::STATUS_PROPERTY_CODE => $this->resolveEnumIdByXmlId(self::STATUS_PENDING),
         ]);
 
         return $this->get($partnerId);
@@ -123,7 +133,7 @@ class PartnerRepository
             'id' => (int)$el['ID'],
             'verification_status' => $el['PROPERTY_VERIFICATION_STATUS_ENUM_ID']
                 ? $this->enumXmlId((int)$el['PROPERTY_VERIFICATION_STATUS_ENUM_ID'])
-                : 'pending',
+                : self::STATUS_NOT_VERIFIED,
             'name_full' => $el['NAME'],
             'name_short' => $el['PROPERTY_NAME_SHORT_VALUE'] ?? '',
             'logo' => FileUploader::getPath($el['PREVIEW_PICTURE'] ?: null),
@@ -153,7 +163,24 @@ class PartnerRepository
     {
         $enum = \CIBlockPropertyEnum::GetList([], ['ID' => $enumId])->Fetch();
 
-        return $enum['XML_ID'] ?? 'pending';
+        return $enum['XML_ID'] ?? self::STATUS_NOT_VERIFIED;
+    }
+
+    private function resolveEnumIdByXmlId(string $xmlId): int
+    {
+        $enum = \CIBlockPropertyEnum::GetList([], [
+            'IBLOCK_ID' => $this->iblockId,
+            'CODE' => self::STATUS_PROPERTY_CODE,
+            'XML_ID' => $xmlId,
+        ])->Fetch();
+
+        if (!$enum) {
+            throw new \RuntimeException(
+                'Значение "' . $xmlId . '" свойства ' . self::STATUS_PROPERTY_CODE . ' не найдено — прогнана ли миграция Version20260922190001?'
+            );
+        }
+
+        return (int)$enum['ID'];
     }
 
     private function applyImage(array &$fields, string $fieldCode, ?string $newValue, ?string $oldValue): void
