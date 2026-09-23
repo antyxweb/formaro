@@ -50,7 +50,7 @@ $(function () {
             $('#f_status').val(n.status || 'active');
             $('#f_full_desc').val(n.full_desc);
             if ($.fn.trumbowyg) $('#f_full_desc').trumbowyg('html', n.full_desc || '');
-            if (newsDatePicker) newsDatePicker.setDate(new Date(n.created_at), true); else $('#f_datetime').val(fmtDateInput(n.created_at));
+            if (newsDatePicker) newsDatePicker.setDate(parseSiteDateTime(n.created_at) || new Date(), true); else $('#f_datetime').val(fmtDateInput(parseSiteDateTime(n.created_at) || new Date()));
             if (n.image) { setBgImage('#previewImg', n.image); previewDataUrl = n.image; }
         });
     } else {
@@ -62,6 +62,17 @@ $(function () {
     $('#deleteBtn').on('click', doDelete);
 });
 
+/** "dd.mm.yyyy[ hh:mm[:ss]]" — формат, в котором сервер отдаёт ACTIVE_FROM
+ *  (сайтовый формат даты Bitrix; при полночи время вообще опускается, см.
+ *  NewsRepository::toArray()) — new Date() такую строку не парсит (не
+ *  ISO/US-формат, тихо возвращает Invalid Date), из-за чего при открытии
+ *  формы редактирования уже сохранённая дата/время не подставлялись в
+ *  поле. Возвращает Date или null, если строка вообще не в этом формате. */
+function parseSiteDateTime(str) {
+    var m = /^(\d{2})\.(\d{2})\.(\d{4})(?:[ T](\d{2}):(\d{2}))?/.exec(str || '');
+    if (!m) return null;
+    return new Date(+m[3], +m[2] - 1, +m[1], +(m[4] || 0), +(m[5] || 0));
+}
 /** dd.mm.yyyy hh:mm — формат поля даты/времени (flatpickr) */
 function fmtDateInput(iso) {
     var d = new Date(iso);
