@@ -632,9 +632,12 @@ input[type="file"].form-control::file-selector-button:hover { background: var(--
 .detail-actionbar {
     position: sticky; bottom: 0; z-index: 20;
     background: var(--surface); border-top: 1px solid var(--border) !important; box-shadow: none !important;
-    padding: .9rem 0; display: flex; gap: .6rem; flex-wrap: wrap; align-items: center;
+    padding: .9rem 1.25rem; display: flex; gap: .6rem; flex-wrap: wrap; align-items: center;
 }
 .detail-actionbar .flex-spacer { flex: 1; }
+/* Данные партнёра (profile.php): панели сохранения — без горизонтальных
+   отступов, вровень с остальным содержимым карточек #tabMain/#tabAuth. */
+#tabMain .detail-actionbar, #tabAuth .detail-actionbar { padding-left: 0; padding-right: 0; }
 
 /* ---------------- Chat ---------------- */
 .chat-wrap { display: flex; height: calc(100vh - 260px); min-height: 420px; border: 1px solid var(--border); overflow: hidden; background: var(--surface); }
