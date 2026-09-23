@@ -4365,6 +4365,14 @@ $APPLICATION->SetPageProperty("title", "Интернет-магазин спец
         </div>
     </section>
 
+    <?php
+    // Показываем только категории, допущенные к показу администратором
+    // площадки (UF_APPROVED на разделе cabinet_catalog, см. кабинет партнёра
+    // Version20260923150001) — партнёрская категория остаётся скрытой с
+    // публичного каталога, пока не пройдёт проверку, даже если сам партнёр
+    // выставил ей статус "Активен".
+    $sectionsFilter = ['UF_APPROVED' => 1];
+    ?>
     <?$APPLICATION->IncludeComponent(
         "bitrix:catalog.section.list",
         "catalog",
