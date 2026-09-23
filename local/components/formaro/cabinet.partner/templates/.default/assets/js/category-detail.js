@@ -28,8 +28,6 @@ $(function () {
 
     var codeChain = bindCodeChain('#f_name', '#f_code', '#codeChainBtn');
 
-    $('#f_status').on('change', updatePendingBanner);
-
     dsLoad('categories').done(function (allLoaded) {
         allCategories = visibleCategories(allLoaded);
 
@@ -53,16 +51,9 @@ $(function () {
             if (c.full_image) { setBgImage('#fullImg', c.full_image); fullDataUrl = c.full_image; }
 
             if (readOnly) applyReadOnlyMode();
-            updatePendingBanner();
         } else {
             $('#categoryImages').addClass('d-none');
             renderCategoryRadioTree('#f_parent_tree', allCategories, parentParam || 0, [], true);
-            // Новая категория партнёра всегда уходит на проверку — сервер
-            // всё равно принудительно сохранит её неактивной (см.
-            // CategoryRepository::save()), поле статуса здесь только сбивало
-            // бы с толку, если бы позволяло выбрать "Активен".
-            $('#f_status').val('hidden').prop('disabled', true);
-            updatePendingBanner();
         }
     });
 
@@ -70,15 +61,6 @@ $(function () {
     $('#applyBtn').on('click', function () { doSave(false); });
     $('#deleteBtn').on('click', doDelete);
 });
-
-/** "Категория на проверке" — показываем для своей (не системной) категории,
- *  пока она неактивна: и для только что созданной (сервер всегда сохраняет
- *  её неактивной, см. CategoryRepository::save()), и для уже существующей,
- *  если статус "Скрыт" — отдельного поля модерации у категорий нет, любое
- *  "неактивна" для своей категории трактуем как "на проверке". */
-function updatePendingBanner() {
-    $('#pendingReviewBanner').toggleClass('d-none', readOnly || $('#f_status').val() !== 'hidden');
-}
 
 function applyReadOnlyMode() {
     $('#systemBanner').removeClass('d-none');

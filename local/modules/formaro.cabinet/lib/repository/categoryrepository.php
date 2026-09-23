@@ -102,15 +102,7 @@ class CategoryRepository
             'NAME' => (string)($payload['name'] ?? ''),
             'CODE' => (string)($payload['slug'] ?? ''),
             'SORT' => (int)($payload['sort_order'] ?? 500),
-            // Новая категория партнёра всегда создаётся неактивной — нужна
-            // проверка администратором площадки, прежде чем появиться на
-            // сайте, независимо от того, что прислал клиент (см.
-            // "Статус" в форме — он для новой категории задизейблен именно
-            // поэтому, см. category-detail.js). Для уже существующей —
-            // статус выбирает партнёр как раньше.
-            'ACTIVE' => $existing
-                ? (($payload['status'] ?? 'active') === 'hidden' ? 'N' : 'Y')
-                : 'N',
+            'ACTIVE' => ($payload['status'] ?? 'active') === 'hidden' ? 'N' : 'Y',
             'DESCRIPTION' => (string)($payload['short_desc'] ?? ''),
             'DESCRIPTION_TYPE' => 'text',
             'UF_FULL_DESC' => (string)($payload['full_desc'] ?? ''),
