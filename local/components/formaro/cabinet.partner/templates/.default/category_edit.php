@@ -29,7 +29,7 @@ require __DIR__ . '/inc/layout_app_top.php';
                 <div class="col-md-4 mb-3">
                     <label class="form-label">Код для ссылки</label>
                     <div class="input-group">
-                        <input type="text" class="form-control" id="f_code" placeholder="генерируется автоматически" readonly>
+                        <input type="text" class="form-control" id="f_code" readonly>
                         <button type="button" class="btn btn-outline-secondary code-chain-btn d-none" id="codeChainBtn" title="Скопировать полную ссылку на страницу категории">
                             <i class="bi bi-link-45deg"></i>
                         </button>
