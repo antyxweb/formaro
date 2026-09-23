@@ -11,6 +11,9 @@ require __DIR__ . '/inc/layout_app_top.php';
 <div class="alert alert-info d-none" id="systemBanner">
     <i class="bi bi-lock"></i> Это общая категория площадки Formaro — доступна для просмотра всем партнёрам, но редактировать или удалять её нельзя.
 </div>
+<div class="alert alert-warning d-none" id="pendingReviewBanner">
+    <i class="bi bi-hourglass-split"></i> Категория на проверке — станет видна на сайте после проверки администратором площадки.
+</div>
 
 <div class="card">
     <div class="card-header"><span id="formTitle">Новая категория</span></div>
