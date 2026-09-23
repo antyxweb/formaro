@@ -580,6 +580,9 @@ input[type="file"].form-control::file-selector-button:hover { background: var(--
 .thumb-cover { width: 100%; max-width: 560px; height: 220px; border: 1px solid var(--border); background-color: var(--surface-2); display: block; }
 /* Все изображения — div с фоном (а не <img>), это правило задаёт сам факт фона */
 .bg-thumb { background-size: cover; background-position: center; background-repeat: no-repeat; }
+/* Логотип партнёра (форма профиля + аватар в шапке) — contain, а не cover:
+   логотипы часто не квадратные и с прозрачным полем, cover их обрезает. */
+.thumb-logo.bg-thumb, .avatar-sm.bg-thumb { background-size: contain; }
 .avatar-sm { width: 32px; height: 32px; border: 1px solid var(--border); flex-shrink: 0; }
 .avatar-sm.avatar-initials {
     display: flex; align-items: center; justify-content: center;
