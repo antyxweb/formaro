@@ -97,15 +97,17 @@ class NewsRepository
             'DETAIL_TEXT' => (string)($payload['full_desc'] ?? ''),
         ];
         if (!empty($payload['created_at'])) {
-            // DATE_CREATE — обычное поле таблицы, CIBlockElement::Add()/Update()
-            // принимают его как строку в формате сайта (см. ConvertTimeStamp() —
-            // стандартный способ получить такую строку из timestamp в старом API
-            // инфоблоков). Используем это поле как "дату публикации" вместо
-            // отдельного UF-поля — партнёр может назначить и будущую дату (см.
+            // ACTIVE_FROM ("Начало активности") — нативное поле инфоблока
+            // именно под дату публикации (в отличие от DATE_CREATE, которое
+            // должно отражать момент реального создания записи, а не
+            // назначаемую партнёром дату) — Bitrix сам использует его для
+            // CHECK_DATES/ACTIVE_FROM-фильтрации при выводе. Принимает
+            // строку в формате сайта через ConvertTimeStamp(), как и
+            // DATE_CREATE. Партнёр может назначить и будущую дату (см.
             // news-detail.js: date-picker без верхней границы, minDate: today).
             $ts = strtotime((string)$payload['created_at']);
             if ($ts) {
-                $fields['DATE_CREATE'] = ConvertTimeStamp($ts, 'FULL');
+                $fields['ACTIVE_FROM'] = ConvertTimeStamp($ts, 'FULL');
             }
         }
 
@@ -193,7 +195,7 @@ class NewsRepository
             'image_file_id' => $el['PREVIEW_PICTURE'] ?: null,
             'partner_id' => (int)($el['PROPERTY_PARTNER_ID_VALUE'] ?? 0),
             'status' => $el['ACTIVE'] === 'N' ? 'hidden' : 'active',
-            'created_at' => $el['DATE_CREATE'] ?? null,
+            'created_at' => $el['ACTIVE_FROM'] ?? null,
             'public_url' => $this->getPublicUrl($el),
         ];
     }
