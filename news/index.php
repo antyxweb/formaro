@@ -61,7 +61,7 @@ $APPLICATION->SetTitle("Новости платформы");
 		"DETAIL_SET_CANONICAL_URL" => "N",
 		"DETAIL_ACTIVE_DATE_FORMAT" => "j F Y",
 		"DETAIL_FIELD_CODE" => [
-			0 => "",
+			0 => "DETAIL_PICTURE",
 			1 => "",
 		],
 		"DETAIL_PROPERTY_CODE" => [

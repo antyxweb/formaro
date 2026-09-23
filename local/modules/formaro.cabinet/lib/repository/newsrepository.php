@@ -24,8 +24,10 @@ class NewsRepository
     private const UPLOAD_SUBDIR = 'cabinet/news';
 
     /** См. ProductRepository::SELECT_FIELDS — 'PROPERTY_*' отдаёт значения
-     *  по ID свойства, а не по коду, который читает toArray(). */
-    private const SELECT_FIELDS = ['*', 'PREVIEW_TEXT', 'DETAIL_TEXT', 'PROPERTY_PARTNER_ID', 'PROPERTY_FULL_IMAGE'];
+     *  по ID свойства, а не по коду, который читает toArray(). DETAIL_PICTURE
+     *  ("детальная картинка") — такое же нативное поле элемента, как
+     *  PREVIEW_PICTURE, отдельного свойства заводить не нужно. */
+    private const SELECT_FIELDS = ['*', 'PREVIEW_TEXT', 'DETAIL_TEXT', 'PROPERTY_PARTNER_ID'];
 
     private int $iblockId;
     private int $sectionId;
@@ -118,7 +120,8 @@ class NewsRepository
             }
         }
 
-        $this->applyImage($fields, $payload['image'] ?? null, $existing['image'] ?? null);
+        $this->applyImage($fields, 'PREVIEW_PICTURE', $payload['image'] ?? null, $existing['image'] ?? null);
+        $this->applyImage($fields, 'DETAIL_PICTURE', $payload['full_image'] ?? null, $existing['full_image'] ?? null);
 
         if ($existing) {
             $ok = (new CIBlockElement())->Update($id, $fields);
@@ -133,15 +136,9 @@ class NewsRepository
             }
         }
 
-        $properties = ['PARTNER_ID' => $partnerId];
-        $fullImageValue = $this->buildFullImagePropertyValue(
-            $payload['full_image'] ?? null,
-            $existing['full_image'] ?? null
-        );
-        if ($fullImageValue !== null) {
-            $properties['FULL_IMAGE'] = $fullImageValue;
-        }
-        CIBlockElement::SetPropertyValuesEx($id, $this->iblockId, $properties);
+        CIBlockElement::SetPropertyValuesEx($id, $this->iblockId, [
+            'PARTNER_ID' => $partnerId,
+        ]);
 
         return $this->get($id);
     }
@@ -207,8 +204,8 @@ class NewsRepository
             'full_desc' => $el['DETAIL_TEXT'] ?? '',
             'image' => FileUploader::getPath($el['PREVIEW_PICTURE'] ?: null),
             'image_file_id' => $el['PREVIEW_PICTURE'] ?: null,
-            'full_image' => FileUploader::getPath($el['PROPERTY_FULL_IMAGE_VALUE'] ?: null),
-            'full_image_file_id' => $el['PROPERTY_FULL_IMAGE_VALUE'] ?: null,
+            'full_image' => FileUploader::getPath($el['DETAIL_PICTURE'] ?: null),
+            'full_image_file_id' => $el['DETAIL_PICTURE'] ?: null,
             'partner_id' => (int)($el['PROPERTY_PARTNER_ID_VALUE'] ?? 0),
             'status' => $el['ACTIVE'] === 'N' ? 'hidden' : 'active',
             'created_at' => $el['ACTIVE_FROM'] ?? null,
@@ -235,45 +232,25 @@ class NewsRepository
         ], false, 'E');
     }
 
-    /** PREVIEW_PICTURE — нативное поле элемента; требует $_FILES-подобный
-     *  массив, не голый ID файла (см. докблок FileUploader::dataUrlToFileArray()). */
-    private function applyImage(array &$fields, ?string $newValue, ?string $oldValue): void
+    /** PREVIEW_PICTURE/DETAIL_PICTURE — нативные поля элемента; требуют
+     *  $_FILES-подобный массив, не голый ID файла (см. докблок
+     *  FileUploader::dataUrlToFileArray()). Для явной очистки — тоже массив,
+     *  ['del' => 'Y']: CIBlockElement::Update() (classes/mysql/iblockelement.php)
+     *  обрабатывает эти поля только если is_array($arFields[$fieldCode]) —
+     *  false/''/0 не проходят эту проверку и молча игнорируются, картинка
+     *  остаётся как была (проверено вручную — баг найден именно на этом шаге). */
+    private function applyImage(array &$fields, string $fieldCode, ?string $newValue, ?string $oldValue): void
     {
         if ($newValue === null || $newValue === $oldValue) {
             return;
         }
         if ($newValue === '') {
-            $fields['PREVIEW_PICTURE'] = false;
+            $fields[$fieldCode] = ['del' => 'Y'];
             return;
         }
         $fileArray = FileUploader::dataUrlToFileArray($newValue);
         if ($fileArray) {
-            $fields['PREVIEW_PICTURE'] = $fileArray;
+            $fields[$fieldCode] = $fileArray;
         }
-    }
-
-    /** FULL_IMAGE — обычное File-свойство элемента (не нативное поле, как
-     *  PREVIEW_PICTURE, и не UF, как у раздела категории). Через
-     *  SetPropertyValuesEx() Bitrix прогоняет VALUE через CFile::SaveFile(),
-     *  а не принимает голый id файла — нужен ровно тот же $_FILES-подобный
-     *  массив, что и у нативных picture-полей (см. dataUrlToFileArray()),
-     *  голый int здесь падает с фатальной ошибкой ("Cannot use a scalar
-     *  value as an array" в ядре при попытке прочитать $val["del"]).
-     *  ['del' => 'Y'] — то, что ядро проверяет для явного удаления файла
-     *  свойства (сам старый файл Bitrix удалит сам, отдельно вызывать
-     *  FileUploader::delete() не нужно и не следует — задвоит попытку).
-     *  Возвращает null, если поле не менялось вообще (тогда ключ
-     *  'FULL_IMAGE' не попадёт в SetPropertyValuesEx — старое значение
-     *  останется как есть). */
-    private function buildFullImagePropertyValue(?string $newValue, ?string $oldValue): ?array
-    {
-        if ($newValue === null || $newValue === $oldValue) {
-            return null;
-        }
-        if ($newValue === '') {
-            return ['del' => 'Y'];
-        }
-
-        return FileUploader::dataUrlToFileArray($newValue);
     }
 }
