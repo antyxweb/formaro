@@ -189,7 +189,7 @@ require __DIR__ . '/inc/layout_app_top.php';
                             <div class="col-md-4 mb-3"><label class="form-label">Текущий пароль</label><input type="password" name="p_current" class="form-control" required></div>
                             <div class="col-md-4 mb-3"><label class="form-label">Новый пароль</label><input type="password" name="p_new" class="form-control" id="p_new" required minlength="6" data-validate="password"></div>
                             <div class="col-md-4 mb-3"><label class="form-label">Повтор нового пароля</label><input type="password" name="p_new2" class="form-control" required minlength="6" data-validate-match="#p_new"></div>
-                            <div class="col-12"><button type="submit" class="btn btn-outline-primary"><i class="bi bi-key"></i> Изменить пароль</button></div>
+                            <div class="col-12 mb-3"><button type="submit" class="btn btn-outline-primary"><i class="bi bi-key"></i> Изменить пароль</button></div>
                         </form>
                         <div class="detail-actionbar">
                             <button type="button" class="btn btn-primary" id="saveAuthBtn"><svg class="ic-inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"></path><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"></path><path d="M7 3v4a1 1 0 0 0 1 1h7"></path></svg> Сохранить</button>
