@@ -4370,8 +4370,8 @@ $APPLICATION->SetPageProperty("title", "Интернет-магазин спец
         "catalog",
         [
             "COMPONENT_TEMPLATE" => ".default",
-            "IBLOCK_TYPE" => "catalog",
-            "IBLOCK_ID" => "3",
+            "IBLOCK_TYPE" => "cabinet_catalog",
+            "IBLOCK_ID" => "9",
             "SECTION_ID" => $_REQUEST["SECTION_ID"],
             "SECTION_CODE" => "",
             "COUNT_ELEMENTS" => "Y",

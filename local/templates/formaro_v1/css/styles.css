@@ -12734,6 +12734,21 @@ h1, h2, h3, h4, h5, h6,
 }
 .category-list .category-item .cat-content .cat-content-wrap {
   height: 260px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: #343a40 #efefef;
+}
+.category-list .category-item .cat-content .cat-content-wrap::-webkit-scrollbar {
+  width: 6px;
+}
+.category-list .category-item .cat-content .cat-content-wrap::-webkit-scrollbar-track {
+  background: #efefef;
+  border-radius: 4px;
+}
+.category-list .category-item .cat-content .cat-content-wrap::-webkit-scrollbar-thumb {
+  background: #343a40;
+  border-radius: 4px;
 }
 .category-list .category-item .cat-content ul {
   list-style: none;

@@ -55,7 +55,7 @@ $this->setFrameMode(true);
                                     <div class="cat-content">
                                         <a href="<?=$arSection['SECTION_PAGE_URL']?>"><h3 class="mb-4"><?=$arSection['NAME']?></h3></a>
 
-                                        <div class="cat-content-wrap scrollbar-inner mb-2">
+                                        <div class="cat-content-wrap mb-2">
                                             <ul>
                                                 <?foreach ($arSection['SUB'] as $arSub):?>
                                                     <li class="sect">
