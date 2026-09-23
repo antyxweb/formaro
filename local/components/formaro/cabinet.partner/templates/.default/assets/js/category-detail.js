@@ -14,6 +14,7 @@ var allCategories = [];
 var previewDataUrl = '';
 var fullDataUrl = '';
 var readOnly = false;
+var pendingApproval = false;
 
 $(function () {
     categoryId = (ROUTE_ID && ROUTE_ID !== 'new') ? parseInt(ROUTE_ID, 10) : 0;
@@ -50,10 +51,18 @@ $(function () {
             if (c.preview_image) { setBgImage('#previewImg', c.preview_image); previewDataUrl = c.preview_image; }
             if (c.full_image) { setBgImage('#fullImg', c.full_image); fullDataUrl = c.full_image; }
 
+            pendingApproval = !readOnly && c.status === 'pending';
+            if (pendingApproval) lockStatusPending();
             if (readOnly) applyReadOnlyMode();
         } else {
             $('#categoryImages').addClass('d-none');
             renderCategoryRadioTree('#f_parent_tree', allCategories, parentParam || 0, [], true);
+            // Новая категория партнёра всегда уходит на проверку — админ
+            // одобряет её отдельным полем UF_APPROVED прямо в админке
+            // Битрикс (см. CategoryRepository::toArray()), поле статуса
+            // здесь только сбивало бы с толку, пока проверка не пройдена.
+            pendingApproval = true;
+            lockStatusPending();
         }
     });
 
@@ -61,6 +70,16 @@ $(function () {
     $('#applyBtn').on('click', function () { doSave(false); });
     $('#deleteBtn').on('click', doDelete);
 });
+
+/** Пока категория не одобрена (UF_APPROVED не проставлено), поле "Статус"
+ *  показывает "На проверке" и недоступно для изменения — реальный ACTIVE
+ *  партнёр сможет выбрать после проверки, до этого момента сохранение
+ *  просто не трогает его текущее значение (см. doSave — 'status' в payload
+ *  не отправляется, пока pendingApproval). */
+function lockStatusPending() {
+    $('#f_status').val('pending').prop('disabled', true);
+    $('#pendingReviewBanner').removeClass('d-none');
+}
 
 function applyReadOnlyMode() {
     $('#systemBanner').removeClass('d-none');
@@ -103,10 +122,15 @@ function doSave(goBack) {
         full_desc: fullDesc,
         preview_image: previewDataUrl,
         full_image: fullDataUrl,
-        status: $('#f_status').val(),
         is_system: false,
         partner_id: CURRENT_PARTNER_ID
     };
+    // Пока категория на проверке, поле "Статус" задизейблено и не участвует
+    // в сохранении — сервер оставит текущий ACTIVE как есть (см.
+    // CategoryRepository::save()), а не свалит его в дефолтное значение.
+    if (!pendingApproval) {
+        payload.status = $('#f_status').val();
+    }
 
     if (categoryId) {
         allCategories = allCategories.map(function (c) { return c.id === categoryId ? Object.assign({}, c, payload) : c; });

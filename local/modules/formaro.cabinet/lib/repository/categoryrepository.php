@@ -102,13 +102,23 @@ class CategoryRepository
             'NAME' => (string)($payload['name'] ?? ''),
             'CODE' => (string)($payload['slug'] ?? ''),
             'SORT' => (int)($payload['sort_order'] ?? 500),
-            'ACTIVE' => ($payload['status'] ?? 'active') === 'hidden' ? 'N' : 'Y',
             'DESCRIPTION' => (string)($payload['short_desc'] ?? ''),
             'DESCRIPTION_TYPE' => 'text',
             'UF_FULL_DESC' => (string)($payload['full_desc'] ?? ''),
             'UF_PARTNER_ID' => $partnerId,
             'UF_IS_SYSTEM' => 0,
         ];
+
+        // 'status' отсутствует в payload, пока категория на проверке — поле
+        // "Статус" на клиенте задизейблено (см. category-detail.js,
+        // lockStatusPending()). Для уже существующей записи в этом случае
+        // просто не трогаем ACTIVE, чтобы не затереть его дефолтом; для
+        // новой — как и раньше, партнёр по умолчанию активен.
+        if (array_key_exists('status', $payload)) {
+            $fields['ACTIVE'] = $payload['status'] === 'hidden' ? 'N' : 'Y';
+        } elseif (!$existing) {
+            $fields['ACTIVE'] = 'Y';
+        }
 
         $this->applyImage($fields, 'PICTURE', $payload['preview_image'] ?? null, $existing['preview_image'] ?? null);
         $this->applyImage($fields, 'UF_FULL_IMAGE', $payload['full_image'] ?? null, $existing['full_image'] ?? null);
