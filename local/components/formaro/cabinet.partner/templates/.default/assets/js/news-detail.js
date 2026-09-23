@@ -12,6 +12,7 @@ var CABINET_URL = window.CABINET_BOOTSTRAP.cabinetUrl;
 
 var newsId = 0;
 var previewDataUrl = '';
+var fullDataUrl = '';
 
 var newsDatePicker = null;
 
@@ -19,7 +20,9 @@ $(function () {
     newsId = (ROUTE_ID && ROUTE_ID !== 'new') ? parseInt(ROUTE_ID, 10) : 0;
 
     bindImagePreview('#previewFile', '#previewImg', function (url) { previewDataUrl = url; });
+    bindImagePreview('#fullFile', '#fullImg', function (url) { fullDataUrl = url; });
     bindImageRemove('#previewRemoveBtn', '#previewImg', 'https://placehold.co/200x200?text=%20', function () { previewDataUrl = ''; });
+    bindImageRemove('#fullRemoveBtn', '#fullImg', 'https://placehold.co/200x200?text=%20', function () { fullDataUrl = ''; });
     initRichText('#f_full_desc');
     bindAutoHeight('#f_short_desc');
 
@@ -52,6 +55,7 @@ $(function () {
             if ($.fn.trumbowyg) $('#f_full_desc').trumbowyg('html', n.full_desc || '');
             if (newsDatePicker) newsDatePicker.setDate(parseSiteDateTime(n.created_at) || new Date(), true); else $('#f_datetime').val(fmtDateInput(parseSiteDateTime(n.created_at) || new Date()));
             if (n.image) { setBgImage('#previewImg', n.image); previewDataUrl = n.image; }
+            if (n.full_image) { setBgImage('#fullImg', n.full_image); fullDataUrl = n.full_image; }
         });
     } else {
         if (newsDatePicker) newsDatePicker.setDate(new Date(), true); else $('#f_datetime').val(fmtDateInput(new Date().toISOString()));
@@ -100,6 +104,7 @@ function doSave(goBack) {
         short_desc: $('#f_short_desc').val(),
         full_desc: fullDesc,
         image: previewDataUrl,
+        full_image: fullDataUrl,
         created_at: parseDateInput($('#f_datetime').val()),
         status: $('#f_status').val()
     };
