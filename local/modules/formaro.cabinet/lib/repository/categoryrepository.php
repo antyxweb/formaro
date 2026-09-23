@@ -186,6 +186,13 @@ class CategoryRepository
 
     private function toArray(array $section): array
     {
+        // Статус "На проверке" — не сам ACTIVE (это выбор партнёра, показывать
+        // категорию или нет), а отдельное поле UF_APPROVED (см.
+        // Version20260923150001): пока администратор площадки не поставил
+        // галочку "Допущен к показу" на разделе в админке, в кабинете вместо
+        // Активен/Скрыт всегда показываем "На проверке".
+        $approved = !empty($section['UF_APPROVED']);
+
         return [
             'id' => (int)$section['ID'],
             'parent_id' => (int)$section['IBLOCK_SECTION_ID'],
@@ -200,7 +207,7 @@ class CategoryRepository
             'full_image_file_id' => $section['UF_FULL_IMAGE'] ?: null,
             'is_system' => !empty($section['UF_IS_SYSTEM']),
             'partner_id' => $section['UF_PARTNER_ID'] ? (int)$section['UF_PARTNER_ID'] : null,
-            'status' => $section['ACTIVE'] === 'N' ? 'hidden' : 'active',
+            'status' => !$approved ? 'pending' : ($section['ACTIVE'] === 'N' ? 'hidden' : 'active'),
         ];
     }
 
