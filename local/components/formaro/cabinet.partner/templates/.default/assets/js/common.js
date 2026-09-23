@@ -466,7 +466,7 @@ function getCheckboxTreeSelected(containerSel) {
     return Object.keys(selected).filter(function (id) { return selected[id]; }).map(Number);
 }
 
-function renderCategoryRadioTree(containerSel, categories, selectedId, excludeIds) {
+function renderCategoryRadioTree(containerSel, categories, selectedId, excludeIds, hideRoot) {
     excludeIds = excludeIds || [];
     var $c = $(containerSel).addClass('cbtree');
     $c.data('cbtreeSelectedRadio', selectedId || 0);
@@ -510,7 +510,7 @@ function renderCategoryRadioTree(containerSel, categories, selectedId, excludeId
             html = matches.length ? matches.map(matchHtml).join('') : '<div class="cbtree-empty">Ничего не найдено</div>';
         } else {
             var roots = categoryRoots(categories).filter(function (c) { return excludeIds.indexOf(c.id) === -1; }).sort(categorySortCompare);
-            html = rootOptionHtml() + roots.map(function (c) { return nodeHtml(c, 0); }).join('');
+            html = (hideRoot ? '' : rootOptionHtml()) + roots.map(function (c) { return nodeHtml(c, 0); }).join('');
         }
         $c.html(html);
     }

@@ -53,7 +53,7 @@ require __DIR__ . '/inc/layout_app_top.php';
                 <textarea id="f_full_desc"></textarea>
             </div>
 
-            <div class="row">
+            <div class="row" id="categoryImages">
                 <div class="col-md-6 mb-3">
                     <label class="form-label d-block">Картинка превью</label>
                     <div class="img-field">

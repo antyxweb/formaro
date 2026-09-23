@@ -37,6 +37,7 @@ $(function () {
 
             readOnly = isSystemCategory(c);
             fillParentTree();
+            $('#categoryImages').toggleClass('d-none', !readOnly);
             $('#deleteBtn').toggleClass('d-none', readOnly);
             $('#formTitle').text((readOnly ? 'Просмотр: ' : 'Редактирование: ') + c.name);
             $('#f_id').val(c.id);
@@ -51,7 +52,8 @@ $(function () {
 
             if (readOnly) applyReadOnlyMode();
         } else {
-            renderCategoryRadioTree('#f_parent_tree', allCategories, parentParam || 0, []);
+            $('#categoryImages').addClass('d-none');
+            renderCategoryRadioTree('#f_parent_tree', allCategories, parentParam || 0, [], true);
         }
     });
 
@@ -72,7 +74,7 @@ function fillParentTree() {
     var excludeIds = categoryId ? [categoryId].concat(categoryDescendantIds(allCategories, categoryId)) : [];
     var current = categoryId ? allCategories.find(function (x) { return x.id === categoryId; }) : null;
     var selectedId = current ? (current.parent_id || 0) : 0;
-    renderCategoryRadioTree('#f_parent_tree', allCategories, selectedId, excludeIds);
+    renderCategoryRadioTree('#f_parent_tree', allCategories, selectedId, excludeIds, !readOnly);
 }
 
 function doSave(goBack) {
@@ -81,6 +83,7 @@ function doSave(goBack) {
     if (!name) { showResult(false, 'Укажите название категории'); return; }
 
     var parentId = getCategoryRadioSelected('#f_parent_tree');
+    if (!parentId) { showResult(false, 'Выберите родительский раздел'); return; }
 
     if (categoryId) {
         var forbidden = [categoryId].concat(categoryDescendantIds(allCategories, categoryId));
