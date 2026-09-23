@@ -8,7 +8,7 @@ $APPLICATION->SetTitle("Партнеры");
     [
         "COMPONENT_TEMPLATE" => ".default",
         "IBLOCK_TYPE" => "marketplace",
-        "IBLOCK_ID" => "2",
+        "IBLOCK_ID" => "8",
         "NEWS_COUNT" => "18",
         "USE_SEARCH" => "N",
         "USE_RSS" => "N",
@@ -46,11 +46,11 @@ $APPLICATION->SetTitle("Партнеры");
         "PREVIEW_TRUNCATE_LEN" => "",
         "LIST_ACTIVE_DATE_FORMAT" => "j F Y",
         "LIST_FIELD_CODE" => [
-            0 => "",
+            0 => "DETAIL_PICTURE",
             1 => "",
         ],
         "LIST_PROPERTY_CODE" => [
-            0 => "LOGO",
+            0 => "",
             1 => "",
         ],
         "HIDE_LINK_WHEN_NO_DETAIL" => "N",
@@ -65,7 +65,7 @@ $APPLICATION->SetTitle("Партнеры");
             1 => "",
         ],
         "DETAIL_PROPERTY_CODE" => [
-            0 => "LOGO",
+            0 => "",
             1 => "",
         ],
         "DETAIL_DISPLAY_TOP_PAGER" => "N",

@@ -26,7 +26,7 @@ $this->setFrameMode(true);
     <div class="container-fluid">
         <div class="partners-card">
             <div class="partners-card__img d-md-none">
-                <div class="embed-responsive embed-responsive-16by9" style="background-image: url('<?=$arResult["PREVIEW_PICTURE"]["SRC"]?>')"></div>
+                <div class="embed-responsive embed-responsive-16by9" style="background-image: url('<?=$arResult["DETAIL_PICTURE"]["SRC"]?>')"></div>
             </div>
             <div class="row mx-0">
                 <div class="col-12  col-lg-8 col-xl-10 partners-card__info order-2 order-lg-1">
@@ -42,9 +42,9 @@ $this->setFrameMode(true);
                         <a href="/html/catalog.html" class="f-button c-success">Каталог товаров</a>
                         <a href="/html/partner.html" class="f-button">Чат с продавцом</a>
                     </div>
-                </div><?if($arResult["PROPERTIES"]["LOGO"]["VALUE"]):?>
+                </div><?if($arResult["PREVIEW_PICTURE"]["SRC"]):?>
                     <div class="col-12 col-lg-4 col-xl-2 py-md-3 pr-md-0 order-1 order-lg-2">
-                        <div class="embed-responsive embed-responsive-4by3" style="background-image: url('<?=CFile::GetPath($arResult["PROPERTIES"]["LOGO"]["VALUE"])?>')"></div>
+                        <div class="embed-responsive embed-responsive-4by3" style="background-image: url('<?=$arResult["PREVIEW_PICTURE"]["SRC"]?>')"></div>
                     </div>
                 <?endif;?>
             </div>
