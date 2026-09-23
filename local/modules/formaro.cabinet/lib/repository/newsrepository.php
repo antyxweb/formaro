@@ -95,6 +95,13 @@ class NewsRepository
             'ACTIVE' => ($payload['status'] ?? 'active') === 'hidden' ? 'N' : 'Y',
             'PREVIEW_TEXT' => (string)($payload['short_desc'] ?? ''),
             'DETAIL_TEXT' => (string)($payload['full_desc'] ?? ''),
+            // full_desc приходит из trumbowyg (news-detail.js) — реальный HTML
+            // (<p>, <b>...), не голый текст. Без DETAIL_TEXT_TYPE='html'
+            // Bitrix трактует поле как обычный текст и экранирует теги на
+            // публичной странице (bitrix:news.detail) — там же обнаружилось
+            // при переключении /news/ на этот инфоблок: заголовки/абзацы
+            // показывались как видимый текст "<p>...</p>" вместо разметки.
+            'DETAIL_TEXT_TYPE' => 'html',
         ];
         if (!empty($payload['created_at'])) {
             // ACTIVE_FROM ("Начало активности") — нативное поле инфоблока

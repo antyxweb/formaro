@@ -8,7 +8,7 @@ $APPLICATION->SetTitle("Новости платформы");
 	[
 		"COMPONENT_TEMPLATE" => ".default",
 		"IBLOCK_TYPE" => "content",
-		"IBLOCK_ID" => "1",
+		"IBLOCK_ID" => "10",
 		"NEWS_COUNT" => "24",
 		"USE_SEARCH" => "N",
 		"USE_RSS" => "N",
@@ -88,7 +88,7 @@ $APPLICATION->SetTitle("Новости платформы");
 		"SEF_URL_TEMPLATES" => [
 			"news" => "",
 			"section" => "#SECTION_CODE#/",
-			"detail" => "#SECTION_CODE#/#ELEMENT_CODE#.html",
+			"detail" => "#SECTION_CODE#/#ELEMENT_CODE#/",
 		]
 	],
 	false
