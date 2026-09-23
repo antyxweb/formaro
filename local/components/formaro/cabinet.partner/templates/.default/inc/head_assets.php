@@ -17,6 +17,20 @@
  */
 global $APPLICATION;
 
+if (!function_exists('cabinetAssetUrl')) {
+    /** Добавляет ?v=filemtime к локальному ассету кабинета, чтобы правка
+     *  JS/CSS сразу подхватывалась у всех, а не только после ручного
+     *  hard refresh (см. комментарий ниже про common.js/theme.css). Для
+     *  CDN-ссылок не используется — версия там уже зашита в сам URL. */
+    function cabinetAssetUrl(string $relativePath): string
+    {
+        $absolutePath = $_SERVER['DOCUMENT_ROOT'] . $relativePath;
+        $version = file_exists($absolutePath) ? filemtime($absolutePath) : time();
+
+        return $relativePath . '?v=' . $version;
+    }
+}
+
 $assetsPath = '/local/components/formaro/cabinet.partner/templates/.default/assets';
 
 $APPLICATION->SetAdditionalCSS('https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css');
@@ -27,7 +41,11 @@ if (!empty($needRichText)) {
 if (!empty($needDatePicker)) {
     $APPLICATION->SetAdditionalCSS('https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css');
 }
-$APPLICATION->SetAdditionalCSS($assetsPath . '/css/theme.css');
+// ?v=filemtime — без этого браузер партнёра после любой правки common.js/
+// theme.css продолжает молча использовать старую закэшированную версию,
+// пока сам не сделает hard refresh (реально приводило к "фича не работает",
+// хотя на сервере код уже обновлён).
+$APPLICATION->SetAdditionalCSS(cabinetAssetUrl($assetsPath . '/css/theme.css'));
 
 $APPLICATION->AddHeadScript('https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js');
 $APPLICATION->AddHeadScript('https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js');
@@ -39,4 +57,4 @@ if (!empty($needDatePicker)) {
     $APPLICATION->AddHeadScript('https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.js');
     $APPLICATION->AddHeadScript('https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ru.js');
 }
-$APPLICATION->AddHeadScript($assetsPath . '/js/common.js');
+$APPLICATION->AddHeadScript(cabinetAssetUrl($assetsPath . '/js/common.js'));

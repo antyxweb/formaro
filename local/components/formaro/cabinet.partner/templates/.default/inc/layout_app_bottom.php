@@ -35,6 +35,6 @@ $assetsJsPath = '/local/components/formaro/cabinet.partner/templates/.default/as
 <?php // CABINET_BOOTSTRAP теперь объявляется в <head> (layout_app_top.php) —
       // ДО common.js, который читает его синхронно при загрузке скрипта. ?>
 <?php foreach ($pageScripts ?? [] as $script): ?>
-<script src="<?= $assetsJsPath . '/' . $script ?>"></script>
+<script src="<?= cabinetAssetUrl($assetsJsPath . '/' . $script) ?>"></script>
 <?php endforeach; ?>
 <script>$(function () { initCabinetChrome(<?= json_encode($pageTitle ?? '') ?>); });</script>
