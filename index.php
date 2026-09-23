@@ -4485,7 +4485,7 @@ $APPLICATION->SetPageProperty("title", "Интернет-магазин спец
         ),
         "FILTER_NAME" => "",	// Фильтр
         "HIDE_LINK_WHEN_NO_DETAIL" => "N",	// Скрывать ссылку, если нет детального описания
-        "IBLOCK_ID" => "2",	// Код информационного блока
+        "IBLOCK_ID" => "8",	// Код информационного блока
         "IBLOCK_TYPE" => "marketplace",	// Тип информационного блока (используется только для проверки)
         "INCLUDE_IBLOCK_INTO_CHAIN" => "N",	// Включать инфоблок в цепочку навигации
         "INCLUDE_SUBSECTIONS" => "Y",	// Показывать элементы подразделов раздела
@@ -4502,7 +4502,7 @@ $APPLICATION->SetPageProperty("title", "Интернет-магазин спец
         "PARENT_SECTION_CODE" => "",	// Код раздела
         "PREVIEW_TRUNCATE_LEN" => "",	// Максимальная длина анонса для вывода (только для типа текст)
         "PROPERTY_CODE" => array(	// Свойства
-            0 => "LOGO",
+            0 => "",
             1 => "",
         ),
         "SET_BROWSER_TITLE" => "N",	// Устанавливать заголовок окна браузера
