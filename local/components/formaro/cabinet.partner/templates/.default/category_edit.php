@@ -29,9 +29,9 @@ require __DIR__ . '/inc/layout_app_top.php';
                 <div class="col-md-4 mb-3">
                     <label class="form-label">Код для ссылки</label>
                     <div class="input-group">
-                        <input type="text" class="form-control" id="f_code" placeholder="генерируется автоматически" data-validate="slug">
-                        <button type="button" class="btn btn-outline-secondary code-chain-btn active" id="codeChainBtn" title="Код генерируется автоматически из названия — нажмите, чтобы редактировать вручную">
-                            <svg class="ic-inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 17H7A5 5 0 0 1 7 7h2"></path><path d="M15 7h2a5 5 0 1 1 0 10h-2"></path><line x1="8" x2="16" y1="12" y2="12"></line></svg>
+                        <input type="text" class="form-control" id="f_code" placeholder="генерируется автоматически" data-validate="slug" readonly>
+                        <button type="button" class="btn btn-outline-secondary code-chain-btn d-none" id="codeChainBtn" title="Скопировать полную ссылку на страницу категории">
+                            <i class="bi bi-link-45deg"></i>
                         </button>
                     </div>
                     <div class="form-text">Транслитерируется из названия, можно изменить вручную.</div>

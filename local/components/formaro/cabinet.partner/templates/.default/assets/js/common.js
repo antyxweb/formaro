@@ -83,30 +83,55 @@ function slugifyClient(text) {
 function generateUniqueSlugSuffix() {
     return Math.random().toString(36).slice(2, 8);
 }
-function bindCodeChain(nameSel, codeSel, chainBtnSel) {
+/** "Код для ссылки" всегда генерируется из названия и недоступен для ручного
+ *  ввода (само поле — readonly, см. разметку форм) — партнёр больше не может
+ *  ни расцепить, ни отредактировать код напрямую. Для НОВОЙ записи код живо
+ *  следует за названием (auto=true, пока форма не сохранена); для уже
+ *  существующей — заморожен на значении с сервера (setExisting()), чтобы
+ *  правка названия не меняла тихо действующую ссылку на уже опубликованную
+ *  страницу. */
+function bindCodeChain(nameSel, codeSel) {
     var auto = true;
     var uniqueSuffix = generateUniqueSlugSuffix();
-    function updateBtn() { $(chainBtnSel).toggleClass('active', auto); }
-    $(chainBtnSel).on('click', function () { auto = !auto; updateBtn(); });
-    $(codeSel).on('input', function () {
-        auto = false;
-        updateBtn();
-        var cleaned = this.value.replace(/[^A-Za-z0-9_-]/g, '');
-        if (cleaned !== this.value) {
-            var pos = this.selectionStart - (this.value.length - cleaned.length);
-            this.value = cleaned;
-            this.setSelectionRange(pos, pos);
-        }
-    });
+    $(codeSel).prop('readonly', true);
     $(nameSel).on('input', function () {
         if (!auto) return;
         var base = slugifyClient($(this).val());
         $(codeSel).val(base ? base + '-' + uniqueSuffix : '');
     });
     return {
-        setExisting: function () { auto = false; updateBtn(); },
-        setNew: function () { auto = true; updateBtn(); }
+        setExisting: function () { auto = false; },
+        setNew: function () { auto = true; }
     };
+}
+/** Кнопка рядом с полем "Код для ссылки" у уже существующей записи —
+ *  копирует в буфер полную публичную ссылку (по ЧПУ инфоблока, см.
+ *  <Entity>Repository::getPublicUrl() на сервере). Для новой записи кнопку
+ *  просто не показывают (см. category/product/news-detail.js) — копировать
+ *  пока нечего, страница ещё не существует. */
+function bindCodeCopyBtn(btnSel, getPublicUrl) {
+    $(btnSel).on('click', function () {
+        var path = getPublicUrl();
+        if (!path) { showResult(false, 'Ссылка ещё не настроена — у раздела каталога не задан ЧПУ-шаблон'); return; }
+        copyTextToClipboard(location.origin + path);
+    });
+}
+function copyTextToClipboard(text) {
+    function done() { showResult(true, 'Ссылка скопирована: ' + text); }
+    function fail() { showResult(false, 'Не удалось скопировать ссылку'); }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done, fail);
+        return;
+    }
+    try {
+        var $tmp = $('<textarea readonly></textarea>').val(text).css({position: 'fixed', top: '-1000px'}).appendTo('body');
+        $tmp[0].select();
+        document.execCommand('copy');
+        $tmp.remove();
+        done();
+    } catch (e) {
+        fail();
+    }
 }
 function getQueryParam(name) {
     var m = new RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);

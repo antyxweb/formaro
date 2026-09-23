@@ -74,7 +74,7 @@ $(function () {
     initRichText('#f_full_desc');
     bindAutoHeight('#f_short_desc');
 
-    var codeChain = bindCodeChain('#f_name', '#f_code', '#codeChainBtn');
+    var codeChain = bindCodeChain('#f_name', '#f_code');
 
     $('.tag-toggle input[type="checkbox"]').on('change', function () {
         $(this).closest('.tag-toggle').toggleClass('active', this.checked);
@@ -106,6 +106,8 @@ $(function () {
                 $('#f_id').val(p.id);
                 $('#f_name').val(p.name);
                 $('#f_code').val(p.slug); codeChain.setExisting();
+                $('#codeChainBtn').removeClass('d-none');
+                bindCodeCopyBtn('#codeChainBtn', function () { return p.public_url; });
                 $('#f_price').val(p.price);
                 $('#f_preorder').prop('checked', !!p.is_preorder);
                 (p.tags || []).forEach(function (t) {

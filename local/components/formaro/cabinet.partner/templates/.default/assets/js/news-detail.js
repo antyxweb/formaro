@@ -33,7 +33,7 @@ $(function () {
         });
     }
 
-    var codeChain = bindCodeChain('#f_title', '#f_code', '#codeChainBtn');
+    var codeChain = bindCodeChain('#f_title', '#f_code');
 
     if (newsId) {
         dsLoad('news').done(function (rows) {
@@ -44,6 +44,8 @@ $(function () {
             $('#f_id').val(n.id);
             $('#f_title').val(n.title);
             $('#f_code').val(n.slug); codeChain.setExisting();
+            $('#codeChainBtn').removeClass('d-none');
+            bindCodeCopyBtn('#codeChainBtn', function () { return n.public_url; });
             $('#f_short_desc').val(n.short_desc); autoHeightResize('#f_short_desc');
             $('#f_status').val(n.status || 'active');
             $('#f_full_desc').val(n.full_desc);

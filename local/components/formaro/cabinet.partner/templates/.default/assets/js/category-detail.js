@@ -27,7 +27,7 @@ $(function () {
     initRichText('#f_full_desc');
     bindAutoHeight('#f_short_desc');
 
-    var codeChain = bindCodeChain('#f_name', '#f_code', '#codeChainBtn');
+    var codeChain = bindCodeChain('#f_name', '#f_code');
 
     dsLoad('categories').done(function (allLoaded) {
         allCategories = visibleCategories(allLoaded);
@@ -44,6 +44,8 @@ $(function () {
             $('#f_id').val(c.id);
             $('#f_name').val(c.name);
             $('#f_code').val(c.slug); codeChain.setExisting();
+            $('#codeChainBtn').removeClass('d-none');
+            bindCodeCopyBtn('#codeChainBtn', function () { return c.public_url; });
             $('#f_short_desc').val(c.short_desc); autoHeightResize('#f_short_desc');
             $('#f_full_desc').val(c.full_desc);
             if ($.fn.trumbowyg) $('#f_full_desc').trumbowyg('html', c.full_desc || '');

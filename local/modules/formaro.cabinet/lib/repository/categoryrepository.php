@@ -218,7 +218,27 @@ class CategoryRepository
             'is_system' => !empty($section['UF_IS_SYSTEM']),
             'partner_id' => $section['UF_PARTNER_ID'] ? (int)$section['UF_PARTNER_ID'] : null,
             'status' => !$approved ? 'pending' : ($section['ACTIVE'] === 'N' ? 'hidden' : 'active'),
+            'public_url' => $this->getPublicUrl($section),
         ];
+    }
+
+    /** Публичная ссылка раздела по ЧПУ инфоблока (SECTION_PAGE_URL) — для
+     *  кнопки "скопировать ссылку" на форме категории. Относительный путь
+     *  без домена (домен подставляет клиент из window.location.origin) —
+     *  так работает одинаково и на деве, и на проде. Пусто, если у
+     *  инфоблока вообще не настроен SECTION_PAGE_URL (нет публичной страницы). */
+    private function getPublicUrl(array $section): string
+    {
+        $iblock = CIBlock::GetArrayByID($this->iblockId);
+        $template = (string)($iblock['SECTION_PAGE_URL'] ?? '');
+        if ($template === '') {
+            return '';
+        }
+
+        return CIBlock::ReplaceDetailUrl($template, [
+            'ID' => (int)$section['ID'],
+            'CODE' => $section['CODE'],
+        ], false, 'S');
     }
 
     /**

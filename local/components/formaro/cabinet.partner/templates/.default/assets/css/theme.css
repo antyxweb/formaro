@@ -416,8 +416,10 @@ input:focus-visible, textarea:focus-visible, select:focus-visible,
    (обычный .btn, не .btn-sm), но с flex-центрированием иконки, а не текстовым
    padding Bootstrap, который визуально смещал иконку влево. */
 /* .img-actions .btn-outline-danger — больше не нужно, базовый .btn уже центрирует и задаёт высоту */
-.code-chain-btn.active { color: var(--brand); background: var(--brand-soft); border-color: var(--brand-soft); }
-.code-chain-btn:not(.active) { color: var(--muted); }
+/* Кнопка "Код для ссылки" теперь не переключает режим (поле всегда readonly),
+   а у уже существующей записи копирует публичную ссылку — стиль больше не
+   зависит от .active/toggle-состояния. */
+.code-chain-btn { color: var(--brand); background: var(--brand-soft); border-color: var(--brand-soft); }
 .btn-primary { background: var(--brand); border-color: var(--brand); color: #fff; }
 .btn-primary:hover, .btn-primary:focus { background: var(--brand-dark); border-color: var(--brand-dark); color: #fff; }
 .btn-success { background: var(--green); border-color: var(--green); color: #fff; }

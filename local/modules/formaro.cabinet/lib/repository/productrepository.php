@@ -220,7 +220,25 @@ class ProductRepository
             'category_ids' => $this->getCategoryIds((int)$el['ID']),
             'status' => $el['ACTIVE'] === 'N' ? 'hidden' : 'active',
             'created_at' => $el['DATE_CREATE'] ?? null,
+            'public_url' => $this->getPublicUrl($el),
         ];
+    }
+
+    /** См. CategoryRepository::getPublicUrl() — тот же принцип, но для
+     *  элемента (DETAIL_PAGE_URL вместо SECTION_PAGE_URL). */
+    private function getPublicUrl(array $el): string
+    {
+        $iblock = CIBlock::GetArrayByID($this->iblockId);
+        $template = (string)($iblock['DETAIL_PAGE_URL'] ?? '');
+        if ($template === '') {
+            return '';
+        }
+
+        return CIBlock::ReplaceDetailUrl($template, [
+            'ID' => (int)$el['ID'],
+            'CODE' => $el['CODE'],
+            'IBLOCK_SECTION_ID' => (int)($el['IBLOCK_SECTION_ID'] ?? 0),
+        ], false, 'E');
     }
 
     /** PREVIEW_PICTURE — нативное поле элемента, не обычное File-свойство

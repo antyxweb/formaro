@@ -194,7 +194,27 @@ class NewsRepository
             'partner_id' => (int)($el['PROPERTY_PARTNER_ID_VALUE'] ?? 0),
             'status' => $el['ACTIVE'] === 'N' ? 'hidden' : 'active',
             'created_at' => $el['DATE_CREATE'] ?? null,
+            'public_url' => $this->getPublicUrl($el),
         ];
+    }
+
+    /** См. CategoryRepository::getPublicUrl() — тот же принцип. Сейчас у
+     *  cabinet_news не настроен DETAIL_PAGE_URL (публичной страницы новости
+     *  ещё нет), поэтому вернёт '' — кнопка копирования ссылки в форме
+     *  новости покажет "ссылка ещё не настроена", это ожидаемо. */
+    private function getPublicUrl(array $el): string
+    {
+        $iblock = CIBlock::GetArrayByID($this->iblockId);
+        $template = (string)($iblock['DETAIL_PAGE_URL'] ?? '');
+        if ($template === '') {
+            return '';
+        }
+
+        return CIBlock::ReplaceDetailUrl($template, [
+            'ID' => (int)$el['ID'],
+            'CODE' => $el['CODE'],
+            'IBLOCK_SECTION_ID' => (int)($el['IBLOCK_SECTION_ID'] ?? 0),
+        ], false, 'E');
     }
 
     /** PREVIEW_PICTURE — нативное поле элемента; требует $_FILES-подобный
