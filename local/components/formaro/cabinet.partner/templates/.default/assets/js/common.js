@@ -66,6 +66,14 @@ function fmtMoney(n) {
     n = Number(n) || 0;
     return n.toLocaleString('ru-RU') + ' руб.';
 }
+/** Как fmtMoney(), но "руб." в своём <span> — для крупных цветных плашек
+ *  (дашборд/финансы/баланс в сайдбаре), где суффикс должен быть мельче и
+ *  не жирным, в отличие от самой суммы. Вставлять через .html(), не
+ *  .text() — иначе разметка уйдёт в текст как есть. */
+function fmtMoneyHtml(n) {
+    n = Number(n) || 0;
+    return n.toLocaleString('ru-RU') + ' <span class="money-suffix">руб.</span>';
+}
 function slugifyClient(text) {
     var map = {а:'a',б:'b',в:'v',г:'g',д:'d',е:'e',ё:'e',ж:'zh',з:'z',и:'i',й:'y',к:'k',л:'l',м:'m',н:'n',о:'o',п:'p',р:'r',с:'s',т:'t',у:'u',ф:'f',х:'h',ц:'ts',ч:'ch',ш:'sh',щ:'sch',ъ:'',ы:'y',ь:'',э:'e',ю:'yu',я:'ya'};
     var lower = String(text).toLowerCase();
@@ -983,7 +991,7 @@ function refreshSidebarCounts() {
         $('.side-count[data-count="support"]').text(n).toggleClass('attention', n > 0).toggle(n > 0);
     });
     dsLoad('finance').done(function (data) {
-        $('#sidebarBalanceValue').text(fmtMoney(data && data.available_balance));
+        $('#sidebarBalanceValue').html(fmtMoneyHtml(data && data.available_balance));
     });
 }
 

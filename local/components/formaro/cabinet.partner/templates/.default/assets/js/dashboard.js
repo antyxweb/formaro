@@ -68,9 +68,9 @@ function renderStats(rows) {
     var newCount = rows.filter(function (o) { return o.status === 'new'; }).length;
     var avg = rows.length ? Math.round(total / rows.length) : 0;
     $('#statOrders').text(rows.length);
-    $('#statRevenue').text(fmtMoney(total));
+    $('#statRevenue').html(fmtMoneyHtml(total));
     $('#statNew').text(newCount);
-    $('#statAvg').text(fmtMoney(avg));
+    $('#statAvg').html(fmtMoneyHtml(avg));
 }
 
 function renderTopProducts(rows) {

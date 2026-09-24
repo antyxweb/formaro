@@ -67,9 +67,9 @@ function loadFinance() {
     });
 }
 function updateStatTiles() {
-    $('#statAvailable').text(fmtMoney(financeData.available_balance));
-    $('#statPending').text(fmtMoney(financeData.pending_balance));
-    $('#statTotal').text(fmtMoney(financeData.total_earned));
+    $('#statAvailable').html(fmtMoneyHtml(financeData.available_balance));
+    $('#statPending').html(fmtMoneyHtml(financeData.pending_balance));
+    $('#statTotal').html(fmtMoneyHtml(financeData.total_earned));
 }
 
 function renderTx() {

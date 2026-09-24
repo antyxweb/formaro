@@ -388,6 +388,10 @@ input:focus-visible, textarea:focus-visible, select:focus-visible,
 }
 .stat-tile .stat-value, .stat-tile .stat-label, .stat-tile .stat-delta { position: relative; z-index: 1; }
 .stat-tile .stat-value { font-size: 1.8rem; font-weight: 700; line-height: 1; }
+/* "руб." рядом с суммой в плашках/балансе — мельче и не жирным, в
+   отличие от самой цифры (см. fmtMoneyHtml() в common.js). em, чтобы
+   масштаб был одинаковым и в крупных плашках, и в сайдбар-балансе. */
+.money-suffix { font-weight: 400; font-size: .55em; }
 .stat-tile .stat-label { font-size: .84rem; opacity: .92; margin-top: .15rem; }
 .stat-tile.grad-blue { background: linear-gradient(135deg, #2f8ff0, #1656ad); }
 .stat-tile.grad-green { background: linear-gradient(135deg, #35d18e, #1c9d63); }
