@@ -816,11 +816,15 @@ function showConfirm(message, onConfirm, opts) {
 
 /* ---------------- Чекбокс "выбрать все" в таблицах ---------------- */
 function bindSelectAll(headCheckboxSel, rowCheckboxSel) {
+    // :not(:disabled) — задизейбленные строки (например, системные
+    // категории, см. categories.js) нельзя выбрать вручную, значит и
+    // "выбрать все" не должно их трогать; иначе шапка ещё и никогда не
+    // показывала бы "всё выбрано", раз disabled-строки никогда не отмечены.
     $(document).on('change', headCheckboxSel, function () {
-        $(rowCheckboxSel).prop('checked', $(this).is(':checked')).trigger('change');
+        $(rowCheckboxSel + ':not(:disabled)').prop('checked', $(this).is(':checked')).trigger('change');
     });
     $(document).on('change', rowCheckboxSel, function () {
-        var total = $(rowCheckboxSel).length;
+        var total = $(rowCheckboxSel + ':not(:disabled)').length;
         var checked = $(rowCheckboxSel + ':checked').length;
         $(headCheckboxSel).prop('checked', total > 0 && total === checked);
     });
