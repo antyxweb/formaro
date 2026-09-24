@@ -125,7 +125,7 @@ require __DIR__ . '/inc/layout_app_top.php';
                     <hr>
                     <h6 class="mb-2">Картинка превью</h6>
                     <div class="img-field">
-                        <div id="previewImg" class="thumb-detail bg-thumb mb-2" style="background-image:url('https://placehold.co/240x180?text=%20');"></div>
+                        <div id="previewImg" class="thumb-detail thumb-square bg-thumb mb-2" style="background-image:url('https://placehold.co/200x200?text=%20');"></div>
                         <div class="img-actions">
                             <label class="btn btn-outline-secondary mb-0">
                                 <svg class="ic-inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"></path><path d="m17 8-5-5-5 5"></path><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path></svg> Загрузить

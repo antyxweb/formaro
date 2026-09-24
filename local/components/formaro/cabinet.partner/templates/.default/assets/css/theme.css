@@ -580,6 +580,9 @@ input[type="file"].form-control::file-selector-button:hover { background: var(--
 .thumb-md { width: 120px; height: 90px; border: 1px solid var(--border); background-color: var(--surface-2); }
 /* Крупные картинки для форм редактирования — прямоугольник 4:3, не квадрат */
 .thumb-detail { width: 240px; height: 180px; border: 1px solid var(--border); background-color: var(--surface-2); display: block; }
+/* "Картинка превью" — квадрат только в форме товара (см. product_edit.php);
+   в категории/новости #previewImg остаётся обычным .thumb-detail 4:3. */
+.thumb-detail.thumb-square { width: 200px; height: 200px; }
 /* Логотип партнёра — на 50% крупнее прежнего (было 90px) */
 .thumb-logo { width: 135px; height: 135px; border: 1px solid var(--border); background-color: var(--surface-2); display: block; }
 /* Обложка партнёра — широкий баннер 4:3-подобный, а не маленький квадрат */
