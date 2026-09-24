@@ -53,7 +53,7 @@ require __DIR__ . '/inc/layout_app_top.php';
                             <label class="form-label">Цена</label>
                             <div class="input-group">
                                 <input type="number" class="form-control" id="f_price" min="0" step="1">
-                                <span class="input-group-text">₽</span>
+                                <span class="input-group-text">руб.</span>
                             </div>
                         </div>
                         <div class="col-md-4 mb-3">

@@ -60,7 +60,7 @@ require __DIR__ . '/inc/layout_app_top.php';
   <div class="modal-header"><h5 class="modal-title">Запрос на вывод средств</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
   <div class="modal-body">
     <p class="text-muted-2 small">Средства будут переведены на расчётный счёт, указанный в реквизитах партнёра.</p>
-    <label class="form-label">Сумма к выводу, ₽</label>
+    <label class="form-label">Сумма к выводу, руб.</label>
     <input type="number" class="form-control" id="withdrawAmount" min="1">
   </div>
   <div class="modal-footer"><button type="button" class="btn btn-light" data-bs-dismiss="modal">Отмена</button><button type="button" class="btn btn-primary" id="withdrawConfirmBtn">Отправить запрос</button></div>

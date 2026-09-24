@@ -59,7 +59,7 @@ $(function () {
 });
 
 function updateValueUnit() {
-    $('#f_value_unit').text($('#f_discount_type').val() === 'percent' ? '%' : '₽');
+    $('#f_value_unit').text($('#f_discount_type').val() === 'percent' ? '%' : 'руб.');
 }
 
 function doSave(goBack) {

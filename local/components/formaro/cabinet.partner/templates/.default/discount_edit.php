@@ -64,7 +64,7 @@ require __DIR__ . '/inc/layout_app_top.php';
                     <label class="form-label">Минимальная сумма заказа</label>
                     <div class="input-group">
                         <input type="number" class="form-control" id="f_min_amount" min="0" step="100" value="0">
-                        <span class="input-group-text">₽</span>
+                        <span class="input-group-text">руб.</span>
                     </div>
                     <div class="form-text">0 — без ограничения по сумме</div>
                 </div>
