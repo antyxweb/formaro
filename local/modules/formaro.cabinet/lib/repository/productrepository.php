@@ -57,6 +57,44 @@ class ProductRepository
         return $rows;
     }
 
+    /** Публичная витрина (главная страница, #catalog-grid) — активные
+     *  товары всех партнёров, постранично. $offset ожидается кратным
+     *  $limit (используется ровно так — "покажи ещё N"), поэтому считаем
+     *  номер страницы напрямую, без честного произвольного OFFSET
+     *  (в классическом API инфоблоков его нет, только iNumPage/nPageSize). */
+    public function listPublic(int $limit, int $offset = 0): array
+    {
+        $rows = [];
+        $page = intdiv($offset, max(1, $limit)) + 1;
+        $res = CIBlockElement::GetList(
+            ['ID' => 'DESC'],
+            ['IBLOCK_ID' => $this->iblockId, 'ACTIVE' => 'Y', 'CHECK_PERMISSIONS' => 'N'],
+            false,
+            ['nPageSize' => $limit, 'iNumPage' => $page],
+            self::SELECT_FIELDS
+        );
+        while ($el = $res->Fetch()) {
+            $rows[] = $this->toArray($el);
+        }
+
+        return $rows;
+    }
+
+    /** Сколько всего активных товаров публично — узнать, есть ли смысл
+     *  показывать кнопку "Показать ещё". */
+    public function countPublic(): int
+    {
+        $res = CIBlockElement::GetList(
+            [],
+            ['IBLOCK_ID' => $this->iblockId, 'ACTIVE' => 'Y', 'CHECK_PERMISSIONS' => 'N'],
+            false,
+            false,
+            ['ID']
+        );
+
+        return (int)$res->SelectedRowsCount();
+    }
+
     public function get(int $id): ?array
     {
         $el = CIBlockElement::GetList(

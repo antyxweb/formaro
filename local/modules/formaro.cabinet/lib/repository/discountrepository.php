@@ -26,6 +26,29 @@ class DiscountRepository
         return array_map([$this, 'toArray'], $rows);
     }
 
+    /** Все активные скидки всех партнёров (для публичной витрины —
+     *  #catalog-grid на главной сам решает, кому из них принадлежит
+     *  показываемый товар, и матчит уже только "свои"). "Активна" —
+     *  тот же критерий, что и autoApplyBestDiscount() в order-detail.js:
+     *  status=active и сегодня внутри [date_from, date_to] (открытые
+     *  границы, если дата не задана). */
+    public function listActive(): array
+    {
+        $dataClass = HlblockEntityFactory::getDataClass(self::HLBLOCK_NAME);
+        $rows = $dataClass::getList([
+            'filter' => ['=UF_STATUS' => 'active'],
+            'order' => ['ID' => 'DESC'],
+        ])->fetchAll();
+
+        $today = date('Y-m-d');
+
+        return array_values(array_filter(
+            array_map([$this, 'toArray'], $rows),
+            static fn(array $d) => (!$d['date_from'] || $d['date_from'] <= $today)
+                && (!$d['date_to'] || $d['date_to'] >= $today)
+        ));
+    }
+
     public function get(int $id): ?array
     {
         $dataClass = HlblockEntityFactory::getDataClass(self::HLBLOCK_NAME);
