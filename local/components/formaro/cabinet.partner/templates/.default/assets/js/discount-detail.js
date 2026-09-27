@@ -48,6 +48,7 @@ $(function () {
                 });
             } else {
                 updateValueUnit();
+                dateFrom.setDate(new Date(), true);
                 // Пришли с детальной товара ("Создать скидку" на вкладке "Скидки") —
                 // сразу предзаполняем цель этим товаром
                 var prefillProductId = parseInt(getQueryParam('product_id'), 10);
