@@ -22,7 +22,7 @@ $aMenuLinks = Array(
 		"" 
 	),
 	Array(
-		"Список парнеров", 
+		"Список партнеров", 
 		"/partners/", 
 		Array(), 
 		Array(), 
