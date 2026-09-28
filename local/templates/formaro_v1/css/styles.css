@@ -13156,3 +13156,17 @@ h1, h2, h3, h4, h5, h6,
     padding-bottom: 0 !important;
   }
 }
+/* Избранное (сердечко .favorite в карточке товара и на странице товара):
+   красное при наведении и когда товар в избранном — видна вторая кнопка
+   с залитой иконкой (переключает js/favorites.js). */
+.product-card .product-card__img .favorite button svg,
+#product-gallery .favorite button svg {
+  -webkit-transition: color 0.3s;
+  transition: color 0.3s;
+}
+.product-card .product-card__img .favorite:hover button svg,
+.product-card .product-card__img .favorite button:last-child svg,
+#product-gallery .favorite:hover button svg,
+#product-gallery .favorite button:last-child svg {
+  color: #dc3545;
+}
