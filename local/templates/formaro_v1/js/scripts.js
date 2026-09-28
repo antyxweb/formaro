@@ -4659,17 +4659,21 @@ $(function () {
         $('#header-search').closest('.header__search').toggleClass('header-search-visible');
     });
 
-    $('body').on('keyup', '.section-search-input', function (e) {
-        $s = $(this).val();
-        $sB = $(this).closest('section').find('.section-search-block');
+    // Поиск по категориям (блок "Каталог товаров"): без учёта регистра и
+    // е/ё. Раньше был jQuery :contains() — он чувствителен к регистру и
+    // ломался на кавычках/скобках во вводе.
+    $('body').on('keyup input', '.section-search-input', function (e) {
+        var norm = function (str) { return String(str).toLowerCase().replace(/ё/g, 'е'); };
+        var s = norm($.trim($(this).val()));
+        var $sB = $(this).closest('section').find('.section-search-block');
 
-        if($s) {
-            $sB.hide();
-
-            $(this).closest('section').find('.section-search-block:contains('+$s+')').show();
-        } else {
+        if (!s) {
             $sB.show();
+            return;
         }
+        $sB.each(function () {
+            $(this).toggle(norm($(this).text()).indexOf(s) !== -1);
+        });
     });
 
     $('body').on('keyup', '.search-input', function (e) {
