@@ -2,7 +2,9 @@
 /**
  * AJAX-эндпоинт для #catalog-grid на главной (см. index.php) — публичная
  * витрина товаров формато.cabinet_catalog. GET ?offset=N&limit=M, отдаёт
- * JSON {items:[...], hasMore:bool}. Метки/цена со скидкой считает
+ * JSON {items:[...], hasMore:bool, total:int}. Необязательные параметры
+ * поиска/фильтра (компонент formaro:catalog.search): q, sections (id через
+ * запятую), price_min, price_max, colors, sizes (через "|"). Метки/цена со скидкой считает
  * ProductPricingService (общая логика с order-detail.js:
  * autoApplyBestDiscount).
  *
@@ -32,7 +34,17 @@ $offset = max(0, (int)($_GET['offset'] ?? 0));
 $productRepo = new ProductRepository();
 $discountRepo = new DiscountRepository();
 
-$products = $productRepo->listPublic($limit, $offset);
+$csv = static fn(string $key, string $sep) => array_filter(explode($sep, (string)($_GET[$key] ?? '')), 'strlen');
+$filter = ProductRepository::buildPublicFilter([
+    'q' => $_GET['q'] ?? '',
+    'sections' => $csv('sections', ','),
+    'price_min' => $_GET['price_min'] ?? '',
+    'price_max' => $_GET['price_max'] ?? '',
+    'colors' => $csv('colors', '|'),
+    'sizes' => $csv('sizes', '|'),
+]);
+
+$products = $productRepo->listPublic($limit, $offset, $filter);
 $activeDiscounts = $discountRepo->listActive();
 
 $items = array_map(static function (array $p) use ($activeDiscounts) {
@@ -52,9 +64,10 @@ $items = array_map(static function (array $p) use ($activeDiscounts) {
     ];
 }, $products);
 
-$total = $productRepo->countPublic();
+$total = $productRepo->countPublic($filter);
 
 echo json_encode([
     'items' => $items,
     'hasMore' => ($offset + count($products)) < $total,
+    'total' => $total,
 ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
