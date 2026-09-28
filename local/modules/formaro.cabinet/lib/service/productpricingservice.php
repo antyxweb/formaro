@@ -25,7 +25,7 @@ class ProductPricingService
     {
         $badges = [];
         if (in_array('new', $product['tags'] ?? [], true)) {
-            $badges[] = ['class' => 'bg-success', 'text' => 'новинка'];
+            $badges[] = ['class' => 'bg-success', 'text' => 'Новинка'];
         }
         if (in_array('bestseller', $product['tags'] ?? [], true)) {
             $badges[] = ['class' => 'bg-warning', 'text' => 'Топ продаж'];
