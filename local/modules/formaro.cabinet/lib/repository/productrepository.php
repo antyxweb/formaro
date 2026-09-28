@@ -95,6 +95,26 @@ class ProductRepository
         return (int)$res->SelectedRowsCount();
     }
 
+    /** Публичная выборка активных товаров с произвольным доп. фильтром и
+     *  сортировкой — для витринных подборок на главной (компонент
+     *  formaro:product.carousel: "Выгодные предложения", "Новые поступления"). */
+    public function findPublic(array $filter, array $order, int $limit): array
+    {
+        $rows = [];
+        $res = CIBlockElement::GetList(
+            $order,
+            array_merge($filter, ['IBLOCK_ID' => $this->iblockId, 'ACTIVE' => 'Y', 'CHECK_PERMISSIONS' => 'N']),
+            false,
+            ['nTopCount' => max(1, $limit)],
+            self::SELECT_FIELDS
+        );
+        while ($el = $res->Fetch()) {
+            $rows[] = $this->toArray($el);
+        }
+
+        return $rows;
+    }
+
     public function get(int $id): ?array
     {
         $el = CIBlockElement::GetList(
