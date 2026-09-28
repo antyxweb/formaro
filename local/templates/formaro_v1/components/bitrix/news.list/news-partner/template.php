@@ -19,9 +19,9 @@ $this->setFrameMode(true);
     ?>
     <div class="partners-card mb-5" id="<?=$this->GetEditAreaId($arItem['ID']);?>">
 
-        <?if($arItem["PREVIEW_PICTURE"]["SRC"]):?>
+        <?if($arItem["DETAIL_PICTURE"]["SRC"]):?>
             <div class="partners-card__img">
-                <div class="embed-responsive embed-responsive-16by9" style="background-image: url('<?=$arItem["PREVIEW_PICTURE"]["SRC"]?>')"></div>
+                <div class="embed-responsive embed-responsive-16by9" style="background-image: url('<?=$arItem["DETAIL_PICTURE"]["SRC"]?>')"></div>
             </div>
         <?endif;?>
         <div class="row mx-0">
@@ -29,9 +29,9 @@ $this->setFrameMode(true);
                 <h3><?=$arItem["NAME"]?></h3>
                 <p class="text-secondary"><?=$arItem["PREVIEW_TEXT"]?></p>
             </div>
-            <?if($arItem["PROPERTIES"]["LOGO"]["VALUE"]):?>
+            <?if($arItem["PREVIEW_PICTURE"]["SRC"]):?>
                 <div class="col-12 col-md-4 py-md-3 pr-md-0 order-1 order-md-2">
-                    <div class="embed-responsive embed-responsive-4by3" style="background-image: url('<?=CFile::GetPath($arItem["PROPERTIES"]["LOGO"]["VALUE"])?>')"></div>
+                    <div class="embed-responsive embed-responsive-4by3" style="background-image: url('<?=$arItem["PREVIEW_PICTURE"]["SRC"]?>')"></div>
                 </div>
             <?endif;?>
         </div>

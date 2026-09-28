@@ -2,7 +2,7 @@
 $aMenuLinks = Array(
 	Array(
 		"Личный кабинет партнера", 
-		"/cp/", 
+		"/cabinet/",
 		Array(), 
 		Array(), 
 		"" 
@@ -16,14 +16,14 @@ $aMenuLinks = Array(
 	),
 	Array(
 		"Продавать товары", 
-		"/for-partners/sell-​products/", 
+		"/for-partners/sell-products/",
 		Array(), 
 		Array(), 
 		"" 
 	),
 	Array(
-		"Спецодежда", 
-		"/for-partners/workwear/", 
+		"Список парнеров", 
+		"/partners/", 
 		Array(), 
 		Array(), 
 		"" 

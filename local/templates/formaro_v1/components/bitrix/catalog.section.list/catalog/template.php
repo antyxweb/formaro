@@ -17,7 +17,12 @@ $this->setFrameMode(true);
     <div class="section-header mb-5">
         <div class="container-fluid">
             <div class="d-flex align-items-center">
-                <h3 class="h2"><span class="text-primary">Каталог</span> товаров</h3>
+                <?
+                $pagerTitle = explode(' ', $arResult['IBLOCK']['NAME']);
+                $pagerTitle[0] = '<span class="text-primary">'.$pagerTitle[0].'</span>';
+                $arResult['IBLOCK']['NAME'] = implode(' ', $pagerTitle);
+                ?>
+                <h3 class="h2"><?=$arResult['IBLOCK']['NAME']?></h3>
                 <a href="/partners/join/" class="f-button c-gray ml-auto">
                     <svg width="16" height="16" class="d-md-none">
                         <use xlink:href="#icon-arrow-control"></use>
@@ -25,7 +30,7 @@ $this->setFrameMode(true);
                     <span class="pl-2 text-uppercase d-none d-md-inline">Стать партнером</span>
                 </a>
             </div>
-            <h4 class="text-secondary">Специализированная одежда, обувь и аксессуары</h4>
+            <h4 class="text-secondary"><?=$arResult['IBLOCK']['DESCRIPTION'];?></h4>
         </div>
     </div>
 

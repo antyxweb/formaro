@@ -42,12 +42,12 @@
                 "DISPLAY_PREVIEW_TEXT" => "Y",	// Выводить текст анонса
                 "DISPLAY_TOP_PAGER" => "N",	// Выводить над списком
                 "FIELD_CODE" => array(	// Поля
-                    0 => "",
+                    0 => "DETAIL_PICTURE",
                     1 => "",
                 ),
                 "FILTER_NAME" => "arrFilterPartner",	// Фильтр
                 "HIDE_LINK_WHEN_NO_DETAIL" => "N",	// Скрывать ссылку, если нет детального описания
-                "IBLOCK_ID" => "2",	// Код информационного блока
+                "IBLOCK_ID" => "8",	// Код информационного блока
                 "IBLOCK_TYPE" => "marketplace",	// Тип информационного блока (используется только для проверки)
                 "INCLUDE_IBLOCK_INTO_CHAIN" => "N",	// Включать инфоблок в цепочку навигации
                 "INCLUDE_SUBSECTIONS" => "Y",	// Показывать элементы подразделов раздела

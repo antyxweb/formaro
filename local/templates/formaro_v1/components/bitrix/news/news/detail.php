@@ -112,7 +112,7 @@ $GLOBALS['arrFilterOther'] = [
     ),
     "FILTER_NAME" => "arrFilterOther",	// Фильтр
     "HIDE_LINK_WHEN_NO_DETAIL" => "N",	// Скрывать ссылку, если нет детального описания
-    "IBLOCK_ID" => "1",	// Код информационного блока
+    "IBLOCK_ID" => "10",	// Код информационного блока
     "IBLOCK_TYPE" => "content",	// Тип информационного блока (используется только для проверки)
     "INCLUDE_IBLOCK_INTO_CHAIN" => "N",	// Включать инфоблок в цепочку навигации
     "INCLUDE_SUBSECTIONS" => "Y",	// Показывать элементы подразделов раздела
@@ -180,7 +180,7 @@ $GLOBALS['arrFilterAll'] = [
     ),
     "FILTER_NAME" => "arrFilterAll",	// Фильтр
     "HIDE_LINK_WHEN_NO_DETAIL" => "N",	// Скрывать ссылку, если нет детального описания
-    "IBLOCK_ID" => "1",	// Код информационного блока
+    "IBLOCK_ID" => "10",	// Код информационного блока
     "IBLOCK_TYPE" => "content",	// Тип информационного блока (используется только для проверки)
     "INCLUDE_IBLOCK_INTO_CHAIN" => "N",	// Включать инфоблок в цепочку навигации
     "INCLUDE_SUBSECTIONS" => "Y",	// Показывать элементы подразделов раздела
