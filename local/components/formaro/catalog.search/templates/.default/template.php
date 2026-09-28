@@ -82,6 +82,9 @@ $priceMax = max($priceMin + 1, (int)$arResult['PRICE_MAX']);
                             </div>
                         </div>
                         <div class="search-result-bg"></div>
+                        <button type="button" class="hero-search-clear d-none" id="hero-search-clear" aria-label="Очистить поиск">
+                            <svg width="16" height="16"><use xlink:href="#icon-close"></use></svg>
+                        </button>
                         <svg class="hero-search-input-icon" width="24" height="24">
                             <use xlink:href="#icon-search"></use>
                         </svg>

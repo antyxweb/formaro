@@ -1,0 +1,28 @@
+/* Крестик очистки поиска по категориям. Базовые стили .section-search
+   (styles.css шаблона сайта) ставят любую button в поле слева — это
+   иконка лупы; крестик переносим вправо (правее — декоративный уголок
+   :after 20px). */
+.section .section-search input.section-search-input {
+    padding-right: 64px;
+}
+.section .section-search button.section-search-clear {
+    left: auto;
+    right: 26px;
+    z-index: 1;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    color: #6c757d;
+    cursor: pointer;
+}
+.section .section-search button.section-search-clear:hover {
+    background: rgba(0, 0, 0, 0.05);
+    color: #111111;
+}
+.section .section-search button.section-search-clear.d-none {
+    display: none;
+}

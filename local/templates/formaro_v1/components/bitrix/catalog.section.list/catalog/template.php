@@ -33,6 +33,11 @@ $this->setFrameMode(true);
         <div class="container-fluid">
             <div class="section-search mb-5">
                 <input class="section-search-input" type="text" placeholder="Поиск по категориям">
+                <button type="button" class="section-search-clear d-none" aria-label="Очистить поиск">
+                    <svg width="16" height="16">
+                        <use xlink:href="#icon-close"></use>
+                    </svg>
+                </button>
                 <button type="submit">
                     <svg width="20" height="20">
                         <use xlink:href="#icon-search"></use>

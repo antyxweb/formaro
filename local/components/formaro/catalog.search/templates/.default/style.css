@@ -45,3 +45,37 @@
         left: 45px;
     }
 }
+
+/* Крестик очистки строки поиска (#hero-search). Стоит после .search-result-bg,
+   а не сразу после input: выпадающий блок открывается селектором
+   input:focus + .search-result-block. */
+#hero-search .hero-search-block .hero-search-group .hero-search-input input {
+    padding-right: 48px;
+}
+#hero-search .hero-search-block .hero-search-group .hero-search-clear {
+    position: absolute;
+    top: 50%;
+    right: 12px;
+    z-index: 83;
+    width: 32px;
+    height: 32px;
+    margin: 0;
+    padding: 0;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 50%;
+    background: none;
+    color: #6c757d;
+    cursor: pointer;
+    transition: 0.3s;
+}
+#hero-search .hero-search-block .hero-search-group .hero-search-clear:hover {
+    background: rgba(0, 0, 0, 0.05);
+    color: #111111;
+}
+#hero-search .hero-search-block .hero-search-group .hero-search-clear.d-none {
+    display: none;
+}

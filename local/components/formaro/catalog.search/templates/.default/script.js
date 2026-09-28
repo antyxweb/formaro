@@ -395,9 +395,33 @@
 
         initHistory();
 
+        var clearButton = document.getElementById('hero-search-clear');
+
+        function updateClearButton() {
+            if (clearButton) clearButton.classList.toggle('d-none', input.value === '');
+        }
+
+        input.addEventListener('input', updateClearButton);
+
+        // Крестик: очищает строку; если по ней уже был поиск — возвращает
+        // полный каталог (с учётом фильтра).
+        if (clearButton) {
+            clearButton.addEventListener('click', function (e) {
+                e.preventDefault();
+                input.value = '';
+                updateClearButton();
+                if (suggest) suggest.innerHTML = '';
+                if (state.query.q) {
+                    state.query.q = '';
+                    load(true);
+                }
+            });
+        }
+
         function runSearch(q) {
             q = (q || '').trim();
             input.value = q;
+            updateClearButton();
             input.blur();
             pushHistory(q);
             state.query.q = q;
