@@ -45,7 +45,7 @@
             return '<s>' + fmtPrice(item.old_price) + '</s> ' +
                 '<b class="text-danger" data-price="' + item.price + '">' + fmtPrice(item.price) + '</b> <small>руб/шт.</small>';
         }
-        return '<b data-price="' + item.price + '">' + fmtPrice(item.price) + '</b> <small>руб/шт.</small>';
+        return '<b class="text-danger" data-price="' + item.price + '">' + fmtPrice(item.price) + '</b> <small>руб/шт.</small>';
     }
 
     function stockHtml(item) {

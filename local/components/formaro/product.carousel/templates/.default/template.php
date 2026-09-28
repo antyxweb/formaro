@@ -60,7 +60,7 @@ $fmt = static fn($n) => number_format((float)$n, 0, '', ' ');
                                 <?php if ($item['OLD_PRICE']): ?>
                                 <s><?= $fmt($item['OLD_PRICE']) ?></s> <b class="text-danger" data-price="<?= (float)$item['PRICE'] ?>"><?= $fmt($item['PRICE']) ?></b> <small>руб/шт.</small>
                                 <?php else: ?>
-                                <b data-price="<?= (float)$item['PRICE'] ?>"><?= $fmt($item['PRICE']) ?></b> <small>руб/шт.</small>
+                                <b class="text-danger" data-price="<?= (float)$item['PRICE'] ?>"><?= $fmt($item['PRICE']) ?></b> <small>руб/шт.</small>
                                 <?php endif; ?>
                             </div>
                             <div class="text-secondary">
