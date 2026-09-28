@@ -75,7 +75,7 @@ $APPLICATION->SetPageProperty("title", "Интернет-магазин спец
             "COUNT_ELEMENTS" => "Y",
             "COUNT_ELEMENTS_FILTER" => "CNT_ACTIVE",
             "ADDITIONAL_COUNT_ELEMENTS_FILTER" => "additionalCountFilter",
-            "HIDE_SECTIONS_WITH_ZERO_COUNT_ELEMENTS" => "N",
+            "HIDE_SECTIONS_WITH_ZERO_COUNT_ELEMENTS" => "Y",
             "TOP_DEPTH" => "2",
             "SECTION_FIELDS" => [
                 0 => "NAME",
