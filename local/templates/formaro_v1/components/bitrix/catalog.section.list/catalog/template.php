@@ -60,7 +60,7 @@ $this->setFrameMode(true);
                                             </ul>
                                         </div>
                                         <ul>
-                                            <li class="sect"><a href="<?=$arSection['SECTION_PAGE_URL']?>" class="text-primary"><u>Все товары</u>&nbsp;<span><?=$arSub['ELEMENT_CNT']?></span></a></li>
+                                            <li class="sect"><a href="<?=$arSection['SECTION_PAGE_URL']?>" class="text-primary"><u>Все товары</u>&nbsp;<span><?=$arSection['ELEMENT_CNT']?></span></a></li>
                                         </ul>
                                     </div>
                                 </div>
