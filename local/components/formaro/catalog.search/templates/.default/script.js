@@ -274,7 +274,15 @@
 
     /* ---------------- Поиск: строка, подсказки, история ---------------- */
 
-    function readHistory() {
+    /* История поиска: у авторизованного — в аккаунте (HL-блок
+       SearchHistory через /local/ajax/search_history.php), у гостя — в
+       localStorage. При входе гостевая история переносится в аккаунт и
+       удаляется из браузера, чтобы после выхода не осталась видна
+       следующему человеку за этим компьютером. */
+    var historyEndpoint = '/local/ajax/search_history.php';
+    var searchHistory = {authorized: false, sessid: '', items: []};
+
+    function readLocalHistory() {
         try {
             var list = JSON.parse(window.localStorage.getItem(HISTORY_KEY) || '[]');
             return Array.isArray(list) ? list : [];
@@ -283,18 +291,82 @@
         }
     }
 
-    function pushHistory(q) {
-        if (!q) return;
-        var list = readHistory().filter(function (item) {
-            return item.toLowerCase() !== q.toLowerCase();
-        });
-        list.unshift(q);
+    function writeLocalHistory(list) {
         try {
-            window.localStorage.setItem(HISTORY_KEY, JSON.stringify(list.slice(0, HISTORY_SIZE)));
+            if (list.length) {
+                window.localStorage.setItem(HISTORY_KEY, JSON.stringify(list));
+            } else {
+                window.localStorage.removeItem(HISTORY_KEY);
+            }
         } catch (e) {
             // приватный режим/заблокированное хранилище — просто без истории
         }
+    }
+
+    function historyRequest(method, fields, cb) {
+        var body = Object.keys(fields).map(function (k) {
+            var v = fields[k];
+            return Array.isArray(v)
+                ? v.map(function (item) { return encodeURIComponent(k + '[]') + '=' + encodeURIComponent(item); }).join('&')
+                : encodeURIComponent(k) + '=' + encodeURIComponent(v);
+        }).filter(Boolean).join('&');
+
+        var xhr = new XMLHttpRequest();
+        xhr.open(method, historyEndpoint, true);
+        if (method === 'POST') xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhr.onload = function () {
+            var data = null;
+            try { data = JSON.parse(xhr.responseText); } catch (e) { /* пусто */ }
+            cb(xhr.status === 200 ? data : null);
+        };
+        xhr.onerror = function () { cb(null); };
+        xhr.send(method === 'POST' ? body : null);
+    }
+
+    function applyServerHistory(data) {
+        if (!data) return;
+        searchHistory.authorized = !!data.authorized;
+        searchHistory.sessid = data.sessid || '';
+        if (searchHistory.authorized) searchHistory.items = data.items || [];
         renderHistory();
+    }
+
+    function initHistory() {
+        searchHistory.items = readLocalHistory().slice(0, HISTORY_SIZE);
+        renderHistory();
+
+        historyRequest('GET', {}, function (data) {
+            if (!data || !data.authorized) return;
+            var guest = readLocalHistory();
+            if (!guest.length) {
+                applyServerHistory(data);
+                return;
+            }
+            historyRequest('POST', {sessid: data.sessid, action: 'merge', queries: guest}, function (merged) {
+                if (!merged) {
+                    applyServerHistory(data);
+                    return;
+                }
+                writeLocalHistory([]);
+                applyServerHistory(merged);
+            });
+        });
+    }
+
+    function pushHistory(q) {
+        if (!q) return;
+        var list = searchHistory.items.filter(function (item) {
+            return item.toLowerCase() !== q.toLowerCase();
+        });
+        list.unshift(q);
+        searchHistory.items = list.slice(0, HISTORY_SIZE);
+        renderHistory();
+
+        if (searchHistory.authorized) {
+            historyRequest('POST', {sessid: searchHistory.sessid, action: 'add', q: q}, applyServerHistory);
+        } else {
+            writeLocalHistory(searchHistory.items);
+        }
     }
 
     var searchIcon = '<svg width="16" height="16"><use xlink:href="#icon-search"></use></svg>';
@@ -302,7 +374,7 @@
     function renderHistory() {
         var box = document.getElementById('hero-search-history');
         if (!box) return;
-        var list = readHistory();
+        var list = searchHistory.items;
         box.classList.toggle('d-none', !list.length);
         box.querySelector('ul').innerHTML = list.map(function (q) {
             return '<li>' + searchIcon + '<a href="#" data-search-query="' + escHtml(q) + '">' + escHtml(q) + '</a></li>';
@@ -321,7 +393,7 @@
         var suggest = document.getElementById('hero-search-suggest');
         if (!form || !input) return;
 
-        renderHistory();
+        initHistory();
 
         function runSearch(q) {
             q = (q || '').trim();
