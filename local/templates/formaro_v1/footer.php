@@ -308,6 +308,7 @@ if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
         </script>
 
         <script src="<?=SITE_TEMPLATE_PATH;?>/js/scripts.min.js?v=<?= filemtime($_SERVER['DOCUMENT_ROOT'] . SITE_TEMPLATE_PATH . '/js/scripts.min.js') ?>"></script>
+        <script src="<?=SITE_TEMPLATE_PATH;?>/js/favorites.js?v=<?= filemtime($_SERVER['DOCUMENT_ROOT'] . SITE_TEMPLATE_PATH . '/js/favorites.js') ?>"></script>
 
         <svg class="svg-sprite d-none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><defs>
                 <symbol viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" id="icon-arrow-control">

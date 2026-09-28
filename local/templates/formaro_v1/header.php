@@ -210,7 +210,15 @@ if($GLOBALS["APPLICATION"]->GetCurPage(false) == '/'
                     <svg class="header__action-icon" width="20" height="20">
                         <use xlink:href="#icon-favorites"></use>
                     </svg>
-                    <small class="header__action-count">0</small>
+                    <?php
+                    // Авторизованному — сразу число из аккаунта (без мигания 0),
+                    // дальше счётчик обновляет favorites.js.
+                    $favoritesCount = 0;
+                    if ($USER->IsAuthorized() && \Bitrix\Main\Loader::includeModule('formaro.cabinet')) {
+                        $favoritesCount = (new \Formaro\Cabinet\Repository\FavoriteRepository())->count((int)$USER->GetID());
+                    }
+                    ?>
+                    <small class="header__action-count" data-favorites-count><?= $favoritesCount ?></small>
                     <span class="d-none d-xl-inline">Избранное</span>
                 </a>
                 <a class="header__action-link" href="/personal/cart/" aria-label="Корзина">

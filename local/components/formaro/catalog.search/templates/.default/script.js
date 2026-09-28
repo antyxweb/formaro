@@ -61,7 +61,7 @@
                 '<div class="product-card__img">' +
                     '<a href="' + escHtml(url) + '" class="embed-responsive embed-responsive-1by1" style="background-image: url(\'' + escHtml(item.image || '') + '\')"></a>' +
                     badgesHtml(item.badges) +
-                    '<div class="favorite">' +
+                    '<div class="favorite" data-product-id="' + Number(item.id) + '">' +
                         '<button class="button-icon"><svg width="20" height="20"><use xlink:href="#icon-favorite-stroke"></use></svg></button>' +
                         '<button class="button-icon d-none"><svg width="20" height="20"><use xlink:href="#icon-favorite"></use></svg></button>' +
                     '</div>' +

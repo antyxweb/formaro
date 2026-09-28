@@ -45,7 +45,7 @@ $fmt = static fn($n) => number_format((float)$n, 0, '', ' ');
                                 <?php endforeach; ?>
                             </div>
                             <?php endif; ?>
-                            <div class="favorite">
+                            <div class="favorite" data-product-id="<?= (int)$item['ID'] ?>">
                                 <button class="button-icon">
                                     <svg width="20" height="20"><use xlink:href="#icon-favorite-stroke"></use></svg>
                                 </button>
