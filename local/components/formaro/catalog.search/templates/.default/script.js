@@ -456,6 +456,23 @@
         });
     }
 
+    /** Отмеченные категории: корневая целиком (сервер берёт её вместе с
+     *  подкатегориями) либо отдельные подкатегории, если корневая не отмечена. */
+    function selectedSections(form) {
+        var ids = [];
+        Array.prototype.forEach.call(form.querySelectorAll('.filter-cat'), function (cat) {
+            var parent = cat.querySelector(':scope > label input[name="sections"]');
+            if (parent && parent.checked) {
+                ids.push(parent.value);
+                return;
+            }
+            Array.prototype.forEach.call(cat.querySelectorAll('.filter-cat-children input[name="sections"]:checked'), function (el) {
+                ids.push(el.value);
+            });
+        });
+        return ids;
+    }
+
     function setSliderValue(min, max) {
         if (window.jQuery && jQuery.fn.slider) {
             jQuery('#filterPrice').slider('setValue', [min, max]);
@@ -470,7 +487,7 @@
         if (isNaN(priceMax) || priceMax > bounds.max) priceMax = bounds.max;
         if (priceMin > priceMax) priceMin = priceMax;
 
-        var sections = checkedValues(form, 'sections');
+        var sections = selectedSections(form);
         var colors = checkedValues(form, 'colors');
         var sizes = checkedValues(form, 'sizes');
         var priceActive = priceMin > bounds.min || priceMax < bounds.max;
@@ -508,6 +525,33 @@
             setSliderValue(bounds.min, bounds.max);
             applyFilter(form);
         }, 0);
+    });
+
+    // Категории: стрелка раскрывает подкатегории; отметка корневой
+    // отмечает/снимает все её подкатегории, снятие подкатегории снимает
+    // корневую.
+    document.addEventListener('click', function (e) {
+        var toggle = e.target.closest && e.target.closest('.filter-cat-toggle');
+        if (!toggle) return;
+        e.preventDefault();
+        var cat = toggle.closest('.filter-cat');
+        cat.classList.toggle('open');
+        cat.querySelector('.filter-cat-children').classList.toggle('d-none', !cat.classList.contains('open'));
+        if (window.jQuery) jQuery('#filter').trigger('sticky_kit:recalc');
+    });
+
+    document.addEventListener('change', function (e) {
+        var input = e.target;
+        if (input.name !== 'sections') return;
+        var cat = input.closest('.filter-cat');
+        if (!cat) return;
+        var parent = cat.querySelector(':scope > label input');
+        var children = cat.querySelectorAll('.filter-cat-children input');
+        if (input === parent) {
+            Array.prototype.forEach.call(children, function (el) { el.checked = parent.checked; });
+        } else if (parent) {
+            parent.checked = children.length > 0 && Array.prototype.every.call(children, function (el) { return el.checked; });
+        }
     });
 
     // Ручной ввод цены → двигаем ползунки (обратное направление делает

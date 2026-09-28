@@ -61,8 +61,7 @@ class FormaroCatalogSearchComponent extends CBitrixComponent
 
     /**
      * Корневые категории → их подкатегории, только допущенные к показу
-     * (UF_APPROVED), как и в каталоге на главной. Корневая категория без
-     * подкатегорий выводится сама как единственный пункт своей группы.
+     * (UF_APPROVED), как и в каталоге на главной.
      */
     private function loadSectionGroups(int $iblockId): array
     {
@@ -83,7 +82,7 @@ class FormaroCatalogSearchComponent extends CBitrixComponent
         }
 
         foreach ($groups as $id => &$group) {
-            $group['ITEMS'] = $children[$id] ?? [['ID' => $id, 'NAME' => $group['NAME']]];
+            $group['ITEMS'] = $children[$id] ?? [];
         }
         unset($group);
 

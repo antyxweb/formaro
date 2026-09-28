@@ -145,9 +145,37 @@ $priceMax = max($priceMin + 1, (int)$arResult['PRICE_MAX']);
                 </button>
             </div>
 
-            <?php foreach ($arResult['SECTION_GROUPS'] as $index => $group): ?>
-            <?= $filterGroup($group['NAME'], 'sections', array_column($group['ITEMS'], 'NAME', 'ID'), $index > 0) ?>
-            <?php endforeach; ?>
+            <?php if ($arResult['SECTION_GROUPS']): ?>
+            <!-- Категории: корневые с чекбоксом, подкатегории раскрываются стрелкой -->
+            <div class="filter-row">
+                <div class="filter-row-title d-flex align-items-center py-2 py-lg-3 px-3 px-lg-4">
+                    <h6 class="mr-auto mb-0">Категории</h6>
+                    <svg width="20" height="20">
+                        <use xlink:href="#icon-arrow-up"></use>
+                    </svg>
+                </div>
+                <div class="filter-row-list filter-row-categories py-2">
+                    <?php foreach ($arResult['SECTION_GROUPS'] as $index => $group): ?>
+                    <div class="filter-cat<?= $index >= $visibleItems ? ' collapse-list d-none' : '' ?>">
+                        <?= $checkboxRow('sections', (string)$group['ID'], $group['NAME'], false) ?>
+                        <?php if ($group['ITEMS']): ?>
+                        <button type="button" class="filter-cat-toggle" aria-label="Подкатегории">
+                            <svg width="16" height="16"><use xlink:href="#icon-arrow-down"></use></svg>
+                        </button>
+                        <div class="filter-cat-children d-none">
+                            <?php foreach ($group['ITEMS'] as $child): ?>
+                            <?= $checkboxRow('sections', (string)$child['ID'], $child['NAME'], false) ?>
+                            <?php endforeach; ?>
+                        </div>
+                        <?php endif; ?>
+                    </div>
+                    <?php endforeach; ?>
+                    <?php if (count($arResult['SECTION_GROUPS']) > $visibleItems): ?>
+                    <a href="javascript:void(0);" class="d-block px-3 px-lg-4 py-2"><span>Показать все</span><span class="d-none">Свернуть</span></a>
+                    <?php endif; ?>
+                </div>
+            </div>
+            <?php endif; ?>
 
             <div class="filter-row">
                 <div class="filter-row-title d-flex align-items-center py-2 py-lg-3 px-3 px-lg-4">
