@@ -5,6 +5,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
 
 use Bitrix\Main\Loader;
 use Formaro\Cabinet\Repository\ProductRepository;
+use Formaro\Cabinet\Service\CatalogFilterService;
 
 /**
  * Поиск по каталогу на главной: блок #hero-search (строка поиска, сетка
@@ -40,11 +41,11 @@ class FormaroCatalogSearchComponent extends CBitrixComponent
                 return;
             }
 
-            $iblockId = (int)(CIBlock::GetList([], ['CODE' => 'cabinet_catalog', 'CHECK_PERMISSIONS' => 'N'])->Fetch()['ID'] ?? 0);
+            $iblockId = CatalogFilterService::getCatalogIblockId();
             $repo = new ProductRepository();
             $range = $repo->getPublicPriceRange();
 
-            $this->arResult['SECTION_GROUPS'] = $iblockId ? $this->loadSectionGroups($iblockId) : [];
+            $this->arResult['SECTION_GROUPS'] = CatalogFilterService::getSectionGroups();
             $this->arResult['PRICE_MIN'] = (int)floor($range['min']);
             $this->arResult['PRICE_MAX'] = (int)ceil($range['max']);
             $this->arResult['COLORS'] = $repo->getPublicPropertyValues('COLOR');
@@ -57,35 +58,5 @@ class FormaroCatalogSearchComponent extends CBitrixComponent
 
             $this->includeComponentTemplate();
         }
-    }
-
-    /**
-     * Корневые категории → их подкатегории, только допущенные к показу
-     * (UF_APPROVED), как и в каталоге на главной.
-     */
-    private function loadSectionGroups(int $iblockId): array
-    {
-        $groups = [];
-        $children = [];
-        $res = CIBlockSection::GetList(
-            ['LEFT_MARGIN' => 'ASC'],
-            ['IBLOCK_ID' => $iblockId, 'ACTIVE' => 'Y', 'GLOBAL_ACTIVE' => 'Y', 'UF_APPROVED' => 1, 'CHECK_PERMISSIONS' => 'N'],
-            false,
-            ['ID', 'NAME', 'DEPTH_LEVEL', 'IBLOCK_SECTION_ID']
-        );
-        while ($row = $res->Fetch()) {
-            if ((int)$row['DEPTH_LEVEL'] === 1) {
-                $groups[(int)$row['ID']] = ['ID' => (int)$row['ID'], 'NAME' => $row['NAME'], 'ITEMS' => []];
-            } elseif ((int)$row['DEPTH_LEVEL'] === 2) {
-                $children[(int)$row['IBLOCK_SECTION_ID']][] = ['ID' => (int)$row['ID'], 'NAME' => $row['NAME']];
-            }
-        }
-
-        foreach ($groups as $id => &$group) {
-            $group['ITEMS'] = $children[$id] ?? [];
-        }
-        unset($group);
-
-        return array_values($groups);
     }
 }

@@ -13170,3 +13170,50 @@ h1, h2, h3, h4, h5, h6,
 #product-gallery .favorite button:last-child svg {
   color: #dc3545;
 }
+
+/* Фильтр «Категории» (#filter: главная, избранное): корневая категория +
+   раскрываемые подкатегории. Поведение — js/catalog-common.js. */
+.filter .filter-row-categories .filter-cat {
+    position: relative;
+}
+.filter .filter-row-categories .filter-cat > label {
+    padding-right: 48px !important;
+}
+.filter .filter-row-categories .filter-cat-toggle {
+    position: absolute;
+    top: 4px;
+    right: 12px;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: none;
+    background: none;
+    color: #6c757d;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s;
+}
+.filter .filter-row-categories .filter-cat-toggle:hover {
+    color: #1976d2;
+}
+.filter .filter-row-categories .filter-cat.open > .filter-cat-toggle {
+    transform: rotate(180deg);
+}
+/* Подкатегории — со сдвигом вправо; галочка (svg) позиционирована
+   абсолютно от края label, поэтому сдвигаем и её. */
+.filter .filter-row-categories .filter-cat-children label {
+    padding-left: 54px !important;
+}
+.filter .filter-row-categories .filter-cat-children label svg {
+    left: 53px;
+}
+@media (max-width: 1199.98px) {
+    .filter .filter-row-categories .filter-cat-children label {
+        padding-left: 46px !important;
+    }
+    .filter .filter-row-categories .filter-cat-children label svg {
+        left: 45px;
+    }
+}

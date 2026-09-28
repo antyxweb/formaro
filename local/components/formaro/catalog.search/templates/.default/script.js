@@ -3,9 +3,8 @@
    Один поток данных (/local/ajax/catalog_grid.php: offset/limit + поиск и
    фильтр) и два представления: десктопная сетка #catalog-grid и мобильная
    карусель #catalog-search. Метки/цену со скидкой считает сервер
-   (ProductPricingService). Разметка карточки (.product-card) — та же, что
-   в статичной вёрстке, поэтому "В корзину"/избранное из scripts.js
-   работают как раньше (делегирование на body).
+   (ProductPricingService). Разметка карточки и поведение дерева категорий/
+   полей цены в фильтре — общие, js/catalog-common.js.
 
    Этот файл Битрикс подключает в <head> (script.js шаблона компонента), а
    jQuery, Flickity, bootstrap-slider, fancybox и scripts.js грузятся в
@@ -21,75 +20,16 @@
     var state = {query: {}, offset: 0, items: [], hasMore: false, loaded: false, loading: false, requestId: 0};
     var views = [];
 
-    /* ---------------- Разметка ---------------- */
+    /* ---------------- Разметка ----------------
+       Карточка товара и экранирование — общие, js/catalog-common.js
+       (подключён в footer.php, к DOMContentLoaded уже есть). */
 
     function escHtml(s) {
-        return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
-            return {'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c];
-        });
-    }
-
-    function fmtPrice(n) {
-        return Number(n || 0).toLocaleString('ru-RU');
-    }
-
-    function badgesHtml(badges) {
-        if (!badges || !badges.length) return '';
-        return '<div class="badges">' + badges.map(function (b) {
-            return '<small class="' + escHtml(b.class) + '">' + escHtml(b.text) + '</small><br/>';
-        }).join('') + '</div>';
-    }
-
-    function priceHtml(item) {
-        if (item.old_price) {
-            return '<s>' + fmtPrice(item.old_price) + '</s> ' +
-                '<b class="text-danger" data-price="' + item.price + '">' + fmtPrice(item.price) + '</b> <small>руб/шт.</small>';
-        }
-        return '<b class="text-danger" data-price="' + item.price + '">' + fmtPrice(item.price) + '</b> <small>руб/шт.</small>';
-    }
-
-    function stockHtml(item) {
-        if (item.stock > 0) return '<small>В наличии: ' + item.stock + ' шт.</small>';
-        if (item.is_preorder) return '<small>Под заказ</small>';
-        return '<small>Нет в наличии</small>';
+        return window.FormaroProductCard.escHtml(s);
     }
 
     function productCardHtml(item) {
-        var url = item.url || '#';
-        return (
-            '<div class="product-card">' +
-                '<div class="product-card__img">' +
-                    '<a href="' + escHtml(url) + '" class="embed-responsive embed-responsive-1by1" style="background-image: url(\'' + escHtml(item.image || '') + '\')"></a>' +
-                    badgesHtml(item.badges) +
-                    '<div class="favorite" data-product-id="' + Number(item.id) + '">' +
-                        '<button class="button-icon"><svg width="20" height="20"><use xlink:href="#icon-favorite-stroke"></use></svg></button>' +
-                        '<button class="button-icon d-none"><svg width="20" height="20"><use xlink:href="#icon-favorite"></use></svg></button>' +
-                    '</div>' +
-                '</div>' +
-                '<div class="product-card__info">' +
-                    '<a href="' + escHtml(url) + '"><h3 title="' + escHtml(item.name) + '">' + escHtml(item.name) + '</h3></a>' +
-                    '<div class="price mb-2">' + priceHtml(item) + '</div>' +
-                    '<div class="text-secondary">' +
-                        '<small>Артикул: ' + escHtml(item.sku) + '</small>' +
-                        stockHtml(item) +
-                    '</div>' +
-                '</div>' +
-                '<div class="product-card__actions">' +
-                    '<div class="cart-cnt">' +
-                        '<div class="buttons">' +
-                            '<button class="cart-cnt-plus"><svg width="20" height="20"><use xlink:href="#icon-arrow-up"></use></svg></button>' +
-                            '<button class="cart-cnt-minus"><svg width="20" height="20"><use xlink:href="#icon-arrow-down"></use></svg></button>' +
-                        '</div>' +
-                        '<input type="text" data-min="1" data-max="' + (item.stock || 0) + '" value="1">' +
-                    '</div>' +
-                    '<button class="cart-add f-button c-primary">В корзину</button>' +
-                    '<button class="cart-remove f-button c-gray text-secondary d-none">' +
-                        '<svg width="16" height="16"><use xlink:href="#icon-delete"></use></svg><span class="pl-2">Удалить</span>' +
-                    '</button>' +
-                '</div>' +
-                '<a href="#" class="stretched-link"></a>' +
-            '</div>'
-        );
+        return window.FormaroProductCard.html(item);
     }
 
     /* ---------------- Данные ---------------- */
@@ -467,62 +407,20 @@
 
     /* ---------------- Фильтр (#filter-popup) ---------------- */
 
-    function filterBounds(form) {
-        return {
-            min: parseInt(form.getAttribute('data-price-min'), 10) || 0,
-            max: parseInt(form.getAttribute('data-price-max'), 10) || 0
-        };
-    }
-
-    function checkedValues(form, name) {
-        return Array.prototype.map.call(form.querySelectorAll('input[name="' + name + '"]:checked'), function (el) {
-            return el.value;
-        });
-    }
-
-    /** Отмеченные категории: корневая целиком (сервер берёт её вместе с
-     *  подкатегориями) либо отдельные подкатегории, если корневая не отмечена. */
-    function selectedSections(form) {
-        var ids = [];
-        Array.prototype.forEach.call(form.querySelectorAll('.filter-cat'), function (cat) {
-            var parent = cat.querySelector(':scope > label input[name="sections"]');
-            if (parent && parent.checked) {
-                ids.push(parent.value);
-                return;
-            }
-            Array.prototype.forEach.call(cat.querySelectorAll('.filter-cat-children input[name="sections"]:checked'), function (el) {
-                ids.push(el.value);
-            });
-        });
-        return ids;
-    }
-
-    function setSliderValue(min, max) {
-        if (window.jQuery && jQuery.fn.slider) {
-            jQuery('#filterPrice').slider('setValue', [min, max]);
-        }
-    }
-
     function applyFilter(form) {
-        var bounds = filterBounds(form);
-        var priceMin = parseInt(form.querySelector('.filterPriceMin').value, 10);
-        var priceMax = parseInt(form.querySelector('.filterPriceMax').value, 10);
-        if (isNaN(priceMin) || priceMin < bounds.min) priceMin = bounds.min;
-        if (isNaN(priceMax) || priceMax > bounds.max) priceMax = bounds.max;
-        if (priceMin > priceMax) priceMin = priceMax;
-
-        var sections = selectedSections(form);
-        var colors = checkedValues(form, 'colors');
-        var sizes = checkedValues(form, 'sizes');
-        var priceActive = priceMin > bounds.min || priceMax < bounds.max;
+        var filter = window.FormaroCatalogFilter;
+        var price = filter.readPrice(form);
+        var sections = filter.selectedSections(form);
+        var colors = filter.checkedValues(form, 'colors');
+        var sizes = filter.checkedValues(form, 'sizes');
 
         state.query.sections = sections.join(',');
         state.query.colors = colors.join('|');
         state.query.sizes = sizes.join('|');
-        state.query.price_min = priceActive ? priceMin : '';
-        state.query.price_max = priceActive ? priceMax : '';
+        state.query.price_min = price.active ? price.min : '';
+        state.query.price_max = price.active ? price.max : '';
 
-        var count = sections.length + colors.length + sizes.length + (priceActive ? 1 : 0);
+        var count = sections.length + colors.length + sizes.length + (price.active ? 1 : 0);
         var badge = document.getElementById('hero-filter-count');
         if (badge) {
             badge.textContent = count;
@@ -545,49 +443,10 @@
         // Нативный reset сбросит поля к значениям из разметки уже после
         // этого события — применяем фильтр следующим тиком.
         setTimeout(function () {
-            var bounds = filterBounds(form);
-            setSliderValue(bounds.min, bounds.max);
+            var bounds = window.FormaroCatalogFilter.bounds(form);
+            window.FormaroCatalogFilter.setSliderValue(bounds.min, bounds.max);
             applyFilter(form);
         }, 0);
-    });
-
-    // Категории: стрелка раскрывает подкатегории; отметка корневой
-    // отмечает/снимает все её подкатегории, снятие подкатегории снимает
-    // корневую.
-    document.addEventListener('click', function (e) {
-        var toggle = e.target.closest && e.target.closest('.filter-cat-toggle');
-        if (!toggle) return;
-        e.preventDefault();
-        var cat = toggle.closest('.filter-cat');
-        cat.classList.toggle('open');
-        cat.querySelector('.filter-cat-children').classList.toggle('d-none', !cat.classList.contains('open'));
-        if (window.jQuery) jQuery('#filter').trigger('sticky_kit:recalc');
-    });
-
-    document.addEventListener('change', function (e) {
-        var input = e.target;
-        if (input.name !== 'sections') return;
-        var cat = input.closest('.filter-cat');
-        if (!cat) return;
-        var parent = cat.querySelector(':scope > label input');
-        var children = cat.querySelectorAll('.filter-cat-children input');
-        if (input === parent) {
-            Array.prototype.forEach.call(children, function (el) { el.checked = parent.checked; });
-        } else if (parent) {
-            parent.checked = children.length > 0 && Array.prototype.every.call(children, function (el) { return el.checked; });
-        }
-    });
-
-    // Ручной ввод цены → двигаем ползунки (обратное направление делает
-    // scripts.js: change на #filterPrice → инпуты).
-    document.addEventListener('change', function (e) {
-        if (!e.target.classList || !(e.target.classList.contains('filterPriceMin') || e.target.classList.contains('filterPriceMax'))) return;
-        var form = e.target.form;
-        if (!form || form.id !== 'filter') return;
-        var bounds = filterBounds(form);
-        var min = parseInt(form.querySelector('.filterPriceMin').value, 10);
-        var max = parseInt(form.querySelector('.filterPriceMax').value, 10);
-        setSliderValue(isNaN(min) ? bounds.min : min, isNaN(max) ? bounds.max : max);
     });
 
     /* ---------------- Старт ---------------- */

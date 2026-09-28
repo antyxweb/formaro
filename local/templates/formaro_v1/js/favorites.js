@@ -18,7 +18,9 @@
     var endpoint = '/local/ajax/favorites.php';
     var STORAGE_KEY = 'formaro_favorites';
 
-    var state = {authorized: false, sessid: '', ids: []};
+    var state = {authorized: false, sessid: '', ids: [], ready: false};
+    var readyCallbacks = [];
+    var changeCallbacks = [];
 
     function readLocal() {
         try {
@@ -89,6 +91,18 @@
         renderCount();
     }
 
+    function notifyChange(id, added) {
+        changeCallbacks.forEach(function (cb) { cb(state.ids.slice(), id, added); });
+    }
+
+    /** Итоговый список известен: с сервера (авторизованный) или из
+     *  localStorage (гость / сервер недоступен). */
+    function markReady() {
+        if (state.ready) return;
+        state.ready = true;
+        readyCallbacks.splice(0).forEach(function (cb) { cb(state.ids.slice()); });
+    }
+
     function applyServer(data) {
         if (!data) return;
         state.authorized = !!data.authorized;
@@ -109,6 +123,7 @@
         } else {
             writeLocal(state.ids);
         }
+        notifyChange(id, adding);
     }
 
     function init() {
@@ -116,19 +131,24 @@
         render();
 
         request('GET', {}, function (data) {
-            if (!data || !data.authorized) return;
+            if (!data || !data.authorized) {
+                markReady();
+                return;
+            }
             var guest = readLocal();
             if (!guest.length) {
                 applyServer(data);
+                markReady();
                 return;
             }
             request('POST', {sessid: data.sessid, action: 'merge', ids: guest}, function (merged) {
                 if (!merged) {
                     applyServer(data);
-                    return;
+                } else {
+                    writeLocal([]);
+                    applyServer(merged);
                 }
-                writeLocal([]);
-                applyServer(merged);
+                markReady();
             });
         });
 
@@ -162,6 +182,17 @@
             }).observe(document.body, {childList: true, subtree: true});
         }
     }
+
+    /* Для страницы избранного (formaro:favorites.list):
+       onReady(cb(ids)) — когда список окончательно известен;
+       onChange(cb(ids, id, added)) — после каждого клика по сердечку. */
+    window.FormaroFavorites = {
+        getIds: function () { return state.ids.slice(); },
+        onReady: function (cb) {
+            if (state.ready) cb(state.ids.slice()); else readyCallbacks.push(cb);
+        },
+        onChange: function (cb) { changeCallbacks.push(cb); }
+    };
 
     if (!$) return;
     $(init);
