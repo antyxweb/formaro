@@ -30,7 +30,7 @@ $this->setFrameMode(true);
                         <p class="text-secondary"><?=$arItem["PREVIEW_TEXT"]?></p>
                     </div>
                     <?if($arItem["PREVIEW_PICTURE"]["SRC"]):?>
-                        <div class="col-12 col-md-4 py-md-3 pr-md-0 order-1 order-md-2">
+                        <div class="col-12 col-md-4 py-md-3 pr-md-4 order-1 order-md-2">
                             <div class="embed-responsive embed-responsive-4by3" style="background-image: url('<?=$arItem["PREVIEW_PICTURE"]["SRC"]?>')"></div>
                         </div>
                     <?endif;?>
