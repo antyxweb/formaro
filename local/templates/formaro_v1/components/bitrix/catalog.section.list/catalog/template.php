@@ -18,7 +18,14 @@ if (empty($arResult['SECTIONS_LIST'])) {
 }
 ?>
 
-<section class="section light-gray-stripe">
+<?
+// SECTION_CLASS — класс секции (по умолчанию серая полоса, как на главной);
+// HIDE_HEADER = Y — без заголовка блока (корень /catalog/: заголовок уже
+// в шапке страницы).
+$sectionClass = (string)($arParams['SECTION_CLASS'] ?? '') !== '' ? $arParams['SECTION_CLASS'] : 'light-gray-stripe';
+?>
+<section class="section <?=htmlspecialcharsbx($sectionClass)?>">
+    <?if(($arParams['HIDE_HEADER'] ?? 'N') !== 'Y'):?>
     <div class="section-header mb-5">
         <div class="container-fluid">
             <div class="d-flex align-items-center">
@@ -46,6 +53,7 @@ if (empty($arResult['SECTIONS_LIST'])) {
             <?endif;?>
         </div>
     </div>
+    <?endif;?>
 
     <div class="section-body">
         <div class="container-fluid">

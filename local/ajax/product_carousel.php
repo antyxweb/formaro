@@ -1,9 +1,10 @@
 <?php
 /**
  * AJAX-подгрузка каруселей formaro:product.carousel по слайду «+».
- * GET mode (DISCOUNT|NEW), offset, limit, partner (страница партнёра —
- * только его товары) → JSON {items:[...], hasMore:bool}; строки items — в
- * формате catalog_grid.php (для FormaroProductCard.html).
+ * GET mode (DISCOUNT|NEW|VIEWED), offset, limit, partner (только товары
+ * партнёра), section (категория с подкатегориями), exclude (id товара),
+ * ids (для VIEWED, через запятую) → JSON {items:[...], hasMore:bool};
+ * строки items — в формате catalog_grid.php (для FormaroProductCard.html).
  *
  * Только чтение — без check_bitrix_sessid(), как catalog_grid.php.
  */
@@ -24,7 +25,12 @@ if (!Loader::includeModule('formaro.cabinet')) {
 
 $page = ProductCarouselService::load(
     (string)($_GET['mode'] ?? ''),
-    max(0, (int)($_GET['partner'] ?? 0)),
+    [
+        'partner_id' => (int)($_GET['partner'] ?? 0),
+        'section_id' => (int)($_GET['section'] ?? 0),
+        'exclude_ids' => [(int)($_GET['exclude'] ?? 0)],
+        'ids' => explode(',', (string)($_GET['ids'] ?? '')),
+    ],
     max(0, (int)($_GET['offset'] ?? 0)),
     min(48, max(1, (int)($_GET['limit'] ?? 12)))
 );

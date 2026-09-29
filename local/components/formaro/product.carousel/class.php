@@ -10,9 +10,12 @@ use Formaro\Cabinet\Service\ProductCarouselService;
  * Витринная карусель товаров cabinet_catalog (главная, страница партнёра).
  *
  * MODE — подборка, см. ProductCarouselService: DISCOUNT ("Выгодные
- * предложения") или NEW ("Новые поступления"). Сервер отдаёт первые COUNT
- * товаров; если есть ещё — последний слайд «+» подгружает следующие по
- * COUNT через /local/ajax/product_carousel.php (script.js шаблона).
+ * предложения"), NEW ("Новые поступления") или VIEWED ("Просмотренные
+ * товары" — список в браузере, карусель целиком строит script.js).
+ * PARTNER_ID / SECTION_ID / EXCLUDE_ID — ограничения подборки (страница
+ * партнёра, «Товары продавца», «Похожие товары», категория каталога).
+ * Сервер отдаёт первые COUNT товаров; если есть ещё — последний слайд «+»
+ * подгружает следующие по COUNT через /local/ajax/product_carousel.php.
  */
 class FormaroProductCarouselComponent extends CBitrixComponent
 {
@@ -26,6 +29,8 @@ class FormaroProductCarouselComponent extends CBitrixComponent
         $params['SECTION_CLASS'] = (string)($params['SECTION_CLASS'] ?? '');
         // Страница партнёра: только его товары и его скидки.
         $params['PARTNER_ID'] = max(0, (int)($params['PARTNER_ID'] ?? 0));
+        $params['SECTION_ID'] = max(0, (int)($params['SECTION_ID'] ?? 0));
+        $params['EXCLUDE_ID'] = max(0, (int)($params['EXCLUDE_ID'] ?? 0));
         $params['CACHE_TIME'] = isset($params['CACHE_TIME']) ? (int)$params['CACHE_TIME'] : 600;
 
         return $params;
@@ -42,11 +47,15 @@ class FormaroProductCarouselComponent extends CBitrixComponent
                 return;
             }
 
-            $page = ProductCarouselService::load($this->arParams['MODE'], $this->arParams['PARTNER_ID'], 0, $this->arParams['COUNT']);
+            // Просмотренные — только в браузере: сервер рисует пустую
+            // скрытую секцию, товары подгружает script.js.
+            $page = $this->arParams['MODE'] === ProductCarouselService::MODE_VIEWED
+                ? ['items' => [], 'hasMore' => false]
+                : ProductCarouselService::load($this->arParams['MODE'], $this->getScope(), 0, $this->arParams['COUNT']);
             $this->arResult['ITEMS'] = $page['items'];
             $this->arResult['HAS_MORE'] = $page['hasMore'];
 
-            if (!$page['items']) {
+            if (!$page['items'] && $this->arParams['MODE'] !== ProductCarouselService::MODE_VIEWED) {
                 $this->abortResultCache();
             }
 
@@ -60,5 +69,14 @@ class FormaroProductCarouselComponent extends CBitrixComponent
 
             $this->includeComponentTemplate();
         }
+    }
+
+    private function getScope(): array
+    {
+        return [
+            'partner_id' => $this->arParams['PARTNER_ID'],
+            'section_id' => $this->arParams['SECTION_ID'],
+            'exclude_ids' => $this->arParams['EXCLUDE_ID'] ? [$this->arParams['EXCLUDE_ID']] : [],
+        ];
     }
 }

@@ -7,6 +7,7 @@
      скидкой уже посчитал сервер, см. ProductPricingService).
    window.FormaroCatalogFilter — чтение формы фильтра (#filter): категории,
      цена, чекбоксы; плюс поведение дерева категорий и полей цены.
+   window.FormaroViewed — просмотренные товары (localStorage).
 
    Подключается в footer.php синхронно, до DOMContentLoaded — скрипты
    компонентов, которые грузятся в <head>, пользуются им уже после этого
@@ -111,6 +112,38 @@
     }
 
     window.FormaroProductCard = {html: productCardHtml, escHtml: escHtml, skeletonHtml: skeletonHtml, skeletonsHtml: skeletonsHtml};
+
+    /* ---------------- Просмотренные товары ---------------- */
+
+    /* Список id последних открытых товаров — в localStorage браузера (как
+       история поиска у гостя). Пишет детальная товара (formaro:catalog.element),
+       читает карусель «Просмотренные товары» (formaro:product.carousel,
+       MODE=VIEWED). */
+    var VIEWED_KEY = 'formaro_viewed';
+    var VIEWED_MAX = 20;
+
+    function readViewed() {
+        try {
+            var list = JSON.parse(window.localStorage.getItem(VIEWED_KEY) || '[]');
+            return Array.isArray(list) ? list.map(Number).filter(Boolean) : [];
+        } catch (e) {
+            return [];
+        }
+    }
+
+    window.FormaroViewed = {
+        list: readViewed,
+        /** Товар открыт — в начало списка. */
+        add: function (id) {
+            id = Number(id);
+            if (!id) return;
+            var list = readViewed().filter(function (x) { return x !== id; });
+            list.unshift(id);
+            try {
+                window.localStorage.setItem(VIEWED_KEY, JSON.stringify(list.slice(0, VIEWED_MAX)));
+            } catch (e) { /* приватный режим — просто не запоминаем */ }
+        }
+    };
 
     /* ---------------- Фильтр ---------------- */
 

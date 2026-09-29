@@ -62,12 +62,12 @@ class ProductRepository
      *  $limit (используется ровно так — "покажи ещё N"), поэтому считаем
      *  номер страницы напрямую, без честного произвольного OFFSET
      *  (в классическом API инфоблоков его нет, только iNumPage/nPageSize). */
-    public function listPublic(int $limit, int $offset = 0, array $filter = []): array
+    public function listPublic(int $limit, int $offset = 0, array $filter = [], string $sort = ''): array
     {
         $rows = [];
         $page = intdiv($offset, max(1, $limit)) + 1;
         $res = CIBlockElement::GetList(
-            ['ID' => 'DESC'],
+            self::publicOrder($sort),
             array_merge($filter, ['IBLOCK_ID' => $this->iblockId, 'ACTIVE' => 'Y', 'CHECK_PERMISSIONS' => 'N']),
             false,
             ['nPageSize' => $limit, 'iNumPage' => $page],
@@ -78,6 +78,28 @@ class ProductRepository
         }
 
         return $rows;
+    }
+
+    /** Сортировки витрины (каталог, поиск на главной):
+     *  popular — порядок, заданный площадкой (SORT), затем новые;
+     *  new — сначала новинки; cheap/expensive — по базовой цене (без
+     *  учёта скидок, как и фильтр по цене). Иначе — последние добавленные. */
+    public const PUBLIC_SORTS = ['popular', 'new', 'cheap', 'expensive'];
+
+    public static function publicOrder(string $sort): array
+    {
+        switch ($sort) {
+            case 'popular':
+                return ['SORT' => 'ASC', 'ID' => 'DESC'];
+            case 'new':
+                return ['DATE_CREATE' => 'DESC', 'ID' => 'DESC'];
+            case 'cheap':
+                return ['PROPERTY_PRICE' => 'ASC', 'ID' => 'DESC'];
+            case 'expensive':
+                return ['PROPERTY_PRICE' => 'DESC', 'ID' => 'DESC'];
+            default:
+                return ['ID' => 'DESC'];
+        }
     }
 
     /** Сколько всего активных товаров публично — узнать, есть ли смысл

@@ -27,8 +27,8 @@ $arUrlRewrite=array (
   5 => 
   array (
     'CONDITION' => '#^/catalog/#',
-    'RULE' => '&$1',
-    'ID' => 'bitrix:catalog.section',
+    'RULE' => '',
+    'ID' => 'formaro:catalog',
     'PATH' => '/catalog/index.php',
     'SORT' => 100,
   ),

@@ -9,7 +9,7 @@ $arComponentParameters = [
             'PARENT' => 'BASE',
             'NAME' => 'Подборка',
             'TYPE' => 'LIST',
-            'VALUES' => ['DISCOUNT' => 'Выгодные предложения (со скидкой)', 'NEW' => 'Новые поступления'],
+            'VALUES' => ['DISCOUNT' => 'Выгодные предложения (со скидкой)', 'NEW' => 'Новые поступления', 'VIEWED' => 'Просмотренные товары'],
             'DEFAULT' => 'NEW',
         ],
         'COUNT' => ['PARENT' => 'BASE', 'NAME' => 'Количество товаров', 'TYPE' => 'STRING', 'DEFAULT' => '12'],
@@ -18,6 +18,8 @@ $arComponentParameters = [
         'CATALOG_URL' => ['PARENT' => 'VISUAL', 'NAME' => 'Ссылка "Перейти в каталог"', 'TYPE' => 'STRING', 'DEFAULT' => '/catalog/'],
         'SECTION_CLASS' => ['PARENT' => 'VISUAL', 'NAME' => 'Доп. CSS-класс секции', 'TYPE' => 'STRING', 'DEFAULT' => ''],
         'PARTNER_ID' => ['PARENT' => 'BASE', 'NAME' => 'ID партнёра (только его товары)', 'TYPE' => 'STRING', 'DEFAULT' => ''],
+        'SECTION_ID' => ['PARENT' => 'BASE', 'NAME' => 'ID категории (товары категории и подкатегорий)', 'TYPE' => 'STRING', 'DEFAULT' => ''],
+        'EXCLUDE_ID' => ['PARENT' => 'BASE', 'NAME' => 'ID товара, который не показывать', 'TYPE' => 'STRING', 'DEFAULT' => ''],
         'CACHE_TIME' => ['DEFAULT' => 600],
     ],
 ];

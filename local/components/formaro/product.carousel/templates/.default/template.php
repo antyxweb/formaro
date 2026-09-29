@@ -7,22 +7,27 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
 
 // Секция целиком не выводится, если подборка пуста (например, нет
 // активных скидок) — пустая карусель с заголовком выглядела бы сломанной.
-if (empty($arResult['ITEMS'])) {
+// Просмотренные товары приходят из браузера: секция скрыта, пока
+// script.js их не загрузит.
+$isViewed = $arParams['MODE'] === 'VIEWED';
+if (empty($arResult['ITEMS']) && !$isViewed) {
     return;
 }
 
 ?>
-<section class="section <?= htmlspecialcharsbx($arParams['SECTION_CLASS']) ?>">
+<section class="section <?= htmlspecialcharsbx($arParams['SECTION_CLASS']) ?><?= $isViewed ? ' d-none' : '' ?>">
     <div class="section-header mb-5">
         <div class="container-fluid">
             <div class="d-flex align-items-center">
                 <h3 class="h2"><span class="text-primary"><?= htmlspecialcharsbx($arParams['TITLE_ACCENT']) ?></span> <?= htmlspecialcharsbx($arParams['TITLE']) ?></h3>
+                <?php if ($arParams['CATALOG_URL'] !== ''): ?>
                 <a href="<?= htmlspecialcharsbx($arParams['CATALOG_URL']) ?>" class="f-button c-gray ml-auto">
                     <svg width="16" height="16" class="d-md-none">
                         <use xlink:href="#icon-arrow-control"></use>
                     </svg>
                     <span class="pl-2 text-uppercase d-none d-md-inline">Перейти в каталог</span>
                 </a>
+                <?php endif; ?>
             </div>
         </div>
     </div>
@@ -31,6 +36,8 @@ if (empty($arResult['ITEMS'])) {
             <div class="main-carousel product-carousel js-product-carousel"
                  data-mode="<?= htmlspecialcharsbx($arParams['MODE']) ?>"
                  data-partner-id="<?= (int)$arParams['PARTNER_ID'] ?>"
+                 data-section-id="<?= (int)$arParams['SECTION_ID'] ?>"
+                 data-exclude-id="<?= (int)$arParams['EXCLUDE_ID'] ?>"
                  data-page-size="<?= (int)$arParams['COUNT'] ?>"
                  data-offset="<?= count($arResult['ITEMS']) ?>">
                 <?php foreach ($arResult['ITEMS'] as $item): ?>

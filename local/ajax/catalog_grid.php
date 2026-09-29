@@ -5,7 +5,8 @@
  * JSON {items:[...], hasMore:bool, total:int}. Необязательные параметры
  * поиска/фильтра (компонент formaro:catalog.search): q, sections (id через
  * запятую), price_min, price_max, colors, sizes (через "|"), partner
- * (страница партнёра — только его товары). Метки/цена со скидкой считает
+ * (страница партнёра — только его товары), sort (popular|new|cheap|expensive
+ * — каталог, ProductRepository::publicOrder()). Метки/цена со скидкой считает
  * ProductPricingService (общая логика с order-detail.js:
  * autoApplyBestDiscount).
  *
@@ -46,7 +47,8 @@ $filter = ProductRepository::buildPublicFilter([
     'partner_id' => (int)($_GET['partner'] ?? 0),
 ]);
 
-$products = $productRepo->listPublic($limit, $offset, $filter);
+$sort = in_array($_GET['sort'] ?? '', ProductRepository::PUBLIC_SORTS, true) ? $_GET['sort'] : '';
+$products = $productRepo->listPublic($limit, $offset, $filter, $sort);
 $activeDiscounts = $discountRepo->listActive();
 
 $items = array_map(static function (array $p) use ($activeDiscounts) {
