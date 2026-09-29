@@ -4,13 +4,14 @@
  *
  * GET ids (через запятую, порядок — последние добавленные первыми),
  *     sort (added|new|cheap|expensive), offset, limit,
- *     фильтр как у catalog_grid.php: sections, price_min, price_max.
- * → {items, total, hasMore, facets: {sections[], price_min, price_max}}
+ *     фильтр как у catalog_grid.php: sections, price_min, price_max,
+ *     colors, sizes (через "|").
+ * → {items, total, hasMore, facets: {sections[], price_min, price_max, colors[], sizes[]}}
  *
  * ids приходят от клиента (у гостя избранное только в localStorage);
  * отдаются лишь публичные данные активных товаров, поэтому без
  * авторизации. facets считаются по всему избранному без фильтра — какие
- * категории и диапазон цен показывать в фильтре.
+ * категории, диапазон цен, цвета и размеры показывать в фильтре.
  */
 define('NO_KEEP_STATISTIC', true);
 define('NOT_CHECK_PERMISSIONS', true);
@@ -19,6 +20,7 @@ require($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_before.
 use Bitrix\Main\Loader;
 use Formaro\Cabinet\Repository\DiscountRepository;
 use Formaro\Cabinet\Repository\ProductRepository;
+use Formaro\Cabinet\Service\CatalogFilterService;
 use Formaro\Cabinet\Service\ProductPricingService;
 
 header('Content-Type: application/json; charset=utf-8');
@@ -46,7 +48,7 @@ $respond = static function (array $items, int $total, array $facets) use ($offse
     die();
 };
 
-$emptyFacets = ['sections' => [], 'price_min' => 0, 'price_max' => 0];
+$emptyFacets = ['sections' => [], 'price_min' => 0, 'price_max' => 0, 'colors' => [], 'sizes' => []];
 if (!$ids) {
     $respond([], 0, $emptyFacets);
 }
@@ -61,10 +63,20 @@ if (!$all) {
 }
 $sectionIds = [];
 $prices = [];
+$colors = [];
+$sizes = [];
 foreach ($all as $p) {
     $sectionIds = array_merge($sectionIds, $p['category_ids']);
     $prices[] = $p['price'];
+    if (trim($p['color']) !== '') {
+        $colors[] = trim($p['color']);
+    }
+    if (trim($p['size']) !== '') {
+        $sizes[] = trim($p['size']);
+    }
 }
+$colors = array_values(array_unique($colors));
+sort($colors, SORT_STRING | SORT_FLAG_CASE);
 $sectionIds = array_values(array_unique($sectionIds));
 // Корневые категории тоже нужны — в фильтре товар из подкатегории
 // показывается внутри своей корневой.
@@ -80,13 +92,18 @@ $facets = [
     'sections' => array_values(array_unique($sectionIds)),
     'price_min' => (int)floor(min($prices)),
     'price_max' => (int)ceil(max($prices)),
+    'colors' => $colors,
+    'sizes' => CatalogFilterService::sortSizes(array_values(array_unique($sizes))),
 ];
 
 // Выборка с фильтром.
+$csv = static fn(string $key, string $sep) => array_filter(explode($sep, (string)($_GET[$key] ?? '')), 'strlen');
 $filter = ProductRepository::buildPublicFilter([
-    'sections' => array_filter(explode(',', (string)($_GET['sections'] ?? '')), 'strlen'),
+    'sections' => $csv('sections', ','),
     'price_min' => $_GET['price_min'] ?? '',
     'price_max' => $_GET['price_max'] ?? '',
+    'colors' => $csv('colors', '|'),
+    'sizes' => $csv('sizes', '|'),
 ]);
 $filter['ID'] = $ids;
 $products = $productRepo->findPublic($filter, ['ID' => 'ASC'], FAVORITES_MAX);

@@ -81,6 +81,22 @@ $checkboxRow = static function (string $value, string $label): string {
                                     </div>
                                 </div>
                             </div>
+
+                            <?php // Цвета и размеры — из того, что есть в избранном (заполняет script.js). ?>
+                            <div class="filter-row collapse-row d-none" id="favorites-filter-colors" data-name="colors">
+                                <div class="filter-row-title d-flex align-items-center py-2 py-lg-3 px-3 px-lg-4">
+                                    <h6 class="mr-auto mb-0">Цвет</h6>
+                                    <svg width="20" height="20"><use xlink:href="#icon-arrow-up"></use></svg>
+                                </div>
+                                <div class="filter-row-list py-2"></div>
+                            </div>
+                            <div class="filter-row collapse-row d-none" id="favorites-filter-sizes" data-name="sizes">
+                                <div class="filter-row-title d-flex align-items-center py-2 py-lg-3 px-3 px-lg-4">
+                                    <h6 class="mr-auto mb-0">Размеры</h6>
+                                    <svg width="20" height="20"><use xlink:href="#icon-arrow-up"></use></svg>
+                                </div>
+                                <div class="filter-row-list py-2"></div>
+                            </div>
                         </div>
 
                         <div class="d-flex">

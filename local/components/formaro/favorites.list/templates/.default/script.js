@@ -37,7 +37,31 @@
     }
 
     function hasFilter() {
-        return !!(state.query.sections || state.query.price_min !== '' && state.query.price_min != null);
+        return !!(state.query.sections || state.query.colors || state.query.sizes
+            || state.query.price_min !== '' && state.query.price_min != null);
+    }
+
+    /** Группа чекбоксов (цвет/размер) — разметка как у фильтра на главной
+     *  (formaro:catalog.search): первые VISIBLE_OPTIONS видны, остальные —
+     *  по «Показать все» (обработчик в scripts.js). */
+    var VISIBLE_OPTIONS = 8;
+
+    function fillOptions(row, values) {
+        if (!row) return;
+        var escHtml = window.FormaroProductCard.escHtml;
+        var name = row.getAttribute('data-name');
+        var html = values.map(function (value, i) {
+            return '<label class="' + (i >= VISIBLE_OPTIONS ? 'collapse-list d-none ' : '') + 'px-3 px-lg-4 py-2 mb-0">' +
+                '<input type="checkbox" name="' + name + '" value="' + escHtml(value) + '">' +
+                '<svg width="20" height="20"><use xlink:href="#icon-checkbox-tick"></use></svg>' +
+                '<span>' + escHtml(value) + '</span>' +
+                '</label>';
+        }).join('');
+        if (values.length > VISIBLE_OPTIONS) {
+            html += '<a href="javascript:void(0);" class="d-block px-3 px-lg-4 py-2"><span>Показать все</span><span class="d-none">Свернуть</span></a>';
+        }
+        row.querySelector('.filter-row-list').innerHTML = html;
+        show(row, values.length > 0);
     }
 
     function setTotal(total) {
@@ -75,6 +99,8 @@
             }
         });
         show(el.categories, anyCategory);
+        fillOptions(el.colors, facets.colors || []);
+        fillOptions(el.sizes, facets.sizes || []);
 
         var min = Math.floor(facets.price_min || 0);
         var max = Math.max(min + 1, Math.ceil(facets.price_max || 0));
@@ -177,6 +203,8 @@
         var filter = window.FormaroCatalogFilter;
         var price = filter.readPrice(el.form);
         state.query.sections = filter.selectedSections(el.form).join(',');
+        state.query.colors = filter.checkedValues(el.form, 'colors').join('|');
+        state.query.sizes = filter.checkedValues(el.form, 'sizes').join('|');
         state.query.price_min = price.active ? price.min : '';
         state.query.price_max = price.active ? price.max : '';
         if (window.jQuery && jQuery.fancybox) jQuery.fancybox.close();
@@ -222,6 +250,8 @@
             form: document.getElementById('filter'),
             filterWrap: document.getElementById('favorites-filter-wrap'),
             categories: document.getElementById('favorites-filter-categories'),
+            colors: document.getElementById('favorites-filter-colors'),
+            sizes: document.getElementById('favorites-filter-sizes'),
             content: document.getElementById('favorites-content'),
             options: document.getElementById('favorites-options'),
             total: document.getElementById('favorites-total'),
