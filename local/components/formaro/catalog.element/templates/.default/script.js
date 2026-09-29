@@ -4,9 +4,11 @@
    - Переход на вариант (цвет/размер, .js-product-variant) — без перезагрузки:
      загружаем страницу варианта, заменяем #product-detail, заголовок,
      хлебные крошки, <title> и адрес (history.pushState); «Назад» в
-     браузере возвращает предыдущий вариант так же. Галерею (Flickity) и
-     залипание блоков (sticky-kit) scripts.js включает при загрузке —
-     для новой разметки включаем заново с теми же настройками.
+     браузере возвращает предыдущий вариант так же. Галерею (Flickity)
+     scripts.js включает при загрузке — для новой разметки включаем заново.
+   - Залипание блока цены и сайдбара — CSS sticky (style.css, класс
+     is-sticky), только если блок целиком помещается в окно; sticky-kit,
+     который включает scripts.js, отключаем — он дёргал блоки.
 
    Файл подключается в <head>, jQuery — в конце body: старт на DOMContentLoaded. */
 document.addEventListener('DOMContentLoaded', function () {
@@ -31,14 +33,15 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    function stick(on) {
-        if (!$.fn.stick_in_parent) return;
-        if (on) {
-            $('#product-option').stick_in_parent({offset_top: 60});
-            $('#product-sidebar').stick_in_parent({});
-        } else {
-            $('#product-option, #product-sidebar').trigger('sticky_kit:detach');
-        }
+    var STICKY_TOP = 60; // как top в style.css
+
+    function updateSticky() {
+        ['product-option', 'product-sidebar'].forEach(function (id) {
+            var el = document.getElementById(id);
+            if (!el) return;
+            if ($.fn.stick_in_parent) $(el).trigger('sticky_kit:detach');
+            el.classList.toggle('is-sticky', el.offsetHeight + STICKY_TOP <= window.innerHeight);
+        });
     }
 
     /** Заголовок как у scripts.js: первое слово — акцентом. */
@@ -66,7 +69,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
-            stick(false);
             if ($.fn.flickity) $('.product-gallery-carousel').flickity('destroy');
             root.parentNode.replaceChild(document.importNode(next, true), root);
             root = document.getElementById('product-detail');
@@ -80,7 +82,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             if (push) history.pushState({productUrl: url}, '', url);
             initGallery();
-            stick(true);
+            updateSticky();
             if (window.FormaroViewed) window.FormaroViewed.add(root.getAttribute('data-product-id'));
         }).fail(function () {
             window.location.href = url;
@@ -96,6 +98,18 @@ document.addEventListener('DOMContentLoaded', function () {
         e.preventDefault();
         if (link.querySelector('.border-primary')) return; // уже открыт
         load(link.href, true);
+    });
+
+    // scripts.js включает sticky-kit при загрузке — отключаем после него.
+    if (document.readyState === 'complete') {
+        updateSticky();
+    } else {
+        window.addEventListener('load', updateSticky);
+    }
+    var resizeTimer = null;
+    window.addEventListener('resize', function () {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(updateSticky, 150);
     });
 
     history.replaceState({productUrl: window.location.href}, '', window.location.href);

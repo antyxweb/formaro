@@ -9950,6 +9950,9 @@ body.compensate-for-scrollbar {
 }
 html, body {
   overflow-x: hidden;
+  /* clip, а не hidden: hidden делает body контейнером прокрутки, и
+     position: sticky внутри страницы перестаёт работать (карточка товара). */
+  overflow-x: clip;
   width: 100vw;
   min-height: 100%;
 }

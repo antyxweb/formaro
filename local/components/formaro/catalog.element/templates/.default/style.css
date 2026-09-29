@@ -1,0 +1,12 @@
+/* Залипание блока цены/вариантов и сайдбара «О продавце» — CSS sticky
+   вместо sticky-kit из scripts.js (тот дёргал блоки: у колонки сайдбара
+   отступ pt-5, блок цены почти равен высоте галереи). Класс is-sticky
+   ставит script.js, только если блок помещается в окно. */
+@media (min-width: 1200px) {
+    #product-option.is-sticky,
+    #product-sidebar.is-sticky {
+        position: -webkit-sticky;
+        position: sticky;
+        top: 60px;
+    }
+}
