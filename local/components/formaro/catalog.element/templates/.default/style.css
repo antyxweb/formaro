@@ -9,3 +9,17 @@
         top: 60px;
     }
 }
+
+/* Фото галереи — во всю высоту слайда (ширину слайда шаблон считает по
+   пропорциям фото), и маленькие картинки растягиваются. На узком экране
+   слайд не шире экрана — фото вписывается целиком. */
+#product-gallery .product-gallery-carousel .carousel-cell,
+#product-gallery .product-gallery-carousel .carousel-cell a {
+    max-width: 100%;
+}
+#product-gallery .product-gallery-carousel .carousel-cell a img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
