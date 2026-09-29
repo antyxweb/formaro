@@ -50,7 +50,7 @@ if (!$hasSidebar) {
                 "DISPLAY_PREVIEW_TEXT" => "Y",	// Выводить текст анонса
                 "DISPLAY_TOP_PAGER" => "N",	// Выводить над списком
                 "FIELD_CODE" => array(	// Поля
-                    0 => "DETAIL_PICTURE",
+                    0 => "",
                     1 => "",
                 ),
                 "FILTER_NAME" => "arrFilterPartner",	// Фильтр

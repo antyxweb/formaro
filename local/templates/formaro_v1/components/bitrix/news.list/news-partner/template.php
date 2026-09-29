@@ -19,11 +19,6 @@ $this->setFrameMode(true);
     ?>
     <div class="partners-card mb-5" id="<?=$this->GetEditAreaId($arItem['ID']);?>">
 
-        <?if($arItem["DETAIL_PICTURE"]["SRC"]):?>
-            <div class="partners-card__img">
-                <div class="embed-responsive embed-responsive-16by9" style="background-image: url('<?=$arItem["DETAIL_PICTURE"]["SRC"]?>')"></div>
-            </div>
-        <?endif;?>
         <div class="row mx-0">
             <div class="col-12 col-md-8 partners-card__info order-2 order-md-1">
                 <h3><?=$arItem["NAME"]?></h3>
