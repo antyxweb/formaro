@@ -13,7 +13,7 @@
 $this->setFrameMode(true);
 ?>
 
-<div class="news-gallery-wrap col-12 <?if($arResult['PROPERTIES']['CATALOG_SECTION_ID']['VALUE'] || $arResult['PROPERTIES']['PARTNER_ID']['VALUE']):?>col-xl-8<?endif;?>">
+<div class="news-gallery-wrap col-12 <?if($arResult['PROPERTIES']['PARTNER_ID']['VALUE'] || $arResult['PROPERTIES']['CATALOG_SECTIONS']['VALUE'] || $arResult['PROPERTIES']['CATALOG_PRODUCTS']['VALUE']):?>col-xl-8<?endif;?>">
     <?if($arParams["DISPLAY_PICTURE"]!="N" && is_array($arResult["DETAIL_PICTURE"])):?>
         <div class="news-card__img">
             <div class="embed-responsive embed-responsive-16by9" style="background-image: url('<?=$arResult["DETAIL_PICTURE"]["SRC"]?>')"></div>

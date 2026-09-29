@@ -13,6 +13,14 @@
 ?>
 
 
+<?php
+$hasSidebar = $arResult['PROPERTIES']['PARTNER_ID']['VALUE']
+    || !empty($arResult['PROPERTIES']['CATALOG_SECTIONS']['VALUE'])
+    || !empty($arResult['PROPERTIES']['CATALOG_PRODUCTS']['VALUE']);
+if (!$hasSidebar) {
+    return;
+}
+?>
 <div class="news-sidebar-wrap col-12 col-xl-4">
     <div id="news-sidebar">
 
@@ -83,162 +91,22 @@
             );?>
         <?php endif;?>
 
-        <?php if($arResult['PROPERTIES']['CATALOG_SECTIONS_ID']['VALUE']):?>
-            <div class="category-list mb-5">
-                <div class="category-item">
-                    <div class="bg-cat-img" style="background-image: url('/upload/cats/1.jpg')"></div>
-                    <div class="cat-content">
-                        <a href="/html/catalog.html" _href="#"><h3 class="mb-4">Спецодежда</h3></a>
-
-                        <div class="cat-content-wrap mb-2">
-                            <ul>
-                                <li class="sect"><a href="/html/section.html" _href="#" class="dark_link">Ветрозащитная одежда&nbsp;<span>128</span></a></li>
-                                <li class="sect"><a href="/html/section.html" _href="#" class="dark_link">Влагозащитная одежда&nbsp;<span>170</span></a></li>
-                                <li class="sect"><a href="/html/section.html" _href="#" class="dark_link">Зимняя спецодежда&nbsp;<span>230</span></a></li>
-                                <li class="sect"><a href="/html/section.html" _href="#" class="dark_link">Кислотощелочестойкая одежда&nbsp;<span>9</span></a></li>
-                                <li class="sect"><a href="/html/section.html" _href="#" class="dark_link">Летняя спецодежда&nbsp;<span>288</span></a></li>
-                                <li class="sect"><a href="/html/section.html" _href="#" class="dark_link">Одежда для сварщиков и металлургов&nbsp;<span>74</span></a></li>
-                                <li class="sect"><a href="/html/section.html" _href="#" class="dark_link">Одежда химзащиты&nbsp;<span>10</span></a></li>
-                                <li class="sect"><a href="/html/section.html" _href="#" class="dark_link">Рабочие халаты&nbsp;<span>40</span></a></li>
-                                <li class="sect"><a href="/html/section.html" _href="#" class="dark_link">Разгрузочные и сигнальные жилеты&nbsp;<span>6</span></a></li>
-                                <li class="sect"><a href="/html/section.html" _href="#" class="dark_link">Сигнальная одежда&nbsp;<span>60</span></a></li>
-                                <li class="sect"><a href="/html/section.html" _href="#" class="dark_link">Рабочие халаты&nbsp;<span>40</span></a></li>
-                                <li class="sect"><a href="/html/section.html" _href="#" class="dark_link">Разгрузочные и сигнальные жилеты&nbsp;<span>6</span></a></li>
-                                <li class="sect"><a href="/html/section.html" _href="#" class="dark_link">Сигнальная одежда&nbsp;<span>60</span></a></li>
-                                <li class="sect"><a href="/html/section.html" _href="#" class="dark_link">Рабочие халаты&nbsp;<span>40</span></a></li>
-                                <li class="sect"><a href="/html/section.html" _href="#" class="dark_link">Разгрузочные и сигнальные жилеты&nbsp;<span>6</span></a></li>
-                                <li class="sect"><a href="/html/section.html" _href="#" class="dark_link">Сигнальная одежда&nbsp;<span>60</span></a></li>
-                            </ul>
-                        </div>
-                        <ul>
-                            <li class="sect"><a href="/html/section.html" _href="/catalog/obuv/letnyaya_rabochaya_obuv/" class="text-primary"><u>Все товары</u></a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        <?php endif;?>
-
-        <?php if($arResult['PROPERTIES']['CATALOG_PRODUCTS_ID']['VALUE']):?>
-            <h5 class="mb-0" style="height: 60px">Товары из новости</h5>
-            <div id="catalog-grid" class="row product-list d-flex flex-wrap mb-5">
-
-                <div class="product-item col-sm-6 col-md-4 col-xl-6">
-                    <div class="product-card">
-                        <div class="product-card__img">
-                            <a href="/html/product-detail.html" class="embed-responsive embed-responsive-1by1" style="background-image: url('/upload/products/1.jpeg')"></a>
-                            <div class="badges">
-                                <small class="bg-success">новинка</small><br/>
-                                <small class="bg-danger">-15%</small><br/>
-                            </div>
-                            <div class="favorite">
-                                <button class="button-icon">
-                                    <svg width="20" height="20">
-                                        <use xlink:href="#icon-favorite-stroke"></use>
-                                    </svg>
-                                </button>
-                                <button class="button-icon d-none">
-                                    <svg width="20" height="20">
-                                        <use xlink:href="#icon-favorite"></use>
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="product-card__info">
-                            <a href="/html/product-detail.html"><h3 title="Дождевик мужской Squall, желтый">Дождевик мужской Squall, желтый</h3></a>
-                            <div class="price mb-2">
-                                <s>3 200</s> <b class="text-danger" data-price="2000">2 800</b> <small>руб/шт.</small>
-                            </div>
-                            <div class="text-secondary">
-                                <small>Артикул: 1233445</small>
-                                <small>В наличии: 120 шт.</small>
-                            </div>
-                        </div>
-                        <div class="product-card__actions">
-                            <div class="cart-cnt">
-                                <div class="buttons">
-                                    <button class="cart-cnt-plus">
-                                        <svg width="20" height="20">
-                                            <use xlink:href="#icon-arrow-up"></use>
-                                        </svg>
-                                    </button>
-                                    <button class="cart-cnt-minus">
-                                        <svg width="20" height="20">
-                                            <use xlink:href="#icon-arrow-down"></use>
-                                        </svg>
-                                    </button>
-                                </div>
-                                <input type="text" data-min="1" data-max="120" value="1">
-                            </div>
-                            <button class="cart-add f-button c-primary">В корзину</button>
-                            <button class="cart-remove f-button c-gray text-secondary d-none">
-                                <svg width="16" height="16">
-                                    <use xlink:href="#icon-delete"></use>
-                                </svg>
-                                <span class="pl-2">Удалить</span>
-                            </button>
-                        </div>
-                        <a href="#" class="stretched-link"></a>
-                    </div>
-                </div>
-                <div class="product-item col-sm-6 col-md-4 col-xl-6">
-                    <div class="product-card">
-                        <div class="product-card__img">
-                            <a href="/html/product-detail.html" class="embed-responsive embed-responsive-1by1" style="background-image: url('/upload/products/2.jpeg')"></a>
-                            <div class="badges">
-                                <small class="bg-success">новинка</small><br/>
-                            </div>
-                            <div class="favorite">
-                                <button class="button-icon">
-                                    <svg width="20" height="20">
-                                        <use xlink:href="#icon-favorite-stroke"></use>
-                                    </svg>
-                                </button>
-                                <button class="button-icon d-none">
-                                    <svg width="20" height="20">
-                                        <use xlink:href="#icon-favorite"></use>
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="product-card__info">
-                            <a href="/html/product-detail.html"><h3 title="Костюм зимний Дорожник (тк.Оксфорд) брюки, оранжевый/черный">Костюм зимний Дорожник (тк.Оксфорд) брюки, оранжевый/черный</h3></a>
-                            <div class="price mb-2">
-                                <b class="text-danger" data-price="2000">2 800</b> руб/шт.
-                            </div>
-                            <div class="text-secondary">
-                                <small>Артикул: 1233445</small>
-                                <small>Под заказ (2 недели)</small>
-                            </div>
-                        </div>
-                        <div class="product-card__actions">
-                            <div class="cart-cnt">
-                                <div class="buttons">
-                                    <button class="cart-cnt-plus">
-                                        <svg width="20" height="20">
-                                            <use xlink:href="#icon-arrow-up"></use>
-                                        </svg>
-                                    </button>
-                                    <button class="cart-cnt-minus">
-                                        <svg width="20" height="20">
-                                            <use xlink:href="#icon-arrow-down"></use>
-                                        </svg>
-                                    </button>
-                                </div>
-                                <input type="text" data-min="10" data-max="0" value="10">
-                            </div>
-                            <button class="cart-add f-button c-primary">В корзину</button>
-                            <button class="cart-remove f-button c-gray text-secondary d-none">
-                                <svg width="16" height="16">
-                                    <use xlink:href="#icon-delete"></use>
-                                </svg>
-                                <span class="pl-2">Удалить</span>
-                            </button>
-                        </div>
-                        <a href="#" class="stretched-link"></a>
-                    </div>
-                </div>
-
-            </div>
-        <?php endif;?>
+        <?php
+        // Вкладка «Каталог» в кабинете партнёра: категории и товары,
+        // к которым привязана новость (миграция Version20260929140001).
+        $APPLICATION->IncludeComponent(
+            "formaro:news.catalog",
+            "",
+            [
+                "SECTION_IDS" => (array)($arResult['PROPERTIES']['CATALOG_SECTIONS']['VALUE'] ?? []),
+                "PRODUCT_IDS" => (array)($arResult['PROPERTIES']['CATALOG_PRODUCTS']['VALUE'] ?? []),
+                "PRODUCTS_TITLE" => "Товары из новости",
+                "CACHE_TYPE" => "A",
+                "CACHE_TIME" => "3600",
+            ],
+            false,
+            ["HIDE_ICONS" => "Y"]
+        );
+        ?>
     </div>
 </div>

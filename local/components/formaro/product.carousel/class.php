@@ -6,6 +6,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
 use Bitrix\Main\Loader;
 use Formaro\Cabinet\Repository\DiscountRepository;
 use Formaro\Cabinet\Repository\ProductRepository;
+use Formaro\Cabinet\Service\ProductCardService;
 use Formaro\Cabinet\Service\ProductPricingService;
 
 /**
@@ -74,7 +75,7 @@ class FormaroProductCarouselComponent extends CBitrixComponent
     {
         $products = $repo->findPublic([], ['DATE_CREATE' => 'DESC', 'ID' => 'DESC'], $this->arParams['COUNT']);
 
-        return array_map(fn(array $p) => $this->toItem($p, ProductPricingService::computeDisplay($p, $activeDiscounts)), $products);
+        return array_map(fn(array $p) => ProductCardService::toItem($p, ProductPricingService::computeDisplay($p, $activeDiscounts)), $products);
     }
 
     private function loadDiscounted(ProductRepository $repo, array $activeDiscounts): array
@@ -113,7 +114,7 @@ class FormaroProductCarouselComponent extends CBitrixComponent
             if ($display['old_price'] === null) {
                 continue;
             }
-            $item = $this->toItem($p, $display);
+            $item = ProductCardService::toItem($p, $display);
             $item['DISCOUNT_RATIO'] = 1 - $display['price'] / $display['old_price'];
             $items[] = $item;
         }
@@ -121,21 +122,5 @@ class FormaroProductCarouselComponent extends CBitrixComponent
         usort($items, static fn($a, $b) => $b['DISCOUNT_RATIO'] <=> $a['DISCOUNT_RATIO'] ?: $b['ID'] <=> $a['ID']);
 
         return array_slice($items, 0, $this->arParams['COUNT']);
-    }
-
-    private function toItem(array $p, array $display): array
-    {
-        return [
-            'ID' => $p['id'],
-            'NAME' => $p['name'],
-            'SKU' => $p['sku'],
-            'URL' => $p['public_url'] ?: '#',
-            'IMAGE' => $p['preview_image'],
-            'STOCK' => $p['stock'],
-            'IS_PREORDER' => $p['is_preorder'],
-            'PRICE' => $display['price'],
-            'OLD_PRICE' => $display['old_price'],
-            'BADGES' => $display['badges'],
-        ];
     }
 }
