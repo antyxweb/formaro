@@ -54,7 +54,7 @@ class FormaroCatalogSearchComponent extends CBitrixComponent
             $this->arResult['PRICE_MIN'] = (int)floor($range['min']);
             $this->arResult['PRICE_MAX'] = (int)ceil($range['max']);
             $this->arResult['COLORS'] = $repo->getPublicPropertyValues('COLOR', $productFilter);
-            $this->arResult['SIZES'] = $repo->getPublicPropertyValues('SIZE', $productFilter);
+            $this->arResult['SIZES'] = CatalogFilterService::sortSizes($repo->getPublicPropertyValues('SIZE', $productFilter));
 
             if ($iblockId && defined('BX_COMP_MANAGED_CACHE')) {
                 global $CACHE_MANAGER;

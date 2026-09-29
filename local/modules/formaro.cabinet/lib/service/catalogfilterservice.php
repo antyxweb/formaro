@@ -12,6 +12,37 @@ use CIBlockSection;
  */
 class CatalogFilterService
 {
+    /** Буквенные размеры одежды по возрастанию; 2XL/3XL приводятся к XXL/XXXL. */
+    private const LETTER_SIZES = ['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL', '4XL', '5XL', '6XL'];
+
+    /**
+     * Порядок размеров для фильтра: сначала буквенные (S, M, L, XL, ...),
+     * затем числовые по первому числу (8, 9, 56, 110-116, 122-128, ...),
+     * остальное — по алфавиту.
+     */
+    public static function sortSizes(array $sizes): array
+    {
+        $rank = static function (string $size): array {
+            $key = strtoupper(str_replace(' ', '', $size));
+            if (preg_match('/^([23])XL$/', $key, $m)) {
+                $key = str_repeat('X', (int)$m[1]) . 'L';
+            }
+            $letter = array_search($key, self::LETTER_SIZES, true);
+            if ($letter !== false) {
+                return [0, $letter, $size];
+            }
+            if (preg_match('/^\d+(?:[.,]\d+)?/', $size, $m)) {
+                return [1, (float)str_replace(',', '.', $m[0]), $size];
+            }
+
+            return [2, 0, mb_strtolower($size)];
+        };
+
+        usort($sizes, static fn($a, $b) => $rank((string)$a) <=> $rank((string)$b));
+
+        return $sizes;
+    }
+
     public static function getCatalogIblockId(): int
     {
         if (!Loader::includeModule('iblock')) {
