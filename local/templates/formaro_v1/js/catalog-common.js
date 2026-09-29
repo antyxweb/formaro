@@ -7,7 +7,7 @@
      скидкой уже посчитал сервер, см. ProductPricingService).
    window.FormaroCatalogFilter — чтение формы фильтра (#filter): категории,
      цена, чекбоксы; плюс поведение дерева категорий и полей цены.
-   window.FormaroViewed — просмотренные товары (localStorage).
+   window.FormaroViewed — просмотренные товары (аккаунт или localStorage).
 
    Подключается в footer.php синхронно, до DOMContentLoaded — скрипты
    компонентов, которые грузятся в <head>, пользуются им уже после этого
@@ -115,14 +115,20 @@
 
     /* ---------------- Просмотренные товары ---------------- */
 
-    /* Список id последних открытых товаров — в localStorage браузера (как
-       история поиска у гостя). Пишет детальная товара (formaro:catalog.element),
-       читает карусель «Просмотренные товары» (formaro:product.carousel,
-       MODE=VIEWED). */
+    /* Последние открытые товары (как избранное и история поиска):
+       авторизованный — в аккаунте (HL-блок ViewedProducts через
+       /local/ajax/viewed.php), гость — в localStorage. При входе гостевой
+       список переносится в аккаунт и удаляется из браузера.
+       Пишет детальная товара (formaro:catalog.element), читает карусель
+       «Просмотренные товары» (formaro:product.carousel, MODE=VIEWED).
+       С сервером связываемся только на страницах, где это нужно — по
+       первому вызову add()/onReady(). */
+    var VIEWED_ENDPOINT = '/local/ajax/viewed.php';
     var VIEWED_KEY = 'formaro_viewed';
     var VIEWED_MAX = 20;
+    var viewed = {started: false, ready: false, authorized: false, sessid: '', ids: [], callbacks: []};
 
-    function readViewed() {
+    function readViewedLocal() {
         try {
             var list = JSON.parse(window.localStorage.getItem(VIEWED_KEY) || '[]');
             return Array.isArray(list) ? list.map(Number).filter(Boolean) : [];
@@ -131,17 +137,94 @@
         }
     }
 
+    function writeViewedLocal(ids) {
+        try {
+            if (ids.length) {
+                window.localStorage.setItem(VIEWED_KEY, JSON.stringify(ids.slice(0, VIEWED_MAX)));
+            } else {
+                window.localStorage.removeItem(VIEWED_KEY);
+            }
+        } catch (e) { /* приватный режим — просто не запоминаем */ }
+    }
+
+    function viewedRequest(method, fields, cb) {
+        var body = Object.keys(fields).map(function (k) {
+            var v = fields[k];
+            return Array.isArray(v)
+                ? v.map(function (item) { return encodeURIComponent(k + '[]') + '=' + encodeURIComponent(item); }).join('&')
+                : encodeURIComponent(k) + '=' + encodeURIComponent(v);
+        }).join('&');
+
+        var xhr = new XMLHttpRequest();
+        xhr.open(method, VIEWED_ENDPOINT, true);
+        if (method === 'POST') xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhr.onload = function () {
+            var data = null;
+            try { data = JSON.parse(xhr.responseText); } catch (e) { /* пусто */ }
+            cb(xhr.status === 200 ? data : null);
+        };
+        xhr.onerror = function () { cb(null); };
+        xhr.send(method === 'POST' ? body : null);
+    }
+
+    function viewedReady() {
+        viewed.ready = true;
+        var callbacks = viewed.callbacks;
+        viewed.callbacks = [];
+        callbacks.forEach(function (cb) { cb(viewed.ids.slice()); });
+    }
+
+    function startViewed() {
+        if (viewed.started) return;
+        viewed.started = true;
+        viewedRequest('GET', {}, function (data) {
+            if (!data || !data.authorized) {
+                viewed.ids = readViewedLocal();
+                viewedReady();
+                return;
+            }
+            viewed.authorized = true;
+            viewed.sessid = data.sessid;
+            viewed.ids = data.ids || [];
+            var local = readViewedLocal();
+            if (!local.length) {
+                viewedReady();
+                return;
+            }
+            viewedRequest('POST', {action: 'merge', ids: local, sessid: viewed.sessid}, function (merged) {
+                if (merged) {
+                    viewed.ids = merged.ids || [];
+                    writeViewedLocal([]);
+                }
+                viewedReady();
+            });
+        });
+    }
+
+    function onViewedReady(cb) {
+        startViewed();
+        if (viewed.ready) {
+            cb(viewed.ids.slice());
+        } else {
+            viewed.callbacks.push(cb);
+        }
+    }
+
     window.FormaroViewed = {
-        list: readViewed,
+        /** cb(ids) — список, последние просмотренные первыми. */
+        onReady: onViewedReady,
         /** Товар открыт — в начало списка. */
         add: function (id) {
             id = Number(id);
             if (!id) return;
-            var list = readViewed().filter(function (x) { return x !== id; });
-            list.unshift(id);
-            try {
-                window.localStorage.setItem(VIEWED_KEY, JSON.stringify(list.slice(0, VIEWED_MAX)));
-            } catch (e) { /* приватный режим — просто не запоминаем */ }
+            onViewedReady(function () {
+                viewed.ids = [id].concat(viewed.ids.filter(function (x) { return x !== id; })).slice(0, VIEWED_MAX);
+                if (viewed.authorized) {
+                    viewedRequest('POST', {action: 'add', id: id, sessid: viewed.sessid}, function () {});
+                } else {
+                    writeViewedLocal(viewed.ids);
+                }
+            });
         }
     };
 

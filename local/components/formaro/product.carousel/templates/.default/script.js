@@ -3,8 +3,8 @@
    загрузка, перед «+» стоят скелетоны карточек. Когда товаров больше нет,
    слайд «+» убирается.
 
-   MODE=VIEWED («Просмотренные товары»): список id ведёт браузер
-   (window.FormaroViewed из js/catalog-common.js), сервер рисует пустую
+   MODE=VIEWED («Просмотренные товары»): список id — window.FormaroViewed
+   (js/catalog-common.js: аккаунт или localStorage), сервер рисует пустую
    скрытую секцию, товары загружаются здесь.
 
    Карусель (Flickity) включает scripts.js; этот файл подключается в <head>,
@@ -34,8 +34,14 @@
         }
 
         function initViewed($carousel) {
+            window.FormaroViewed.onReady(function (list) {
+                loadViewed($carousel, list);
+            });
+        }
+
+        function loadViewed($carousel, list) {
             var exclude = Number($carousel.attr('data-exclude-id')) || 0;
-            var ids = window.FormaroViewed.list().filter(function (id) { return id !== exclude; });
+            var ids = list.filter(function (id) { return id !== exclude; });
             if (!ids.length) return;
 
             var query = params($carousel);
