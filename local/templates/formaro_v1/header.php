@@ -232,7 +232,15 @@ if($GLOBALS["APPLICATION"]->GetCurPage(false) == '/'
                     <svg class="header__action-icon" width="20" height="20">
                         <use xlink:href="#icon-shopping"></use>
                     </svg>
-                    <small class="header__action-count">0</small>
+                    <?php
+                    // Авторизованному — сразу число позиций из аккаунта,
+                    // дальше счётчик обновляет cart.js.
+                    $cartCount = 0;
+                    if ($USER->IsAuthorized() && \Bitrix\Main\Loader::includeModule('formaro.cabinet')) {
+                        $cartCount = count((new \Formaro\Cabinet\Repository\CartRepository())->listItems((int)$USER->GetID()));
+                    }
+                    ?>
+                    <small class="header__action-count" data-cart-count><?= $cartCount ?></small>
                     <span class="d-none d-xl-inline">Корзина</span>
                 </a>
 

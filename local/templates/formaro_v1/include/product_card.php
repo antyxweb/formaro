@@ -53,7 +53,12 @@ $name = htmlspecialcharsbx($item['NAME']);
             <?php endif; ?>
         </div>
     </div>
-    <div class="product-card__actions">
+    <?php
+    // Корзина (js/cart.js): под заказ — без ограничения количества (max 0),
+    // нет в наличии и не под заказ — купить нельзя.
+    $canBuy = $item['STOCK'] > 0 || $item['IS_PREORDER'];
+    ?>
+    <div class="product-card__actions" data-product-id="<?= (int)$item['ID'] ?>">
         <div class="cart-cnt">
             <div class="buttons">
                 <button class="cart-cnt-plus">
@@ -63,9 +68,9 @@ $name = htmlspecialcharsbx($item['NAME']);
                     <svg width="20" height="20"><use xlink:href="#icon-arrow-down"></use></svg>
                 </button>
             </div>
-            <input type="text" data-min="1" data-max="<?= (int)$item['STOCK'] ?>" value="1">
+            <input type="text" data-min="1" data-max="<?= $item['IS_PREORDER'] ? 0 : (int)$item['STOCK'] ?>" value="1">
         </div>
-        <button class="cart-add f-button c-primary">В корзину</button>
+        <button class="cart-add f-button c-primary"<?= $canBuy ? '' : ' disabled' ?>>В корзину</button>
         <button class="cart-remove f-button c-gray text-secondary d-none">
             <svg width="16" height="16"><use xlink:href="#icon-delete"></use></svg>
             <span class="pl-2">Удалить</span>

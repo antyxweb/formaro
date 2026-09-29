@@ -1,0 +1,22 @@
+/* Шапка группы поставщика: слева название ссылкой, справа выбор/удаление
+   (вместо сортировки из вёрстки /html/cart.html). */
+.cart-group-title {
+    font-weight: 500;
+    color: #111;
+}
+.cart-group-title:hover {
+    color: #1976d2;
+}
+.cart-group .cart-group-actions .button-icon {
+    margin-left: 0;
+}
+
+/* Итог справа залипает CSS sticky (sticky-kit из scripts.js на
+   #product-option снимает script.js), только если помещается в окно. */
+@media (min-width: 1200px) {
+    #product-option.cart-summary.is-sticky {
+        position: -webkit-sticky;
+        position: sticky;
+        top: 60px;
+    }
+}

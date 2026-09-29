@@ -63,15 +63,15 @@
                         stockHtml(item) +
                     '</div>' +
                 '</div>' +
-                '<div class="product-card__actions">' +
+                '<div class="product-card__actions" data-product-id="' + Number(item.id) + '">' +
                     '<div class="cart-cnt">' +
                         '<div class="buttons">' +
                             '<button class="cart-cnt-plus"><svg width="20" height="20"><use xlink:href="#icon-arrow-up"></use></svg></button>' +
                             '<button class="cart-cnt-minus"><svg width="20" height="20"><use xlink:href="#icon-arrow-down"></use></svg></button>' +
                         '</div>' +
-                        '<input type="text" data-min="1" data-max="' + (item.stock || 0) + '" value="1">' +
+                        '<input type="text" data-min="1" data-max="' + (item.is_preorder ? 0 : (item.stock || 0)) + '" value="1">' +
                     '</div>' +
-                    '<button class="cart-add f-button c-primary">В корзину</button>' +
+                    '<button class="cart-add f-button c-primary"' + (item.stock > 0 || item.is_preorder ? '' : ' disabled') + '>В корзину</button>' +
                     '<button class="cart-remove f-button c-gray text-secondary d-none">' +
                         '<svg width="16" height="16"><use xlink:href="#icon-delete"></use></svg><span class="pl-2">Удалить</span>' +
                     '</button>' +
@@ -111,7 +111,7 @@
         return html;
     }
 
-    window.FormaroProductCard = {html: productCardHtml, escHtml: escHtml, skeletonHtml: skeletonHtml, skeletonsHtml: skeletonsHtml};
+    window.FormaroProductCard = {html: productCardHtml, priceHtml: priceHtml, fmtPrice: fmtPrice, escHtml: escHtml, skeletonHtml: skeletonHtml, skeletonsHtml: skeletonsHtml};
 
     /* ---------------- Просмотренные товары ---------------- */
 

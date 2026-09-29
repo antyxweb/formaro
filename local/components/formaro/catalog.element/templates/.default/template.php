@@ -134,7 +134,7 @@ $propsTable = static function (array $props): string {
 
                         </div>
 
-                        <div class="product-card__actions">
+                        <div class="product-card__actions" data-product-id="<?= (int)$arResult['ID'] ?>">
                             <div class="cart-cnt">
                                 <div class="buttons">
                                     <button class="cart-cnt-plus">
@@ -144,9 +144,9 @@ $propsTable = static function (array $props): string {
                                         <svg width="20" height="20"><use xlink:href="#icon-arrow-down"></use></svg>
                                     </button>
                                 </div>
-                                <input type="text" data-min="1" data-max="<?= (int)$arResult['STOCK'] ?>" value="1">
+                                <input type="text" data-min="1" data-max="<?= $arResult['IS_PREORDER'] ? 0 : (int)$arResult['STOCK'] ?>" value="1">
                             </div>
-                            <button class="cart-add f-button c-primary">В корзину</button>
+                            <button class="cart-add f-button c-primary"<?= $arResult['STOCK'] > 0 || $arResult['IS_PREORDER'] ? '' : ' disabled' ?>>В корзину</button>
                             <button class="cart-remove f-button c-gray text-secondary d-none">
                                 <svg width="16" height="16"><use xlink:href="#icon-delete"></use></svg>
                                 <span class="pl-2">Удалить</span>

@@ -12,16 +12,18 @@ namespace Formaro\Cabinet\Service;
  * товаров), таргет совпадает (all/products/category) и условия
  * min_qty/min_amount выполняются уже для одной единицы (min_qty<=1,
  * min_amount<=цена) — иначе показывать сниженную цену для покупки одной
- * штуки было бы нечестно.
+ * штуки было бы нечестно. В корзине условия проверяются для реального
+ * количества ($qty): min_qty<=qty, min_amount<=цена×qty.
  */
 class ProductPricingService
 {
     /**
      * @param array $product строка ProductRepository::toArray()
      * @param array $activeDiscounts список DiscountRepository::listActive()
+     * @param int $qty количество (корзина); цена — всё равно за штуку
      * @return array{badges: string[], price: float, old_price: ?float, discount_percent: ?int}
      */
-    public static function computeDisplay(array $product, array $activeDiscounts): array
+    public static function computeDisplay(array $product, array $activeDiscounts, int $qty = 1): array
     {
         $badges = [];
         if (in_array('bestseller', $product['tags'] ?? [], true)) {
@@ -32,7 +34,7 @@ class ProductPricingService
         }
 
         $price = (float)($product['price'] ?? 0);
-        $best = self::findBestDiscount($product, $activeDiscounts, $price);
+        $best = self::findBestDiscount($product, $activeDiscounts, $price, max(1, $qty));
 
         $oldPrice = null;
         $discountPercent = null;
@@ -55,7 +57,7 @@ class ProductPricingService
         ];
     }
 
-    private static function findBestDiscount(array $product, array $activeDiscounts, float $price): ?array
+    private static function findBestDiscount(array $product, array $activeDiscounts, float $price, int $qty): ?array
     {
         $best = null;
         $bestAmount = 0.0;
@@ -66,8 +68,8 @@ class ProductPricingService
             if (!self::targetMatches($d, $product)) {
                 continue;
             }
-            if ($d['min_qty'] > 1 || $d['min_amount'] > $price) {
-                continue; // условия рассчитаны на заказ, для одной штуки не выполняются
+            if ($d['min_qty'] > $qty || $d['min_amount'] > $price * $qty) {
+                continue; // условия на количество/сумму для этого количества не выполняются
             }
 
             $amount = $price - self::applyDiscount($d, $price);
