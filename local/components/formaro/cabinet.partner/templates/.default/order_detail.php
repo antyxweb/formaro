@@ -52,7 +52,6 @@ require __DIR__ . '/inc/layout_app_top.php';
                     </div>
                 </div>
                 <div id="appliedInfo" class="mt-2"></div>
-                <div class="text-muted-2 small mt-2">Раздел «Скидки и купоны» ещё не подключён к реальной базе — появится в одной из следующих фаз.</div>
             </div>
         </div>
 
