@@ -98,20 +98,17 @@ require __DIR__ . '/inc/layout_app_top.php';
                     <option value="cancelled">Отменён</option>
                 </select>
                 <label class="form-label">Способ доставки</label>
+                <?php // Те же способы, что на витрине (корзина /personal/cart/). ?>
                 <select class="form-select mb-3" id="deliverySelect">
-                    <option>Курьером по Москве</option>
-                    <option>Транспортной компанией (СДЭК)</option>
-                    <option>Самовывоз со склада</option>
-                    <option>Почтой России</option>
-                    <option>Деловые линии</option>
-                    <option>ПЭК</option>
-                    <option>Другая транспортная компания</option>
+                    <?php foreach (\Formaro\Cabinet\Service\CartCheckoutService::DELIVERIES as $name): ?>
+                    <option><?= htmlspecialcharsbx($name) ?></option>
+                    <?php endforeach; ?>
                 </select>
                 <label class="form-label">Способ оплаты</label>
                 <select class="form-select mb-3" id="paymentMethodSelect">
-                    <option>Банковской картой онлайн</option>
-                    <option>По счёту (безнал)</option>
-                    <option>Наличными при получении</option>
+                    <?php foreach (\Formaro\Cabinet\Service\CartCheckoutService::PAYMENTS as $name): ?>
+                    <option><?= htmlspecialcharsbx($name) ?></option>
+                    <?php endforeach; ?>
                 </select>
                 <label class="form-label">Статус оплаты</label>
                 <select class="form-select mb-3" id="paymentStatusSelect">

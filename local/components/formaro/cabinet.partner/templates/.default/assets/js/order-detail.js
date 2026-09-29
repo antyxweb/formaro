@@ -24,6 +24,10 @@ var activeDiscounts = [];
 var allCouponsForOrder = [];
 var appliedDiscount = null;
 var appliedCoupon = null;
+// Подбирать лучшую скидку автоматически — только для нового заказа и после
+// изменения состава/количества. У сохранённого заказа (в т.ч. с витрины,
+// где цены уже со скидкой партнёра) скидку при открытии не пересчитываем.
+var autoDiscount = true;
 
 function isOrderLocked() { return LOCKED_STATUSES.indexOf($('#statusSelect').val()) !== -1; }
 
@@ -251,7 +255,7 @@ function renderItems() {
             '</tr>'
         );
     });
-    autoApplyBestDiscount();
+    if (autoDiscount) autoApplyBestDiscount();
     recalcTotals();
 
     $('.item-qty').off('input').on('input', function () {
@@ -259,6 +263,7 @@ function renderItems() {
         var qty = Math.max(1, parseInt($(this).val(), 10) || 1);
         currentItems[idx].qty = qty;
         $('.item-sum[data-idx="' + idx + '"]').text(fmtMoney(qty * currentItems[idx].price));
+        autoDiscount = true;
         autoApplyBestDiscount();
         recalcTotals();
     });
@@ -280,6 +285,7 @@ function removeItem(idx) {
     var it = currentItems[idx];
     showConfirm('Убрать «' + (it ? it.name : 'товар') + '» из заказа?', function () {
         currentItems.splice(idx, 1);
+        autoDiscount = true;
         renderItems();
     }, {danger: true, okText: 'Убрать'});
 }
@@ -305,6 +311,7 @@ function addProductToOrder(pid) {
     if (!p) return;
     var existing = currentItems.find(function (it) { return it.product_id === pid; });
     if (existing) { existing.qty += 1; } else { currentItems.push({product_id: p.id, name: p.name, sku: p.sku, color: p.color, size: p.size, qty: 1, price: p.price}); }
+    autoDiscount = true;
     renderItems();
     $('#addProductSearch').val('');
     $('#addProductResults').removeClass('show').empty();
@@ -323,13 +330,30 @@ function renderHistory() {
     });
 }
 
+/** Способ доставки/оплаты заказа. Списки — способы витрины; значение,
+ *  которого в списке нет (заказ до смены способов), добавляется отдельным
+ *  пунктом, чтобы не потерять его при сохранении. Пустое — первый пункт. */
+function selectMethod(selector, value) {
+    var $select = $(selector);
+    $select.find('option[data-legacy]').remove();
+    if (!value) {
+        $select.prop('selectedIndex', 0);
+        return;
+    }
+    var exists = $select.find('option').filter(function () { return this.value === value; }).length > 0;
+    if (!exists) {
+        $('<option data-legacy="1">').text(value).val(value).appendTo($select);
+    }
+    $select.val(value);
+}
+
 function renderOrder(o) {
     $('#orderNumber').text(o.order_number);
     $('#orderStatusPill').html(statusPill(o.status));
     $('#orderDate').text(fmtDate(o.created_at));
     $('#statusSelect').val(o.status);
-    $('#deliverySelect').val(o.delivery_method || 'Курьером по Москве');
-    $('#paymentMethodSelect').val(o.payment_method || 'Банковской картой онлайн');
+    selectMethod('#deliverySelect', o.delivery_method);
+    selectMethod('#paymentMethodSelect', o.payment_method);
     $('#paymentStatusSelect').val(o.payment_status || 'awaiting');
     $('#custName').val(o.customer.name);
     $('#custPhone').val(o.customer.phone);
@@ -338,6 +362,7 @@ function renderOrder(o) {
     $('#custComment').val(o.customer_comment || ''); autoHeightResize('#custComment');
     currentItems = (o.items || []).map(function (it) { return Object.assign({}, it); });
     currentHistory = (o.history || []).map(function (h) { return Object.assign({}, h); });
+    autoDiscount = false;
     if (o.discount_id) {
         appliedDiscount = activeDiscounts.find(function (d) { return d.id === o.discount_id; }) || null;
         if (appliedDiscount) $('#applyDiscountSelect').val(appliedDiscount.id);
