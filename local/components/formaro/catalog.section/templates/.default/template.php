@@ -5,25 +5,29 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
 /** @var array $arParams */
 /** @var array $arResult */
 
-// Вёрстка — /html/section.html. Фильтр — GET-форма (см. class.php),
-// «Показать еще» и отправку формы обслуживает script.js.
+use Formaro\Cabinet\Service\CatalogFilterUrl;
+
+// Вёрстка — /html/section.html. Выбранный фильтр — в ЧПУ (class.php,
+// CatalogFilterUrl): адрес при «Применить» собирает script.js из data-slug
+// отмеченных чекбоксов; без JS форма уходит GET-запросом, и компонент
+// перенаправляет на ЧПУ. «Показать еще» — тоже script.js.
 
 $visibleItems = 8;
 
-/** Адрес категории с текущими параметрами фильтра + $extra (page, sort). */
-$pageUrl = static function (array $extra = []) use ($arResult): string {
-    $query = array_filter(array_merge($arResult['QUERY'], $extra), static fn($v) => $v !== '' && $v !== [] && $v !== null);
-    if (($query['page'] ?? 1) <= 1) {
+/** Адрес категории с текущим фильтром; $query — sort, page. */
+$pageUrl = static function (array $query = []) use ($arResult): string {
+    $query += ['sort' => $arResult['SORT'] !== 'popular' ? $arResult['SORT'] : ''];
+    if ((int)($query['page'] ?? 1) <= 1) {
         unset($query['page']);
     }
-    $qs = preg_replace('/%5B\d+%5D=/', '%5B%5D=', http_build_query($query));
 
-    return htmlspecialcharsbx($arResult['BASE_URL'] . ($qs !== '' ? '?' . $qs : ''));
+    return htmlspecialcharsbx(CatalogFilterUrl::build($arResult['BASE_URL'], $arResult['URL_FILTER'], $query));
 };
 
-$checkbox = static function (string $name, string $value, string $label, bool $checked, bool $hidden): string {
+$checkbox = static function (string $name, string $value, string $label, bool $checked, bool $hidden, string $slug, bool $isDefault = false): string {
     return '<label class="' . ($hidden ? 'collapse-list d-none ' : '') . 'px-3 px-lg-4 py-2 mb-0">'
-        . '<input type="checkbox" name="' . $name . '[]" value="' . htmlspecialcharsbx($value) . '"' . ($checked ? ' checked' : '') . '>'
+        . '<input type="checkbox" name="' . $name . '[]" value="' . htmlspecialcharsbx($value) . '"'
+        . ' data-slug="' . htmlspecialcharsbx($slug) . '"' . ($isDefault ? ' data-default="Y"' : '') . ($checked ? ' checked' : '') . '>'
         . '<svg width="20" height="20"><use xlink:href="#icon-checkbox-tick"></use></svg>'
         . '<span>' . htmlspecialcharsbx($label) . '</span>'
         . '</label>';
@@ -39,7 +43,7 @@ $filterGroup = static function (string $title, string $name, array $options) use
         . '</div>'
         . '<div class="filter-row-list py-2">';
     foreach (array_values($options) as $i => $option) {
-        $html .= $checkbox($name, $option['VALUE'], $option['VALUE'], $option['CHECKED'], $i >= $visibleItems && !$option['CHECKED']);
+        $html .= $checkbox($name, $option['VALUE'], $option['VALUE'], $option['CHECKED'], $i >= $visibleItems && !$option['CHECKED'], $option['SLUG']);
     }
     if (count($options) > $visibleItems) {
         $html .= '<a href="javascript:void(0);" class="d-block px-3 px-lg-4 py-2"><span>Показать все</span><span class="d-none">Свернуть</span></a>';
@@ -62,7 +66,7 @@ $hasMore = $page < $pageCount;
         <div class="container-fluid">
             <div class="row">
                 <div class="filter-wrap col-12 col-xl-3 d-none d-xl-block">
-                    <form id="filter" method="get" action="<?= htmlspecialcharsbx($arResult['BASE_URL']) ?>"
+                    <form id="filter" method="get" action="<?= htmlspecialcharsbx($arResult['BASE_URL']) ?>" data-base-url="<?= htmlspecialcharsbx($arResult['BASE_URL']) ?>"
                           data-price-min="<?= (int)$arResult['PRICE_MIN'] ?>" data-price-max="<?= (int)$arResult['PRICE_MAX'] ?>">
                         <?php if ($arResult['SORT'] !== 'popular'): ?>
                         <input type="hidden" name="sort" value="<?= htmlspecialcharsbx($arResult['SORT']) ?>">
@@ -87,7 +91,7 @@ $hasMore = $page < $pageCount;
                                 </div>
                                 <div class="filter-row-list py-2">
                                     <?php foreach ($group['ITEMS'] as $i => $item): ?>
-                                    <?= $checkbox('sections', (string)$item['ID'], $item['NAME'], $item['CHECKED'], $i >= $visibleItems && !$item['CHECKED']) ?>
+                                    <?= $checkbox('sections', (string)$item['ID'], $item['NAME'], $item['CHECKED'], $i >= $visibleItems && !$item['CHECKED'], $item['CODE'], in_array($item['ID'], $group['DEFAULT'], true)) ?>
                                     <?php endforeach; ?>
                                     <?php if (count($group['ITEMS']) > $visibleItems): ?>
                                     <a href="javascript:void(0);" class="d-block px-3 px-lg-4 py-2"><span>Показать все</span><span class="d-none">Свернуть</span></a>
@@ -155,7 +159,7 @@ $hasMore = $page < $pageCount;
 
                             <ul class="f-dropdown-list">
                                 <?php foreach ($arResult['SORTS'] as $code => $label): ?>
-                                <li><a class="dropdown-item small<?= $code === $arResult['SORT'] ? ' active' : '' ?>" href="<?= $pageUrl(['sort' => $code !== 'popular' ? $code : '', 'page' => null]) ?>"><?= htmlspecialcharsbx($label) ?></a></li>
+                                <li><a class="dropdown-item small<?= $code === $arResult['SORT'] ? ' active' : '' ?>" href="<?= $pageUrl(['sort' => $code !== 'popular' ? $code : '']) ?>"><?= htmlspecialcharsbx($label) ?></a></li>
                                 <?php endforeach; ?>
                             </ul>
                         </button>

@@ -3,8 +3,9 @@
    - «Показать еще»: следующая страница с теми же фильтром и сортировкой
      из /local/ajax/catalog_grid.php (параметры — data-query секции),
      пока идёт запрос — скелетоны карточек;
-   - фильтр — GET-форма: перед отправкой убираем пустые поля и цену, если
-     она не сужена, чтобы в адресе было только выбранное;
+   - «Применить» — переход на ЧПУ фильтра, собранный из data-slug
+     отмеченных чекбоксов и цены (формат — CatalogFilterUrl в модуле);
+     цена пишется, только если сужена;
    - сортировка — ссылки в выпадающем списке; список лежит внутри <button>,
      где браузеры не всегда переходят по ссылке, поэтому переходим сами.
 
@@ -70,20 +71,50 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (button) button.addEventListener('click', loadMore);
 
+    /** ЧПУ фильтра — тот же формат, что CatalogFilterUrl::build() на сервере:
+     *  <категория>/filter/section-…/color-…/size-…/price-from-…-to-…/?sort=… */
+    function filterUrl() {
+        var slugs = function (name) {
+            return Array.prototype.map.call(form.querySelectorAll('input[name="' + name + '[]"]:checked'), function (el) {
+                return el.getAttribute('data-slug');
+            }).filter(function (slug, i, all) { return slug && all.indexOf(slug) === i; });
+        };
+        // Отмеченная по умолчанию текущая категория в адрес не пишется.
+        var sections = slugs('sections');
+        var defaults = Array.prototype.map.call(form.querySelectorAll('input[name="sections[]"][data-default]'), function (el) {
+            return el.getAttribute('data-slug');
+        });
+        if (sections.length === defaults.length && sections.every(function (s) { return defaults.indexOf(s) !== -1; })) {
+            sections = [];
+        }
+
+        var segments = [];
+        [['section', sections], ['color', slugs('colors')], ['size', slugs('sizes')]].forEach(function (pair) {
+            if (pair[1].length) segments.push(pair[0] + '-' + pair[1].join('-or-'));
+        });
+
+        var price = window.FormaroCatalogFilter ? window.FormaroCatalogFilter.readPrice(form) : {active: false};
+        if (price.active) {
+            var bounds = window.FormaroCatalogFilter.bounds(form);
+            var parts = [];
+            if (price.min > bounds.min) parts.push('from-' + price.min);
+            if (price.max < bounds.max) parts.push('to-' + price.max);
+            segments.push('price-' + parts.join('-'));
+        }
+
+        var url = form.getAttribute('data-base-url').replace(/\/?$/, '/');
+        if (segments.length) url += 'filter/' + segments.join('/') + '/';
+        var sort = form.querySelector('input[name="sort"]');
+        if (sort && sort.value) url += '?sort=' + encodeURIComponent(sort.value);
+
+        return url;
+    }
+
     if (form) {
-        form.addEventListener('submit', function () {
-            var filter = window.FormaroCatalogFilter;
-            var price = filter ? filter.readPrice(form) : {active: true};
-            var min = form.querySelector('.filterPriceMin');
-            var max = form.querySelector('.filterPriceMax');
-            if (!price.active) {
-                min.disabled = true;
-                max.disabled = true;
-            } else {
-                min.value = price.min;
-                max.value = price.max;
-            }
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
             if (window.jQuery && jQuery.fancybox) jQuery.fancybox.close();
+            window.location.href = filterUrl();
         });
     }
 

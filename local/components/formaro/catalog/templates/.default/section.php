@@ -15,6 +15,7 @@ $sectionId = (int)$arResult['SECTION']['ID'];
     '',
     [
         'SECTION_ID' => $sectionId,
+        'FILTER_PATH' => $arResult['FILTER_PATH'],
         'PAGE_SIZE' => $arParams['PAGE_SIZE'],
         'CACHE_TYPE' => $arParams['CACHE_TYPE'] ?? 'A',
         'CACHE_TIME' => $arParams['CACHE_TIME'],
@@ -29,6 +30,7 @@ $sectionId = (int)$arResult['SECTION']['ID'];
         'MODE' => 'DISCOUNT',
         'COUNT' => '12',
         'SECTION_ID' => $sectionId,
+        'FILTER_PATH' => $arResult['FILTER_PATH'],
         'TITLE_ACCENT' => 'Выгодные',
         'TITLE' => 'предложения',
         'CATALOG_URL' => '',
@@ -46,6 +48,7 @@ $sectionId = (int)$arResult['SECTION']['ID'];
         'MODE' => 'NEW',
         'COUNT' => '12',
         'SECTION_ID' => $sectionId,
+        'FILTER_PATH' => $arResult['FILTER_PATH'],
         'TITLE_ACCENT' => 'Новые',
         'TITLE' => 'поступления',
         'CATALOG_URL' => '',

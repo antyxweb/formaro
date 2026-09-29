@@ -12,7 +12,8 @@ use Formaro\Cabinet\Service\CatalogFilterService;
  * SEF_FOLDER (/catalog/):
  *  - sections — корень: категории, выгодные предложения, новинки;
  *  - section  — #SECTION_CODE_PATH#/: фильтр + товары категории
- *    (formaro:catalog.section);
+ *    (formaro:catalog.section); выбранный фильтр — в пути
+ *    #SECTION_CODE_PATH#/filter/<сегменты>/ (формат — CatalogFilterUrl);
  *  - element  — #SECTION_CODE_PATH#/#ELEMENT_CODE#/: карточка товара
  *    (formaro:catalog.element).
  * Пути вида «раздел/подраздел» и «раздел/товар» различает
@@ -53,18 +54,32 @@ class FormaroCatalogComponent extends CBitrixComponent
         $engine = new CComponentEngine($this);
         $engine->addGreedyPart('#SECTION_CODE_PATH#');
         $engine->setResolveCallback(['CIBlockFindTools', 'resolveComponentEngine']);
+        // Фильтр категории в ЧПУ: …/<категория>/filter/<сегменты>/ — хвост
+        // после /filter/ отделяем и отдаём formaro:catalog.section, остальное
+        // разбирает движок как обычную категорию.
+        $path = $this->request->getRequestedPage();
+        $filterPath = '';
+        if (preg_match('#^(.+?/)filter/(.+?)/(?:index\.php)?$#', $path, $m)) {
+            $path = $m[1] . 'index.php';
+            $filterPath = $m[2];
+        }
+
         $variables = [];
-        $page = $engine->guessComponentPath($this->arParams['SEF_FOLDER'], $templates, $variables);
+        $page = $engine->guessComponentPath($this->arParams['SEF_FOLDER'], $templates, $variables, $path);
         if ($page === false) {
             // Пустой шаблон корня сам по себе не совпадает — корень узнаём по адресу.
-            $path = $this->request->getRequestedPage();
             $page = in_array($path, [$this->arParams['SEF_FOLDER'], $this->arParams['SEF_FOLDER'] . 'index.php'], true) ? 'sections' : false;
+        }
+        if ($filterPath !== '' && $page !== 'section') {
+            $this->show404();
+            return;
         }
 
         $this->arResult = [
             'SEF_FOLDER' => $this->arParams['SEF_FOLDER'],
             'IBLOCK_ID' => $this->arParams['IBLOCK_ID'],
             'VARIABLES' => $variables,
+            'FILTER_PATH' => $filterPath,
             'SECTION' => null,
             'ELEMENT_ID' => 0,
         ];
