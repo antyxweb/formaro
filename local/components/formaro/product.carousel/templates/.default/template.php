@@ -28,12 +28,26 @@ if (empty($arResult['ITEMS'])) {
     </div>
     <div class="section-body">
         <div class="container-fluid">
-            <div class="main-carousel product-carousel">
+            <div class="main-carousel product-carousel js-product-carousel"
+                 data-mode="<?= htmlspecialcharsbx($arParams['MODE']) ?>"
+                 data-partner-id="<?= (int)$arParams['PARTNER_ID'] ?>"
+                 data-page-size="<?= (int)$arParams['COUNT'] ?>"
+                 data-offset="<?= count($arResult['ITEMS']) ?>">
                 <?php foreach ($arResult['ITEMS'] as $item): ?>
                 <div class="carousel-cell">
                     <?php include $_SERVER['DOCUMENT_ROOT'] . SITE_TEMPLATE_PATH . '/include/product_card.php'; ?>
                 </div>
                 <?php endforeach; ?>
+                <?php if ($arResult['HAS_MORE']): ?>
+                <div class="carousel-cell carousel-cell-last">
+                    <div class="product-card">
+                        <button class="load-more-slider" type="button" aria-label="Показать еще">
+                            <svg width="36" height="36"><use xlink:href="#icon-plus"></use></svg>
+                            <svg width="24" height="24" class="icon-progress d-none"><use xlink:href="#icon-progress"></use></svg>
+                        </button>
+                    </div>
+                </div>
+                <?php endif; ?>
             </div>
         </div>
     </div>

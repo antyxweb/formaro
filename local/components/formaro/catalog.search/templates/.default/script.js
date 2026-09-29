@@ -204,7 +204,10 @@
         }
 
         // Старый обработчик scripts.js вставлял статичный снимок карусели.
-        $('body').off('click', '.load-more-slider').on('click', '.load-more-slider', function () {
+        // Свой — только на этой карусели: у каруселей товаров
+        // (formaro:product.carousel) тоже есть слайд «+».
+        $('body').off('click', '.load-more-slider');
+        $search.on('click', '.load-more-slider', function () {
             load(false);
         });
 
