@@ -189,6 +189,20 @@
             $search.flickity('append', $(html));
         }
 
+        /** append/remove в Flickity возвращают карусель к выбранному слайду,
+         *  а при freeScroll (свайп) выбранным остаётся первый — после
+         *  «Показать еще» карусель прыгала в начало. Сохраняем позицию. */
+        function keepPosition(fn) {
+            var flkty = $search.data('flickity');
+            var x = flkty ? flkty.x : null;
+            fn();
+            flkty = $search.data('flickity');
+            if (flkty && x !== null) {
+                flkty.x = x;
+                flkty.positionSlider();
+            }
+        }
+
         // Старый обработчик scripts.js вставлял статичный снимок карусели.
         $('body').off('click', '.load-more-slider').on('click', '.load-more-slider', function () {
             load(false);
@@ -200,42 +214,46 @@
                 append(window.FormaroProductCard.skeletonsHtml(3, 'carousel-cell'));
             },
             setLoading: function (loading) {
-                if (!loading) removeCells('.product-skeleton');
+                if (!loading) keepPosition(function () { removeCells('.product-skeleton'); });
                 $search.find('.load-more-slider').prop('disabled', loading)
                     .find('svg').each(function (i) {
                         $(this).toggleClass('d-none', i === 0 ? loading : !loading);
                     });
             },
             render: function (items) {
-                removeCells('.carousel-cell-last, .carousel-cell-empty, .product-skeleton');
-                if (items.length) {
-                    append(items.map(function (item) {
-                        return '<div class="carousel-cell">' + productCardHtml(item) + '</div>';
-                    }).join(''));
-                }
-                if (!state.items.length) {
-                    append(
-                        '<div class="carousel-cell carousel-cell-empty">' +
-                            '<div class="product-card d-flex align-items-center justify-content-center text-center text-secondary p-4">' +
-                                'По вашему запросу ничего не найдено' +
-                            '</div>' +
-                        '</div>'
-                    );
-                }
-                if (state.hasMore) {
-                    append(
-                        '<div class="carousel-cell carousel-cell-last">' +
-                            '<div class="product-card">' +
-                                '<button class="load-more-slider">' +
-                                    '<svg width="36" height="36"><use xlink:href="#icon-plus"></use></svg>' +
-                                    '<svg width="24" height="24" class="icon-progress d-none"><use xlink:href="#icon-progress"></use></svg>' +
-                                '</button>' +
-                            '</div>' +
-                        '</div>'
-                    );
-                }
+                keepPosition(function () { renderCells(items); });
             }
         };
+
+        function renderCells(items) {
+            removeCells('.carousel-cell-last, .carousel-cell-empty, .product-skeleton');
+            if (items.length) {
+                append(items.map(function (item) {
+                    return '<div class="carousel-cell">' + productCardHtml(item) + '</div>';
+                }).join(''));
+            }
+            if (!state.items.length) {
+                append(
+                    '<div class="carousel-cell carousel-cell-empty">' +
+                        '<div class="product-card d-flex align-items-center justify-content-center text-center text-secondary p-4">' +
+                            'По вашему запросу ничего не найдено' +
+                        '</div>' +
+                    '</div>'
+                );
+            }
+            if (state.hasMore) {
+                append(
+                    '<div class="carousel-cell carousel-cell-last">' +
+                        '<div class="product-card">' +
+                            '<button class="load-more-slider">' +
+                                '<svg width="36" height="36"><use xlink:href="#icon-plus"></use></svg>' +
+                                '<svg width="24" height="24" class="icon-progress d-none"><use xlink:href="#icon-progress"></use></svg>' +
+                            '</button>' +
+                        '</div>' +
+                    '</div>'
+                );
+            }
+        }
     }
 
     /* ---------------- Поиск: строка, подсказки, история ---------------- */
