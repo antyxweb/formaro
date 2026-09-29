@@ -10,9 +10,11 @@
  * Верхний items — корзина после проверки (недоступные товары убраны,
  * количество ограничено остатком): js/cart.js сверяет с ней свою.
  *
- * coupon=КОД (необязательно) → coupon: {code, valid, message, partner_id,
- * partner_name, discount_type, value}. Купон партнёра даёт скидку на его
- * товары; сумму скидки по отмеченным товарам считает страница корзины.
+ * coupons=КОД,КОД (необязательно) → coupons: [{code, valid, message,
+ * partner_id, partner_name, discount_type, value}] в том же порядке.
+ * Купон партнёра даёт скидку на его товары (по одному купону на
+ * поставщика — выбирает страница корзины); сумму скидки по отмеченным
+ * товарам считает она же.
  *
  * Корзину гостя присылает сам браузер, поэтому без авторизации: отдаются
  * только публичные данные активных товаров.
@@ -75,16 +77,17 @@ foreach ($items as $item) {
     ];
 }
 
-$coupon = null;
-$couponCode = strtoupper(trim((string)($_GET['coupon'] ?? '')));
-if ($couponCode !== '') {
-    $found = (new CouponRepository())->findByCode($couponCode);
+$coupons = [];
+$couponRepo = new CouponRepository();
+$codes = array_unique(array_filter(array_map(static fn($c) => strtoupper(trim($c)), explode(',', (string)($_GET['coupons'] ?? ''))), 'strlen'));
+foreach (array_slice($codes, 0, 20) as $code) {
+    $found = $couponRepo->findByCode($code);
     $error = $found ? CouponRepository::checkUsable($found) : 'Промокод не найден';
-    $coupon = [
-        'code' => $couponCode,
+    $coupons[] = [
+        'code' => $code,
         'valid' => $error === null,
         'message' => $error ?? '',
-        'partner_id' => $found ? $found['partner_id'] : 0,
+        'partner_id' => $found ? (int)$found['partner_id'] : 0,
         'partner_name' => '',
         'discount_type' => $found ? $found['discount_type'] : '',
         'value' => $found ? $found['value'] : 0,
@@ -92,11 +95,7 @@ if ($couponCode !== '') {
 }
 
 $partners = [];
-$partnerIds = array_filter(array_keys($groups));
-if ($coupon && $coupon['partner_id']) {
-    $partnerIds[] = $coupon['partner_id'];
-    $partnerIds = array_values(array_unique($partnerIds));
-}
+$partnerIds = array_values(array_unique(array_filter(array_merge(array_keys($groups), array_column($coupons, 'partner_id')))));
 if ($partnerIds) {
     // Название — короткое (NAME_SHORT, «ИП Антух Д. А.»), если заполнено.
     $res = CIBlockElement::GetList([], ['ID' => $partnerIds, 'CHECK_PERMISSIONS' => 'N'], false, false, ['ID', 'NAME', 'DETAIL_PAGE_URL', 'ACTIVE', 'PROPERTY_NAME_SHORT']);
@@ -118,11 +117,12 @@ foreach ($groups as $partnerId => $group) {
     ];
 }
 
-if ($coupon) {
+foreach ($coupons as &$coupon) {
     $coupon['partner_name'] = $partners[$coupon['partner_id']]['name'] ?? '';
     if ($coupon['valid'] && !isset($groups[$coupon['partner_id']])) {
         $coupon['message'] = 'Промокод действует только на товары продавца «' . $coupon['partner_name'] . '»';
     }
 }
+unset($coupon);
 
-echo json_encode(['groups' => $result, 'items' => $items, 'coupon' => $coupon], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+echo json_encode(['groups' => $result, 'items' => $items, 'coupons' => $coupons], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);

@@ -7,9 +7,10 @@
    по отмеченным товарам. Количество и «Удалить» в карточке работают через
    cart.js; после изменения количества цены перезапрашиваются (скидки
    «от N штук» и «от суммы»).
-   Промокод — купон партнёра из кабинета: скидка на отмеченные товары
-   этого поставщика (процент или сумма, не больше их стоимости).
-   Применённый код хранится в браузере (localStorage).
+   Промокоды — купоны партнёров из кабинета: скидка на отмеченные товары
+   своего поставщика (процент или сумма, не больше их стоимости). Можно
+   несколько — по одному на поставщика (новый код того же поставщика
+   заменяет прежний). Применённые коды хранятся в браузере (localStorage).
 
    Файл подключается в <head>; FormaroCart/FormaroProductCard — в
    footer.php, поэтому старт — по jQuery ready. */
@@ -17,28 +18,32 @@
     var endpoint = '/local/ajax/cart_list.php';
     var REFRESH_DELAY = 300;
     var STICKY_TOP = 60;
-    var COUPON_KEY = 'formaro_cart_coupon';
+    var COUPON_KEY = 'formaro_cart_coupons';
 
     var el = {};
     var groups = [];          // [{partner, items}]
     var unchecked = {};       // id → true: снятые с выбора (по умолчанию выбрано всё)
     var requestId = 0;
     var refreshTimer = null;
-    var coupon = null;        // действующий промокод (ответ сервера)
+    var coupons = [];         // действующие промокоды (ответ сервера), по одному на поставщика
     var couponError = '';     // почему не подошёл введённый код
-    var couponCode = readCoupon();
-    var attemptPrevCode = null; // код до попытки ввести новый
+    var couponCodes = readCoupons();
+    var attempt = null;       // {code, prev: [...]} — код, который сейчас проверяем
 
-    function readCoupon() {
-        try { return window.localStorage.getItem(COUPON_KEY) || ''; } catch (e) { return ''; }
-    }
-
-    function writeCoupon(code) {
+    function readCoupons() {
         try {
-            if (code) window.localStorage.setItem(COUPON_KEY, code); else window.localStorage.removeItem(COUPON_KEY);
-        } catch (e) { /* без хранилища — промокод до перезагрузки */ }
+            var list = JSON.parse(window.localStorage.getItem(COUPON_KEY) || '[]');
+            return Array.isArray(list) ? list.filter(function (c) { return typeof c === 'string' && c; }) : [];
+        } catch (e) {
+            return [];
+        }
     }
 
+    function writeCoupons(codes) {
+        try {
+            if (codes.length) window.localStorage.setItem(COUPON_KEY, JSON.stringify(codes)); else window.localStorage.removeItem(COUPON_KEY);
+        } catch (e) { /* без хранилища — промокоды до перезагрузки */ }
+    }
     function card() { return window.FormaroProductCard; }
 
     function plural(n, one, few, many) {
@@ -52,7 +57,7 @@
         var id = ++requestId;
         var qs = items.map(function (item) { return item.id + ':' + item.qty; }).join(',');
         var xhr = new XMLHttpRequest();
-        xhr.open('GET', endpoint + '?items=' + encodeURIComponent(qs) + (couponCode ? '&coupon=' + encodeURIComponent(couponCode) : ''), true);
+        xhr.open('GET', endpoint + '?items=' + encodeURIComponent(qs) + (couponCodes.length ? '&coupons=' + encodeURIComponent(couponCodes.join(',')) : ''), true);
         xhr.onload = function () {
             if (id !== requestId) return;
             var data = null;
@@ -123,15 +128,15 @@
             total += item.sum;
         });
         var couponDiscount = 0;
-        if (coupon && coupon.valid) {
+        coupons.forEach(function (coupon) {
             var base = selected.filter(function (item) { return item.partner_id === coupon.partner_id; })
                 .reduce(function (s, item) { return s + item.sum; }, 0);
-            couponDiscount = coupon.discount_type === 'percent'
+            couponDiscount += coupon.discount_type === 'percent'
                 ? Math.round(base * coupon.value / 100)
                 : Math.min(coupon.value, base);
-        }
+        });
         total -= couponDiscount;
-        el.coupon.textContent = '-' + fmt(couponDiscount);
+        el.couponSum.textContent = '-' + fmt(couponDiscount);
         el.couponWrap.classList.toggle('d-none', couponDiscount <= 0);
 
         var n = selected.length;
@@ -143,9 +148,6 @@
         el.checkout.disabled = n === 0;
     }
 
-    /** Данные с сервера → группы; если состав групп не менялся (только
-     *  количество/цены) — обновляем цены на месте, не перерисовывая
-     *  карточки (не сбиваем ввод количества). */
     /** Партнёр товара — нужен для промокода (купон одного поставщика). */
     function withPartners(list) {
         list.forEach(function (g) {
@@ -160,38 +162,45 @@
         if (couponError) {
             html += '<div class="small text-danger mb-1">' + esc(couponError) + '</div>';
         }
-        if (coupon) {
-            html += '<span class="badge badge-primary">' + esc(coupon.code) +
-                ' <a href="#" class="text-white ml-1 js-cart-coupon-remove" aria-label="Убрать промокод">&times;</a></span>' +
-                '<div class="small text-muted mt-1">' + esc(coupon.message || ('Скидка на товары продавца «' + coupon.partner_name + '»')) + '</div>';
-        }
+        coupons.forEach(function (coupon) {
+            html += '<div class="mb-1">' +
+                '<span class="badge badge-primary">' + esc(coupon.code) +
+                    ' <a href="#" class="text-white ml-1 js-cart-coupon-remove" data-code="' + esc(coupon.code) + '" aria-label="Убрать промокод">&times;</a>' +
+                '</span>' +
+                '<div class="small text-muted">' + esc(coupon.message || ('Скидка на товары продавца «' + coupon.partner_name + '»')) + '</div>' +
+            '</div>';
+        });
         el.couponState.innerHTML = html;
     }
 
-    /** Ответ по промокоду. Неподходящий введённый код не запоминаем и
-     *  не сбрасываем им уже применённый — только показываем ошибку. */
-    function setCoupon(data) {
-        var next = data.coupon || null;
-        var attempted = attemptPrevCode !== null;
-        if (next && next.valid) {
-            coupon = next;
-            couponError = '';
-        } else {
-            couponError = next ? next.message : '';
-            if (attempted) {
-                couponCode = attemptPrevCode;
+    /** Ответ по промокодам. Неподходящий введённый код не запоминаем и не
+     *  трогаем им уже применённые — только показываем ошибку; ранее
+     *  сохранённый код, который перестал действовать, тихо убираем. Новый
+     *  код поставщика заменяет его прежний. */
+    function setCoupons(data) {
+        var list = data.coupons || [];
+        couponError = '';
+        if (attempt) {
+            var tried = list.filter(function (c) { return c.code === attempt.code; })[0];
+            if (!tried || !tried.valid) {
+                couponError = tried ? tried.message : 'Промокод не найден';
+                list = list.filter(function (c) { return c.code !== attempt.code; });
             } else {
-                coupon = null;
-                couponCode = '';
+                list = list.filter(function (c) { return c.code === tried.code || c.partner_id !== tried.partner_id; });
             }
-            writeCoupon(couponCode);
+            attempt = null;
         }
-        attemptPrevCode = null;
+        coupons = list.filter(function (c) { return c.valid; });
+        couponCodes = coupons.map(function (c) { return c.code; });
+        writeCoupons(couponCodes);
         renderCoupon();
     }
 
+    /** Данные с сервера → группы; если состав групп не менялся (только
+     *  количество/цены) — обновляем цены на месте, не перерисовывая
+     *  карточки (не сбиваем ввод количества). */
     function apply(data) {
-        setCoupon(data);
+        setCoupons(data);
         var next = withPartners(data.groups || []);
         var sameStructure = next.length === groups.length && next.every(function (g, i) {
             return g.partner.id === groups[i].partner.id &&
@@ -262,7 +271,7 @@
             discountWrap: document.getElementById('cart-summary-discount-wrap'),
             total: document.getElementById('cart-summary-total'),
             checkout: document.getElementById('cart-checkout'),
-            coupon: document.getElementById('cart-summary-coupon'),
+            couponSum: document.getElementById('cart-summary-coupon'),
             couponWrap: document.getElementById('cart-summary-coupon-wrap'),
             couponState: document.getElementById('cart-coupon-state'),
             couponInput: document.getElementById('cart-coupon-input'),
@@ -296,21 +305,21 @@
             e.preventDefault();
             var code = el.couponInput.value.trim().toUpperCase();
             if (!code) return;
-            attemptPrevCode = couponCode;
-            couponCode = code;
             el.couponInput.value = '';
-            load(window.FormaroCart.getItems(), function (data) {
-                apply(data);
-                if (coupon && coupon.code === code) writeCoupon(code);
-            });
+            if (couponCodes.indexOf(code) !== -1) return;
+            attempt = {code: code};
+            couponCodes = couponCodes.concat(code);
+            load(window.FormaroCart.getItems(), apply);
         });
 
         el.couponState.addEventListener('click', function (e) {
-            if (!e.target.closest('.js-cart-coupon-remove')) return;
+            var link = e.target.closest('.js-cart-coupon-remove');
+            if (!link) return;
             e.preventDefault();
-            couponCode = '';
-            writeCoupon('');
-            coupon = null;
+            var code = link.getAttribute('data-code');
+            coupons = coupons.filter(function (c) { return c.code !== code; });
+            couponCodes = coupons.map(function (c) { return c.code; });
+            writeCoupons(couponCodes);
             couponError = '';
             renderCoupon();
             renderSummary();
@@ -336,7 +345,7 @@
                 return;
             }
             load(items, function (data) {
-                setCoupon(data);
+                setCoupons(data);
                 groups = withPartners(data.groups || []);
                 render();
             });
