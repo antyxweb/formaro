@@ -10,6 +10,10 @@ use Bitrix\Main\Type\DateTime;
  * orders.json, чтобы orders.js/order-detail.js работали почти без
  * переделки. В отличие от прототипа (где владение выводилось из
  * items[].product_id) здесь UF_PARTNER_ID хранится явно.
+ *
+ * Заказы с витрины (CartCheckoutService) — с UF_USER_ID покупателя
+ * (задаётся только при создании; у заказов, созданных партнёром вручную,
+ * — 0).
  */
 class OrderRepository
 {
@@ -43,7 +47,8 @@ class OrderRepository
      * @param array $payload id?/status/delivery_method/payment_method/
      *                       payment_status/customer{}/customer_comment/
      *                       items[]/subtotal/total/discount_id/discount_name/
-     *                       coupon_code/discount_amount/history[]
+     *                       coupon_code/discount_amount/history[]/
+     *                       user_id (только при создании)
      */
     public function save(int $partnerId, array $payload): array
     {
@@ -85,6 +90,7 @@ class OrderRepository
             // не совпал бы с фактически присвоенным).
             $fields['UF_ORDER_NUMBER'] = 'F-' . (100200 + $this->nextSequence());
             $fields['UF_CREATED_AT'] = new DateTime();
+            $fields['UF_USER_ID'] = (int)($payload['user_id'] ?? 0);
             $result = $dataClass::add($fields);
         }
 
@@ -140,6 +146,7 @@ class OrderRepository
             'coupon_code' => $row['UF_COUPON_CODE'] ?: null,
             'discount_amount' => (float)$row['UF_DISCOUNT_AMOUNT'],
             'partner_id' => (int)$row['UF_PARTNER_ID'],
+            'user_id' => (int)($row['UF_USER_ID'] ?? 0),
         ];
     }
 }

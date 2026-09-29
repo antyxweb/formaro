@@ -118,6 +118,18 @@ class CouponRepository
         return $this->get($existing ? $id : $result->getId());
     }
 
+    /** Купон применён в заказе с витрины (/personal/cart/) — для
+     *  одноразового после этого checkUsable() вернёт «уже использован». */
+    public function incrementUsage(int $id): void
+    {
+        $coupon = $id ? $this->get($id) : null;
+        if (!$coupon) {
+            return;
+        }
+        $dataClass = HlblockEntityFactory::getDataClass(self::HLBLOCK_NAME);
+        $dataClass::update($id, ['UF_USED_COUNT' => $coupon['used_count'] + 1]);
+    }
+
     /** @throws \Exception если купон чужой/не найден */
     public function delete(int $partnerId, int $id): bool
     {

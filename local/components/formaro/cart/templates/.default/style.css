@@ -11,6 +11,17 @@
     margin-left: 0;
 }
 
+/* Сообщение об оформленном заказе. */
+.cart-success {
+    border-left: 4px solid #28a745;
+}
+.cart-success-title {
+    color: #28a745;
+}
+.cart-success:focus {
+    outline: none;
+}
+
 /* Плитки способов доставки/оплаты (вёрстка /html/cart.html): выбранная —
    синяя иконка, остальные — серая. */
 .cart-choice {

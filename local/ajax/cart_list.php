@@ -16,6 +16,9 @@
  * поставщика — выбирает страница корзины); сумму скидки по отмеченным
  * товарам считает она же.
  *
+ * Расчёт — CartCheckoutService::calculate() (им же пользуется оформление,
+ * /local/ajax/checkout.php).
+ *
  * Корзину гостя присылает сам браузер, поэтому без авторизации: отдаются
  * только публичные данные активных товаров.
  */
@@ -25,10 +28,7 @@ require($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_before.
 
 use Bitrix\Main\Loader;
 use Formaro\Cabinet\Repository\CartRepository;
-use Formaro\Cabinet\Repository\CouponRepository;
-use Formaro\Cabinet\Repository\DiscountRepository;
-use Formaro\Cabinet\Repository\ProductRepository;
-use Formaro\Cabinet\Service\ProductPricingService;
+use Formaro\Cabinet\Service\CartCheckoutService;
 
 header('Content-Type: application/json; charset=utf-8');
 
@@ -45,84 +45,11 @@ foreach (array_slice(explode(',', (string)($_GET['items'] ?? '')), 0, CartReposi
 }
 $items = CartRepository::normalize($items);
 
-$products = [];
-if ($items) {
-    foreach ((new ProductRepository())->findPublic(['ID' => array_column($items, 'id')], ['ID' => 'ASC'], count($items)) as $p) {
-        $products[$p['id']] = $p;
-    }
-}
-$activeDiscounts = $items ? (new DiscountRepository())->listActive() : [];
+$result = CartCheckoutService::calculate($items, explode(',', (string)($_GET['coupons'] ?? '')));
+// id купона наружу не нужен.
+$coupons = array_map(static function (array $c) {
+    unset($c['id']);
+    return $c;
+}, $result['coupons']);
 
-// Группы по партнёрам — в порядке первого добавленного товара.
-$groups = [];
-foreach ($items as $item) {
-    $p = $products[$item['id']];
-    $display = ProductPricingService::computeDisplay($p, $activeDiscounts, $item['qty']);
-    $partnerId = (int)$p['partner_id'];
-    $groups[$partnerId]['items'][] = [
-        'id' => $p['id'],
-        'name' => $p['name'],
-        'sku' => $p['sku'],
-        'url' => $p['public_url'],
-        'image' => $p['preview_image'],
-        'stock' => $p['stock'],
-        'is_preorder' => $p['is_preorder'],
-        'price' => $display['price'],
-        'old_price' => $display['old_price'],
-        'badges' => $display['badges'],
-        'qty' => $item['qty'],
-        'max' => $p['is_preorder'] ? 0 : $p['stock'],
-        'sum' => $display['price'] * $item['qty'],
-        'old_sum' => ($display['old_price'] ?? $display['price']) * $item['qty'],
-    ];
-}
-
-$coupons = [];
-$couponRepo = new CouponRepository();
-$codes = array_unique(array_filter(array_map(static fn($c) => strtoupper(trim($c)), explode(',', (string)($_GET['coupons'] ?? ''))), 'strlen'));
-foreach (array_slice($codes, 0, 20) as $code) {
-    $found = $couponRepo->findByCode($code);
-    $error = $found ? CouponRepository::checkUsable($found) : 'Промокод не найден';
-    $coupons[] = [
-        'code' => $code,
-        'valid' => $error === null,
-        'message' => $error ?? '',
-        'partner_id' => $found ? (int)$found['partner_id'] : 0,
-        'partner_name' => '',
-        'discount_type' => $found ? $found['discount_type'] : '',
-        'value' => $found ? $found['value'] : 0,
-    ];
-}
-
-$partners = [];
-$partnerIds = array_values(array_unique(array_filter(array_merge(array_keys($groups), array_column($coupons, 'partner_id')))));
-if ($partnerIds) {
-    // Название — короткое (NAME_SHORT, «ИП Антух Д. А.»), если заполнено.
-    $res = CIBlockElement::GetList([], ['ID' => $partnerIds, 'CHECK_PERMISSIONS' => 'N'], false, false, ['ID', 'NAME', 'DETAIL_PAGE_URL', 'ACTIVE', 'PROPERTY_NAME_SHORT']);
-    while ($row = $res->GetNext()) {
-        $shortName = trim((string)($row['~PROPERTY_NAME_SHORT_VALUE'] ?? ''));
-        $partners[(int)$row['ID']] = [
-            'id' => (int)$row['ID'],
-            'name' => $shortName !== '' ? $shortName : $row['~NAME'],
-            'url' => $row['ACTIVE'] === 'Y' ? $row['DETAIL_PAGE_URL'] : '',
-        ];
-    }
-}
-
-$result = [];
-foreach ($groups as $partnerId => $group) {
-    $result[] = [
-        'partner' => $partners[$partnerId] ?? ['id' => $partnerId, 'name' => 'Другие продавцы', 'url' => ''],
-        'items' => $group['items'],
-    ];
-}
-
-foreach ($coupons as &$coupon) {
-    $coupon['partner_name'] = $partners[$coupon['partner_id']]['name'] ?? '';
-    if ($coupon['valid'] && !isset($groups[$coupon['partner_id']])) {
-        $coupon['message'] = 'Промокод действует только на товары продавца «' . $coupon['partner_name'] . '»';
-    }
-}
-unset($coupon);
-
-echo json_encode(['groups' => $result, 'items' => $items, 'coupons' => $coupons], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+echo json_encode(['groups' => $result['groups'], 'items' => $items, 'coupons' => $coupons], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);

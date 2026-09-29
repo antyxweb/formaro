@@ -10,14 +10,28 @@ use Bitrix\Main\Type\DateTime;
  * это read-only список с точки зрения партнёра — он может только читать
  * и помечать прочитанным/прочитанными, не создавать/редактировать/удалять.
  *
- * Ничто в этой версии модуля автоматически не создаёт здесь записи при
- * реальных событиях (новый заказ, сообщение в чате, ответ поддержки и
- * т.д.) — см. комментарий в миграции. Формат совпадает с cabinet-html/
+ * Записи создаёт сайт при событиях (add()): пока — новый заказ с витрины
+ * (CartCheckoutService); сообщения чата, ответы поддержки и т.д. — ещё
+ * нет, см. комментарий в миграции. Формат совпадает с cabinet-html/
  * data/notifications.json, чтобы notifications.js работал без переделки.
  */
 class NotificationRepository
 {
     private const HLBLOCK_NAME = 'CabinetNotifications';
+
+    /** Новое уведомление партнёру; $type — order/chat/support/system/finance/product. */
+    public function add(int $partnerId, string $type, string $title, string $message): void
+    {
+        $dataClass = HlblockEntityFactory::getDataClass(self::HLBLOCK_NAME);
+        $dataClass::add([
+            'UF_TYPE' => $type,
+            'UF_TITLE' => $title,
+            'UF_MESSAGE' => $message,
+            'UF_IS_READ' => false,
+            'UF_PARTNER_ID' => $partnerId,
+            'UF_CREATED_AT' => new DateTime(),
+        ]);
+    }
 
     public function listOwn(int $partnerId): array
     {

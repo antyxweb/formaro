@@ -36,6 +36,13 @@ $choices = static function (string $name, array $options): void {
         <div class="container-fluid">
             <div class="row">
                 <div class="col-12 col-xl-8" id="cart-content">
+                    <div class="cart-success bg-white py-4 px-3 px-lg-4 mb-5 d-none" id="cart-success" role="status" tabindex="-1">
+                        <h4 class="cart-success-title mb-3">Заказ оформлен</h4>
+                        <p class="mb-2">Спасибо! Продавцы получили заказ и свяжутся с вами для подтверждения.</p>
+                        <ul class="mb-4" id="cart-success-list"></ul>
+                        <a href="<?= htmlspecialcharsbx($arParams['CATALOG_URL']) ?>" class="f-button c-primary">Продолжить покупки</a>
+                    </div>
+
                     <div id="cart-groups">
                         <?php // Скелетоны, пока грузится корзина. ?>
                         <div class="cart-grid row product-list d-flex flex-wrap">
@@ -112,7 +119,7 @@ $choices = static function (string $name, array $options): void {
                         <div class="product-card__actions">
                             <button type="button" class="f-button c-gray text-secondary" id="cart-checkout" disabled>Выберите товары</button>
                         </div>
-                        <div class="small text-muted px-3 px-lg-4 py-2 d-none" id="cart-checkout-note">Создание заказа пока не подключено.</div>
+                        <div class="small px-3 px-lg-4 py-2 d-none" id="cart-checkout-note" role="alert"></div>
                     </div>
                 </div>
             </div>

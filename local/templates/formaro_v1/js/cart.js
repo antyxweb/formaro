@@ -303,7 +303,8 @@
        getItems() — [{id, qty}] в порядке добавления;
        onReady(cb(items)) — когда корзина окончательно известна;
        onChange(cb(items, ids)) — после каждого изменения;
-       set(id, qty), remove(ids). */
+       set(id, qty), remove(ids);
+       isAuthorized(), sessid() — для оформления заказа. */
     window.FormaroCart = {
         getItems: snapshot,
         onReady: function (cb) {
@@ -311,7 +312,9 @@
         },
         onChange: function (cb) { changeCallbacks.push(cb); },
         set: set,
-        remove: remove
+        remove: remove,
+        isAuthorized: function () { return state.authorized; },
+        sessid: function () { return state.sessid; }
     };
 
     if (!$) return;

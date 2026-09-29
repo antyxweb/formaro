@@ -8,7 +8,10 @@
    (localStorage). Под товарами — способ доставки (до адреса — с полем
    адреса, или самовывоз) и способ оплаты; выбор и адрес тоже запоминаются
    в браузере. Кнопка оформления без отмеченных товаров — серая «Выберите
-   товары», иначе — «Оформить заказ». Количество и «Удалить» в карточке работают через
+   товары», иначе — «Оформить заказ»: по заказу на каждого поставщика
+   отмеченных товаров (/local/ajax/checkout.php, только для вошедших),
+   оформленные товары уходят из корзины, сверху — сообщение с номерами
+   заказов. Количество и «Удалить» в карточке работают через
    cart.js; после изменения количества цены перезапрашиваются (скидки
    «от N штук» и «от суммы»).
    Промокоды — купоны партнёров из кабинета: скидка на отмеченные товары
@@ -20,6 +23,8 @@
    footer.php, поэтому старт — по jQuery ready. */
 (function () {
     var endpoint = '/local/ajax/cart_list.php';
+    var CHECKOUT_URL = '/local/ajax/checkout.php';
+    var LOGIN_URL = '/login/?backurl=' + encodeURIComponent('/personal/cart/');
     var REFRESH_DELAY = 300;
     var STICKY_TOP = 60;
     var COUPON_KEY = 'formaro_cart_coupons';
@@ -163,7 +168,8 @@
     function render() {
         var items = allItems();
         el.groups.innerHTML = groups.map(groupHtml).join('');
-        el.empty.classList.toggle('d-none', items.length > 0);
+        // После оформления вместо «корзина пуста» — сообщение о заказе.
+        el.empty.classList.toggle('d-none', items.length > 0 || !el.success.classList.contains('d-none'));
         el.summaryWrap.classList.toggle('d-none', !items.length);
         el.checkoutForm.classList.toggle('d-none', !items.length);
         writeUnchecked();
@@ -348,6 +354,69 @@
         form.addEventListener('submit', function (e) { e.preventDefault(); });
     }
 
+    function showNote(html, isError) {
+        el.checkoutNote.innerHTML = html;
+        el.checkoutNote.classList.toggle('text-danger', !!isError);
+        el.checkoutNote.classList.toggle('text-muted', !isError);
+        el.checkoutNote.classList.remove('d-none');
+    }
+
+    /** Оформление: отмеченные товары → заказы по поставщикам. */
+    function submitOrder() {
+        if (!window.FormaroCart.isAuthorized()) {
+            showNote('<a href="' + LOGIN_URL + '">Войдите</a>, чтобы оформить заказ — товары в корзине сохранятся.');
+            return;
+        }
+        var ids = allItems().filter(function (item) { return !unchecked[item.id]; }).map(function (item) { return item.id; });
+        if (!ids.length) return;
+
+        var form = el.checkoutForm;
+        var params = ['sessid=' + encodeURIComponent(window.FormaroCart.sessid())];
+        ids.forEach(function (id) { params.push('ids[]=' + id); });
+        params.push('coupons=' + encodeURIComponent(couponCodes.join(',')));
+        params.push('delivery=' + encodeURIComponent(form.elements.delivery.value));
+        params.push('payment=' + encodeURIComponent(form.elements.payment.value));
+        params.push('address=' + encodeURIComponent(el.address.value.trim()));
+
+        el.checkout.disabled = true;
+        el.checkout.textContent = 'Оформляем…';
+        el.checkoutNote.classList.add('d-none');
+
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', CHECKOUT_URL, true);
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhr.onload = function () {
+            var data = null;
+            try { data = JSON.parse(xhr.responseText); } catch (e) { /* пусто */ }
+            renderSummary();
+            if (xhr.status === 200 && data && data.orders) {
+                showSuccess(data.orders, ids);
+            } else {
+                showNote(card().escHtml((data && data.error) || 'Не удалось оформить заказ, попробуйте ещё раз'), true);
+            }
+        };
+        xhr.onerror = function () {
+            renderSummary();
+            showNote('Нет связи с сервером, попробуйте ещё раз', true);
+        };
+        xhr.send(params.join('&'));
+    }
+
+    /** Заказы созданы: сообщение с номерами, оформленные товары убираем
+     *  из корзины (на сервере их уже нет). */
+    function showSuccess(orders, ids) {
+        var esc = card().escHtml, fmt = card().fmtPrice;
+        document.getElementById('cart-success-list').innerHTML = orders.map(function (o) {
+            return '<li>Заказ <b>' + esc(o.order_number) + '</b> — ' + esc(o.partner_name) + ', ' + fmt(o.total) + ' руб</li>';
+        }).join('');
+        var box = el.success;
+        box.querySelector('.cart-success-title').textContent = orders.length > 1 ? 'Заказы оформлены' : 'Заказ оформлен';
+        box.classList.remove('d-none');
+        window.FormaroCart.remove(ids);
+        box.scrollIntoView({block: 'start', behavior: 'smooth'});
+        box.focus({preventScroll: true});
+    }
+
     /** Итог залипает CSS sticky (style.css), только если помещается в окно;
      *  sticky-kit, который scripts.js включает на #product-option, снимаем. */
     function updateSticky() {
@@ -377,6 +446,7 @@
             couponInput: document.getElementById('cart-coupon-input'),
             checkoutNote: document.getElementById('cart-checkout-note'),
             checkoutForm: document.getElementById('cart-checkout-form'),
+            success: document.getElementById('cart-success'),
             address: document.getElementById('cart-address'),
             addressGroup: document.getElementById('cart-address-group'),
             deliveryTitle: document.getElementById('cart-summary-delivery-title'),
@@ -439,7 +509,7 @@
                 el.address.focus({preventScroll: true});
                 return;
             }
-            el.checkoutNote.classList.remove('d-none');
+            submitOrder();
         });
 
         // Любое изменение корзины: удалённые карточки убираем сразу, цены и
