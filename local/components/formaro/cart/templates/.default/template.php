@@ -5,6 +5,31 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
 /** @var array $arParams */
 
 // Вёрстка — /html/cart.html. Группы поставщиков и итог строит script.js.
+// Способы доставки и оплаты — плитки из вёрстки, выбор — радиокнопки.
+$deliveries = [
+    ['code' => 'address', 'name' => 'До адреса', 'icon' => 'icon-availability'],
+    ['code' => 'pickup', 'name' => 'Самовывоз', 'icon' => 'icon-delivery'],
+];
+$payments = [
+    ['code' => 'card', 'name' => 'Картой онлайн', 'icon' => 'icon-wallet'],
+    ['code' => 'sbp', 'name' => 'СБП', 'icon' => 'icon-sbp'],
+    ['code' => 'invoice', 'name' => 'По счету', 'icon' => 'icon-list-done'],
+];
+$choices = static function (string $name, array $options): void {
+    foreach ($options as $i => $option): ?>
+        <div class="col-12 col-lg-6 col-xl-3 mb-4 mb-xl-0">
+            <label class="cart-choice d-block h-100 mb-0">
+                <input type="radio" class="sr-only" name="<?= $name ?>" value="<?= $option['code'] ?>"<?= $i === 0 ? ' checked' : '' ?>>
+                <span class="support__link">
+                    <span class="support__icon-wrapper">
+                        <svg class="support__link-icon" width="24" height="24"><use xlink:href="#<?= $option['icon'] ?>"></use></svg>
+                    </span>
+                    <?= $option['name'] ?>
+                </span>
+            </label>
+        </div>
+    <?php endforeach;
+};
 ?>
 <section class="section pt-4" id="cart-page">
     <div class="section-body">
@@ -19,6 +44,21 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
                             <?php endfor; ?>
                         </div>
                     </div>
+
+                    <form class="d-none" id="cart-checkout-form" autocomplete="on" novalidate>
+                        <h3 class="my-5">Способ доставки</h3>
+                        <div class="support-list row"><?php $choices('delivery', $deliveries); ?></div>
+
+                        <div class="form-group pt-4" id="cart-address-group">
+                            <label for="cart-address">Адрес доставки</label>
+                            <input type="text" class="form-control" id="cart-address" name="address" autocomplete="street-address" maxlength="255" aria-describedby="cart-address-help">
+                            <small id="cart-address-help" class="form-text text-muted">Укажите точный адрес, включая индекс</small>
+                            <div class="invalid-feedback">Укажите адрес доставки</div>
+                        </div>
+
+                        <h3 class="my-5">Способ оплаты</h3>
+                        <div class="support-list row"><?php $choices('payment', $payments); ?></div>
+                    </form>
 
                     <div class="py-5 d-none" id="cart-empty">
                         <p class="mb-4">В корзине пока ничего нет</p>
@@ -58,17 +98,21 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
                                 </div>
                             </div>
 
+                            <div id="cart-summary-delivery-wrap">
+                                <h6 class="mb-1" id="cart-summary-delivery-title">Доставка до адреса:</h6>
+                                <div class="text-secondary mb-4" id="cart-summary-delivery">Стоимость сообщит продавец после оформления</div>
+                            </div>
+
                             <h6>Итого</h6>
                             <div class="price text-secondary">
                                 <b class="text-danger" id="cart-summary-total">0</b> <small class="mr-2">руб</small>
                             </div>
-                            <small class="text-muted d-none" id="cart-summary-note">Доставка и способ оплаты — при оформлении заказа</small>
                         </div>
 
                         <div class="product-card__actions">
-                            <button type="button" class="f-button c-success" id="cart-checkout" disabled>Перейти к оформлению</button>
+                            <button type="button" class="f-button c-gray" id="cart-checkout" disabled>Выберите товары</button>
                         </div>
-                        <div class="small text-muted px-3 px-lg-4 py-2 d-none" id="cart-checkout-note">Оформление заказа появится на следующем этапе.</div>
+                        <div class="small text-muted px-3 px-lg-4 py-2 d-none" id="cart-checkout-note">Создание заказа пока не подключено.</div>
                     </div>
                 </div>
             </div>

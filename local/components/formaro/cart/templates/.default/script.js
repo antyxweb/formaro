@@ -5,7 +5,10 @@
    сгруппированы по поставщикам; у группы шапка: слева поставщик ссылкой,
    справа «выбрать все», «снять выбор», «удалить выбранные». Итог справа —
    по отмеченным товарам; снятые с выбора товары запоминаются в браузере
-   (localStorage). Количество и «Удалить» в карточке работают через
+   (localStorage). Под товарами — способ доставки (до адреса — с полем
+   адреса, или самовывоз) и способ оплаты; выбор и адрес тоже запоминаются
+   в браузере. Кнопка оформления без отмеченных товаров — серая «Выберите
+   товары», иначе — «Оформить заказ». Количество и «Удалить» в карточке работают через
    cart.js; после изменения количества цены перезапрашиваются (скидки
    «от N штук» и «от суммы»).
    Промокоды — купоны партнёров из кабинета: скидка на отмеченные товары
@@ -21,6 +24,7 @@
     var STICKY_TOP = 60;
     var COUPON_KEY = 'formaro_cart_coupons';
     var UNCHECKED_KEY = 'formaro_cart_unchecked';
+    var CHECKOUT_KEY = 'formaro_cart_checkout';
 
     var el = {};
     var groups = [];          // [{partner, items}]
@@ -66,6 +70,28 @@
         try {
             if (ids.length) window.localStorage.setItem(UNCHECKED_KEY, JSON.stringify(ids)); else window.localStorage.removeItem(UNCHECKED_KEY);
         } catch (e) { /* без хранилища — выбор до перезагрузки */ }
+    }
+
+    /** Способ доставки/оплаты и адрес: {delivery, payment, address}. */
+    function readCheckout() {
+        try {
+            var data = JSON.parse(window.localStorage.getItem(CHECKOUT_KEY) || '{}');
+            return data && typeof data === 'object' ? data : {};
+        } catch (e) {
+            return {};
+        }
+    }
+
+    function writeCheckout() {
+        var form = el.checkoutForm;
+        var data = {
+            delivery: form.elements.delivery.value,
+            payment: form.elements.payment.value,
+            address: el.address.value
+        };
+        try {
+            window.localStorage.setItem(CHECKOUT_KEY, JSON.stringify(data));
+        } catch (e) { /* без хранилища — до перезагрузки */ }
     }
 
     function card() { return window.FormaroProductCard; }
@@ -139,6 +165,7 @@
         el.groups.innerHTML = groups.map(groupHtml).join('');
         el.empty.classList.toggle('d-none', items.length > 0);
         el.summaryWrap.classList.toggle('d-none', !items.length);
+        el.checkoutForm.classList.toggle('d-none', !items.length);
         writeUnchecked();
         renderSummary();
         updateSticky();
@@ -171,6 +198,10 @@
         el.discount.textContent = '-' + fmt(sum - total - couponDiscount);
         el.discountWrap.classList.toggle('d-none', sum - total - couponDiscount <= 0);
         el.checkout.disabled = n === 0;
+        el.checkout.classList.toggle('c-gray', n === 0);
+        el.checkout.classList.toggle('c-success', n > 0);
+        el.checkout.textContent = n ? 'Оформить заказ' : 'Выберите товары';
+        if (!n) el.checkoutNote.classList.add('d-none');
         updateGroupActions();
     }
 
@@ -285,6 +316,37 @@
         renderSummary();
     }
 
+    /** Доставка до адреса — поле адреса и строка в итоге; самовывоз —
+     *  без адреса. */
+    function renderDelivery() {
+        var toAddress = el.checkoutForm.elements.delivery.value === 'address';
+        el.addressGroup.classList.toggle('d-none', !toAddress);
+        if (!toAddress) el.address.classList.remove('is-invalid');
+        el.deliveryTitle.textContent = toAddress ? 'Доставка до адреса:' : 'Самовывоз:';
+        el.delivery.textContent = toAddress ? 'Стоимость сообщит продавец после оформления' : 'Бесплатно';
+    }
+
+    function initCheckoutForm() {
+        var form = el.checkoutForm;
+        var saved = readCheckout();
+        ['delivery', 'payment'].forEach(function (name) {
+            var input = saved[name] && form.querySelector('input[name="' + name + '"][value="' + String(saved[name]).replace(/[^a-z]/g, '') + '"]');
+            if (input) input.checked = true;
+        });
+        if (typeof saved.address === 'string') el.address.value = saved.address;
+        renderDelivery();
+
+        form.addEventListener('change', function (e) {
+            if (e.target.name === 'delivery') renderDelivery();
+            writeCheckout();
+        });
+        el.address.addEventListener('input', function () {
+            el.address.classList.remove('is-invalid');
+            writeCheckout();
+        });
+        form.addEventListener('submit', function (e) { e.preventDefault(); });
+    }
+
     /** Итог залипает CSS sticky (style.css), только если помещается в окно;
      *  sticky-kit, который scripts.js включает на #product-option, снимаем. */
     function updateSticky() {
@@ -312,8 +374,14 @@
             couponWrap: document.getElementById('cart-summary-coupon-wrap'),
             couponState: document.getElementById('cart-coupon-state'),
             couponInput: document.getElementById('cart-coupon-input'),
-            checkoutNote: document.getElementById('cart-checkout-note')
+            checkoutNote: document.getElementById('cart-checkout-note'),
+            checkoutForm: document.getElementById('cart-checkout-form'),
+            address: document.getElementById('cart-address'),
+            addressGroup: document.getElementById('cart-address-group'),
+            deliveryTitle: document.getElementById('cart-summary-delivery-title'),
+            delivery: document.getElementById('cart-summary-delivery')
         };
+        initCheckoutForm();
 
         root.addEventListener('change', function (e) {
             if (!e.target.classList.contains('js-cart-choose')) return;
@@ -364,6 +432,12 @@
         });
 
         el.checkout.addEventListener('click', function () {
+            if (el.checkoutForm.elements.delivery.value === 'address' && !el.address.value.trim()) {
+                el.address.classList.add('is-invalid');
+                el.address.scrollIntoView({block: 'center', behavior: 'smooth'});
+                el.address.focus({preventScroll: true});
+                return;
+            }
             el.checkoutNote.classList.remove('d-none');
         });
 
