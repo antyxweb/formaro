@@ -199,6 +199,7 @@
         el.discountWrap.classList.toggle('d-none', sum - total - couponDiscount <= 0);
         el.checkout.disabled = n === 0;
         el.checkout.classList.toggle('c-gray', n === 0);
+        el.checkout.classList.toggle('text-secondary', n === 0); // как «Удалить» в карточке
         el.checkout.classList.toggle('c-success', n > 0);
         el.checkout.textContent = n ? 'Оформить заказ' : 'Выберите товары';
         if (!n) el.checkoutNote.classList.add('d-none');

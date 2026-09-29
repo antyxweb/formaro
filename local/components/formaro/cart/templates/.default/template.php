@@ -110,7 +110,7 @@ $choices = static function (string $name, array $options): void {
                         </div>
 
                         <div class="product-card__actions">
-                            <button type="button" class="f-button c-gray" id="cart-checkout" disabled>Выберите товары</button>
+                            <button type="button" class="f-button c-gray text-secondary" id="cart-checkout" disabled>Выберите товары</button>
                         </div>
                         <div class="small text-muted px-3 px-lg-4 py-2 d-none" id="cart-checkout-note">Создание заказа пока не подключено.</div>
                     </div>
