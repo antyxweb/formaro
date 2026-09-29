@@ -93,6 +93,17 @@
         if (window.jQuery) jQuery('#filter').trigger('sticky_kit:recalc');
     }
 
+    /** Скелетоны карточек перед «Показать еще» — пока идёт запрос:
+     *  8 при новой выборке, 4 при подгрузке. */
+    function showSkeletons(visible, n) {
+        Array.prototype.forEach.call(el.grid.querySelectorAll('.product-skeleton'), function (node) {
+            node.parentNode.removeChild(node);
+        });
+        if (visible) {
+            el.pager.insertAdjacentHTML('beforebegin', window.FormaroProductCard.skeletonsHtml(n || 8, 'product-item'));
+        }
+    }
+
     function clearCards() {
         Array.prototype.forEach.call(el.grid.querySelectorAll('.product-item'), function (node) {
             node.parentNode.removeChild(node);
@@ -110,7 +121,7 @@
     function load(reset) {
         if (!state.ids.length) {
             clearCards();
-            show(el.loading, false);
+            showSkeletons(false);
             renderEmpty();
             return;
         }
@@ -120,9 +131,11 @@
             clearCards();
             show(el.pager, false);
             show(el.notFound, false);
-            show(el.loading, true);
+            showSkeletons(true, 8);
         } else if (state.loading) {
             return;
+        } else {
+            showSkeletons(true, 4);
         }
 
         setLoading(true);
@@ -133,7 +146,7 @@
         request(params, function (data) {
             if (requestId !== state.requestId) return;
             setLoading(false);
-            show(el.loading, false);
+            showSkeletons(false);
             if (!data) return;
 
             if (!state.facetsApplied) {
@@ -215,7 +228,6 @@
             grid: document.getElementById('catalog-grid'),
             empty: document.getElementById('favorites-empty'),
             notFound: document.getElementById('favorites-not-found'),
-            loading: document.getElementById('favorites-loading'),
             pager: document.getElementById('favorites-pager'),
             loadMore: document.getElementById('favorites-load-more')
         };
@@ -251,7 +263,6 @@
             load(true);
         });
 
-        show(el.loading, true);
         window.FormaroFavorites.onChange(onFavoritesChange);
         window.FormaroFavorites.onReady(function (ids) {
             state.ids = ids;

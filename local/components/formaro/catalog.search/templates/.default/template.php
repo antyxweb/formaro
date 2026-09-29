@@ -109,6 +109,9 @@ $priceMax = max($priceMin + 1, (int)$arResult['PRICE_MAX']);
 
             <div class="d-none d-md-block">
                 <div id="catalog-grid" class="row product-list d-flex flex-wrap">
+                    <?php for ($i = 0; $i < 12; $i++): ?>
+                    <div class="product-item product-skeleton"><?php include $_SERVER['DOCUMENT_ROOT'] . SITE_TEMPLATE_PATH . '/include/product_card_skeleton.php'; ?></div>
+                    <?php endfor; ?>
                     <div class="col-12 py-5 text-center text-secondary d-none" id="catalogGridEmpty">
                         По вашему запросу ничего не найдено
                     </div>
@@ -129,7 +132,11 @@ $priceMax = max($priceMin + 1, (int)$arResult['PRICE_MAX']);
             </div>
 
             <div class="d-md-none">
-                <div id="catalog-search" class="main-carousel product-carousel"></div>
+                <div id="catalog-search" class="main-carousel product-carousel">
+                    <?php for ($i = 0; $i < 3; $i++): ?>
+                    <div class="carousel-cell product-skeleton"><?php include $_SERVER['DOCUMENT_ROOT'] . SITE_TEMPLATE_PATH . '/include/product_card_skeleton.php'; ?></div>
+                    <?php endfor; ?>
+                </div>
             </div>
         </div>
     </div>

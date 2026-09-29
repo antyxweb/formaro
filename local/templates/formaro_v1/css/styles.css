@@ -13217,3 +13217,69 @@ h1, h2, h3, h4, h5, h6,
         left: 45px;
     }
 }
+
+/* Скелетон карточки товара — пока товары подгружаются (сетка поиска,
+   мобильная карусель, избранное). Размеры повторяют .product-card:
+   картинка 1:1, заголовок 60px, цена, 2 строки мета, панель действий. */
+.product-card--skeleton {
+  pointer-events: none;
+}
+.product-card--skeleton .skeleton-img,
+.product-card--skeleton .skeleton-line,
+.product-card--skeleton .skeleton-action {
+  background: linear-gradient(90deg, #ececec 25%, #f6f6f6 37%, #ececec 63%);
+  background-size: 400% 100%;
+  -webkit-animation: skeleton-shimmer 1.4s ease infinite;
+          animation: skeleton-shimmer 1.4s ease infinite;
+}
+.product-card--skeleton .product-card__img {
+  background: #ffffff;
+}
+.product-card--skeleton .skeleton-img {
+  background-image: linear-gradient(90deg, #dedede 25%, #ebebeb 37%, #dedede 63%);
+}
+.product-card--skeleton .skeleton-line {
+  height: 14px;
+  border-radius: 3px;
+  margin-bottom: 8px;
+}
+.product-card--skeleton .skeleton-title {
+  height: 60px;
+  margin-bottom: 12px;
+}
+.product-card--skeleton .skeleton-title .skeleton-line {
+  margin-bottom: 9px;
+}
+.product-card--skeleton .skeleton-price {
+  width: 45%;
+  height: 22px;
+  margin-bottom: 12px;
+}
+.product-card--skeleton .skeleton-meta {
+  width: 60%;
+}
+.product-card--skeleton .product-card__actions {
+  height: 50px;
+  padding: 0;
+  background: #ffffff;
+}
+.product-card--skeleton .skeleton-action {
+  height: 100%;
+  width: 100%;
+}
+@-webkit-keyframes skeleton-shimmer {
+  0% { background-position: 100% 50%; }
+  100% { background-position: 0 50%; }
+}
+@keyframes skeleton-shimmer {
+  0% { background-position: 100% 50%; }
+  100% { background-position: 0 50%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .product-card--skeleton .skeleton-img,
+  .product-card--skeleton .skeleton-line,
+  .product-card--skeleton .skeleton-action {
+    -webkit-animation: none;
+            animation: none;
+  }
+}

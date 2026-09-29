@@ -137,9 +137,10 @@ $checkboxRow = static function (string $value, string $label): string {
                             <p class="mb-4">По выбранным условиям ничего не найдено</p>
                             <button type="button" class="f-button c-secondary" id="favorites-reset-filter">Сбросить фильтр</button>
                         </div>
-                        <div class="col-12 py-5 text-center d-none" id="favorites-loading">
-                            <svg width="24" height="24" class="icon-progress"><use xlink:href="#icon-progress"></use></svg>
-                        </div>
+                        <?php // Скелетоны карточек, пока грузится избранное (убирает script.js). ?>
+                        <?php for ($i = 0; $i < 8; $i++): ?>
+                        <div class="product-item product-skeleton"><?php include $_SERVER['DOCUMENT_ROOT'] . SITE_TEMPLATE_PATH . '/include/product_card_skeleton.php'; ?></div>
+                        <?php endfor; ?>
                         <div class="pager d-none" id="favorites-pager">
                             <div class="d-flex justify-content-center pt-4">
                                 <button type="button" class="f-button c-secondary" id="favorites-load-more">

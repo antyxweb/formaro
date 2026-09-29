@@ -80,7 +80,37 @@
         );
     }
 
-    window.FormaroProductCard = {html: productCardHtml, escHtml: escHtml};
+    /** Скелетон карточки — пока товары грузятся. Серверная копия —
+     *  include/product_card_skeleton.php. */
+    function skeletonHtml() {
+        return (
+            '<div class="product-card product-card--skeleton" aria-hidden="true">' +
+                '<div class="product-card__img"><div class="embed-responsive embed-responsive-1by1 skeleton-img"></div></div>' +
+                '<div class="product-card__info">' +
+                    '<div class="skeleton-title">' +
+                        '<div class="skeleton-line" style="width: 95%"></div>' +
+                        '<div class="skeleton-line" style="width: 70%"></div>' +
+                    '</div>' +
+                    '<div class="skeleton-line skeleton-price"></div>' +
+                    '<div class="skeleton-line skeleton-meta"></div>' +
+                    '<div class="skeleton-line skeleton-meta" style="width: 45%"></div>' +
+                '</div>' +
+                '<div class="product-card__actions"><div class="skeleton-action"></div></div>' +
+            '</div>'
+        );
+    }
+
+    /** n скелетонов в обёртке wrapperClass (product-item / carousel-cell);
+     *  у обёртки класс product-skeleton — по нему их убирают. */
+    function skeletonsHtml(n, wrapperClass) {
+        var html = '';
+        for (var i = 0; i < n; i++) {
+            html += '<div class="' + wrapperClass + ' product-skeleton">' + skeletonHtml() + '</div>';
+        }
+        return html;
+    }
+
+    window.FormaroProductCard = {html: productCardHtml, escHtml: escHtml, skeletonHtml: skeletonHtml, skeletonsHtml: skeletonsHtml};
 
     /* ---------------- Фильтр ---------------- */
 

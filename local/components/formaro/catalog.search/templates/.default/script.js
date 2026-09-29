@@ -121,6 +121,20 @@
             });
         }
 
+        // Скелетоны карточек, пока грузятся товары: 12 при новом
+        // поиске/фильтре (первые 12 отрисовал сервер), 6 под сеткой
+        // при «Показать еще».
+        function removeSkeletons() {
+            Array.prototype.forEach.call(grid.querySelectorAll('.product-skeleton'), function (el) {
+                el.parentNode.removeChild(el);
+            });
+        }
+
+        function addSkeletons(n) {
+            (empty || pager || grid).insertAdjacentHTML(empty || pager ? 'beforebegin' : 'beforeend',
+                window.FormaroProductCard.skeletonsHtml(n, 'product-item'));
+        }
+
         return {
             reset: function () {
                 Array.prototype.forEach.call(grid.querySelectorAll('.product-item'), function (el) {
@@ -128,8 +142,14 @@
                 });
                 if (empty) empty.classList.add('d-none');
                 if (pager) pager.classList.add('d-none');
+                addSkeletons(12);
             },
             setLoading: function (loading) {
+                if (loading) {
+                    if (!grid.querySelector('.product-skeleton')) addSkeletons(6);
+                } else {
+                    removeSkeletons();
+                }
                 if (!button) return;
                 button.disabled = loading;
                 var icons = button.querySelectorAll('svg');
@@ -137,6 +157,7 @@
                 if (icons[1]) icons[1].classList.toggle('d-none', !loading);
             },
             render: function (items) {
+                removeSkeletons();
                 var html = items.map(function (item) {
                     return '<div class="product-item">' + productCardHtml(item) + '</div>';
                 }).join('');
@@ -176,15 +197,17 @@
         return {
             reset: function () {
                 removeCells('.carousel-cell');
+                append(window.FormaroProductCard.skeletonsHtml(3, 'carousel-cell'));
             },
             setLoading: function (loading) {
+                if (!loading) removeCells('.product-skeleton');
                 $search.find('.load-more-slider').prop('disabled', loading)
                     .find('svg').each(function (i) {
                         $(this).toggleClass('d-none', i === 0 ? loading : !loading);
                     });
             },
             render: function (items) {
-                removeCells('.carousel-cell-last, .carousel-cell-empty');
+                removeCells('.carousel-cell-last, .carousel-cell-empty, .product-skeleton');
                 if (items.length) {
                     append(items.map(function (item) {
                         return '<div class="carousel-cell">' + productCardHtml(item) + '</div>';
