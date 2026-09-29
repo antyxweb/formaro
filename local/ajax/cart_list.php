@@ -10,6 +10,10 @@
  * Верхний items — корзина после проверки (недоступные товары убраны,
  * количество ограничено остатком): js/cart.js сверяет с ней свою.
  *
+ * coupon=КОД (необязательно) → coupon: {code, valid, message, partner_id,
+ * partner_name, discount_type, value}. Купон партнёра даёт скидку на его
+ * товары; сумму скидки по отмеченным товарам считает страница корзины.
+ *
  * Корзину гостя присылает сам браузер, поэтому без авторизации: отдаются
  * только публичные данные активных товаров.
  */
@@ -19,6 +23,7 @@ require($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_before.
 
 use Bitrix\Main\Loader;
 use Formaro\Cabinet\Repository\CartRepository;
+use Formaro\Cabinet\Repository\CouponRepository;
 use Formaro\Cabinet\Repository\DiscountRepository;
 use Formaro\Cabinet\Repository\ProductRepository;
 use Formaro\Cabinet\Service\ProductPricingService;
@@ -70,8 +75,28 @@ foreach ($items as $item) {
     ];
 }
 
+$coupon = null;
+$couponCode = strtoupper(trim((string)($_GET['coupon'] ?? '')));
+if ($couponCode !== '') {
+    $found = (new CouponRepository())->findByCode($couponCode);
+    $error = $found ? CouponRepository::checkUsable($found) : 'Промокод не найден';
+    $coupon = [
+        'code' => $couponCode,
+        'valid' => $error === null,
+        'message' => $error ?? '',
+        'partner_id' => $found ? $found['partner_id'] : 0,
+        'partner_name' => '',
+        'discount_type' => $found ? $found['discount_type'] : '',
+        'value' => $found ? $found['value'] : 0,
+    ];
+}
+
 $partners = [];
 $partnerIds = array_filter(array_keys($groups));
+if ($coupon && $coupon['partner_id']) {
+    $partnerIds[] = $coupon['partner_id'];
+    $partnerIds = array_values(array_unique($partnerIds));
+}
 if ($partnerIds) {
     // Название — короткое (NAME_SHORT, «ИП Антух Д. А.»), если заполнено.
     $res = CIBlockElement::GetList([], ['ID' => $partnerIds, 'CHECK_PERMISSIONS' => 'N'], false, false, ['ID', 'NAME', 'DETAIL_PAGE_URL', 'ACTIVE', 'PROPERTY_NAME_SHORT']);
@@ -93,4 +118,11 @@ foreach ($groups as $partnerId => $group) {
     ];
 }
 
-echo json_encode(['groups' => $result, 'items' => $items], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+if ($coupon) {
+    $coupon['partner_name'] = $partners[$coupon['partner_id']]['name'] ?? '';
+    if ($coupon['valid'] && !isset($groups[$coupon['partner_id']])) {
+        $coupon['message'] = 'Промокод действует только на товары продавца «' . $coupon['partner_name'] . '»';
+    }
+}
+
+echo json_encode(['groups' => $result, 'items' => $items, 'coupon' => $coupon], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);

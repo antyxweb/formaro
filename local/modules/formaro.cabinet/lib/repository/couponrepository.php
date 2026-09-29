@@ -29,6 +29,44 @@ class CouponRepository
         return $row ? $this->toArray($row) : null;
     }
 
+    /** Купон по коду (код глобально уникален, регистр не важен). */
+    public function findByCode(string $code): ?array
+    {
+        $code = strtoupper(trim($code));
+        if ($code === '') {
+            return null;
+        }
+        $dataClass = HlblockEntityFactory::getDataClass(self::HLBLOCK_NAME);
+        $row = $dataClass::getList(['filter' => ['=UF_CODE' => $code], 'limit' => 1])->fetch();
+
+        return $row ? $this->toArray($row) : null;
+    }
+
+    /**
+     * Можно ли применить купон сейчас (корзина витрины): активен, дата в
+     * периоде действия, одноразовый ещё не использован.
+     *
+     * @return string|null текст ошибки для покупателя; null — можно
+     */
+    public static function checkUsable(array $coupon): ?string
+    {
+        $today = date('Y-m-d');
+        if ($coupon['status'] !== 'active') {
+            return 'Промокод не действует';
+        }
+        if ($coupon['date_from'] && $coupon['date_from'] > $today) {
+            return 'Промокод начнёт действовать ' . date('d.m.Y', strtotime($coupon['date_from']));
+        }
+        if ($coupon['date_to'] && $coupon['date_to'] < $today) {
+            return 'Срок действия промокода истёк';
+        }
+        if ($coupon['usage_type'] === 'single' && $coupon['used_count'] > 0) {
+            return 'Промокод уже использован';
+        }
+
+        return null;
+    }
+
     public function canEdit(int $partnerId, array $row): bool
     {
         return $row['partner_id'] === $partnerId;

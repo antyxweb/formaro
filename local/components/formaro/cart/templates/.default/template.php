@@ -29,6 +29,16 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
                 <div class="product-option-wrap col-12 col-xl-4 d-none" id="cart-summary-wrap">
                     <div id="product-option" class="cart-summary">
                         <div class="bg-white py-4 px-3 px-lg-4">
+                            <form class="promocode mb-4" id="cart-coupon-form" autocomplete="off">
+                                <div class="input-group mb-2">
+                                    <input type="text" class="form-control" placeholder="Промокод" id="cart-coupon-input" maxlength="50">
+                                    <div class="input-group-append">
+                                        <button class="btn btn-outline-secondary" type="submit">Применить</button>
+                                    </div>
+                                </div>
+                                <div id="cart-coupon-state"></div>
+                            </form>
+
                             <h6 class="mb-1"><span id="cart-summary-count">0 позиций</span> на сумму:</h6>
                             <div class="lead text-secondary ml-auto mb-4">
                                 <b class="text-dark" id="cart-summary-sum">0</b> <small class="mr-2">руб</small>
@@ -38,6 +48,13 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
                                 <h6 class="mb-1">Скидка:</h6>
                                 <div class="lead text-secondary ml-auto mb-4">
                                     <b class="text-dark" id="cart-summary-discount">0</b> <small class="mr-2">руб</small>
+                                </div>
+                            </div>
+
+                            <div id="cart-summary-coupon-wrap" class="d-none">
+                                <h6 class="mb-1">Скидка по промокоду:</h6>
+                                <div class="lead text-secondary ml-auto mb-4">
+                                    <b class="text-dark" id="cart-summary-coupon">0</b> <small class="mr-2">руб</small>
                                 </div>
                             </div>
 

@@ -7,6 +7,9 @@
    по отмеченным товарам. Количество и «Удалить» в карточке работают через
    cart.js; после изменения количества цены перезапрашиваются (скидки
    «от N штук» и «от суммы»).
+   Промокод — купон партнёра из кабинета: скидка на отмеченные товары
+   этого поставщика (процент или сумма, не больше их стоимости).
+   Применённый код хранится в браузере (localStorage).
 
    Файл подключается в <head>; FormaroCart/FormaroProductCard — в
    footer.php, поэтому старт — по jQuery ready. */
@@ -14,12 +17,27 @@
     var endpoint = '/local/ajax/cart_list.php';
     var REFRESH_DELAY = 300;
     var STICKY_TOP = 60;
+    var COUPON_KEY = 'formaro_cart_coupon';
 
     var el = {};
     var groups = [];          // [{partner, items}]
     var unchecked = {};       // id → true: снятые с выбора (по умолчанию выбрано всё)
     var requestId = 0;
     var refreshTimer = null;
+    var coupon = null;        // действующий промокод (ответ сервера)
+    var couponError = '';     // почему не подошёл введённый код
+    var couponCode = readCoupon();
+    var attemptPrevCode = null; // код до попытки ввести новый
+
+    function readCoupon() {
+        try { return window.localStorage.getItem(COUPON_KEY) || ''; } catch (e) { return ''; }
+    }
+
+    function writeCoupon(code) {
+        try {
+            if (code) window.localStorage.setItem(COUPON_KEY, code); else window.localStorage.removeItem(COUPON_KEY);
+        } catch (e) { /* без хранилища — промокод до перезагрузки */ }
+    }
 
     function card() { return window.FormaroProductCard; }
 
@@ -34,7 +52,7 @@
         var id = ++requestId;
         var qs = items.map(function (item) { return item.id + ':' + item.qty; }).join(',');
         var xhr = new XMLHttpRequest();
-        xhr.open('GET', endpoint + '?items=' + encodeURIComponent(qs), true);
+        xhr.open('GET', endpoint + '?items=' + encodeURIComponent(qs) + (couponCode ? '&coupon=' + encodeURIComponent(couponCode) : ''), true);
         xhr.onload = function () {
             if (id !== requestId) return;
             var data = null;
@@ -104,20 +122,77 @@
             sum += item.old_sum;
             total += item.sum;
         });
+        var couponDiscount = 0;
+        if (coupon && coupon.valid) {
+            var base = selected.filter(function (item) { return item.partner_id === coupon.partner_id; })
+                .reduce(function (s, item) { return s + item.sum; }, 0);
+            couponDiscount = coupon.discount_type === 'percent'
+                ? Math.round(base * coupon.value / 100)
+                : Math.min(coupon.value, base);
+        }
+        total -= couponDiscount;
+        el.coupon.textContent = '-' + fmt(couponDiscount);
+        el.couponWrap.classList.toggle('d-none', couponDiscount <= 0);
+
         var n = selected.length;
         el.count.textContent = n + ' ' + plural(n, 'позиция', 'позиции', 'позиций');
         el.sum.textContent = fmt(sum);
         el.total.textContent = fmt(total);
-        el.discount.textContent = '-' + fmt(sum - total);
-        el.discountWrap.classList.toggle('d-none', sum - total <= 0);
+        el.discount.textContent = '-' + fmt(sum - total - couponDiscount);
+        el.discountWrap.classList.toggle('d-none', sum - total - couponDiscount <= 0);
         el.checkout.disabled = n === 0;
     }
 
     /** Данные с сервера → группы; если состав групп не менялся (только
      *  количество/цены) — обновляем цены на месте, не перерисовывая
      *  карточки (не сбиваем ввод количества). */
+    /** Партнёр товара — нужен для промокода (купон одного поставщика). */
+    function withPartners(list) {
+        list.forEach(function (g) {
+            g.items.forEach(function (item) { item.partner_id = g.partner.id; });
+        });
+        return list;
+    }
+
+    function renderCoupon() {
+        var esc = card().escHtml;
+        var html = '';
+        if (couponError) {
+            html += '<div class="small text-danger mb-1">' + esc(couponError) + '</div>';
+        }
+        if (coupon) {
+            html += '<span class="badge badge-primary">' + esc(coupon.code) +
+                ' <a href="#" class="text-white ml-1 js-cart-coupon-remove" aria-label="Убрать промокод">&times;</a></span>' +
+                '<div class="small text-muted mt-1">' + esc(coupon.message || ('Скидка на товары продавца «' + coupon.partner_name + '»')) + '</div>';
+        }
+        el.couponState.innerHTML = html;
+    }
+
+    /** Ответ по промокоду. Неподходящий введённый код не запоминаем и
+     *  не сбрасываем им уже применённый — только показываем ошибку. */
+    function setCoupon(data) {
+        var next = data.coupon || null;
+        var attempted = attemptPrevCode !== null;
+        if (next && next.valid) {
+            coupon = next;
+            couponError = '';
+        } else {
+            couponError = next ? next.message : '';
+            if (attempted) {
+                couponCode = attemptPrevCode;
+            } else {
+                coupon = null;
+                couponCode = '';
+            }
+            writeCoupon(couponCode);
+        }
+        attemptPrevCode = null;
+        renderCoupon();
+    }
+
     function apply(data) {
-        var next = data.groups || [];
+        setCoupon(data);
+        var next = withPartners(data.groups || []);
         var sameStructure = next.length === groups.length && next.every(function (g, i) {
             return g.partner.id === groups[i].partner.id &&
                 g.items.map(function (x) { return x.id; }).join() === groups[i].items.map(function (x) { return x.id; }).join();
@@ -187,6 +262,10 @@
             discountWrap: document.getElementById('cart-summary-discount-wrap'),
             total: document.getElementById('cart-summary-total'),
             checkout: document.getElementById('cart-checkout'),
+            coupon: document.getElementById('cart-summary-coupon'),
+            couponWrap: document.getElementById('cart-summary-coupon-wrap'),
+            couponState: document.getElementById('cart-coupon-state'),
+            couponInput: document.getElementById('cart-coupon-input'),
             checkoutNote: document.getElementById('cart-checkout-note')
         };
 
@@ -213,6 +292,30 @@
             }
         });
 
+        document.getElementById('cart-coupon-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+            var code = el.couponInput.value.trim().toUpperCase();
+            if (!code) return;
+            attemptPrevCode = couponCode;
+            couponCode = code;
+            el.couponInput.value = '';
+            load(window.FormaroCart.getItems(), function (data) {
+                apply(data);
+                if (coupon && coupon.code === code) writeCoupon(code);
+            });
+        });
+
+        el.couponState.addEventListener('click', function (e) {
+            if (!e.target.closest('.js-cart-coupon-remove')) return;
+            e.preventDefault();
+            couponCode = '';
+            writeCoupon('');
+            coupon = null;
+            couponError = '';
+            renderCoupon();
+            renderSummary();
+        });
+
         el.checkout.addEventListener('click', function () {
             el.checkoutNote.classList.remove('d-none');
         });
@@ -233,7 +336,8 @@
                 return;
             }
             load(items, function (data) {
-                groups = data.groups || [];
+                setCoupon(data);
+                groups = withPartners(data.groups || []);
                 render();
             });
         });
