@@ -53,7 +53,7 @@ class NewsRepository
             $rows[] = $this->toArray($el);
         }
 
-        return $rows;
+        return $this->attachCatalogLinks($rows);
     }
 
     public function get(int $id): ?array
@@ -66,7 +66,7 @@ class NewsRepository
             self::SELECT_FIELDS
         )->Fetch();
 
-        return $el ? $this->toArray($el) : null;
+        return $el ? $this->attachCatalogLinks([$this->toArray($el)])[0] : null;
     }
 
     public function canEdit(int $partnerId, array $row): bool
@@ -76,7 +76,8 @@ class NewsRepository
 
     /**
      * @param array $payload id?/title/slug/short_desc/full_desc/image/
-     *                       created_at/status
+     *                       created_at/status/catalog_section_ids/
+     *                       catalog_product_ids
      */
     public function save(int $partnerId, array $payload): array
     {
@@ -136,9 +137,18 @@ class NewsRepository
             }
         }
 
-        CIBlockElement::SetPropertyValuesEx($id, $this->iblockId, [
-            'PARTNER_ID' => $partnerId,
-        ]);
+        $props = ['PARTNER_ID' => $partnerId];
+        // Вкладка «Каталог»: ключи есть в payload — значит форма их прислала
+        // (пустой массив = отвязать всё); нет ключа — не трогаем.
+        if (array_key_exists('catalog_section_ids', $payload)) {
+            $sectionIds = $this->filterVisibleSections($partnerId, (array)$payload['catalog_section_ids']);
+            $props['CATALOG_SECTIONS'] = $sectionIds ?: false;
+        }
+        if (array_key_exists('catalog_product_ids', $payload)) {
+            $productIds = $this->filterOwnProducts($partnerId, (array)$payload['catalog_product_ids']);
+            $props['CATALOG_PRODUCTS'] = $productIds ?: false;
+        }
+        CIBlockElement::SetPropertyValuesEx($id, $this->iblockId, $props);
 
         return $this->get($id);
     }
@@ -157,6 +167,75 @@ class NewsRepository
         // См. CategoryRepository::delete() — ::Delete() без типа возврата
         // в самом ядре, приводим явно к bool под наше ": bool".
         return (bool)CIBlockElement::Delete($id);
+    }
+
+    /**
+     * Привязка к каталогу (CATALOG_SECTIONS/CATALOG_PRODUCTS, миграция
+     * Version20260929140001). Множественные свойства читаем отдельно:
+     * 'PROPERTY_*' в select GetList размножил бы строки новости по числу
+     * значений.
+     */
+    private function attachCatalogLinks(array $rows): array
+    {
+        if (!$rows) {
+            return $rows;
+        }
+
+        $values = [];
+        foreach ($rows as $row) {
+            $values[$row['id']] = [];
+        }
+        CIBlockElement::GetPropertyValuesArray(
+            $values,
+            $this->iblockId,
+            ['ID' => array_keys($values)],
+            ['CODE' => ['CATALOG_SECTIONS', 'CATALOG_PRODUCTS']]
+        );
+
+        $toIds = static fn($prop) => array_values(array_filter(array_map('intval', (array)($prop['VALUE'] ?? []))));
+        foreach ($rows as &$row) {
+            $props = $values[$row['id']] ?? [];
+            $row['catalog_section_ids'] = $toIds($props['CATALOG_SECTIONS'] ?? []);
+            $row['catalog_product_ids'] = $toIds($props['CATALOG_PRODUCTS'] ?? []);
+        }
+        unset($row);
+
+        return $rows;
+    }
+
+    /** Только категории, которые партнёр видит в кабинете (системные и свои). */
+    private function filterVisibleSections(int $partnerId, array $ids): array
+    {
+        $ids = array_values(array_unique(array_filter(array_map('intval', $ids))));
+        if (!$ids) {
+            return [];
+        }
+        $visible = array_column((new CategoryRepository())->listVisible($partnerId), 'id');
+
+        return array_values(array_intersect($ids, array_map('intval', $visible)));
+    }
+
+    /** Только свои товары партнёра — к чужим привязывать нельзя. */
+    private function filterOwnProducts(int $partnerId, array $ids): array
+    {
+        $ids = array_values(array_unique(array_filter(array_map('intval', $ids))));
+        if (!$ids) {
+            return [];
+        }
+
+        $own = [];
+        $res = CIBlockElement::GetList(
+            [],
+            ['IBLOCK_CODE' => 'cabinet_catalog', 'ID' => $ids, 'PROPERTY_PARTNER_ID' => $partnerId, 'CHECK_PERMISSIONS' => 'N'],
+            false,
+            false,
+            ['ID']
+        );
+        while ($row = $res->Fetch()) {
+            $own[(int)$row['ID']] = true;
+        }
+
+        return array_values(array_filter($ids, static fn(int $id) => isset($own[$id])));
     }
 
     private function resolveIblockId(): int

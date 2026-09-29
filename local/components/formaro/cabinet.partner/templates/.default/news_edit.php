@@ -11,6 +11,12 @@ require __DIR__ . '/inc/layout_app_top.php';
 
 <div class="card">
     <div class="card-header"><span id="formTitle">Новая новость</span></div>
+    <ul class="nav nav-tabs product-tabs" id="newsTabs">
+        <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tabMain" type="button">Основное</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabCatalog" type="button">Каталог <span class="side-count" id="catalogCountBadge" style="display:none;">0</span></button></li>
+    </ul>
+    <div class="tab-content">
+    <div class="tab-pane fade show active" id="tabMain">
     <div class="card-body">
         <form id="newsForm" onsubmit="return false;">
             <input type="hidden" id="f_id">
@@ -75,6 +81,24 @@ require __DIR__ . '/inc/layout_app_top.php';
                 </div>
             </div>
         </form>
+    </div>
+    </div>
+
+    <div class="tab-pane fade" id="tabCatalog">
+        <div class="card-body">
+            <p class="text-muted-2 small">Привяжите новость к категориям каталога и/или к своим товарам — например, анонс поступления или акции. Можно выбрать и категории, и товары одновременно.</p>
+
+            <h6 class="mb-2">Категории каталога <span class="side-count" id="catalogSectionsBadge" style="display:none;">0</span></h6>
+            <div class="mb-4" id="f_catalog_sections"></div>
+
+            <h6 class="mb-2">Товары <span class="side-count" id="catalogProductsBadge" style="display:none;">0</span></h6>
+            <div id="catalogProductChips" class="mb-2"></div>
+            <div class="position-relative">
+                <input type="text" class="form-control" id="catalogProductSearch" placeholder="Начните вводить название или артикул своего товара (от 3 символов)…" autocomplete="off">
+                <div class="gsearch-dropdown" id="catalogProductResults"></div>
+            </div>
+        </div>
+    </div>
     </div>
     <div class="detail-actionbar">
         <button type="button" class="btn btn-primary" id="saveBtn"><svg class="ic-inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"></path><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"></path><path d="M7 3v4a1 1 0 0 0 1 1h7"></path></svg> Сохранить</button>
