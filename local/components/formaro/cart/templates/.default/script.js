@@ -146,6 +146,17 @@
         el.discount.textContent = '-' + fmt(sum - total - couponDiscount);
         el.discountWrap.classList.toggle('d-none', sum - total - couponDiscount <= 0);
         el.checkout.disabled = n === 0;
+        updateGroupActions();
+    }
+
+    /** «Удалить выбранные» у группы — только если в ней что-то отмечено. */
+    function updateGroupActions() {
+        groups.forEach(function (group, index) {
+            var button = el.groups.querySelector('[data-cart-group="' + index + '"] .js-cart-delete');
+            if (!button) return;
+            var any = group.items.some(function (item) { return !unchecked[item.id]; });
+            button.classList.toggle('d-none', !any);
+        });
     }
 
     /** Партнёр товара — нужен для промокода (купон одного поставщика). */
