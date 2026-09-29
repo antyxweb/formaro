@@ -32,7 +32,7 @@ $propsTable = static function (array $props): string {
     return $html;
 };
 ?>
-<div id="product-detail" data-product-id="<?= (int)$arResult['ID'] ?>">
+<div id="product-detail" data-product-id="<?= (int)$arResult['ID'] ?>"<?= !empty($arResult['PREVIEW']) ? ' data-preview="1"' : '' ?>>
 <section class="section pt-4">
     <div class="section-body">
         <div class="container-fluid">

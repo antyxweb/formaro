@@ -108,7 +108,6 @@ $(function () {
                 $('#f_code').val(p.slug); codeChain.setExisting();
                 $('#codeChainBtn').removeClass('d-none');
                 bindCodeCopyBtn('#codeChainBtn', function () { return p.public_url; });
-            bindPreviewBtn('#previewBtn', p);
                 $('#f_price').val(p.price);
                 $('#f_preorder').prop('checked', !!p.is_preorder);
                 (p.tags || []).forEach(function (t) {
@@ -140,6 +139,7 @@ $(function () {
         });
     });
 
+    bindPreviewBtn('#previewBtn', 'product', collectProduct);
     $('#saveBtn').on('click', function () { doSave(true); });
     $('#applyBtn').on('click', function () { doSave(false); });
     $('#deleteBtn').on('click', doDelete);
@@ -339,22 +339,18 @@ function syncPropsFromInputs() {
     $('.prop-value').each(function () { var i = $(this).data('idx'); if (props[i]) props[i].value = $(this).val(); });
 }
 
-function doSave(goBack) {
-    var name = $('#f_name').val().trim();
-    var categoryIds = getCheckboxTreeSelected('#f_category_tree');
-    if (!name) { showResult(false, 'Укажите название товара'); return; }
-    if (categoryIds.length === 0) { showResult(false, 'Выберите хотя бы одну категорию'); return; }
+/** Данные формы в формате сохранения — для doSave() и «Предпросмотра». */
+function collectProduct() {
     syncPropsFromInputs();
-    var cleanProps = props.filter(function (p) { return p.name.trim() && p.value.trim(); });
-    var fullDesc = $.fn.trumbowyg ? $('#f_full_desc').trumbowyg('html') : $('#f_full_desc').val();
-
-    var isNew = !productId;
-    var payload = {
-        category_ids: categoryIds,
+    var name = $('#f_name').val().trim();
+    return {
+        id: productId || 0,
+        variant_group_id: currentVariantGroupId(),
+        category_ids: getCheckboxTreeSelected('#f_category_tree'),
         name: name,
         slug: $('#f_code').val().trim() || slugifyClient(name),
         short_desc: $('#f_short_desc').val(),
-        full_desc: fullDesc,
+        full_desc: $.fn.trumbowyg ? $('#f_full_desc').trumbowyg('html') : $('#f_full_desc').val(),
         sku: $('#f_sku').val(),
         color: $('#f_color').val(),
         size: $('#f_size').val(),
@@ -365,9 +361,23 @@ function doSave(goBack) {
         status: $('#f_status').val(),
         preview_image: previewDataUrl,
         gallery: gallery,
-        custom_props: cleanProps,
+        custom_props: props.filter(function (p) { return p.name.trim() && p.value.trim(); }),
         partner_id: CURRENT_PARTNER_ID
     };
+}
+
+function doSave(goBack) {
+    var payload = collectProduct();
+    var name = payload.name;
+    var categoryIds = payload.category_ids;
+    if (!name) { showResult(false, 'Укажите название товара'); return; }
+    if (categoryIds.length === 0) { showResult(false, 'Выберите хотя бы одну категорию'); return; }
+    // id и группа вариантов — только для предпросмотра; при сохранении
+    // группу ведут addToVariantGroup()/removeFromVariantGroup().
+    delete payload.id;
+    delete payload.variant_group_id;
+
+    var isNew = !productId;
 
     if (productId) {
         allProducts = allProducts.map(function (p) { return p.id === productId ? Object.assign({}, p, payload) : p; });

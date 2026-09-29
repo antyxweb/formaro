@@ -17,7 +17,8 @@ document.addEventListener('DOMContentLoaded', function () {
     var root = document.getElementById('product-detail');
     if (!root) return;
 
-    if (window.FormaroViewed) window.FormaroViewed.add(root.getAttribute('data-product-id'));
+    // Предпросмотр из кабинета (/preview/) — не просмотр товара покупателем.
+    if (window.FormaroViewed && !root.hasAttribute('data-preview')) window.FormaroViewed.add(root.getAttribute('data-product-id'));
     if (!$ || !window.DOMParser || !window.history || !history.pushState) return;
 
     var loading = false;

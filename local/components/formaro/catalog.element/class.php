@@ -20,6 +20,10 @@ use Formaro\Cabinet\Service\ProductPricingService;
  *
  * «Характеристики» — цвет, размер и доп. свойства товара (CUSTOM_PROPS_JSON).
  * Возвращает ID партнёра — для блока «Товары продавца» под карточкой.
+ *
+ * PREVIEW — товар в формате ProductRepository::toArray() прямо из формы
+ * кабинета (страница /preview/): рисуется без базы и без кэша, картинки —
+ * URL или data:-строки, как в форме.
  */
 class FormaroCatalogElementComponent extends CBitrixComponent
 {
@@ -37,6 +41,10 @@ class FormaroCatalogElementComponent extends CBitrixComponent
     public function executeComponent()
     {
         global $APPLICATION;
+
+        if (is_array($this->arParams['~PREVIEW'] ?? null)) {
+            return $this->executePreview($this->arParams['~PREVIEW']);
+        }
 
         // Скидки действуют по датам — день входит в ключ кэша.
         if ($this->startResultCache(false, [date('Y-m-d')])) {
@@ -97,6 +105,71 @@ class FormaroCatalogElementComponent extends CBitrixComponent
         return (int)($this->arResult['PARTNER_ID'] ?? 0);
     }
 
+    /** Предпросмотр: тот же arResult, что у сохранённого товара. */
+    private function executePreview(array $product): int
+    {
+        global $APPLICATION;
+        if (!Loader::includeModule('iblock') || !Loader::includeModule('formaro.cabinet')) {
+            ShowError('formaro.cabinet module not found');
+            return 0;
+        }
+
+        $display = ProductPricingService::computeDisplay($product, (new DiscountRepository())->listActive());
+        $props = $this->buildProps($product);
+        $gallery = [];
+        foreach (array_values(array_unique(array_filter(array_merge([$product['preview_image']], $product['gallery'])))) as $src) {
+            [$width, $height] = $this->imageSize($src);
+            $gallery[] = [
+                'SRC' => $src,
+                'WIDTH' => $height ? (int)round($width * self::GALLERY_HEIGHT / $height) : self::GALLERY_HEIGHT,
+                'HEIGHT' => self::GALLERY_HEIGHT,
+            ];
+        }
+
+        $this->arResult = [
+            'ID' => $product['id'],
+            'NAME' => $product['name'],
+            'URL' => $product['public_url'],
+            'SKU' => $product['sku'],
+            'PRICE' => $display['price'],
+            'OLD_PRICE' => $display['old_price'],
+            'BADGES' => $display['badges'],
+            'STOCK' => $product['stock'],
+            'IS_PREORDER' => $product['is_preorder'],
+            'COLOR' => $product['color'],
+            'SIZE' => $product['size'],
+            'DESCRIPTION' => $product['full_desc'],
+            'SHORT_DESCRIPTION' => $product['short_desc'],
+            'GALLERY' => $gallery,
+            'PROPS' => $props,
+            'SHORT_PROPS' => array_slice($props, 0, self::SHORT_PROPS),
+            'PARTNER_ID' => $product['partner_id'],
+            'PARTNER' => $this->loadPartner($product['partner_id']),
+            'PREVIEW' => true,
+        ];
+        $this->arResult += $this->buildVariants(new ProductRepository(), $product);
+        $this->includeComponentTemplate();
+
+        $APPLICATION->SetTitle($product['name']);
+        $APPLICATION->AddChainItem($product['name']);
+
+        return (int)$product['partner_id'];
+    }
+
+    /** Размер картинки из формы: файл сайта (/upload/…) или data:-строка. */
+    private function imageSize(string $src): array
+    {
+        $size = false;
+        if (str_starts_with($src, 'data:image/')) {
+            $data = base64_decode((string)substr($src, (int)strpos($src, ',') + 1), true);
+            $size = $data !== false ? @getimagesizefromstring($data) : false;
+        } elseif (str_starts_with($src, '/') && !str_contains($src, '..')) {
+            $size = @getimagesize($_SERVER['DOCUMENT_ROOT'] . parse_url($src, PHP_URL_PATH));
+        }
+
+        return $size ? [(int)$size[0], (int)$size[1]] : [0, 0];
+    }
+
     /** Превью + галерея; ширина ссылки — под высоту слайдера (как в вёрстке). */
     private function buildGallery(array $product): array
     {
@@ -149,7 +222,16 @@ class FormaroCatalogElementComponent extends CBitrixComponent
         $members = $product['variant_group_id']
             ? $repo->findPublic(['PROPERTY_VARIANT_GROUP_ID' => $product['variant_group_id']], ['SORT' => 'ASC', 'ID' => 'ASC'], 200)
             : [];
-        if (!in_array($product['id'], array_column($members, 'id'), true)) {
+        // Текущий товар — в том виде, что передан (в предпросмотре — из
+        // формы), на своём месте в группе.
+        $found = false;
+        foreach ($members as $i => $p) {
+            if ($p['id'] === $product['id']) {
+                $members[$i] = $product;
+                $found = true;
+            }
+        }
+        if (!$found) {
             $members[] = $product;
         }
 

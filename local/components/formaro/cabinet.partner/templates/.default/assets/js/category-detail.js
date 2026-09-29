@@ -46,7 +46,6 @@ $(function () {
             $('#f_code').val(c.slug); codeChain.setExisting();
             $('#codeChainBtn').removeClass('d-none');
             bindCodeCopyBtn('#codeChainBtn', function () { return c.public_url; });
-            bindPreviewBtn('#previewBtn', c);
             $('#f_short_desc').val(c.short_desc); autoHeightResize('#f_short_desc');
             $('#f_full_desc').val(c.full_desc);
             if ($.fn.trumbowyg) $('#f_full_desc').trumbowyg('html', c.full_desc || '');
@@ -69,6 +68,7 @@ $(function () {
         }
     });
 
+    bindPreviewBtn('#previewBtn', 'category', collectCategory);
     $('#saveBtn').on('click', function () { doSave(true); });
     $('#applyBtn').on('click', function () { doSave(false); });
     $('#deleteBtn').on('click', doDelete);
@@ -99,6 +99,23 @@ function fillParentTree() {
     renderCategoryRadioTree('#f_parent_tree', allCategories, selectedId, excludeIds, !readOnly);
 }
 
+/** Данные формы в формате сохранения — для doSave() и «Предпросмотра». */
+function collectCategory() {
+    var name = $('#f_name').val().trim();
+    return {
+        id: categoryId || 0,
+        parent_id: getCategoryRadioSelected('#f_parent_tree'),
+        name: name,
+        slug: $('#f_code').val().trim() || slugifyClient(name),
+        short_desc: $('#f_short_desc').val(),
+        full_desc: $.fn.trumbowyg ? $('#f_full_desc').trumbowyg('html') : $('#f_full_desc').val(),
+        preview_image: previewDataUrl,
+        full_image: fullDataUrl,
+        is_system: false,
+        partner_id: CURRENT_PARTNER_ID
+    };
+}
+
 function doSave(goBack) {
     if (readOnly) return;
     var name = $('#f_name').val().trim();
@@ -116,18 +133,8 @@ function doSave(goBack) {
     }
 
     var isNew = !categoryId;
-    var fullDesc = $.fn.trumbowyg ? $('#f_full_desc').trumbowyg('html') : $('#f_full_desc').val();
-    var payload = {
-        parent_id: parentId,
-        name: name,
-        slug: $('#f_code').val().trim() || slugifyClient(name),
-        short_desc: $('#f_short_desc').val(),
-        full_desc: fullDesc,
-        preview_image: previewDataUrl,
-        full_image: fullDataUrl,
-        is_system: false,
-        partner_id: CURRENT_PARTNER_ID
-    };
+    var payload = collectCategory();
+    delete payload.id; // только для предпросмотра
     // Пока категория на проверке, поле "Статус" задизейблено и не участвует
     // в сохранении — сервер оставит текущий ACTIVE как есть (см.
     // CategoryRepository::save()), а не свалит его в дефолтное значение.

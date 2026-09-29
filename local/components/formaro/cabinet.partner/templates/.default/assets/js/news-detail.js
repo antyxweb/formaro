@@ -78,7 +78,6 @@ $(function () {
             $('#f_code').val(n.slug); codeChain.setExisting();
             $('#codeChainBtn').removeClass('d-none');
             bindCodeCopyBtn('#codeChainBtn', function () { return n.public_url; });
-            bindPreviewBtn('#previewBtn', n);
             $('#f_short_desc').val(n.short_desc); autoHeightResize('#f_short_desc');
             $('#f_status').val(n.status || 'active');
             $('#f_full_desc').val(n.full_desc);
@@ -93,6 +92,7 @@ $(function () {
         newsLoaded.resolve(null);
     }
 
+    bindPreviewBtn('#previewBtn', 'news', collectNews);
     $('#saveBtn').on('click', function () { doSave(true); });
     $('#applyBtn').on('click', function () { doSave(false); });
     $('#deleteBtn').on('click', doDelete);
@@ -186,18 +186,15 @@ function parseDateInput(str) {
     return new Date(m[3], m[2] - 1, m[1], m[4], m[5]).toISOString();
 }
 
-function doSave(goBack) {
+/** Данные формы в формате сохранения — для doSave() и «Предпросмотра». */
+function collectNews() {
     var title = $('#f_title').val().trim();
-    if (!title) { showResult(false, 'Укажите заголовок новости'); return; }
-    var fullDesc = $.fn.trumbowyg ? $('#f_full_desc').trumbowyg('html') : $('#f_full_desc').val();
-
-    var wasNew = !newsId;
     var payload = {
         id: newsId || undefined,
         title: title,
         slug: $('#f_code').val().trim() || slugifyClient(title),
         short_desc: $('#f_short_desc').val(),
-        full_desc: fullDesc,
+        full_desc: $.fn.trumbowyg ? $('#f_full_desc').trumbowyg('html') : $('#f_full_desc').val(),
         image: previewDataUrl,
         full_image: fullDataUrl,
         created_at: parseDateInput($('#f_datetime').val()),
@@ -207,6 +204,14 @@ function doSave(goBack) {
         payload.catalog_section_ids = getCheckboxTreeSelected('#f_catalog_sections');
         payload.catalog_product_ids = selectedCatalogProducts.slice();
     }
+    return payload;
+}
+
+function doSave(goBack) {
+    var payload = collectNews();
+    var title = payload.title;
+    if (!title) { showResult(false, 'Укажите заголовок новости'); return; }
+    var wasNew = !newsId;
 
     dsSaveOne('news', payload).done(function (saved) {
         newsId = saved.id;

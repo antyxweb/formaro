@@ -124,22 +124,23 @@ function bindCodeCopyBtn(btnSel, getPublicUrl) {
         copyTextToClipboard(location.origin + path);
     });
 }
-/** «Предпросмотр» на форме товара/категории/новости — ссылка на страницу
- *  на сайте в новой вкладке. Неактивна, пока запись не сохранена или не
- *  показывается на сайте (скрыта / на проверке) — причина в подсказке.
- *  Состояние — сохранённой записи, не несохранённых правок формы. */
-function bindPreviewBtn(btnSel, row) {
-    var $btn = $(btnSel);
-    var reason = '';
-    if (!row.public_url) reason = 'Ссылка ещё не настроена — у раздела на сайте не задан ЧПУ-шаблон';
-    else if (row.status === 'pending') reason = 'На проверке — появится на сайте после одобрения';
-    else if (row.status === 'hidden') reason = 'Скрыто — на сайте не показывается';
-    if (reason) {
-        $btn.attr({href: '#', title: reason, tabindex: '-1', 'aria-disabled': 'true'}).addClass('disabled');
-        return;
-    }
-    $btn.attr({href: row.public_url, target: '_blank', rel: 'noopener', title: 'Открыть на сайте в новой вкладке'})
-        .removeAttr('tabindex aria-disabled').removeClass('disabled');
+/** «Предпросмотр» на форме товара/категории/новости: текущие данные формы
+ *  (в т.ч. несохранённые, скрытой или новой записи) уходят POST-ом на
+ *  /preview/ в новую вкладку — там страница собирается шаблонами сайта.
+ *  collect() — данные формы в формате сохранения (как payload doSave). */
+var PREVIEW_URL = '/preview/';
+function bindPreviewBtn(btnSel, type, collect) {
+    $(btnSel).removeClass('disabled').removeAttr('tabindex aria-disabled')
+        .attr({href: PREVIEW_URL, title: 'Посмотреть, как будет выглядеть на сайте (с несохранёнными изменениями)'})
+        .on('click', function (e) {
+            e.preventDefault();
+            var data = collect();
+            var $form = $('<form method="post" target="_blank" class="d-none"></form>').attr('action', PREVIEW_URL);
+            $form.append($('<input type="hidden" name="type">').val(type));
+            $form.append($('<input type="hidden" name="data">').val(JSON.stringify(data)));
+            if (window.BX && BX.bitrix_sessid) $form.append($('<input type="hidden" name="sessid">').val(BX.bitrix_sessid()));
+            $form.appendTo('body').trigger('submit').remove();
+        });
 }
 function copyTextToClipboard(text) {
     function done() { showResult(true, 'Ссылка скопирована: ' + text); }
