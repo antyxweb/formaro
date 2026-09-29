@@ -4,7 +4,8 @@
    localStorage), товары и цены — /local/ajax/cart_list.php. Товары
    сгруппированы по поставщикам; у группы шапка: слева поставщик ссылкой,
    справа «выбрать все», «снять выбор», «удалить выбранные». Итог справа —
-   по отмеченным товарам. Количество и «Удалить» в карточке работают через
+   по отмеченным товарам; снятые с выбора товары запоминаются в браузере
+   (localStorage). Количество и «Удалить» в карточке работают через
    cart.js; после изменения количества цены перезапрашиваются (скидки
    «от N штук» и «от суммы»).
    Промокоды — купоны партнёров из кабинета: скидка на отмеченные товары
@@ -19,10 +20,11 @@
     var REFRESH_DELAY = 300;
     var STICKY_TOP = 60;
     var COUPON_KEY = 'formaro_cart_coupons';
+    var UNCHECKED_KEY = 'formaro_cart_unchecked';
 
     var el = {};
     var groups = [];          // [{partner, items}]
-    var unchecked = {};       // id → true: снятые с выбора (по умолчанию выбрано всё)
+    var unchecked = readUnchecked(); // id → true: снятые с выбора (по умолчанию выбрано всё)
     var requestId = 0;
     var refreshTimer = null;
     var coupons = [];         // действующие промокоды (ответ сервера), по одному на поставщика
@@ -44,6 +46,28 @@
             if (codes.length) window.localStorage.setItem(COUPON_KEY, JSON.stringify(codes)); else window.localStorage.removeItem(COUPON_KEY);
         } catch (e) { /* без хранилища — промокоды до перезагрузки */ }
     }
+
+    function readUnchecked() {
+        var map = {};
+        try {
+            var list = JSON.parse(window.localStorage.getItem(UNCHECKED_KEY) || '[]');
+            if (Array.isArray(list)) list.forEach(function (id) { if (Number(id) > 0) map[Number(id)] = true; });
+        } catch (e) { /* пусто */ }
+        return map;
+    }
+
+    /** Сохраняем выбор; товары, которых уже нет в корзине, забываем —
+     *  добавленный заново товар снова будет отмечен. */
+    function writeUnchecked() {
+        var present = {};
+        allItems().forEach(function (item) { present[item.id] = true; });
+        Object.keys(unchecked).forEach(function (id) { if (!present[id]) delete unchecked[id]; });
+        var ids = Object.keys(unchecked).map(Number);
+        try {
+            if (ids.length) window.localStorage.setItem(UNCHECKED_KEY, JSON.stringify(ids)); else window.localStorage.removeItem(UNCHECKED_KEY);
+        } catch (e) { /* без хранилища — выбор до перезагрузки */ }
+    }
+
     function card() { return window.FormaroProductCard; }
 
     function plural(n, one, few, many) {
@@ -115,6 +139,7 @@
         el.groups.innerHTML = groups.map(groupHtml).join('');
         el.empty.classList.toggle('d-none', items.length > 0);
         el.summaryWrap.classList.toggle('d-none', !items.length);
+        writeUnchecked();
         renderSummary();
         updateSticky();
     }
@@ -256,6 +281,7 @@
             var input = document.getElementById('cart-item-' + item.id);
             if (input) input.checked = checked;
         });
+        writeUnchecked();
         renderSummary();
     }
 
@@ -293,6 +319,7 @@
             if (!e.target.classList.contains('js-cart-choose')) return;
             var id = Number(e.target.value);
             if (e.target.checked) delete unchecked[id]; else unchecked[id] = true;
+            writeUnchecked();
             renderSummary();
         });
 
