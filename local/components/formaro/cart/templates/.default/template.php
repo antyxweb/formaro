@@ -30,7 +30,7 @@ $choices = static function (string $name, array $options): void {
                 <input type="radio" class="sr-only" name="<?= $name ?>" value="<?= $option['code'] ?>"<?= $i === 0 ? ' checked' : '' ?>>
                 <span class="support__link">
                     <?php if (!empty($option['logo'])): ?>
-                    <span class="cart-choice-logo"><img src="<?= $option['logo'] ?>" alt="" width="160" height="40"></span>
+                    <span class="cart-choice-logo"><img src="<?= $option['logo'] ?>?v=<?= (int)@filemtime($_SERVER['DOCUMENT_ROOT'] . $option['logo']) ?>" alt="" width="160" height="40"></span>
                     <?php else: ?>
                     <span class="support__icon-wrapper">
                         <svg class="support__link-icon" width="24" height="24"><use xlink:href="#<?= $option['icon'] ?>"></use></svg>
