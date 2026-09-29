@@ -57,6 +57,9 @@ $choices = static function (string $name, array $options): void {
                     </div>
 
                     <form class="d-none" id="cart-checkout-form" autocomplete="on" novalidate>
+                        <h3 class="my-5">Способ доставки</h3>
+                        <div class="support-list row"><?php $choices('delivery', $deliveries); ?></div>
+
                         <h3 class="my-5">Данные покупателя</h3>
                         <div class="form-row">
                             <div class="form-group col-md-6">
@@ -85,9 +88,6 @@ $choices = static function (string $name, array $options): void {
                             <label for="cart-buyer-comment">Комментарий к заказу</label>
                             <textarea class="form-control" id="cart-buyer-comment" name="buyer[comment]" rows="2" maxlength="2000"></textarea>
                         </div>
-
-                        <h3 class="my-5">Способ доставки</h3>
-                        <div class="support-list row"><?php $choices('delivery', $deliveries); ?></div>
 
                         <h3 class="my-5">Способ оплаты</h3>
                         <div class="support-list row"><?php $choices('payment', $payments); ?></div>
