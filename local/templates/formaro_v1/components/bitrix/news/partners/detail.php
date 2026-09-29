@@ -72,3 +72,162 @@ $this->setFrameMode(true);
     ],
     $component
 );?>
+
+<?php
+// Блоки как на главной, но только с товарами/новостями этого партнёра
+// (вёрстка — /html/partner.html). $ElementID — элемент инфоблока
+// cabinet_partners, по нему привязаны товары (PROPERTY_PARTNER_ID) и
+// новости партнёра.
+$partnerId = (int)$ElementID;
+// Блоки с товарами — только если у партнёра есть активные товары
+// (иначе пустая строка поиска с «ничего не найдено»). Новости — всегда.
+$partnerHasProducts = $partnerId > 0
+    && \Bitrix\Main\Loader::includeModule('formaro.cabinet')
+    && (new \Formaro\Cabinet\Repository\ProductRepository())->countPublic(['PROPERTY_PARTNER_ID' => $partnerId]) > 0;
+if ($partnerHasProducts):
+?>
+    <?$APPLICATION->IncludeComponent(
+        "formaro:catalog.search",
+        "",
+        [
+            "PARTNER_ID" => $partnerId,
+            "SECTION_CLASS" => "pt-0",
+            "PAGE_SIZE" => "24",
+            "CACHE_TYPE" => "A",
+            "CACHE_TIME" => "3600",
+        ],
+        false,
+        ["HIDE_ICONS" => "Y"]
+    );?>
+    <style>
+        .hide-on-main {
+            display: none !important;
+        }
+    </style>
+
+    <?$APPLICATION->IncludeComponent(
+        "formaro:product.carousel",
+        "",
+        [
+            "MODE" => "DISCOUNT",
+            "PARTNER_ID" => $partnerId,
+            "COUNT" => "12",
+            "TITLE_ACCENT" => "Выгодные",
+            "TITLE" => "предложения",
+            "CATALOG_URL" => "#hero-search",
+            "SECTION_CLASS" => "light-gray-stripe",
+            "CACHE_TYPE" => "A",
+            "CACHE_TIME" => "600",
+        ],
+        false,
+        ["HIDE_ICONS" => "Y"]
+    );?>
+
+    <?$APPLICATION->IncludeComponent(
+        "formaro:product.carousel",
+        "",
+        [
+            "MODE" => "NEW",
+            "PARTNER_ID" => $partnerId,
+            "COUNT" => "12",
+            "TITLE_ACCENT" => "Новые",
+            "TITLE" => "поступления",
+            "CATALOG_URL" => "#hero-search",
+            "SECTION_CLASS" => "",
+            "CACHE_TYPE" => "A",
+            "CACHE_TIME" => "600",
+        ],
+        false,
+        ["HIDE_ICONS" => "Y"]
+    );?>
+
+    <?php
+    // Категории, где есть товары партнёра; число товаров — только его.
+    $GLOBALS['partnerSectionsFilter'] = ['UF_APPROVED' => 1];
+    $GLOBALS['partnerCountFilter'] = ['PROPERTY_PARTNER_ID' => $partnerId];
+    ?>
+    <?$APPLICATION->IncludeComponent(
+        "bitrix:catalog.section.list",
+        "catalog",
+        [
+            "IBLOCK_TYPE" => "catalog",
+            "IBLOCK_ID" => "9",
+            "SECTION_ID" => "",
+            "SECTION_CODE" => "",
+            "COUNT_ELEMENTS" => "Y",
+            "COUNT_ELEMENTS_FILTER" => "CNT_ACTIVE",
+            "ADDITIONAL_COUNT_ELEMENTS_FILTER" => "partnerCountFilter",
+            "HIDE_SECTIONS_WITH_ZERO_COUNT_ELEMENTS" => "Y",
+            "TOP_DEPTH" => "2",
+            "SECTION_FIELDS" => ["NAME", "PICTURE"],
+            "SECTION_USER_FIELDS" => [],
+            "FILTER_NAME" => "partnerSectionsFilter",
+            "VIEW_MODE" => "LIST",
+            "SHOW_PARENT_NAME" => "Y",
+            "SECTION_URL" => "",
+            "CACHE_TYPE" => "A",
+            "CACHE_TIME" => "36000000",
+            "CACHE_GROUPS" => "Y",
+            "CACHE_FILTER" => "N",
+            "ADD_SECTIONS_CHAIN" => "N",
+            "BLOCK_TITLE" => "Каталог товаров партнера",
+            "SHOW_PARTNER_BUTTON" => "N",
+            "SHOW_DESCRIPTION" => "N",
+            "PARTNER_ID" => $partnerId,
+        ],
+        false,
+        ["HIDE_ICONS" => "Y"]
+    );?>
+<?php endif; ?>
+
+<?php if ($partnerId > 0): ?>
+    <?php $GLOBALS['partnerNewsFilter'] = ['PROPERTY_PARTNER_ID' => $partnerId]; ?>
+    <?$APPLICATION->IncludeComponent(
+        "bitrix:news.list",
+        "news-slider",
+        [
+            "ACTIVE_DATE_FORMAT" => "d F Y",
+            "ADD_SECTIONS_CHAIN" => "N",
+            "AJAX_MODE" => "N",
+            "CACHE_FILTER" => "Y",
+            "CACHE_GROUPS" => "Y",
+            "CACHE_TIME" => "36000000",
+            "CACHE_TYPE" => "A",
+            "CHECK_DATES" => "Y",
+            "DETAIL_URL" => "",
+            "DISPLAY_BOTTOM_PAGER" => "N",
+            "DISPLAY_DATE" => "Y",
+            "DISPLAY_NAME" => "Y",
+            "DISPLAY_PICTURE" => "Y",
+            "DISPLAY_PREVIEW_TEXT" => "Y",
+            "DISPLAY_TOP_PAGER" => "N",
+            "FIELD_CODE" => [],
+            "FILTER_NAME" => "partnerNewsFilter",
+            "HIDE_LINK_WHEN_NO_DETAIL" => "N",
+            "IBLOCK_ID" => "10",
+            "IBLOCK_TYPE" => "content",
+            "INCLUDE_IBLOCK_INTO_CHAIN" => "N",
+            "INCLUDE_SUBSECTIONS" => "Y",
+            "NEWS_COUNT" => "20",
+            "PAGER_TITLE" => "Новости партнера",
+            "PARENT_SECTION" => "",
+            "PARENT_SECTION_CODE" => "",
+            "PREVIEW_TRUNCATE_LEN" => "",
+            "PROPERTY_CODE" => [],
+            "SET_BROWSER_TITLE" => "N",
+            "SET_LAST_MODIFIED" => "N",
+            "SET_META_DESCRIPTION" => "N",
+            "SET_META_KEYWORDS" => "N",
+            "SET_STATUS_404" => "N",
+            "SET_TITLE" => "N",
+            "SHOW_404" => "N",
+            "SORT_BY1" => "ACTIVE_FROM",
+            "SORT_BY2" => "SORT",
+            "SORT_ORDER1" => "DESC",
+            "SORT_ORDER2" => "ASC",
+            "SECTION_CLASS" => "",
+        ],
+        false,
+        ["HIDE_ICONS" => "Y"]
+    );?>
+<?php endif; ?>

@@ -39,7 +39,7 @@ $priceMin = (int)$arResult['PRICE_MIN'];
 $priceMax = max($priceMin + 1, (int)$arResult['PRICE_MAX']);
 ?>
 <!-- Каталог - Поиск -->
-<section id="hero-search" class="section pt-5" data-page-size="<?= (int)$arParams['PAGE_SIZE'] ?>">
+<section id="hero-search" class="section <?= htmlspecialcharsbx($arParams['SECTION_CLASS']) ?>" data-page-size="<?= (int)$arParams['PAGE_SIZE'] ?>" data-partner-id="<?= (int)$arParams['PARTNER_ID'] ?>">
     <?php if ($arParams['TITLE_HTML'] !== '' || $arParams['BUTTON_TEXT'] !== ''): ?>
     <div class="section-header mb-4">
         <div class="container-fluid pt-5 d-md-flex align-items-center">

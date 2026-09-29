@@ -30,6 +30,8 @@ class FormaroProductCarouselComponent extends CBitrixComponent
         $params['TITLE'] = (string)($params['TITLE'] ?? '');
         $params['CATALOG_URL'] = (string)($params['CATALOG_URL'] ?? '/catalog/');
         $params['SECTION_CLASS'] = (string)($params['SECTION_CLASS'] ?? '');
+        // Страница партнёра: только его товары и его скидки.
+        $params['PARTNER_ID'] = max(0, (int)($params['PARTNER_ID'] ?? 0));
         $params['CACHE_TIME'] = isset($params['CACHE_TIME']) ? (int)$params['CACHE_TIME'] : 600;
 
         return $params;
@@ -48,6 +50,12 @@ class FormaroProductCarouselComponent extends CBitrixComponent
 
             $productRepo = new ProductRepository();
             $activeDiscounts = (new DiscountRepository())->listActive();
+            if ($this->arParams['PARTNER_ID']) {
+                $activeDiscounts = array_values(array_filter(
+                    $activeDiscounts,
+                    fn(array $d) => (int)$d['partner_id'] === $this->arParams['PARTNER_ID']
+                ));
+            }
 
             $items = $this->arParams['MODE'] === 'DISCOUNT'
                 ? $this->loadDiscounted($productRepo, $activeDiscounts)
@@ -73,7 +81,7 @@ class FormaroProductCarouselComponent extends CBitrixComponent
 
     private function loadNew(ProductRepository $repo, array $activeDiscounts): array
     {
-        $products = $repo->findPublic([], ['DATE_CREATE' => 'DESC', 'ID' => 'DESC'], $this->arParams['COUNT']);
+        $products = $repo->findPublic($this->partnerFilter(), ['DATE_CREATE' => 'DESC', 'ID' => 'DESC'], $this->arParams['COUNT']);
 
         return array_map(fn(array $p) => ProductCardService::toItem($p, ProductPricingService::computeDisplay($p, $activeDiscounts)), $products);
     }
@@ -106,7 +114,7 @@ class FormaroProductCarouselComponent extends CBitrixComponent
             return [];
         }
 
-        $candidates = $repo->findPublic([$or], ['ID' => 'DESC'], self::MAX_DISCOUNT_CANDIDATES);
+        $candidates = $repo->findPublic(array_merge([$or], $this->partnerFilter()), ['ID' => 'DESC'], self::MAX_DISCOUNT_CANDIDATES);
 
         $items = [];
         foreach ($candidates as $p) {
@@ -122,5 +130,10 @@ class FormaroProductCarouselComponent extends CBitrixComponent
         usort($items, static fn($a, $b) => $b['DISCOUNT_RATIO'] <=> $a['DISCOUNT_RATIO'] ?: $b['ID'] <=> $a['ID']);
 
         return array_slice($items, 0, $this->arParams['COUNT']);
+    }
+
+    private function partnerFilter(): array
+    {
+        return $this->arParams['PARTNER_ID'] ? ['PROPERTY_PARTNER_ID' => $this->arParams['PARTNER_ID']] : [];
     }
 }

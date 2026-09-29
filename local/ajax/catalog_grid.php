@@ -4,7 +4,8 @@
  * витрина товаров формато.cabinet_catalog. GET ?offset=N&limit=M, отдаёт
  * JSON {items:[...], hasMore:bool, total:int}. Необязательные параметры
  * поиска/фильтра (компонент formaro:catalog.search): q, sections (id через
- * запятую), price_min, price_max, colors, sizes (через "|"). Метки/цена со скидкой считает
+ * запятую), price_min, price_max, colors, sizes (через "|"), partner
+ * (страница партнёра — только его товары). Метки/цена со скидкой считает
  * ProductPricingService (общая логика с order-detail.js:
  * autoApplyBestDiscount).
  *
@@ -42,6 +43,7 @@ $filter = ProductRepository::buildPublicFilter([
     'price_max' => $_GET['price_max'] ?? '',
     'colors' => $csv('colors', '|'),
     'sizes' => $csv('sizes', '|'),
+    'partner_id' => (int)($_GET['partner'] ?? 0),
 ]);
 
 $products = $productRepo->listPublic($limit, $offset, $filter);

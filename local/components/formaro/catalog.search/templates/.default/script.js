@@ -17,6 +17,9 @@
     var SUGGEST_LIMIT = 6;
 
     var limit = 24;
+    // Страница партнёра (data-partner-id на #hero-search): все запросы —
+    // только по его товарам.
+    var partnerId = 0;
     var state = {query: {}, offset: 0, items: [], hasMore: false, loaded: false, loading: false, requestId: 0};
     var views = [];
 
@@ -76,7 +79,7 @@
         state.loading = true;
         eachView('setLoading', true);
         var requestId = state.requestId;
-        var params = {offset: state.offset, limit: limit};
+        var params = {offset: state.offset, limit: limit, partner: partnerId || ''};
         Object.keys(state.query).forEach(function (k) { params[k] = state.query[k]; });
 
         request(params, function (data) {
@@ -392,7 +395,7 @@
             }
             timer = setTimeout(function () {
                 var id = ++suggestId;
-                request({q: q, offset: 0, limit: SUGGEST_LIMIT}, function (data) {
+                request({q: q, offset: 0, limit: SUGGEST_LIMIT, partner: partnerId || ''}, function (data) {
                     if (id !== suggestId) return;
                     var items = (data && data.items) || [];
                     suggest.innerHTML = items.length
@@ -455,6 +458,7 @@
         var hero = document.getElementById('hero-search');
         if (!hero) return;
         limit = parseInt(hero.getAttribute('data-page-size'), 10) || limit;
+        partnerId = parseInt(hero.getAttribute('data-partner-id'), 10) || 0;
 
         var grid = document.getElementById('catalog-grid');
         if (grid) addView(createDesktopView(grid));

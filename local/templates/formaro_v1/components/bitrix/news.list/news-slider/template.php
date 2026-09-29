@@ -11,6 +11,11 @@
 /** @var string $componentPath */
 /** @var CBitrixComponent $component */
 $this->setFrameMode(true);
+
+// Нет новостей (например, у партнёра на его странице) — секцию не выводим.
+if (empty($arResult['ITEMS'])) {
+    return;
+}
 ?>
 
 <section class="section <?=$arParams['SECTION_CLASS']?>">

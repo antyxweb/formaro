@@ -39,7 +39,7 @@ $this->setFrameMode(true);
                         <?endif?>
                     </div>
                     <div class="pt-4 d-flex">
-                        <a href="/html/catalog.html" class="f-button c-success">Каталог товаров</a>
+                        <a href="#hero-search" class="f-button c-success">Каталог товаров</a>
                         <a href="/html/partner.html" class="f-button">Чат с продавцом</a>
                     </div>
                 </div><?if($arResult["PREVIEW_PICTURE"]["SRC"]):?>

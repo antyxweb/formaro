@@ -98,12 +98,17 @@ class ProductRepository
     /** Фильтр витрины (поиск + попап фильтра на главной, компонент
      *  formaro:catalog.search) → фильтр CIBlockElement::GetList для
      *  listPublic()/countPublic().
-     *  $params: q, sections[], price_min, price_max, colors[], sizes[].
+     *  $params: q, sections[], price_min, price_max, colors[], sizes[],
+     *  partner_id (страница партнёра — только его товары).
      *  Цена фильтруется по базовой цене товара (PROPERTY_PRICE), без учёта
      *  скидок. */
     public static function buildPublicFilter(array $params): array
     {
         $filter = [];
+
+        if ((int)($params['partner_id'] ?? 0) > 0) {
+            $filter['PROPERTY_PARTNER_ID'] = (int)$params['partner_id'];
+        }
 
         $q = trim((string)($params['q'] ?? ''));
         if ($q !== '') {
@@ -135,14 +140,15 @@ class ProductRepository
         return $filter;
     }
 
-    /** Диапазон цен активных товаров — границы слайдера цены в фильтре. */
-    public function getPublicPriceRange(): array
+    /** Диапазон цен активных товаров — границы слайдера цены в фильтре.
+     *  $filter — доп. условия (например, товары одного партнёра). */
+    public function getPublicPriceRange(array $filter = []): array
     {
         $range = ['min' => 0.0, 'max' => 0.0];
         foreach (['min' => 'ASC', 'max' => 'DESC'] as $key => $dir) {
             $el = CIBlockElement::GetList(
                 ['PROPERTY_PRICE' => $dir],
-                ['IBLOCK_ID' => $this->iblockId, 'ACTIVE' => 'Y', 'CHECK_PERMISSIONS' => 'N', '!PROPERTY_PRICE' => false],
+                array_merge($filter, ['IBLOCK_ID' => $this->iblockId, 'ACTIVE' => 'Y', 'CHECK_PERMISSIONS' => 'N', '!PROPERTY_PRICE' => false]),
                 false,
                 ['nTopCount' => 1],
                 ['ID', 'PROPERTY_PRICE']
@@ -155,12 +161,12 @@ class ProductRepository
 
     /** Уникальные непустые значения строкового свойства (COLOR/SIZE) среди
      *  активных товаров — варианты для чекбоксов фильтра. */
-    public function getPublicPropertyValues(string $code): array
+    public function getPublicPropertyValues(string $code, array $filter = []): array
     {
         $values = [];
         $res = CIBlockElement::GetList(
             ['PROPERTY_' . $code => 'ASC'],
-            ['IBLOCK_ID' => $this->iblockId, 'ACTIVE' => 'Y', 'CHECK_PERMISSIONS' => 'N', '!PROPERTY_' . $code => false],
+            array_merge($filter, ['IBLOCK_ID' => $this->iblockId, 'ACTIVE' => 'Y', 'CHECK_PERMISSIONS' => 'N', '!PROPERTY_' . $code => false]),
             ['PROPERTY_' . $code]
         );
         while ($row = $res->Fetch()) {

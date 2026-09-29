@@ -11,6 +11,11 @@
 /** @var string $componentPath */
 /** @var CBitrixComponent $component */
 $this->setFrameMode(true);
+
+// Нет категорий с товарами (например, у партнёра) — блок не выводим.
+if (empty($arResult['SECTIONS_LIST'])) {
+    return;
+}
 ?>
 
 <section class="section light-gray-stripe">
@@ -18,19 +23,27 @@ $this->setFrameMode(true);
         <div class="container-fluid">
             <div class="d-flex align-items-center">
                 <?
-                $pagerTitle = explode(' ', $arResult['IBLOCK']['NAME']);
+                // Необязательные параметры вызова (страница партнёра):
+                // BLOCK_TITLE — свой заголовок вместо названия инфоблока,
+                // SHOW_PARTNER_BUTTON / SHOW_DESCRIPTION = N — скрыть кнопку
+                // «Стать партнером» и описание инфоблока.
+                $blockTitle = (string)($arParams['~BLOCK_TITLE'] ?? '') !== '' ? $arParams['~BLOCK_TITLE'] : $arResult['IBLOCK']['~NAME'];
+                $pagerTitle = explode(' ', htmlspecialcharsbx($blockTitle));
                 $pagerTitle[0] = '<span class="text-primary">'.$pagerTitle[0].'</span>';
-                $arResult['IBLOCK']['NAME'] = implode(' ', $pagerTitle);
                 ?>
-                <h3 class="h2"><?=$arResult['IBLOCK']['NAME']?></h3>
+                <h3 class="h2"><?=implode(' ', $pagerTitle)?></h3>
+                <?if(($arParams['SHOW_PARTNER_BUTTON'] ?? 'Y') !== 'N'):?>
                 <a href="/partners/join/" class="f-button c-gray ml-auto">
                     <svg width="16" height="16" class="d-md-none">
                         <use xlink:href="#icon-arrow-control"></use>
                     </svg>
                     <span class="pl-2 text-uppercase d-none d-md-inline">Стать партнером</span>
                 </a>
+                <?endif;?>
             </div>
+            <?if(($arParams['SHOW_DESCRIPTION'] ?? 'Y') !== 'N'):?>
             <h4 class="text-secondary"><?=$arResult['IBLOCK']['DESCRIPTION'];?></h4>
+            <?endif;?>
         </div>
     </div>
 

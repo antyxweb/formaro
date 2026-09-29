@@ -27,6 +27,9 @@ class FormaroCatalogSearchComponent extends CBitrixComponent
         $params['BUTTON_URL'] = (string)($params['BUTTON_URL'] ?? '');
         $params['POPULAR_QUERIES'] = array_values(array_filter(array_map('trim', (array)($params['POPULAR_QUERIES'] ?? []))));
         $params['PAGE_SIZE'] = max(1, min(48, (int)($params['PAGE_SIZE'] ?? 24)));
+        // Страница партнёра: сетка, подсказки и фильтр — только его товары.
+        $params['PARTNER_ID'] = max(0, (int)($params['PARTNER_ID'] ?? 0));
+        $params['SECTION_CLASS'] = (string)($params['SECTION_CLASS'] ?? 'pt-5');
         $params['CACHE_TIME'] = isset($params['CACHE_TIME']) ? (int)$params['CACHE_TIME'] : 3600;
 
         return $params;
@@ -43,13 +46,15 @@ class FormaroCatalogSearchComponent extends CBitrixComponent
 
             $iblockId = CatalogFilterService::getCatalogIblockId();
             $repo = new ProductRepository();
-            $range = $repo->getPublicPriceRange();
+            $partnerId = $this->arParams['PARTNER_ID'];
+            $productFilter = $partnerId ? ['PROPERTY_PARTNER_ID' => $partnerId] : [];
+            $range = $repo->getPublicPriceRange($productFilter);
 
-            $this->arResult['SECTION_GROUPS'] = CatalogFilterService::getSectionGroups();
+            $this->arResult['SECTION_GROUPS'] = CatalogFilterService::getSectionGroups($partnerId);
             $this->arResult['PRICE_MIN'] = (int)floor($range['min']);
             $this->arResult['PRICE_MAX'] = (int)ceil($range['max']);
-            $this->arResult['COLORS'] = $repo->getPublicPropertyValues('COLOR');
-            $this->arResult['SIZES'] = $repo->getPublicPropertyValues('SIZE');
+            $this->arResult['COLORS'] = $repo->getPublicPropertyValues('COLOR', $productFilter);
+            $this->arResult['SIZES'] = $repo->getPublicPropertyValues('SIZE', $productFilter);
 
             if ($iblockId && defined('BX_COMP_MANAGED_CACHE')) {
                 global $CACHE_MANAGER;

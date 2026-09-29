@@ -17,6 +17,7 @@ $arComponentParameters = [
         'TITLE' => ['PARENT' => 'VISUAL', 'NAME' => 'Заголовок: остальная часть', 'TYPE' => 'STRING', 'DEFAULT' => ''],
         'CATALOG_URL' => ['PARENT' => 'VISUAL', 'NAME' => 'Ссылка "Перейти в каталог"', 'TYPE' => 'STRING', 'DEFAULT' => '/catalog/'],
         'SECTION_CLASS' => ['PARENT' => 'VISUAL', 'NAME' => 'Доп. CSS-класс секции', 'TYPE' => 'STRING', 'DEFAULT' => ''],
+        'PARTNER_ID' => ['PARENT' => 'BASE', 'NAME' => 'ID партнёра (только его товары)', 'TYPE' => 'STRING', 'DEFAULT' => ''],
         'CACHE_TIME' => ['DEFAULT' => 600],
     ],
 ];
