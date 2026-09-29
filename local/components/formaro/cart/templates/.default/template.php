@@ -9,10 +9,14 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
 // Способы доставки и оплаты — плитки из вёрстки, выбор — радиокнопки
 // (коды — CartCheckoutService::DELIVERIES/PAYMENTS). Данные покупателя —
 // поля блока «Данные покупателя» карточки заказа в кабинете партнёра.
+// У транспортных компаний вместо иконки — логотип (images/delivery/,
+// с официальных сайтов; у «Деловых линий» текст перекрашен в тёмный —
+// в оригинале он белый под тёмную шапку).
+$logos = SITE_TEMPLATE_PATH . '/images/delivery/';
 $deliveries = [
-    ['code' => 'cdek', 'name' => 'СДЭК', 'icon' => 'icon-delivery'],
-    ['code' => 'dellin', 'name' => 'Деловые линии', 'icon' => 'icon-delivery'],
-    ['code' => 'pek', 'name' => 'ПЭК', 'icon' => 'icon-delivery'],
+    ['code' => 'cdek', 'name' => 'СДЭК', 'logo' => $logos . 'cdek.svg'],
+    ['code' => 'dellin', 'name' => 'Деловые линии', 'logo' => $logos . 'dellin.svg'],
+    ['code' => 'pek', 'name' => 'ПЭК', 'logo' => $logos . 'pek.svg'],
     ['code' => 'other', 'name' => 'Другая ТК', 'icon' => 'icon-exchange'],
 ];
 $payments = [
@@ -25,9 +29,13 @@ $choices = static function (string $name, array $options): void {
             <label class="cart-choice d-block h-100 mb-0">
                 <input type="radio" class="sr-only" name="<?= $name ?>" value="<?= $option['code'] ?>"<?= $i === 0 ? ' checked' : '' ?>>
                 <span class="support__link">
+                    <?php if (!empty($option['logo'])): ?>
+                    <span class="cart-choice-logo"><img src="<?= $option['logo'] ?>" alt="" width="160" height="40"></span>
+                    <?php else: ?>
                     <span class="support__icon-wrapper">
                         <svg class="support__link-icon" width="24" height="24"><use xlink:href="#<?= $option['icon'] ?>"></use></svg>
                     </span>
+                    <?php endif; ?>
                     <span class="cart-choice-name"><?= $option['name'] ?></span>
                 </span>
             </label>

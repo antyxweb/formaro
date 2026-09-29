@@ -55,7 +55,34 @@
     background: #fff;
     clip-path: polygon(0 0, 100% 0, 100% calc(100% - 29px), calc(100% - 29px) 100%, 0 100%);
 }
+/* Логотип транспортной компании — в высоту круга с иконкой (80px), чтобы
+   плитки с логотипом и с иконкой были одной высоты. Невыбранные —
+   приглушены, выбранная и под курсором — в полном цвете. */
+.cart-choice-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 80px;
+    width: 100%;
+}
+.cart-choice-logo img {
+    /* Одна высота у всех логотипов (у файлов разный собственный размер);
+       длинный — ужимается по ширине без искажения. */
+    height: 28px;
+    width: auto;
+    max-width: 80%;
+    object-fit: contain;
+    opacity: .55;
+    filter: grayscale(60%);
+    transition: .3s;
+}
+.cart-choice:hover .cart-choice-logo img,
+.cart-choice input:checked + .support__link .cart-choice-logo img {
+    opacity: 1;
+    filter: none;
+}
 .cart-choice .support__icon-wrapper,
+.cart-choice .cart-choice-logo,
 .cart-choice .cart-choice-name {
     position: relative;
     z-index: 1;
