@@ -28,7 +28,7 @@ $choices = static function (string $name, array $options): void {
                     <span class="support__icon-wrapper">
                         <svg class="support__link-icon" width="24" height="24"><use xlink:href="#<?= $option['icon'] ?>"></use></svg>
                     </span>
-                    <?= $option['name'] ?>
+                    <span class="cart-choice-name"><?= $option['name'] ?></span>
                 </span>
             </label>
         </div>
