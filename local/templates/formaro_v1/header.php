@@ -23,6 +23,13 @@ if($GLOBALS["APPLICATION"]->GetCurPage(false) == '/'
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
 
+    <!-- Согласие на cookies уже дано (кука cookie-policy, ставит scripts.js
+         по кнопке «Хорошо») — прячем плашку в сайдбаре до отрисовки, без
+         мигания. Сама плашка — в кэшируемом шаблоне sidebar-contacts,
+         поэтому решаем на клиенте, а не в PHP. -->
+    <script>if (/(?:^|;\s*)cookie-policy=Y(?:;|$)/.test(document.cookie)) document.documentElement.classList.add('cookie-accepted');</script>
+    <style>.cookie-accepted .sidebar__actions-cookie { display: none !important; }</style>
+
     <?$APPLICATION->ShowHead();?>
 
     <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />

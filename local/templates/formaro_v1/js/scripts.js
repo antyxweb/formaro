@@ -4508,7 +4508,11 @@ $(function () {
     $('.sidebar__actions-cookie .f-button').click(function () {
         $('.sidebar__actions-cookie').css('opacity', 0).delay(300).css('height', 0);
 
-        $.cookie('cookie-policy', 'Y');
+        // Согласие на cookies — на месяц и для всего сайта (без path кука
+        // ставилась только на текущий раздел, без expires — до закрытия
+        // браузера, и плашка появлялась снова).
+        $.cookie('cookie-policy', 'Y', {expires: 30, path: '/'});
+        $('html').addClass('cookie-accepted');
     });
     if($.cookie('cookie-policy')) {
         $('.sidebar__actions-cookie').remove();
