@@ -34,7 +34,15 @@ $this->setFrameMode(true);
     </div>
     <div class="section-body">
         <div class="container-fluid">
-            <div class="main-carousel partners-carousel partners-list" _data-flickity='{ "cellAlign": "left", "wrapAround": true, "pageDots": false }'>
+            <?
+            // Слайд «+» подгружает следующую страницу списка (штатная
+            // постраничка PAGEN_N) — js/carousel-more.js.
+            $nav = $arResult['NAV_RESULT'] ?? null;
+            $navNum = is_object($nav) ? (int)$nav->NavNum : 0;
+            $navPage = is_object($nav) ? (int)$nav->NavPageNomer : 1;
+            $navPageCount = is_object($nav) ? (int)$nav->NavPageCount : 1;
+            ?>
+            <div class="main-carousel partners-carousel partners-list js-carousel-more" data-nav-num="<?=$navNum?>" data-nav-page="<?=$navPage?>" data-nav-page-count="<?=$navPageCount?>" _data-flickity='{ "cellAlign": "left", "wrapAround": true, "pageDots": false }'>
 
                 <?foreach($arResult["ITEMS"] as $arKey=>$arItem):?>
                 <?
@@ -67,6 +75,16 @@ $this->setFrameMode(true);
                     </div>
                 <?endforeach;?>
 
+                <?if($navNum && $navPage < $navPageCount):?>
+                    <div class="carousel-cell carousel-cell-last">
+                        <div class="carousel-more-card">
+                            <button class="load-more-slider" type="button" aria-label="Показать еще">
+                                <svg width="36" height="36"><use xlink:href="#icon-plus"></use></svg>
+                                <svg width="24" height="24" class="icon-progress d-none"><use xlink:href="#icon-progress"></use></svg>
+                            </button>
+                        </div>
+                    </div>
+                <?endif;?>
             </div>
         </div>
     </div>

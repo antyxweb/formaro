@@ -195,7 +195,11 @@ if ($partnerHasProducts):
             "CACHE_TYPE" => "A",
             "CHECK_DATES" => "Y",
             "DETAIL_URL" => "",
-            "DISPLAY_BOTTOM_PAGER" => "N",
+            // Постраничка нужна слайду «+» (js/carousel-more.js); сам
+            // пейджер шаблон news-slider не выводит.
+            "DISPLAY_BOTTOM_PAGER" => "Y",
+            "PAGER_SHOW_ALWAYS" => "N",
+            "PAGER_TEMPLATE" => ".default",
             "DISPLAY_DATE" => "Y",
             "DISPLAY_NAME" => "Y",
             "DISPLAY_PICTURE" => "Y",

@@ -47,3 +47,33 @@ https://flickity.metafizzy.co
 .filter .filter-row-categories .filter-cat{position:relative}.filter .filter-row-categories .filter-cat>label{padding-right:48px !important}.filter .filter-row-categories .filter-cat-toggle{position:absolute;top:4px;right:12px;width:32px;height:32px;padding:0;border:none;background:none;color:#6c757d;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform 0.3s}.filter .filter-row-categories .filter-cat-toggle:hover{color:#1976d2}.filter .filter-row-categories .filter-cat.open>.filter-cat-toggle{transform:rotate(180deg)}.filter .filter-row-categories .filter-cat-children label{padding-left:54px !important}.filter .filter-row-categories .filter-cat-children label svg{left:53px}@media (max-width:1199.98px){.filter .filter-row-categories .filter-cat-children label{padding-left:46px !important}.filter .filter-row-categories .filter-cat-children label svg{left:45px}}
 .product-card--skeleton{pointer-events:none}.product-card--skeleton .skeleton-img,.product-card--skeleton .skeleton-line,.product-card--skeleton .skeleton-action{background:linear-gradient(90deg,#ececec 25%,#f6f6f6 37%,#ececec 63%);background-size:400% 100%;-webkit-animation:skeleton-shimmer 1.4s ease infinite;animation:skeleton-shimmer 1.4s ease infinite}.product-card--skeleton .product-card__img{background:#ffffff}.product-card--skeleton .skeleton-img{background-image:linear-gradient(90deg,#dedede 25%,#ebebeb 37%,#dedede 63%)}.product-card--skeleton .skeleton-line{height:14px;border-radius:3px;margin-bottom:8px}.product-card--skeleton .skeleton-title{height:60px;margin-bottom:12px}.product-card--skeleton .skeleton-title .skeleton-line{margin-bottom:9px}.product-card--skeleton .skeleton-price{width:45%;height:22px;margin-bottom:12px}.product-card--skeleton .skeleton-meta{width:60%}.product-card--skeleton .product-card__actions{height:50px;padding:0;background:#ffffff}.product-card--skeleton .skeleton-action{height:100%;width:100%}@-webkit-keyframes skeleton-shimmer{0%{background-position:100% 50%}100%{background-position:0 50%}}@keyframes skeleton-shimmer{0%{background-position:100% 50%}100%{background-position:0 50%}}@media (prefers-reduced-motion:reduce){.product-card--skeleton .skeleton-img,.product-card--skeleton .skeleton-line,.product-card--skeleton .skeleton-action{-webkit-animation:none;animation:none}}
 /*# sourceMappingURL=styles.min.css.map */
+
+/* Слайд «+» в каруселях новостей и партнёров (js/carousel-more.js) —
+   как у каруселей товаров. */
+.news-carousel .carousel-cell.carousel-cell-last,
+.partners-carousel .carousel-cell.carousel-cell-last {
+  height: 100%;
+}
+.carousel-cell-last .carousel-more-card {
+  position: relative;
+  background: rgba(0, 0, 0, 0.1);
+  height: 100%;
+  margin-right: 15px;
+}
+.carousel-cell-last .carousel-more-card button {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -webkit-transform: translate(-50%, -50%);
+      -ms-transform: translate(-50%, -50%);
+          transform: translate(-50%, -50%);
+  background: #1976d2;
+  border: none;
+  border-radius: 50%;
+  color: #ffffff;
+  width: 50px;
+  height: 50px;
+}
+.partners-carousel .carousel-cell-last .carousel-more-card button {
+  background: #28a745;
+}
