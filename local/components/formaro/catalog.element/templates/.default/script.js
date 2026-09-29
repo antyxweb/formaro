@@ -6,9 +6,10 @@
      хлебные крошки, <title> и адрес (history.pushState); «Назад» в
      браузере возвращает предыдущий вариант так же. Галерею (Flickity)
      scripts.js включает при загрузке — для новой разметки включаем заново.
-   - Залипание блока цены и сайдбара — CSS sticky (style.css, класс
-     is-sticky), только если блок целиком помещается в окно; sticky-kit,
-     который включает scripts.js, отключаем — он дёргал блоки.
+   - Залипание блока цены — CSS sticky (style.css, класс is-sticky),
+     только если блок целиком помещается в окно; сайдбар «О продавце» не
+     залипает. sticky-kit, который scripts.js включает на обоих, снимаем —
+     он дёргал блоки.
 
    Файл подключается в <head>, jQuery — в конце body: старт на DOMContentLoaded. */
 document.addEventListener('DOMContentLoaded', function () {
@@ -35,13 +36,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
     var STICKY_TOP = 60; // как top в style.css
 
+    /** Залипает только блок цены; сайдбар «О продавце» — нет, но
+     *  sticky-kit со scripts.js снимаем с обоих. */
     function updateSticky() {
-        ['product-option', 'product-sidebar'].forEach(function (id) {
-            var el = document.getElementById(id);
-            if (!el) return;
-            if ($.fn.stick_in_parent) $(el).trigger('sticky_kit:detach');
-            el.classList.toggle('is-sticky', el.offsetHeight + STICKY_TOP <= window.innerHeight);
-        });
+        if ($.fn.stick_in_parent) $('#product-option, #product-sidebar').trigger('sticky_kit:detach');
+        var option = document.getElementById('product-option');
+        if (option) option.classList.toggle('is-sticky', option.offsetHeight + STICKY_TOP <= window.innerHeight);
     }
 
     /** Заголовок как у scripts.js: первое слово — акцентом. */
