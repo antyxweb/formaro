@@ -73,11 +73,13 @@ foreach ($items as $item) {
 $partners = [];
 $partnerIds = array_filter(array_keys($groups));
 if ($partnerIds) {
-    $res = CIBlockElement::GetList([], ['ID' => $partnerIds, 'CHECK_PERMISSIONS' => 'N'], false, false, ['ID', 'NAME', 'DETAIL_PAGE_URL', 'ACTIVE']);
+    // Название — короткое (NAME_SHORT, «ИП Антух Д. А.»), если заполнено.
+    $res = CIBlockElement::GetList([], ['ID' => $partnerIds, 'CHECK_PERMISSIONS' => 'N'], false, false, ['ID', 'NAME', 'DETAIL_PAGE_URL', 'ACTIVE', 'PROPERTY_NAME_SHORT']);
     while ($row = $res->GetNext()) {
+        $shortName = trim((string)($row['~PROPERTY_NAME_SHORT_VALUE'] ?? ''));
         $partners[(int)$row['ID']] = [
             'id' => (int)$row['ID'],
-            'name' => $row['~NAME'],
+            'name' => $shortName !== '' ? $shortName : $row['~NAME'],
             'url' => $row['ACTIVE'] === 'Y' ? $row['DETAIL_PAGE_URL'] : '',
         ];
     }
