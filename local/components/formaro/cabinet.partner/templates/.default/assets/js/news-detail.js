@@ -78,6 +78,7 @@ $(function () {
             $('#f_code').val(n.slug); codeChain.setExisting();
             $('#codeChainBtn').removeClass('d-none');
             bindCodeCopyBtn('#codeChainBtn', function () { return n.public_url; });
+            bindPreviewBtn('#previewBtn', n);
             $('#f_short_desc').val(n.short_desc); autoHeightResize('#f_short_desc');
             $('#f_status').val(n.status || 'active');
             $('#f_full_desc').val(n.full_desc);

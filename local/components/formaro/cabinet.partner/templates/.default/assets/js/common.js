@@ -124,6 +124,23 @@ function bindCodeCopyBtn(btnSel, getPublicUrl) {
         copyTextToClipboard(location.origin + path);
     });
 }
+/** «Предпросмотр» на форме товара/категории/новости — ссылка на страницу
+ *  на сайте в новой вкладке. Неактивна, пока запись не сохранена или не
+ *  показывается на сайте (скрыта / на проверке) — причина в подсказке.
+ *  Состояние — сохранённой записи, не несохранённых правок формы. */
+function bindPreviewBtn(btnSel, row) {
+    var $btn = $(btnSel);
+    var reason = '';
+    if (!row.public_url) reason = 'Ссылка ещё не настроена — у раздела на сайте не задан ЧПУ-шаблон';
+    else if (row.status === 'pending') reason = 'На проверке — появится на сайте после одобрения';
+    else if (row.status === 'hidden') reason = 'Скрыто — на сайте не показывается';
+    if (reason) {
+        $btn.attr({href: '#', title: reason, tabindex: '-1', 'aria-disabled': 'true'}).addClass('disabled');
+        return;
+    }
+    $btn.attr({href: row.public_url, target: '_blank', rel: 'noopener', title: 'Открыть на сайте в новой вкладке'})
+        .removeAttr('tabindex aria-disabled').removeClass('disabled');
+}
 function copyTextToClipboard(text) {
     function done() { showResult(true, 'Ссылка скопирована: ' + text); }
     function fail() { showResult(false, 'Не удалось скопировать ссылку'); }

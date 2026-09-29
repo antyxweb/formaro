@@ -292,10 +292,9 @@ class NewsRepository
         ];
     }
 
-    /** См. CategoryRepository::getPublicUrl() — тот же принцип. Сейчас у
-     *  cabinet_news не настроен DETAIL_PAGE_URL (публичной страницы новости
-     *  ещё нет), поэтому вернёт '' — кнопка копирования ссылки в форме
-     *  новости покажет "ссылка ещё не настроена", это ожидаемо. */
+    /** См. CategoryRepository::getPublicUrl() — тот же принцип (страница
+     *  новости на сайте — /news/, DETAIL_PAGE_URL инфоблока cabinet_news);
+     *  нужна кнопкам «скопировать ссылку» и «Предпросмотр» в форме новости. */
     private function getPublicUrl(array $el): string
     {
         $iblock = CIBlock::GetArrayByID($this->iblockId);

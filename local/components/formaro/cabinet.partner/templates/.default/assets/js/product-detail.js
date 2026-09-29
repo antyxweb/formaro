@@ -108,6 +108,7 @@ $(function () {
                 $('#f_code').val(p.slug); codeChain.setExisting();
                 $('#codeChainBtn').removeClass('d-none');
                 bindCodeCopyBtn('#codeChainBtn', function () { return p.public_url; });
+            bindPreviewBtn('#previewBtn', p);
                 $('#f_price').val(p.price);
                 $('#f_preorder').prop('checked', !!p.is_preorder);
                 (p.tags || []).forEach(function (t) {

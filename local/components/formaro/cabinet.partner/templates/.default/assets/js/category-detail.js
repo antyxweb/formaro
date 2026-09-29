@@ -46,6 +46,7 @@ $(function () {
             $('#f_code').val(c.slug); codeChain.setExisting();
             $('#codeChainBtn').removeClass('d-none');
             bindCodeCopyBtn('#codeChainBtn', function () { return c.public_url; });
+            bindPreviewBtn('#previewBtn', c);
             $('#f_short_desc').val(c.short_desc); autoHeightResize('#f_short_desc');
             $('#f_full_desc').val(c.full_desc);
             if ($.fn.trumbowyg) $('#f_full_desc').trumbowyg('html', c.full_desc || '');
