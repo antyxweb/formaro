@@ -21,7 +21,11 @@ class FormaroProductCarouselComponent extends CBitrixComponent
 {
     public function onPrepareComponentParams($params)
     {
-        $params['MODE'] = ProductCarouselService::normalizeMode($params['MODE'] ?? 'NEW');
+        // Модуль — уже здесь: у гостя его ещё никто не подключил (шапка
+        // подключает только для вошедших), а класс нужен для MODE.
+        $params['MODE'] = Loader::includeModule('formaro.cabinet')
+            ? ProductCarouselService::normalizeMode($params['MODE'] ?? 'NEW')
+            : 'NEW';
         $params['COUNT'] = max(1, (int)($params['COUNT'] ?? 12));
         $params['TITLE_ACCENT'] = (string)($params['TITLE_ACCENT'] ?? '');
         $params['TITLE'] = (string)($params['TITLE'] ?? '');
