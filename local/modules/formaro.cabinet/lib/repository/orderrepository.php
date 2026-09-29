@@ -30,6 +30,23 @@ class OrderRepository
         return array_map([$this, 'toArray'], $rows);
     }
 
+    /** Последние заказы покупателя с витрины, новые первыми — для
+     *  предзаполнения формы оформления. */
+    public function listRecentByUser(int $userId, int $limit): array
+    {
+        if ($userId <= 0) {
+            return [];
+        }
+        $dataClass = HlblockEntityFactory::getDataClass(self::HLBLOCK_NAME);
+        $rows = $dataClass::getList([
+            'filter' => ['=UF_USER_ID' => $userId],
+            'order' => ['ID' => 'DESC'],
+            'limit' => $limit,
+        ])->fetchAll();
+
+        return array_map([$this, 'toArray'], $rows);
+    }
+
     public function get(int $id): ?array
     {
         $dataClass = HlblockEntityFactory::getDataClass(self::HLBLOCK_NAME);

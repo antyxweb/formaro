@@ -103,13 +103,14 @@ require __DIR__ . '/inc/layout_app_top.php';
                     <option>Транспортной компанией (СДЭК)</option>
                     <option>Самовывоз со склада</option>
                     <option>Почтой России</option>
-                    <option>Доставка до адреса</option>
+                    <option>Деловые линии</option>
+                    <option>ПЭК</option>
+                    <option>Другая транспортная компания</option>
                 </select>
                 <label class="form-label">Способ оплаты</label>
                 <select class="form-select mb-3" id="paymentMethodSelect">
                     <option>Банковской картой онлайн</option>
                     <option>По счёту (безнал)</option>
-                    <option>СБП</option>
                     <option>Наличными при получении</option>
                 </select>
                 <label class="form-label">Статус оплаты</label>

@@ -3,18 +3,22 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
     die();
 }
 /** @var array $arParams */
+/** @var array $arResult */
 
 // Вёрстка — /html/cart.html. Группы поставщиков и итог строит script.js.
-// Способы доставки и оплаты — плитки из вёрстки, выбор — радиокнопки.
+// Способы доставки и оплаты — плитки из вёрстки, выбор — радиокнопки
+// (коды — CartCheckoutService::DELIVERIES/PAYMENTS). Данные покупателя —
+// поля блока «Данные покупателя» карточки заказа в кабинете партнёра.
 $deliveries = [
-    ['code' => 'address', 'name' => 'До адреса', 'icon' => 'icon-availability'],
-    ['code' => 'pickup', 'name' => 'Самовывоз', 'icon' => 'icon-delivery'],
+    ['code' => 'cdek', 'name' => 'СДЭК', 'icon' => 'icon-delivery'],
+    ['code' => 'dellin', 'name' => 'Деловые линии', 'icon' => 'icon-delivery'],
+    ['code' => 'pek', 'name' => 'ПЭК', 'icon' => 'icon-delivery'],
+    ['code' => 'other', 'name' => 'Другая ТК', 'icon' => 'icon-exchange'],
 ];
 $payments = [
-    ['code' => 'card', 'name' => 'Картой онлайн', 'icon' => 'icon-wallet'],
-    ['code' => 'sbp', 'name' => 'СБП', 'icon' => 'icon-sbp'],
     ['code' => 'invoice', 'name' => 'По счету', 'icon' => 'icon-list-done'],
 ];
+$buyer = array_map('htmlspecialcharsbx', $arResult['BUYER']);
 $choices = static function (string $name, array $options): void {
     foreach ($options as $i => $option): ?>
         <div class="col-12 col-lg-6 col-xl-3 mb-4 mb-xl-0">
@@ -53,15 +57,37 @@ $choices = static function (string $name, array $options): void {
                     </div>
 
                     <form class="d-none" id="cart-checkout-form" autocomplete="on" novalidate>
-                        <h3 class="my-5">Способ доставки</h3>
-                        <div class="support-list row"><?php $choices('delivery', $deliveries); ?></div>
-
-                        <div class="form-group pt-4" id="cart-address-group">
-                            <label for="cart-address">Адрес доставки</label>
-                            <input type="text" class="form-control" id="cart-address" name="address" autocomplete="street-address" maxlength="255" aria-describedby="cart-address-help">
-                            <small id="cart-address-help" class="form-text text-muted">Укажите точный адрес, включая индекс</small>
+                        <h3 class="my-5">Данные покупателя</h3>
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label for="cart-buyer-name">Имя / название компании <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="cart-buyer-name" name="buyer[name]" value="<?= $buyer['name'] ?>" autocomplete="name" maxlength="255" required>
+                                <div class="invalid-feedback">Укажите имя или название компании</div>
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label for="cart-buyer-phone">Телефон <span class="text-danger">*</span></label>
+                                <input type="tel" class="form-control" id="cart-buyer-phone" name="buyer[phone]" value="<?= $buyer['phone'] ?>" autocomplete="tel" maxlength="50" placeholder="+7 999 123-45-67" required>
+                                <div class="invalid-feedback">Укажите телефон</div>
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label for="cart-buyer-email">E-mail</label>
+                                <input type="email" class="form-control" id="cart-buyer-email" name="buyer[email]" value="<?= $buyer['email'] ?>" autocomplete="email" maxlength="255">
+                                <div class="invalid-feedback">Проверьте e-mail</div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="cart-address">Адрес доставки <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="cart-address" name="buyer[address]" value="<?= $buyer['address'] ?>" autocomplete="street-address" maxlength="255" aria-describedby="cart-address-help" required>
+                            <small id="cart-address-help" class="form-text text-muted">Город и адрес или пункт выдачи транспортной компании</small>
                             <div class="invalid-feedback">Укажите адрес доставки</div>
                         </div>
+                        <div class="form-group mb-0">
+                            <label for="cart-buyer-comment">Комментарий к заказу</label>
+                            <textarea class="form-control" id="cart-buyer-comment" name="buyer[comment]" rows="2" maxlength="2000"></textarea>
+                        </div>
+
+                        <h3 class="my-5">Способ доставки</h3>
+                        <div class="support-list row"><?php $choices('delivery', $deliveries); ?></div>
 
                         <h3 class="my-5">Способ оплаты</h3>
                         <div class="support-list row"><?php $choices('payment', $payments); ?></div>
@@ -106,7 +132,7 @@ $choices = static function (string $name, array $options): void {
                             </div>
 
                             <div id="cart-summary-delivery-wrap">
-                                <h6 class="mb-1" id="cart-summary-delivery-title">Доставка до адреса:</h6>
+                                <h6 class="mb-1" id="cart-summary-delivery-title">Доставка:</h6>
                                 <div class="text-secondary mb-4" id="cart-summary-delivery">Стоимость сообщит продавец после оформления</div>
                             </div>
 

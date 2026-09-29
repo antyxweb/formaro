@@ -3,13 +3,13 @@
  * Оформление заказа со страницы корзины (/personal/cart/, formaro:cart).
  *
  * POST sessid, ids[] (отмеченные товары — количество берётся из корзины
- * на сервере), coupons (КОД,КОД), delivery (address|pickup), payment
- * (card|sbp|invoice), address → {orders: [{id, order_number,
+ * на сервере), coupons (КОД,КОД), delivery (cdek|dellin|pek|other),
+ * payment (invoice), buyer[name|phone|email|address|comment] →
+ * {orders: [{id, order_number,
  * partner_name, total}]} — по заказу на поставщика, оформленные товары
  * убраны из корзины; ошибка → {error}.
  *
- * Только для авторизованных: покупатель — из профиля, корзина — в
- * аккаунте. См. CartCheckoutService::checkout().
+ * Только для авторизованных: корзина — в аккаунте. См. CartCheckoutService::checkout().
  */
 define('NO_KEEP_STATISTIC', true);
 define('NOT_CHECK_PERMISSIONS', true);
@@ -49,7 +49,7 @@ try {
         explode(',', (string)($_POST['coupons'] ?? '')),
         (string)($_POST['delivery'] ?? ''),
         (string)($_POST['payment'] ?? ''),
-        (string)($_POST['address'] ?? '')
+        (array)($_POST['buyer'] ?? [])
     );
 } catch (\RuntimeException $e) {
     $respond(400, ['error' => $e->getMessage()]);

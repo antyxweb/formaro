@@ -5,9 +5,11 @@
    сгруппированы по поставщикам; у группы шапка: слева поставщик ссылкой,
    справа «выбрать все», «снять выбор», «удалить выбранные». Итог справа —
    по отмеченным товарам; снятые с выбора товары запоминаются в браузере
-   (localStorage). Под товарами — способ доставки (до адреса — с полем
-   адреса, или самовывоз) и способ оплаты; выбор и адрес тоже запоминаются
-   в браузере. Кнопка оформления без отмеченных товаров — серая «Выберите
+   (localStorage). Под товарами — данные покупателя (поля блока «Данные
+   покупателя» заказа в кабинете; сервер предзаполняет их из последнего
+   заказа или профиля), способ доставки (транспортные компании) и оплаты
+   (пока только по счёту); выбранные способы запоминаются в браузере,
+   личные данные — нет. Кнопка оформления без отмеченных товаров — серая «Выберите
    товары», иначе — «Оформить заказ»: по заказу на каждого поставщика
    отмеченных товаров (/local/ajax/checkout.php, только для вошедших),
    оформленные товары уходят из корзины, сверху — сообщение с номерами
@@ -77,7 +79,7 @@
         } catch (e) { /* без хранилища — выбор до перезагрузки */ }
     }
 
-    /** Способ доставки/оплаты и адрес: {delivery, payment, address}. */
+    /** Способ доставки/оплаты: {delivery, payment}. */
     function readCheckout() {
         try {
             var data = JSON.parse(window.localStorage.getItem(CHECKOUT_KEY) || '{}');
@@ -91,8 +93,7 @@
         var form = el.checkoutForm;
         var data = {
             delivery: form.elements.delivery.value,
-            payment: form.elements.payment.value,
-            address: el.address.value
+            payment: form.elements.payment.value
         };
         try {
             window.localStorage.setItem(CHECKOUT_KEY, JSON.stringify(data));
@@ -323,14 +324,32 @@
         renderSummary();
     }
 
-    /** Доставка до адреса — поле адреса и строка в итоге; самовывоз —
-     *  без адреса. */
+    /** Строка доставки в итоге — название выбранной транспортной компании. */
     function renderDelivery() {
-        var toAddress = el.checkoutForm.elements.delivery.value === 'address';
-        el.addressGroup.classList.toggle('d-none', !toAddress);
-        if (!toAddress) el.address.classList.remove('is-invalid');
-        el.deliveryTitle.textContent = toAddress ? 'Доставка до адреса:' : 'Самовывоз:';
-        el.delivery.textContent = toAddress ? 'Стоимость сообщит продавец после оформления' : 'Бесплатно';
+        var checked = el.checkoutForm.querySelector('input[name="delivery"]:checked');
+        var name = checked ? checked.closest('.cart-choice').textContent.trim() : '';
+        el.deliveryTitle.textContent = 'Доставка' + (name ? ' (' + name + ')' : '') + ':';
+    }
+
+    /** Обязательные поля покупателя; первое ошибочное — в фокус. */
+    function validateBuyer() {
+        var checks = [
+            [el.buyerName, function (v) { return v !== ''; }],
+            [el.buyerPhone, function (v) { return /^\+?[\d\s\-()]{7,20}$/.test(v); }],
+            [el.buyerEmail, function (v) { return v === '' || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }],
+            [el.address, function (v) { return v !== ''; }]
+        ];
+        var first = null;
+        checks.forEach(function (check) {
+            var ok = check[1](check[0].value.trim());
+            check[0].classList.toggle('is-invalid', !ok);
+            if (!ok && !first) first = check[0];
+        });
+        if (first) {
+            first.scrollIntoView({block: 'center', behavior: 'smooth'});
+            first.focus({preventScroll: true});
+        }
+        return !first;
     }
 
     function initCheckoutForm() {
@@ -340,16 +359,14 @@
             var input = saved[name] && form.querySelector('input[name="' + name + '"][value="' + String(saved[name]).replace(/[^a-z]/g, '') + '"]');
             if (input) input.checked = true;
         });
-        if (typeof saved.address === 'string') el.address.value = saved.address;
         renderDelivery();
 
         form.addEventListener('change', function (e) {
             if (e.target.name === 'delivery') renderDelivery();
             writeCheckout();
         });
-        el.address.addEventListener('input', function () {
-            el.address.classList.remove('is-invalid');
-            writeCheckout();
+        form.addEventListener('input', function (e) {
+            e.target.classList.remove('is-invalid');
         });
         form.addEventListener('submit', function (e) { e.preventDefault(); });
     }
@@ -376,7 +393,9 @@
         params.push('coupons=' + encodeURIComponent(couponCodes.join(',')));
         params.push('delivery=' + encodeURIComponent(form.elements.delivery.value));
         params.push('payment=' + encodeURIComponent(form.elements.payment.value));
-        params.push('address=' + encodeURIComponent(el.address.value.trim()));
+        [['name', el.buyerName], ['phone', el.buyerPhone], ['email', el.buyerEmail], ['address', el.address], ['comment', el.buyerComment]].forEach(function (f) {
+            params.push('buyer[' + f[0] + ']=' + encodeURIComponent(f[1].value.trim()));
+        });
 
         el.checkout.disabled = true;
         el.checkout.textContent = 'Оформляем…';
@@ -412,6 +431,7 @@
         var box = el.success;
         box.querySelector('.cart-success-title').textContent = orders.length > 1 ? 'Заказы оформлены' : 'Заказ оформлен';
         box.classList.remove('d-none');
+        el.buyerComment.value = '';
         window.FormaroCart.remove(ids);
         box.scrollIntoView({block: 'start', behavior: 'smooth'});
         box.focus({preventScroll: true});
@@ -448,7 +468,10 @@
             checkoutForm: document.getElementById('cart-checkout-form'),
             success: document.getElementById('cart-success'),
             address: document.getElementById('cart-address'),
-            addressGroup: document.getElementById('cart-address-group'),
+            buyerName: document.getElementById('cart-buyer-name'),
+            buyerPhone: document.getElementById('cart-buyer-phone'),
+            buyerEmail: document.getElementById('cart-buyer-email'),
+            buyerComment: document.getElementById('cart-buyer-comment'),
             deliveryTitle: document.getElementById('cart-summary-delivery-title'),
             delivery: document.getElementById('cart-summary-delivery')
         };
@@ -503,12 +526,8 @@
         });
 
         el.checkout.addEventListener('click', function () {
-            if (el.checkoutForm.elements.delivery.value === 'address' && !el.address.value.trim()) {
-                el.address.classList.add('is-invalid');
-                el.address.scrollIntoView({block: 'center', behavior: 'smooth'});
-                el.address.focus({preventScroll: true});
-                return;
-            }
+            // Гостю сначала — предложение войти, поля проверим потом.
+            if (window.FormaroCart.isAuthorized() && !validateBuyer()) return;
             submitOrder();
         });
 

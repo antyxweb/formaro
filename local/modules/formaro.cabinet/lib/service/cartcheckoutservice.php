@@ -21,18 +21,20 @@ use Formaro\Cabinet\Repository\ProductRepository;
  *
  * Оформление — по заказу (HL-блок CabinetOrders) на каждого поставщика
  * отмеченных товаров; в заказе — цены со скидкой партнёра, промокод
- * поставщика, способ доставки/оплаты, покупатель из профиля. Оформленные
+ * поставщика, способ доставки/оплаты, данные покупателя из формы (как в
+ * блоке «Данные покупателя» карточки заказа в кабинете). Оформленные
  * товары убираются из корзины, партнёру — уведомление в кабинете.
  */
 class CartCheckoutService
 {
+    /** Код с витрины → название в заказе (как в списке карточки заказа в кабинете). */
     public const DELIVERIES = [
-        'address' => 'Доставка до адреса',
-        'pickup' => 'Самовывоз со склада',
+        'cdek' => 'Транспортной компанией (СДЭК)',
+        'dellin' => 'Деловые линии',
+        'pek' => 'ПЭК',
+        'other' => 'Другая транспортная компания',
     ];
     public const PAYMENTS = [
-        'card' => 'Банковской картой онлайн',
-        'sbp' => 'СБП',
         'invoice' => 'По счёту (безнал)',
     ];
 
@@ -135,10 +137,11 @@ class CartCheckoutService
      * Оформить отмеченные товары корзины пользователя.
      *
      * @param int[] $productIds отмеченные товары (берутся из корзины на сервере с её количеством)
+     * @param array $buyer name/phone/email/address/comment
      * @return array [{id, order_number, partner_name, total}]
      * @throws \RuntimeException понятная покупателю ошибка
      */
-    public static function checkout(int $userId, array $productIds, array $codes, string $delivery, string $payment, string $address): array
+    public static function checkout(int $userId, array $productIds, array $codes, string $delivery, string $payment, array $buyer): array
     {
         if (!isset(self::DELIVERIES[$delivery])) {
             throw new \RuntimeException('Выберите способ доставки');
@@ -146,8 +149,24 @@ class CartCheckoutService
         if (!isset(self::PAYMENTS[$payment])) {
             throw new \RuntimeException('Выберите способ оплаты');
         }
-        $address = mb_substr(trim($address), 0, 255);
-        if ($delivery === 'address' && $address === '') {
+        $field = static fn(string $key, int $max) => mb_substr(trim((string)($buyer[$key] ?? '')), 0, $max);
+        $customer = [
+            'name' => $field('name', 255),
+            'phone' => $field('phone', 50),
+            'email' => $field('email', 255),
+            'address' => $field('address', 255),
+        ];
+        $comment = $field('comment', 2000);
+        if ($customer['name'] === '') {
+            throw new \RuntimeException('Укажите имя или название компании');
+        }
+        if (!preg_match('/^\+?[\d\s\-()]{7,20}$/', $customer['phone'])) {
+            throw new \RuntimeException('Укажите телефон');
+        }
+        if ($customer['email'] !== '' && !filter_var($customer['email'], FILTER_VALIDATE_EMAIL)) {
+            throw new \RuntimeException('Проверьте e-mail');
+        }
+        if ($customer['address'] === '') {
             throw new \RuntimeException('Укажите адрес доставки');
         }
 
@@ -170,8 +189,6 @@ class CartCheckoutService
             }
         }
 
-        $customer = self::customer($userId);
-        $customer['address'] = $delivery === 'address' ? $address : '';
         $now = date('c');
 
         $orderRepo = new OrderRepository();
@@ -203,6 +220,7 @@ class CartCheckoutService
                 'delivery_method' => self::DELIVERIES[$delivery],
                 'payment_method' => self::PAYMENTS[$payment],
                 'payment_status' => 'awaiting',
+                'customer_comment' => $comment,
                 'discount_name' => $coupon ? 'Купон ' . $coupon['code'] : '',
                 'coupon_code' => $coupon ? $coupon['code'] : '',
                 'discount_amount' => $discount,
@@ -230,8 +248,30 @@ class CartCheckoutService
         return $created;
     }
 
-    /** Покупатель — из профиля пользователя. */
-    private static function customer(int $userId): array
+    /**
+     * Предзаполнение «Данных покупателя»: каждое поле — из самого свежего
+     * заказа пользователя с витрины, где оно заполнено; иначе — из профиля.
+     *
+     * @return array{name: string, phone: string, email: string, address: string}
+     */
+    public static function buyerDefaults(int $userId): array
+    {
+        $data = self::profile($userId);
+        $fromOrders = [];
+        foreach ((new OrderRepository())->listRecentByUser($userId, 10) as $order) {
+            foreach (['name', 'phone', 'email', 'address'] as $key) {
+                $value = trim((string)($order['customer'][$key] ?? ''));
+                if ($value !== '' && !isset($fromOrders[$key])) {
+                    $fromOrders[$key] = $value;
+                }
+            }
+        }
+
+        return array_merge($data, $fromOrders);
+    }
+
+    /** Покупатель из профиля пользователя. */
+    private static function profile(int $userId): array
     {
         $user = CUser::GetByID($userId)->Fetch() ?: [];
         $name = trim(($user['NAME'] ?? '') . ' ' . ($user['LAST_NAME'] ?? ''));
