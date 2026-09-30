@@ -3,16 +3,17 @@
 namespace Formaro\Cabinet\Service;
 
 use Bitrix\Main\Loader;
+use CIBlockElement;
 use CSaleTfpdf;
-use Formaro\Cabinet\Repository\PartnerRepository;
 
 /**
  * «Счёт на оплату» заказа в PDF («Скачать счёт» в «Ваших заказах»,
  * /local/ajax/order_invoice.php) — по обычной форме: банковские реквизиты
  * продавца, поставщик и покупатель, товары, итог с промокодом, сумма
- * прописью, подписи. Реквизиты — из профиля партнёра в кабинете
- * (PartnerRepository, «Юридические данные»); незаполненные печатаются
- * пустыми. НДС не указывается — ставку продавца площадка не знает.
+ * прописью, подписи. Пока бланковый: реквизиты продавца (банк, БИК,
+ * счета, ИНН, КПП, ОГРН, адрес, руководитель) — пустые поля, источник
+ * реквизитов ещё не определён; из данных продавца — только название.
+ * НДС не указывается — ставку продавца площадка не знает.
  *
  * PDF — генератором модуля «Интернет-магазин» (tFPDF, sale/general/pdf.php)
  * со шрифтом PT Sans из /bitrix/fonts/ (кириллица).
@@ -33,16 +34,16 @@ class OrderInvoiceService
         }
         require_once $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/sale/general/pdf.php';
 
-        $partner = (new PartnerRepository())->get((int)$order['partner_id']) ?? [];
+        $partner = CIBlockElement::GetList([], ['ID' => (int)$order['partner_id'], 'CHECK_PERMISSIONS' => 'N'], false, ['nTopCount' => 1], ['ID', 'NAME'])->Fetch();
 
-        return (new self())->render($order, $partner);
+        return (new self())->render($order, trim((string)($partner['NAME'] ?? '')) ?: 'Продавец');
     }
 
-    private function render(array $order, array $partner): string
+    private function render(array $order, string $sellerName): string
     {
-        $legal = $partner['legal'] ?? [];
-        $contacts = $partner['contacts'] ?? [];
-        $sellerName = trim((string)($partner['name_full'] ?? '')) ?: 'Продавец';
+        // Бланк: реквизиты продавца — пустые поля (источник появится позже).
+        $legal = [];
+        $contacts = [];
 
         $this->pdf = new CSaleTfpdf('P', 'mm', 'A4');
         $pdf = $this->pdf;

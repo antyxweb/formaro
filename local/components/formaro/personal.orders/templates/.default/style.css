@@ -16,6 +16,38 @@
 .orders .order-item__actions .f-button {
     margin-right: 15px; /* уголок :after кнопки */
 }
+/* Кнопка с обводкой («Скачать счёт») той же формы, что f-button сайта
+   (прямоугольник и скос 15px справа снизу — у залитых это уголок :after):
+   синяя фигура (clip-path) и белая такая же поверх с отступом 2px
+   (::before); при наведении — заливка. */
+.orders .order-item__actions .order-button-outline {
+    padding-right: 30px;
+    margin-right: 0;
+    background: #1976d2;
+    color: #1976d2;
+    text-decoration: none;
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%);
+}
+.orders .order-item__actions .order-button-outline::before {
+    content: "";
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    bottom: 2px;
+    left: 2px;
+    background: #fff;
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%);
+    transition: .3s;
+}
+.orders .order-item__actions .order-button-outline > * {
+    position: relative;
+}
+.orders .order-item__actions .order-button-outline:hover {
+    color: #fff;
+}
+.orders .order-item__actions .order-button-outline:hover::before {
+    opacity: 0;
+}
 .orders .order-item__head .badge {
     font-size: .8rem;
     font-weight: 500;

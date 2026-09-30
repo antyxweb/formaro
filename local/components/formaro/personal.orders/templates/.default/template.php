@@ -88,13 +88,13 @@ $e = static fn($s) => htmlspecialcharsbx((string)$s);
                                     </a>
                                     <?php endif; ?>
                                     <?php if ($order['INVOICE_URL'] !== ''): ?>
-                                    <a href="<?= $e($order['INVOICE_URL']) ?>" class="f-button c-primary js-order-invoice" download>
-                                        <svg width="16" height="16"><use xlink:href="#icon-bill"></use></svg>
+                                    <a href="<?= $e($order['INVOICE_URL']) ?>" class="f-button order-button-outline js-order-invoice" download>
+                                        <svg width="16" height="16"><use xlink:href="#icon-clipboard-text"></use></svg>
                                         <span class="pl-2">Скачать счёт</span>
                                     </a>
                                     <?php endif; ?>
                                     <?php if ($order['CAN_CANCEL']): ?>
-                                    <button type="button" class="f-button c-gray text-secondary js-order-cancel" data-order-id="<?= (int)$order['ID'] ?>" data-order-number="<?= $e($order['NUMBER']) ?>">
+                                    <button type="button" class="f-button c-gray text-secondary ml-auto js-order-cancel" data-order-id="<?= (int)$order['ID'] ?>" data-order-number="<?= $e($order['NUMBER']) ?>">
                                         <svg width="16" height="16"><use xlink:href="#icon-close"></use></svg>
                                         <span class="pl-2">Отменить заказ</span>
                                     </button>
