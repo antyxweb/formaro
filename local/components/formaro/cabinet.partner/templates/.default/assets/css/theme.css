@@ -445,6 +445,9 @@ input:focus-visible, textarea:focus-visible, select:focus-visible,
 .btn-outline-success:hover { background: var(--green-soft); color: var(--green); }
 .btn-light { background: var(--surface-2); border: 1px solid var(--border); color: var(--ink) !important; }
 .btn-light:hover, .btn-light:focus { background: var(--surface-3); color: var(--ink) !important; }
+/* Неактивная: Bootstrap ставит свой светлый фон (--bs-btn-disabled-bg) —
+   в тёмной теме светлый текст на нём не виден. Фон и цвет — из темы. */
+.btn-light:disabled, .btn-light.disabled { background: var(--surface-2); border-color: var(--border); color: var(--muted) !important; opacity: .6; }
 .btn-link { color: var(--brand); font-weight: 500; border: none; }
 .btn-link:hover { color: var(--brand-dark); text-decoration: underline; }
 .btn:disabled { opacity: .45; }
