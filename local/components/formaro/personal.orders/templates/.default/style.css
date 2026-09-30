@@ -35,3 +35,20 @@
         width: 75%;
     }
 }
+
+/* Карточки товаров заказа — одной высоты. Flickity (2.2) ставит вьюпорту
+   высоту самой высокой ячейки; min-height: 100% при первом замере ещё
+   ничего не даёт (ячейки меряются по содержимому), а потом растягивает
+   ячейку до этой высоты. Карточка тянется на всю ячейку (flex). */
+.orders .order-item .product-carousel.flickity-enabled .carousel-cell {
+    min-height: 100%;
+    display: flex;
+}
+.orders .order-item .product-carousel .carousel-cell .product-card {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+}
+.orders .order-item .product-carousel .carousel-cell .product-card .product-card__info {
+    flex-grow: 1;
+}
