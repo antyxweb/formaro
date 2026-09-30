@@ -25,6 +25,16 @@ require __DIR__ . '/inc/layout_app_top.php';
 
 <div class="card" id="notifCard">
     <div class="card-body p-0">
+        <?php // Групповые действия — с отмеченными на текущей странице. ?>
+        <div class="notif-toolbar">
+            <div class="form-check mb-0">
+                <input type="checkbox" class="form-check-input" id="checkAllNotif">
+                <label class="form-check-label" for="checkAllNotif">Выбрать все</label>
+            </div>
+            <span class="text-muted-2 small d-none" id="selectedCountLabel"></span>
+            <button type="button" class="btn btn-light btn-sm d-none" id="bulkReadBtn"><svg class="ic-inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg> Прочитать</button>
+            <button type="button" class="btn btn-outline-danger btn-sm d-none" id="bulkDeleteBtn"><svg class="ic-inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M3 6h18"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg> Удалить</button>
+        </div>
         <div id="listBody">
             <div class="text-center text-muted-2 py-4">Загрузка…</div>
         </div>

@@ -3,8 +3,10 @@
    - "прочитать одно"/"прочитать все" теперь отдельные AJAX-экшены
      (mark_notification_read/mark_all_notifications_read) вместо
      dsSave(whole-array) — сервер сам решает, что реально изменилось;
-   - список read-only с точки зрения партнёра (см. NotificationRepository) —
-     ничего, кроме отметки "прочитано", здесь больше не сохраняется. */
+   - уведомления можно удалять — по одному (корзина в строке) и группой;
+     отмеченные на странице можно и прочитать разом (delete_notifications/
+     mark_notifications_read). */
+var TRASH_ICON = '<svg class="ic-inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M3 6h18"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>';
 var allNotifications = [];
 var pager = null;
 
@@ -27,6 +29,29 @@ $(function () {
 
     $('#typeFilter').on('change', render);
     $('#unreadOnlyToggle').on('change', render);
+
+    bindSelectAll('#checkAllNotif', '.row-check-notif');
+    $(document).on('change', '.row-check-notif', updateBulkBar);
+    // Чекбокс и корзина в строке — не «прочитать» (клик по строке).
+    $('#listBody').on('click', '.notif-check, .notif-delete', function (e) { e.stopPropagation(); });
+    $('#listBody').on('click', '.notif-delete', function () {
+        var id = Number($(this).data('id'));
+        showConfirm('Удалить уведомление?', function () { deleteNotifications([id]); }, {danger: true, okText: 'Удалить'});
+    });
+    $('#bulkDeleteBtn').on('click', function () {
+        var ids = getSelectedIds('.row-check-notif').map(Number);
+        if (!ids.length) return;
+        showConfirm('Удалить выбранные уведомления (' + ids.length + ')?', function () { deleteNotifications(ids); }, {danger: true, okText: 'Удалить'});
+    });
+    $('#bulkReadBtn').on('click', function () {
+        var ids = getSelectedIds('.row-check-notif').map(Number);
+        if (!ids.length) return;
+        cabinetAjax({ajax_action: 'mark_notifications_read', ids: ids}).done(function () {
+            allNotifications = allNotifications.map(function (n) { return ids.indexOf(n.id) !== -1 ? Object.assign({}, n, {is_read: true}) : n; });
+            render();
+            refreshCounters();
+        });
+    });
 
     $('#markAllBtn').on('click', function () {
         cabinetAjax({ajax_action: 'mark_all_notifications_read'}).done(function () {
@@ -54,18 +79,22 @@ function render() {
 }
 
 function renderPage(rows) {
+    $('#checkAllNotif').prop('checked', false).prop('disabled', rows.length === 0);
     var $l = $('#listBody').empty();
+    updateBulkBar();
     if (rows.length === 0) { $l.html('<div class="empty-state"><svg class="ic-inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.268 21a2 2 0 0 0 3.464 0"></path><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"></path></svg>Уведомлений нет.</div>'); return; }
     rows.forEach(function (n) {
         var meta = NOTIF_TYPES[n.type] || {icon: '', color: 'gray', label: n.type || ''};
         $l.append(
             '<div class="notif-item' + (n.is_read ? '' : ' unread') + '" onclick="markRead(' + n.id + ')">' +
+              '<label class="notif-check"><input type="checkbox" class="form-check-input row-check-notif" value="' + n.id + '" aria-label="Выбрать"></label>' +
               '<div class="notif-icon notif-icon-' + meta.color + '">' + meta.icon + '</div>' +
               '<div class="notif-body">' +
                 '<div class="notif-title">' + esc(n.title) + (n.is_read ? '' : ' <span class="notif-dot"></span>') + '</div>' +
                 '<div class="notif-message">' + esc(n.message) + '</div>' +
                 '<div class="notif-meta">' + esc(meta.label) + ' · ' + fmtDate(n.created_at) + '</div>' +
               '</div>' +
+              '<button type="button" class="btn btn-sm btn-link text-muted-2 notif-delete" data-id="' + n.id + '" title="Удалить" aria-label="Удалить уведомление">' + TRASH_ICON + '</button>' +
             '</div>'
         );
     });
@@ -78,4 +107,29 @@ function markRead(id) {
         allNotifications = allNotifications.map(function (x) { return x.id === id ? Object.assign({}, x, {is_read: true}) : x; });
         render();
     });
+}
+
+/** Кнопки групповых действий — когда что-то отмечено. */
+function updateBulkBar() {
+    var ids = getSelectedIds('.row-check-notif').map(Number);
+    var unread = allNotifications.filter(function (n) { return ids.indexOf(n.id) !== -1 && !n.is_read; }).length;
+    $('#bulkDeleteBtn').toggleClass('d-none', ids.length === 0);
+    $('#bulkReadBtn').toggleClass('d-none', unread === 0);
+    $('#selectedCountLabel').toggleClass('d-none', ids.length === 0).text('Выбрано: ' + ids.length);
+}
+
+function deleteNotifications(ids) {
+    cabinetAjax({ajax_action: 'delete_notifications', ids: ids}).done(function (deleted) {
+        deleted = (deleted || []).map(Number);
+        allNotifications = allNotifications.filter(function (n) { return deleted.indexOf(n.id) === -1; });
+        showResult(true, deleted.length > 1 ? 'Уведомления удалены (' + deleted.length + ')' : 'Уведомление удалено');
+        render();
+        refreshCounters();
+    });
+}
+
+/** Счётчики непрочитанных в сайдбаре и топбаре (common.js), если есть. */
+function refreshCounters() {
+    if (typeof refreshSidebarCounts === 'function') refreshSidebarCounts();
+    if (typeof refreshTopbarCounts === 'function') refreshTopbarCounts();
 }

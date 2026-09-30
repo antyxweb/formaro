@@ -228,6 +228,8 @@ class CabinetPartnerComponent extends CBitrixComponent
                     (int)($_REQUEST['id'] ?? 0)
                 ),
                 'mark_all_notifications_read' => (new NotificationRepository())->markAllRead($partnerId),
+                'mark_notifications_read' => (new NotificationRepository())->markReadMany($partnerId, (array)($_REQUEST['ids'] ?? [])),
+                'delete_notifications' => (new NotificationRepository())->deleteMany($partnerId, (array)($_REQUEST['ids'] ?? [])),
                 'save_user_profile' => $this->ajaxSaveUserProfile(),
                 default => throw new \RuntimeException('Неизвестное действие: ' . $action),
             };

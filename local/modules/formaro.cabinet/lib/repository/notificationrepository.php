@@ -6,9 +6,9 @@ use Bitrix\Main\Type\DateTime;
 
 /**
  * Уведомления партнёра — HL-блок CabinetNotifications (см. миграцию
- * Version20260912140001). В отличие от большинства сущностей кабинета,
- * это read-only список с точки зрения партнёра — он может только читать
- * и помечать прочитанным/прочитанными, не создавать/редактировать/удалять.
+ * Version20260912140001). Партнёр не создаёт и не редактирует
+ * уведомления — только читает, помечает прочитанными и удаляет (по одному
+ * и группой, markReadMany()/deleteMany()).
  *
  * Записи создаёт сайт при событиях (add()): пока — новый заказ с витрины
  * (CartCheckoutService); сообщения чата, ответы поддержки и т.д. — ещё
@@ -75,6 +75,46 @@ class NotificationRepository
         }
 
         return count($unread);
+    }
+
+    /** Свои из $ids — прочитанными. @return int сколько помечено */
+    public function markReadMany(int $partnerId, array $ids): int
+    {
+        $rows = $this->ownRows($partnerId, $ids, ['=UF_IS_READ' => false]);
+        $dataClass = HlblockEntityFactory::getDataClass(self::HLBLOCK_NAME);
+        foreach ($rows as $row) {
+            $dataClass::update((int)$row['ID'], ['UF_IS_READ' => true]);
+        }
+
+        return count($rows);
+    }
+
+    /** Удалить свои из $ids (чужие id молча пропускаются). @return int[] удалённые id */
+    public function deleteMany(int $partnerId, array $ids): array
+    {
+        $deleted = [];
+        $dataClass = HlblockEntityFactory::getDataClass(self::HLBLOCK_NAME);
+        foreach ($this->ownRows($partnerId, $ids) as $row) {
+            if ($dataClass::delete((int)$row['ID'])->isSuccess()) {
+                $deleted[] = (int)$row['ID'];
+            }
+        }
+
+        return $deleted;
+    }
+
+    private function ownRows(int $partnerId, array $ids, array $filter = []): array
+    {
+        $ids = array_values(array_unique(array_filter(array_map('intval', $ids))));
+        if (!$ids) {
+            return [];
+        }
+        $dataClass = HlblockEntityFactory::getDataClass(self::HLBLOCK_NAME);
+
+        return $dataClass::getList([
+            'select' => ['ID'],
+            'filter' => array_merge(['=UF_PARTNER_ID' => $partnerId, '@ID' => $ids], $filter),
+        ])->fetchAll();
     }
 
     private function toArray(array $row): array
