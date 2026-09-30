@@ -18,6 +18,7 @@ class FormaroCartComponent extends CBitrixComponent
     public function onPrepareComponentParams($params)
     {
         $params['CATALOG_URL'] = (string)($params['CATALOG_URL'] ?? '/catalog/');
+        $params['ORDERS_URL'] = (string)($params['ORDERS_URL'] ?? '/personal/orders/');
 
         return $params;
     }

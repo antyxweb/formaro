@@ -52,7 +52,10 @@ $choices = static function (string $name, array $options): void {
                         <h4 class="cart-success-title mb-3">Заказ оформлен</h4>
                         <p class="mb-2">Спасибо! Продавцы получили заказ и свяжутся с вами для подтверждения.</p>
                         <ul class="mb-4" id="cart-success-list"></ul>
-                        <a href="<?= htmlspecialcharsbx($arParams['CATALOG_URL']) ?>" class="f-button c-primary">Продолжить покупки</a>
+                        <div class="d-flex flex-wrap cart-success-actions">
+                            <a href="<?= htmlspecialcharsbx($arParams['ORDERS_URL']) ?>" class="f-button c-success">Перейти в заказы</a>
+                            <a href="<?= htmlspecialcharsbx($arParams['CATALOG_URL']) ?>" class="f-button c-primary">Продолжить покупки</a>
+                        </div>
                     </div>
 
                     <div id="cart-groups">

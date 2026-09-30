@@ -18,6 +18,9 @@
 .cart-success-title {
     color: #28a745;
 }
+.cart-success-actions {
+    gap: 1rem 0;
+}
 .cart-success:focus {
     outline: none;
 }

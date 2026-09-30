@@ -433,8 +433,15 @@
         box.classList.remove('d-none');
         el.buyerComment.value = '';
         window.FormaroCart.remove(ids);
-        box.scrollIntoView({block: 'start', behavior: 'smooth'});
-        box.focus({preventScroll: true});
+        // Карточки уже убраны (remove → onChange → render синхронно); ждём
+        // кадр, чтобы вёрстка пересчиталась, и ставим плашку под
+        // фиксированной шапкой сайта (scrollIntoView прятал её верх под ней).
+        window.requestAnimationFrame(function () {
+            var header = document.getElementById('header');
+            var offset = (header ? header.offsetHeight : 0) + 20;
+            window.scrollTo({top: Math.max(0, box.getBoundingClientRect().top + window.pageYOffset - offset), behavior: 'smooth'});
+            box.focus({preventScroll: true});
+        });
     }
 
     /** Итог залипает CSS sticky (style.css), только если помещается в окно;
