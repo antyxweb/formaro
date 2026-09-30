@@ -432,6 +432,11 @@
         box.querySelector('.cart-success-title').textContent = orders.length > 1 ? 'Заказы оформлены' : 'Заказ оформлен';
         box.classList.remove('d-none');
         el.buyerComment.value = '';
+        // Счётчик заказов в шапке (и в меню личного кабинета) — сервер
+        // выводит его только при загрузке страницы.
+        Array.prototype.forEach.call(document.querySelectorAll('[data-orders-count]'), function (counter) {
+            counter.textContent = (parseInt(counter.textContent, 10) || 0) + orders.length;
+        });
         window.FormaroCart.remove(ids);
         // Карточки уже убраны (remove → onChange → render синхронно); ждём
         // кадр, чтобы вёрстка пересчиталась, и ставим плашку под

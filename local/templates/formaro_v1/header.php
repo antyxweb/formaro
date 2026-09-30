@@ -211,13 +211,14 @@ if($GLOBALS["APPLICATION"]->GetCurPage(false) == '/'
                         <use xlink:href="#icon-order"></use>
                     </svg>
                     <?php
-                    // Заказы покупателя, оформленные на сайте.
+                    // Заказы покупателя, оформленные на сайте; после оформления
+                    // в корзине счётчик ([data-orders-count]) увеличивает formaro:cart.
                     $ordersCount = 0;
                     if ($USER->IsAuthorized() && \Bitrix\Main\Loader::includeModule('formaro.cabinet')) {
                         $ordersCount = (new \Formaro\Cabinet\Repository\OrderRepository())->countByUser((int)$USER->GetID());
                     }
                     ?>
-                    <small class="header__action-count"><?= $ordersCount ?></small>
+                    <small class="header__action-count" data-orders-count><?= $ordersCount ?></small>
                     <span class="d-none d-xl-inline">Заказы</span>
                 </a>
                 <a class="header__action-link d-none d-sm-flex" href="/personal/favorites/" aria-label="Избранное">

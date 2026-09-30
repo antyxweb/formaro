@@ -21,7 +21,7 @@ if ($USER->IsAuthorized() && \Bitrix\Main\Loader::includeModule('formaro.cabinet
     $counts['cart'] = count((new \Formaro\Cabinet\Repository\CartRepository())->listItems($userId));
     $counts['favorites'] = (new \Formaro\Cabinet\Repository\FavoriteRepository())->count($userId);
 }
-$countAttrs = ['cart' => ' data-cart-count', 'favorites' => ' data-favorites-count'];
+$countAttrs = ['orders' => ' data-orders-count', 'cart' => ' data-cart-count', 'favorites' => ' data-favorites-count'];
 ?>
 <div class="sidebar-menu personal-sidebar bg-white py-4 px-3 px-lg-4 mb-4">
     <h4 class="mb-4"><span class="text-primary">Личный</span> кабинет</h4>
