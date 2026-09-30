@@ -19,8 +19,12 @@ class NotificationRepository
 {
     private const HLBLOCK_NAME = 'CabinetNotifications';
 
-    /** Новое уведомление партнёру; $type — order/chat/support/system/finance/product. */
-    public function add(int $partnerId, string $type, string $title, string $message): void
+    /**
+     * Новое уведомление партнёру; $type — order/chat/support/system/finance/product.
+     * $link — куда ведёт клик в кабинете: путь от корня кабинета
+     * (orders/edit/14/); пусто — в раздел по типу (notifications.js).
+     */
+    public function add(int $partnerId, string $type, string $title, string $message, string $link = ''): void
     {
         $dataClass = HlblockEntityFactory::getDataClass(self::HLBLOCK_NAME);
         $dataClass::add([
@@ -30,6 +34,7 @@ class NotificationRepository
             'UF_IS_READ' => false,
             'UF_PARTNER_ID' => $partnerId,
             'UF_CREATED_AT' => new DateTime(),
+            'UF_LINK' => $link,
         ]);
     }
 
@@ -125,6 +130,7 @@ class NotificationRepository
             'title' => $row['UF_TITLE'],
             'message' => $row['UF_MESSAGE'],
             'is_read' => !empty($row['UF_IS_READ']),
+            'link' => (string)($row['UF_LINK'] ?? ''),
             'created_at' => $row['UF_CREATED_AT'] instanceof DateTime
                 ? $row['UF_CREATED_AT']->format('c')
                 : ($row['UF_CREATED_AT'] ? (string)$row['UF_CREATED_AT'] : null),

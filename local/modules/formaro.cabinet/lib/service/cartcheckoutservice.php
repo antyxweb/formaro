@@ -233,7 +233,8 @@ class CartCheckoutService
                 $partnerId,
                 'order',
                 'Новый заказ ' . $order['order_number'],
-                'Покупатель ' . $customer['name'] . ' оформил заказ на сумму ' . number_format($order['total'], 0, ',', ' ') . ' руб.'
+                'Покупатель ' . $customer['name'] . ' оформил заказ на сумму ' . number_format($order['total'], 0, ',', ' ') . ' руб.',
+                self::orderLink($order['id'])
             );
             $created[] = [
                 'id' => $order['id'],
@@ -286,7 +287,8 @@ class CartCheckoutService
             $order['partner_id'],
             'order',
             'Заказ ' . $order['order_number'] . ' отменён',
-            'Покупатель ' . ($order['customer']['name'] ?? '') . ' отменил заказ на сумму ' . number_format($order['total'], 0, ',', ' ') . ' руб.'
+            'Покупатель ' . ($order['customer']['name'] ?? '') . ' отменил заказ на сумму ' . number_format($order['total'], 0, ',', ' ') . ' руб.',
+            self::orderLink($order['id'])
         );
 
         return $saved;
@@ -342,10 +344,17 @@ class CartCheckoutService
             $order['partner_id'],
             'order',
             'Оплата заказа ' . $order['order_number'],
-            'Покупатель ' . $buyer . ' сообщил об оплате заказа на сумму ' . $sum . ' руб. Оплату проверит и подтвердит маркетплейс.'
+            'Покупатель ' . $buyer . ' сообщил об оплате заказа на сумму ' . $sum . ' руб. Оплату проверит и подтвердит маркетплейс.',
+            self::orderLink($order['id'])
         );
 
         return $date;
+    }
+
+    /** Карточка заказа в кабинете партнёра — ссылка уведомления. */
+    private static function orderLink(int $orderId): string
+    {
+        return 'orders/edit/' . $orderId . '/';
     }
 
     /** Когда покупатель сообщил об оплате (из истории заказа), null — не сообщал. */

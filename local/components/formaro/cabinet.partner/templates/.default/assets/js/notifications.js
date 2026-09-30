@@ -3,9 +3,13 @@
    - "прочитать одно"/"прочитать все" теперь отдельные AJAX-экшены
      (mark_notification_read/mark_all_notifications_read) вместо
      dsSave(whole-array) — сервер сам решает, что реально изменилось;
+   - клик по уведомлению — прочитать и перейти к сущности: link с сервера
+     (путь от корня кабинета, например orders/edit/14/), без него — в раздел
+     по типу (NOTIF_SECTIONS);
    - уведомления можно удалять — по одному (корзина в строке) и группой;
      отмеченные на странице можно и прочитать разом (delete_notifications/
      mark_notifications_read). */
+var NOTIF_SECTIONS = {order: 'orders/', chat: 'chat/', support: 'support/', finance: 'finance/', product: 'products/'};
 var TRASH_ICON = '<svg class="ic-inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M3 6h18"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>';
 var allNotifications = [];
 var pager = null;
@@ -34,6 +38,9 @@ $(function () {
     $(document).on('change', '.row-check-notif', updateBulkBar);
     // Чекбокс и корзина в строке — не «прочитать» (клик по строке).
     $('#listBody').on('click', '.notif-check, .notif-delete', function (e) { e.stopPropagation(); });
+    $('#listBody').on('keydown', '.notif-item', function (e) {
+        if (e.target === this && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); this.click(); }
+    });
     $('#listBody').on('click', '.notif-delete', function () {
         var id = Number($(this).data('id'));
         showConfirm('Удалить уведомление?', function () { deleteNotifications([id]); }, {danger: true, okText: 'Удалить'});
@@ -86,7 +93,7 @@ function renderPage(rows) {
     rows.forEach(function (n) {
         var meta = NOTIF_TYPES[n.type] || {icon: '', color: 'gray', label: n.type || ''};
         $l.append(
-            '<div class="notif-item' + (n.is_read ? '' : ' unread') + '" onclick="markRead(' + n.id + ')">' +
+            '<div class="notif-item' + (n.is_read ? '' : ' unread') + '" onclick="openNotification(' + n.id + ')" role="link" tabindex="0">' +
               '<label class="notif-check"><input type="checkbox" class="form-check-input row-check-notif" value="' + n.id + '" aria-label="Выбрать"></label>' +
               '<div class="notif-icon notif-icon-' + meta.color + '">' + meta.icon + '</div>' +
               '<div class="notif-body">' +
@@ -100,10 +107,23 @@ function renderPage(rows) {
     });
 }
 
-function markRead(id) {
+/** Куда ведёт уведомление: своя ссылка или раздел по типу; '' — никуда. */
+function notificationUrl(n) {
+    var path = n.link || NOTIF_SECTIONS[n.type] || '';
+    return path ? window.CABINET_BOOTSTRAP.cabinetUrl + path : '';
+}
+
+/** Клик по уведомлению: прочитать и перейти (переход — после отметки). */
+function openNotification(id) {
     var n = allNotifications.find(function (x) { return x.id === id; });
-    if (!n || n.is_read) return;
-    cabinetAjax({ajax_action: 'mark_notification_read', id: id}).done(function () {
+    if (!n) return;
+    var url = notificationUrl(n);
+    if (n.is_read) {
+        if (url) window.location.href = url;
+        return;
+    }
+    cabinetAjax({ajax_action: 'mark_notification_read', id: id}).always(function () {
+        if (url) { window.location.href = url; return; }
         allNotifications = allNotifications.map(function (x) { return x.id === id ? Object.assign({}, x, {is_read: true}) : x; });
         render();
     });
