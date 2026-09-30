@@ -1,12 +1,13 @@
 /* formaro:personal.orders — отмена нового заказа покупателем.
    «Отменить заказ» → подтверждение → POST /local/ajax/order_cancel.php;
-   после успеха бейдж статуса — «Отменён», кнопка убирается. Ошибка
-   (например, продавец уже взял заказ в работу) — рядом с кнопкой. */
+   после успеха бейдж статуса — «Отменён», кнопки отмены и счёта
+   убираются. Ошибка (например, продавец уже взял заказ в работу) — рядом
+   с кнопками. */
 document.addEventListener('click', function (e) {
     var button = e.target.closest && e.target.closest('.js-order-cancel');
     if (!button || button.disabled) return;
     var root = document.getElementById('personal-orders');
-    var wrap = button.closest('.js-order-cancel-wrap');
+    var wrap = button.closest('.js-order-actions');
     var error = wrap.querySelector('.js-order-cancel-error');
     if (!window.confirm('Отменить заказ ' + button.getAttribute('data-order-number') + '?')) return;
 
@@ -22,7 +23,9 @@ document.addEventListener('click', function (e) {
             var badge = button.closest('.order-item').querySelector('.js-order-status');
             badge.className = badge.className.replace(/\bbadge-\S+/, 'badge-secondary');
             badge.textContent = 'Отменён';
-            wrap.remove();
+            button.remove();
+            var invoice = wrap.querySelector('.js-order-invoice');
+            if (invoice) invoice.remove();
             return;
         }
         button.disabled = false;

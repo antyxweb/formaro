@@ -9,6 +9,13 @@
 .orders .order-item .product-carousel .carousel-cell .product-card .product-card__info .order-item__meta small {
     display: block;
 }
+/* Кнопки заказа: отступы между ними, в строку и с переносом. */
+.orders .order-item__actions {
+    gap: 1.25rem 1.75rem;
+}
+.orders .order-item__actions .f-button {
+    margin-right: 15px; /* уголок :after кнопки */
+}
 .orders .order-item__head .badge {
     font-size: .8rem;
     font-weight: 500;

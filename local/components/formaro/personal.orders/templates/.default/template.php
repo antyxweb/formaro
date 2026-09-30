@@ -7,7 +7,10 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
 
 // Вёрстка — /html/orders.html: слева заказы (товары — каруселью
 // .product-carousel, её запускает scripts.js), справа меню личного кабинета.
-// Новый заказ можно отменить (script.js → /local/ajax/order_cancel.php).
+// Под данными заказа — «Чат с продавцом» (пока — страница продавца, как
+// в карточке товара: чата на стороне покупателя ещё нет), «Скачать счёт»
+// (PDF, пока заказ не оплачен) и «Отменить заказ» (только новый; script.js
+// → /local/ajax/order_cancel.php).
 $fmt = static fn($n) => number_format((float)$n, 0, '', ' ');
 $e = static fn($s) => htmlspecialcharsbx((string)$s);
 ?>
@@ -76,13 +79,27 @@ $e = static fn($s) => htmlspecialcharsbx((string)$s);
                                 <small class="d-block text-muted mt-3">Комментарий: <?= $e($order['COMMENT']) ?></small>
                                 <?php endif; ?>
 
-                                <?php if ($order['CAN_CANCEL']): ?>
-                                <div class="d-flex flex-wrap align-items-center mt-4 js-order-cancel-wrap">
+                                <?php if ($order['PARTNER']['url'] !== '' || $order['INVOICE_URL'] !== '' || $order['CAN_CANCEL']): ?>
+                                <div class="order-item__actions d-flex flex-wrap align-items-center mt-4 js-order-actions">
+                                    <?php if ($order['PARTNER']['url'] !== ''): ?>
+                                    <a href="<?= $e($order['PARTNER']['url']) ?>" class="f-button c-success">
+                                        <svg width="16" height="16"><use xlink:href="#icon-mail"></use></svg>
+                                        <span class="pl-2">Чат с продавцом</span>
+                                    </a>
+                                    <?php endif; ?>
+                                    <?php if ($order['INVOICE_URL'] !== ''): ?>
+                                    <a href="<?= $e($order['INVOICE_URL']) ?>" class="f-button c-primary js-order-invoice" download>
+                                        <svg width="16" height="16"><use xlink:href="#icon-bill"></use></svg>
+                                        <span class="pl-2">Скачать счёт</span>
+                                    </a>
+                                    <?php endif; ?>
+                                    <?php if ($order['CAN_CANCEL']): ?>
                                     <button type="button" class="f-button c-gray text-secondary js-order-cancel" data-order-id="<?= (int)$order['ID'] ?>" data-order-number="<?= $e($order['NUMBER']) ?>">
                                         <svg width="16" height="16"><use xlink:href="#icon-close"></use></svg>
                                         <span class="pl-2">Отменить заказ</span>
                                     </button>
-                                    <small class="text-danger ml-3 js-order-cancel-error" role="alert"></small>
+                                    <?php endif; ?>
+                                    <small class="text-danger js-order-cancel-error" role="alert"></small>
                                 </div>
                                 <?php endif; ?>
                             </div>

@@ -106,6 +106,10 @@ class FormaroPersonalOrdersComponent extends CBitrixComponent
                 'STATUS' => $status[0],
                 // Отменить может сам покупатель, пока продавец не взял заказ в работу.
                 'CAN_CANCEL' => $order['status'] === 'new',
+                // Счёт — пока заказ не оплачен (и не отменён).
+                'INVOICE_URL' => $order['status'] !== 'cancelled' && $order['payment_status'] !== 'paid'
+                    ? '/local/ajax/order_invoice.php?id=' . $order['id']
+                    : '',
                 'STATUS_CLASS' => $status[1],
                 'PAYMENT_STATUS' => $payment[0],
                 'PAYMENT_STATUS_CLASS' => $payment[1],
