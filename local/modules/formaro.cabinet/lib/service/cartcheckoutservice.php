@@ -297,9 +297,12 @@ class CartCheckoutService
 
     /**
      * «Сообщить об оплате» («Ваши заказы», /local/ajax/order_payment_notice.php):
-     * покупатель оплатил счёт — продавцу уведомление, в историю заказа —
-     * запись. Статус оплаты не меняется: оплату подтверждает продавец.
-     * Только свой неоплаченный и неотменённый заказ, один раз.
+     * покупатель оплатил счёт. Счёт выставляет маркетплейс, и оплату
+     * подтверждает он, а не продавец: уведомление с просьбой проверить
+     * поступление — маркетплейсу (пока — в админку Bitrix, CAdminNotify;
+     * подтверждение оплаты будет отдельно), продавцу — только к сведению.
+     * В историю заказа — запись. Статус оплаты не меняется. Только свой
+     * неоплаченный и неотменённый заказ, один раз.
      *
      * @return string дата сообщения (ISO 8601)
      * @throws \RuntimeException понятная покупателю ошибка
@@ -315,7 +318,7 @@ class CartCheckoutService
             throw new \RuntimeException('Заказ отменён');
         }
         if ($order['payment_status'] === 'paid') {
-            throw new \RuntimeException('Продавец уже отметил заказ оплаченным');
+            throw new \RuntimeException('Оплата заказа уже подтверждена');
         }
         if (self::paymentNoticeDate($order) !== null) {
             throw new \RuntimeException('Вы уже сообщили об оплате — продавец проверит поступление');
@@ -324,11 +327,22 @@ class CartCheckoutService
         $date = date('c');
         $order['history'][] = ['date' => $date, 'text' => self::PAYMENT_NOTICE_TEXT, 'author' => 'Покупатель'];
         $repo->save($order['partner_id'], $order);
+
+        $sum = number_format($order['total'], 0, ',', ' ');
+        $buyer = (string)($order['customer']['name'] ?? '');
+        $partner = self::partners([$order['partner_id']])[$order['partner_id']]['name'] ?? '';
+        \CAdminNotify::Add([
+            'MESSAGE' => 'Покупатель ' . $buyer . ' сообщил об оплате заказа ' . $order['order_number']
+                . ' (продавец ' . $partner . ') на сумму ' . $sum . ' руб. по счёту маркетплейса. Проверьте поступление.',
+            'TAG' => 'formaro_payment_notice_' . $order['id'],
+            'MODULE_ID' => 'main',
+            'ENABLE_CLOSE' => 'Y',
+        ]);
         (new NotificationRepository())->add(
             $order['partner_id'],
             'order',
             'Оплата заказа ' . $order['order_number'],
-            'Покупатель ' . ($order['customer']['name'] ?? '') . ' сообщил об оплате заказа на сумму ' . number_format($order['total'], 0, ',', ' ') . ' руб. Проверьте поступление и отметьте заказ оплаченным.'
+            'Покупатель ' . $buyer . ' сообщил об оплате заказа на сумму ' . $sum . ' руб. Оплату проверит и подтвердит маркетплейс.'
         );
 
         return $date;

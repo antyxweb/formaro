@@ -3,17 +3,19 @@
 namespace Formaro\Cabinet\Service;
 
 use Bitrix\Main\Loader;
-use CIBlockElement;
 use CSaleTfpdf;
 
 /**
  * «Счёт на оплату» заказа в PDF («Скачать счёт» в «Ваших заказах»,
  * /local/ajax/order_invoice.php) — по обычной форме: банковские реквизиты
- * продавца, поставщик и покупатель, товары, итог с промокодом, сумма
- * прописью, подписи. Пока бланковый: реквизиты продавца (банк, БИК,
- * счета, ИНН, КПП, ОГРН, адрес, руководитель) — пустые поля, источник
- * реквизитов ещё не определён; из данных продавца — только название.
- * НДС не указывается — ставку продавца площадка не знает.
+ * получателя, поставщик и покупатель, товары, итог с промокодом, сумма
+ * прописью, подписи.
+ *
+ * Счёт всегда выставляет юрлицо самого маркетплейса, а не продавец:
+ * получатель платежа и поставщик — маркетплейс. Пока бланковый — его
+ * название и реквизиты (банк, БИК, счета, ИНН, КПП, ОГРН, адрес,
+ * руководитель) пустые: источник реквизитов ещё не определён. НДС не
+ * указывается.
  *
  * PDF — генератором модуля «Интернет-магазин» (tFPDF, sale/general/pdf.php)
  * со шрифтом PT Sans из /bitrix/fonts/ (кириллица).
@@ -34,14 +36,14 @@ class OrderInvoiceService
         }
         require_once $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/sale/general/pdf.php';
 
-        $partner = CIBlockElement::GetList([], ['ID' => (int)$order['partner_id'], 'CHECK_PERMISSIONS' => 'N'], false, ['nTopCount' => 1], ['ID', 'NAME'])->Fetch();
-
-        return (new self())->render($order, trim((string)($partner['NAME'] ?? '')) ?: 'Продавец');
+        return (new self())->render($order);
     }
 
-    private function render(array $order, string $sellerName): string
+    private function render(array $order): string
     {
-        // Бланк: реквизиты продавца — пустые поля (источник появится позже).
+        // Бланк: название и реквизиты маркетплейса — пустые поля (источник
+        // появится позже; тогда — сюда, в $sellerName/$legal/$contacts).
+        $sellerName = '';
         $legal = [];
         $contacts = [];
 
@@ -159,7 +161,7 @@ class OrderInvoiceService
         $pdf->SetFont('Font', '', 10);
         $pdf->Cell(28, 5, $title);
         $pdf->SetFont('Font', 'B', 10);
-        $pdf->MultiCell(self::WIDTH - 28, 5, implode(', ', array_filter(array_map('trim', $lines), 'strlen')) ?: '—');
+        $pdf->MultiCell(self::WIDTH - 28, 5, implode(', ', array_filter(array_map('trim', $lines), 'strlen')));
         $pdf->Ln(2);
     }
 
