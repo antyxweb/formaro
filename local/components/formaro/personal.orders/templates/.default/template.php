@@ -9,8 +9,9 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
 // .product-carousel, её запускает scripts.js), справа меню личного кабинета.
 // Под данными заказа — «Чат с продавцом» (пока — страница продавца, как
 // в карточке товара: чата на стороне покупателя ещё нет), «Скачать счёт»
-// (PDF, пока заказ не оплачен) и «Отменить заказ» (только новый; script.js
-// → /local/ajax/order_cancel.php).
+// (PDF, пока заказ не оплачен) со ссылкой «Сообщить об оплате» (script.js →
+// /local/ajax/order_payment_notice.php; после — дата сообщения) и «Отменить
+// заказ» (только новый; script.js → /local/ajax/order_cancel.php).
 $fmt = static fn($n) => number_format((float)$n, 0, '', ' ');
 $e = static fn($s) => htmlspecialcharsbx((string)$s);
 ?>
@@ -92,6 +93,11 @@ $e = static fn($s) => htmlspecialcharsbx((string)$s);
                                         <svg width="16" height="16"><use xlink:href="#icon-clipboard-text"></use></svg>
                                         <span class="pl-2">Скачать счёт</span>
                                     </a>
+                                    <?php if ($order['PAYMENT_NOTICE_DATE'] !== ''): ?>
+                                    <small class="text-muted js-order-payment-notice">Вы сообщили об оплате <?= $e($order['PAYMENT_NOTICE_DATE']) ?></small>
+                                    <?php else: ?>
+                                    <a href="#" class="js-order-payment-notice" data-order-id="<?= (int)$order['ID'] ?>" data-order-number="<?= $e($order['NUMBER']) ?>">Сообщить об оплате</a>
+                                    <?php endif; ?>
                                     <?php endif; ?>
                                     <?php if ($order['CAN_CANCEL']): ?>
                                     <button type="button" class="f-button c-gray text-secondary ml-auto js-order-cancel" data-order-id="<?= (int)$order['ID'] ?>" data-order-number="<?= $e($order['NUMBER']) ?>">

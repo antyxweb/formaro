@@ -292,6 +292,60 @@ class CartCheckoutService
         return $saved;
     }
 
+    /** Текст записи в истории заказа — по ней видно, что покупатель уже сообщал об оплате. */
+    public const PAYMENT_NOTICE_TEXT = 'Покупатель сообщил об оплате';
+
+    /**
+     * «Сообщить об оплате» («Ваши заказы», /local/ajax/order_payment_notice.php):
+     * покупатель оплатил счёт — продавцу уведомление, в историю заказа —
+     * запись. Статус оплаты не меняется: оплату подтверждает продавец.
+     * Только свой неоплаченный и неотменённый заказ, один раз.
+     *
+     * @return string дата сообщения (ISO 8601)
+     * @throws \RuntimeException понятная покупателю ошибка
+     */
+    public static function reportPayment(int $userId, int $orderId): string
+    {
+        $repo = new OrderRepository();
+        $order = $orderId ? $repo->get($orderId) : null;
+        if (!$order || $order['user_id'] !== $userId) {
+            throw new \RuntimeException('Заказ не найден');
+        }
+        if ($order['status'] === 'cancelled') {
+            throw new \RuntimeException('Заказ отменён');
+        }
+        if ($order['payment_status'] === 'paid') {
+            throw new \RuntimeException('Продавец уже отметил заказ оплаченным');
+        }
+        if (self::paymentNoticeDate($order) !== null) {
+            throw new \RuntimeException('Вы уже сообщили об оплате — продавец проверит поступление');
+        }
+
+        $date = date('c');
+        $order['history'][] = ['date' => $date, 'text' => self::PAYMENT_NOTICE_TEXT, 'author' => 'Покупатель'];
+        $repo->save($order['partner_id'], $order);
+        (new NotificationRepository())->add(
+            $order['partner_id'],
+            'order',
+            'Оплата заказа ' . $order['order_number'],
+            'Покупатель ' . ($order['customer']['name'] ?? '') . ' сообщил об оплате заказа на сумму ' . number_format($order['total'], 0, ',', ' ') . ' руб. Проверьте поступление и отметьте заказ оплаченным.'
+        );
+
+        return $date;
+    }
+
+    /** Когда покупатель сообщил об оплате (из истории заказа), null — не сообщал. */
+    public static function paymentNoticeDate(array $order): ?string
+    {
+        foreach ($order['history'] ?? [] as $entry) {
+            if (($entry['text'] ?? '') === self::PAYMENT_NOTICE_TEXT) {
+                return (string)($entry['date'] ?? '');
+            }
+        }
+
+        return null;
+    }
+
     /**
      * Предзаполнение «Данных покупателя»: каждое поле — из самого свежего
      * заказа пользователя с витрины, где оно заполнено; иначе — из профиля.

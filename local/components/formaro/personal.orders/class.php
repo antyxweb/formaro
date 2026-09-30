@@ -110,6 +110,10 @@ class FormaroPersonalOrdersComponent extends CBitrixComponent
                 'INVOICE_URL' => $order['status'] !== 'cancelled' && $order['payment_status'] !== 'paid'
                     ? '/local/ajax/order_invoice.php?id=' . $order['id']
                     : '',
+                // «Сообщить об оплате» — рядом со счётом; если уже сообщал — когда.
+                'PAYMENT_NOTICE_DATE' => ($noticeDate = CartCheckoutService::paymentNoticeDate($order)) !== null
+                    ? FormatDate('j F, H:i', strtotime($noticeDate) ?: time())
+                    : '',
                 'STATUS_CLASS' => $status[1],
                 'PAYMENT_STATUS' => $payment[0],
                 'PAYMENT_STATUS_CLASS' => $payment[1],
