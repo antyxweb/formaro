@@ -14,7 +14,8 @@ $aMenuLinks = Array(
 		"/personal/orders/", 
 		Array(),
         Array(
-            "ICON" => "icon-order"
+            "ICON" => "icon-order",
+            "COUNTER" => "orders"
         ),
         ""
 	),
@@ -41,7 +42,8 @@ $aMenuLinks = Array(
 		"/personal/cart/", 
 		Array(),
         Array(
-            "ICON" => "icon-shopping"
+            "ICON" => "icon-shopping",
+            "COUNTER" => "cart"
         ),
         ""
 	),
@@ -50,7 +52,8 @@ $aMenuLinks = Array(
 		"/personal/favorites/", 
 		Array(),
         Array(
-            "ICON" => "icon-favorites"
+            "ICON" => "icon-favorites",
+            "COUNTER" => "favorites"
         ),
         ""
 	)

@@ -210,7 +210,14 @@ if($GLOBALS["APPLICATION"]->GetCurPage(false) == '/'
                     <svg class="header__action-icon" width="26" height="28" viewBox="0 0 26 28">
                         <use xlink:href="#icon-order"></use>
                     </svg>
-                    <small class="header__action-count">0</small>
+                    <?php
+                    // Заказы покупателя, оформленные на сайте.
+                    $ordersCount = 0;
+                    if ($USER->IsAuthorized() && \Bitrix\Main\Loader::includeModule('formaro.cabinet')) {
+                        $ordersCount = (new \Formaro\Cabinet\Repository\OrderRepository())->countByUser((int)$USER->GetID());
+                    }
+                    ?>
+                    <small class="header__action-count"><?= $ordersCount ?></small>
                     <span class="d-none d-xl-inline">Заказы</span>
                 </a>
                 <a class="header__action-link d-none d-sm-flex" href="/personal/favorites/" aria-label="Избранное">

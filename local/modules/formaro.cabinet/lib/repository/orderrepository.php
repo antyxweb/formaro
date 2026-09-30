@@ -30,8 +30,20 @@ class OrderRepository
         return array_map([$this, 'toArray'], $rows);
     }
 
+    /** Число заказов покупателя с витрины — счётчик в шапке сайта и меню
+     *  личного кабинета. */
+    public function countByUser(int $userId): int
+    {
+        if ($userId <= 0) {
+            return 0;
+        }
+        $dataClass = HlblockEntityFactory::getDataClass(self::HLBLOCK_NAME);
+
+        return (int)$dataClass::getCount(['=UF_USER_ID' => $userId]);
+    }
+
     /** Последние заказы покупателя с витрины, новые первыми — для
-     *  предзаполнения формы оформления. */
+     *  предзаполнения формы оформления и «Ваших заказов» (/personal/orders/). */
     public function listRecentByUser(int $userId, int $limit): array
     {
         if ($userId <= 0) {

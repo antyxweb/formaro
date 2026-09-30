@@ -1,0 +1,36 @@
+/* «Ваши заказы». Карточки товаров заказа — стили .orders из styles.css
+   (в карусели 20% ширины, без меток и кнопок); здесь — шапка заказа и
+   строки под названием: в styles.css у .orders видна только первая
+   <small>, у заказа нужны все (артикул, цвет/размер, сумма). */
+.orders .order-item__head {
+    position: relative;
+}
+.orders .order-item .product-carousel .carousel-cell .product-card .product-card__info .order-item__meta small {
+    display: block;
+}
+.orders .order-item__head .badge {
+    font-size: .8rem;
+    font-weight: 500;
+}
+.orders .product-card__img .embed-responsive {
+    background-color: #f5f5f5;
+    background-size: cover;
+    background-position: center;
+}
+
+/* На узких экранах 20% — слишком мелко (селектор сильнее, чем в styles.css). */
+@media (max-width: 1199.98px) {
+    .orders .order-item .product-carousel .carousel-cell {
+        width: 33.333%;
+    }
+}
+@media (max-width: 767.98px) {
+    .orders .order-item .product-carousel .carousel-cell {
+        width: 50%;
+    }
+}
+@media (max-width: 575.98px) {
+    .orders .order-item .product-carousel .carousel-cell {
+        width: 75%;
+    }
+}

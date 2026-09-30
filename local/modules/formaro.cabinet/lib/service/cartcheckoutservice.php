@@ -291,8 +291,10 @@ class CartCheckoutService
         ];
     }
 
-    /** Партнёры по id: короткое название (NAME_SHORT), если заполнено. */
-    private static function partners(array $ids): array
+    /** Партнёры по id: короткое название (NAME_SHORT), если заполнено;
+     *  url — страница партнёра, пусто у неактивного. Также для «Ваших
+     *  заказов» (formaro:personal.orders). */
+    public static function partners(array $ids): array
     {
         $ids = array_values(array_unique(array_filter(array_map('intval', $ids))));
         if (!$ids) {
