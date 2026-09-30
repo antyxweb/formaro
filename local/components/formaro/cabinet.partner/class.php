@@ -280,6 +280,23 @@ class CabinetPartnerComponent extends CBitrixComponent
         return (new UserProfileRepository())->save((int)$USER->GetID(), $row);
     }
 
+    /**
+     * Статус оплаты заказа продавец не меняет — счёт выставляет и оплату
+     * подтверждает маркетплейс: у своего заказа остаётся сохранённый, у
+     * нового (созданного вручную) — «Ожидает оплаты», что бы ни прислала форма.
+     */
+    private function keepPaymentStatus(int $partnerId, array $row): array
+    {
+        $repo = new OrderRepository();
+        $id = (int)($row['id'] ?? 0);
+        $existing = $id ? $repo->get($id) : null;
+        $row['payment_status'] = $existing && $repo->canEdit($partnerId, $existing)
+            ? $existing['payment_status']
+            : 'awaiting';
+
+        return $row;
+    }
+
     private function ajaxSave(string $entity, int $partnerId)
     {
         $row = json_decode((string)($_REQUEST['row'] ?? '{}'), true) ?: [];
@@ -287,7 +304,7 @@ class CabinetPartnerComponent extends CBitrixComponent
         return match ($entity) {
             'categories' => (new CategoryRepository())->save($partnerId, $row),
             'products' => (new ProductRepository())->save($partnerId, $row),
-            'orders' => (new OrderRepository())->save($partnerId, $row),
+            'orders' => (new OrderRepository())->save($partnerId, $this->keepPaymentStatus($partnerId, $row)),
             'discounts' => (new DiscountRepository())->save($partnerId, $row),
             'coupons' => (new CouponRepository())->save($partnerId, $row),
             'news' => (new NewsRepository())->save($partnerId, $row),

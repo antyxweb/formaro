@@ -110,11 +110,13 @@ require __DIR__ . '/inc/layout_app_top.php';
                     <?php endforeach; ?>
                 </select>
                 <label class="form-label">Статус оплаты</label>
-                <select class="form-select mb-3" id="paymentStatusSelect">
+                <?php // Оплату подтверждает маркетплейс — продавцу только для просмотра. ?>
+                <select class="form-select mb-1" id="paymentStatusSelect" disabled aria-describedby="paymentStatusHint">
                     <option value="awaiting">Ожидает оплаты</option>
                     <option value="paid">Оплачен</option>
                     <option value="refunded">Возврат</option>
                 </select>
+                <div class="text-muted-2 small mb-3" id="paymentStatusHint">Оплату по счёту подтверждает маркетплейс</div>
                 <button class="btn btn-primary w-100" id="saveOrderBtn"><svg class="ic-inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"></path><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"></path><path d="M7 3v4a1 1 0 0 0 1 1h7"></path></svg> Сохранить заказ</button>
                 <div class="text-muted-2 small mt-2">Дата оформления: <span id="orderDate">—</span></div>
             </div>

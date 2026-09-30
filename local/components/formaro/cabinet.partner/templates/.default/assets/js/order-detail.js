@@ -387,6 +387,7 @@ function doSaveOrder() {
         status: newStatus,
         delivery_method: $('#deliverySelect').val(),
         payment_method: $('#paymentMethodSelect').val(),
+        // Статус оплаты меняет только маркетплейс — сервер оставит сохранённый.
         payment_status: $('#paymentStatusSelect').val(),
         customer: {
             name: name, phone: $('#custPhone').val(), email: $('#custEmail').val(), address: $('#custAddress').val()
