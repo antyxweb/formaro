@@ -4,6 +4,7 @@
    <small>, у заказа нужны все (артикул, цвет/размер, сумма). */
 .orders .order-item__head {
     position: relative;
+    margin-bottom: 1.5rem;
 }
 .orders .order-item .product-carousel .carousel-cell .product-card .product-card__info .order-item__meta small {
     display: block;
