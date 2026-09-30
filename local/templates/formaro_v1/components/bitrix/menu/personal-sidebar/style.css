@@ -1,0 +1,11 @@
+/* Меню личного кабинета справа прилипает к верху окна под фиксированной
+   шапкой (как итог корзины) — только в две колонки (xl), на узких экранах
+   меню идёт под содержимым. Селектор сильнее .sidebar-menu { position:
+   relative } из styles.css (уголок :after позиционируется и от sticky). */
+@media (min-width: 1200px) {
+    .sidebar-menu.personal-sidebar {
+        position: -webkit-sticky;
+        position: sticky;
+        top: 60px;
+    }
+}

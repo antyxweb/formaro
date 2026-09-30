@@ -23,7 +23,7 @@ if ($USER->IsAuthorized() && \Bitrix\Main\Loader::includeModule('formaro.cabinet
 }
 $countAttrs = ['cart' => ' data-cart-count', 'favorites' => ' data-favorites-count'];
 ?>
-<div class="sidebar-menu bg-white py-4 px-3 px-lg-4 mb-4">
+<div class="sidebar-menu personal-sidebar bg-white py-4 px-3 px-lg-4 mb-4">
     <h4 class="mb-4"><span class="text-primary">Личный</span> кабинет</h4>
 
     <ul class="personal-menu-list header__actions list-unstyled mb-0">
