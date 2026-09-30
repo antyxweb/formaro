@@ -104,6 +104,8 @@ class FormaroPersonalOrdersComponent extends CBitrixComponent
                 'NUMBER' => $order['order_number'],
                 'DATE' => $created ? FormatDate('j F Y, H:i', $created) : '',
                 'STATUS' => $status[0],
+                // Отменить может сам покупатель, пока продавец не взял заказ в работу.
+                'CAN_CANCEL' => $order['status'] === 'new',
                 'STATUS_CLASS' => $status[1],
                 'PAYMENT_STATUS' => $payment[0],
                 'PAYMENT_STATUS_CLASS' => $payment[1],

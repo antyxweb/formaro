@@ -7,6 +7,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
 
 // Вёрстка — /html/orders.html: слева заказы (товары — каруселью
 // .product-carousel, её запускает scripts.js), справа меню личного кабинета.
+// Новый заказ можно отменить (script.js → /local/ajax/order_cancel.php).
 $fmt = static fn($n) => number_format((float)$n, 0, '', ' ');
 $e = static fn($s) => htmlspecialcharsbx((string)$s);
 ?>
@@ -15,7 +16,7 @@ $e = static fn($s) => htmlspecialcharsbx((string)$s);
         <div class="container-fluid">
             <div class="row">
                 <div class="col-12 col-xl-9">
-                    <div class="orders mr-xl-5">
+                    <div class="orders mr-xl-5" id="personal-orders" data-sessid="<?= bitrix_sessid() ?>">
                         <?php if (!$arResult['AUTHORIZED']): ?>
                         <div class="bg-white py-4 px-3 px-lg-4 mb-4">
                             <p class="mb-4">Войдите, чтобы увидеть свои заказы.</p>
@@ -33,7 +34,7 @@ $e = static fn($s) => htmlspecialcharsbx((string)$s);
                             <div class="order-item__head bg-white py-4 px-3 px-lg-4">
                                 <div class="d-flex flex-wrap align-items-center mb-3">
                                     <h4 class="mb-0 mr-3">Заказ <?= $e($order['NUMBER']) ?></h4>
-                                    <span class="badge <?= $e($order['STATUS_CLASS']) ?> mr-3"><?= $e($order['STATUS']) ?></span>
+                                    <span class="badge <?= $e($order['STATUS_CLASS']) ?> mr-3 js-order-status"><?= $e($order['STATUS']) ?></span>
                                     <small class="text-muted ml-md-auto"><?= $e($order['DATE']) ?></small>
                                 </div>
 
@@ -73,6 +74,16 @@ $e = static fn($s) => htmlspecialcharsbx((string)$s);
 
                                 <?php if ($order['COMMENT'] !== ''): ?>
                                 <small class="d-block text-muted mt-3">Комментарий: <?= $e($order['COMMENT']) ?></small>
+                                <?php endif; ?>
+
+                                <?php if ($order['CAN_CANCEL']): ?>
+                                <div class="d-flex flex-wrap align-items-center mt-4 js-order-cancel-wrap">
+                                    <button type="button" class="f-button c-gray text-secondary js-order-cancel" data-order-id="<?= (int)$order['ID'] ?>" data-order-number="<?= $e($order['NUMBER']) ?>">
+                                        <svg width="16" height="16"><use xlink:href="#icon-close"></use></svg>
+                                        <span class="pl-2">Отменить заказ</span>
+                                    </button>
+                                    <small class="text-danger ml-3 js-order-cancel-error" role="alert"></small>
+                                </div>
                                 <?php endif; ?>
                             </div>
 

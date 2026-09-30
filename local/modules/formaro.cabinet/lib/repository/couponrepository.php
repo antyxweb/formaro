@@ -130,6 +130,17 @@ class CouponRepository
         $dataClass::update($id, ['UF_USED_COUNT' => $coupon['used_count'] + 1]);
     }
 
+    /** Заказ с купоном отменён покупателем — купон снова можно использовать. */
+    public function decrementUsage(int $id): void
+    {
+        $coupon = $id ? $this->get($id) : null;
+        if (!$coupon || $coupon['used_count'] <= 0) {
+            return;
+        }
+        $dataClass = HlblockEntityFactory::getDataClass(self::HLBLOCK_NAME);
+        $dataClass::update($id, ['UF_USED_COUNT' => $coupon['used_count'] - 1]);
+    }
+
     /** @throws \Exception если купон чужой/не найден */
     public function delete(int $partnerId, int $id): bool
     {

@@ -249,6 +249,50 @@ class CartCheckoutService
     }
 
     /**
+     * Отмена заказа покупателем («Ваши заказы», /local/ajax/order_cancel.php):
+     * только своего и только в статусе «Новый» (дальше заказ уже в работе
+     * у продавца). Статус — «Отменён», в историю — запись, купон заказа
+     * снова доступен, продавцу — уведомление.
+     *
+     * @return array заказ после отмены (OrderRepository::toArray())
+     * @throws \RuntimeException понятная покупателю ошибка
+     */
+    public static function cancel(int $userId, int $orderId): array
+    {
+        $repo = new OrderRepository();
+        $order = $orderId ? $repo->get($orderId) : null;
+        if (!$order || $order['user_id'] !== $userId) {
+            throw new \RuntimeException('Заказ не найден');
+        }
+        if ($order['status'] === 'cancelled') {
+            throw new \RuntimeException('Заказ уже отменён');
+        }
+        if ($order['status'] !== 'new') {
+            throw new \RuntimeException('Заказ уже в работе у продавца — отменить его можно, только связавшись с продавцом');
+        }
+
+        $order['status'] = 'cancelled';
+        $order['history'][] = ['date' => date('c'), 'text' => 'Заказ отменён покупателем', 'author' => 'Покупатель'];
+        $saved = $repo->save($order['partner_id'], $order);
+
+        if ($order['coupon_code']) {
+            $couponRepo = new CouponRepository();
+            $coupon = $couponRepo->findByCode($order['coupon_code']);
+            if ($coupon && $coupon['partner_id'] === $order['partner_id']) {
+                $couponRepo->decrementUsage($coupon['id']);
+            }
+        }
+        (new NotificationRepository())->add(
+            $order['partner_id'],
+            'order',
+            'Заказ ' . $order['order_number'] . ' отменён',
+            'Покупатель ' . ($order['customer']['name'] ?? '') . ' отменил заказ на сумму ' . number_format($order['total'], 0, ',', ' ') . ' руб.'
+        );
+
+        return $saved;
+    }
+
+    /**
      * Предзаполнение «Данных покупателя»: каждое поле — из самого свежего
      * заказа пользователя с витрины, где оно заполнено; иначе — из профиля.
      *
