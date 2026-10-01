@@ -31,6 +31,13 @@ if($GLOBALS["APPLICATION"]->GetCurPage(false) == '/'
     <style>.cookie-accepted .sidebar__actions-cookie { display: none !important; }</style>
 
     <?$APPLICATION->ShowHead();?>
+    <?php
+    // Open Graph / Twitter Card — превью ссылки в мессенджерах и соцсетях;
+    // выводится отложенно (заголовок, описание и картинку задают компоненты).
+    if (\Bitrix\Main\Loader::includeModule('formaro.cabinet')) {
+        $APPLICATION->AddBufferContent([\Formaro\Cabinet\Seo\OpenGraph::class, 'render']);
+    }
+    ?>
 
     <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />

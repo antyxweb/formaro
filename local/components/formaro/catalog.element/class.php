@@ -93,7 +93,7 @@ class FormaroCatalogElementComponent extends CBitrixComponent
                 $CACHE_MANAGER->RegisterTag('iblock_id_8');
             }
 
-            $this->setResultCacheKeys(['ID', 'NAME', 'PARTNER_ID']);
+            $this->setResultCacheKeys(['ID', 'NAME', 'PARTNER_ID', 'GALLERY', 'SHORT_DESCRIPTION']);
             $this->includeComponentTemplate();
         }
 
@@ -101,6 +101,12 @@ class FormaroCatalogElementComponent extends CBitrixComponent
             $APPLICATION->SetTitle($this->arResult['NAME']);
             $APPLICATION->SetPageProperty('title', $this->arResult['NAME']);
             $APPLICATION->AddChainItem($this->arResult['NAME']);
+            // Превью ссылки (Open Graph): первое фото и краткое описание.
+            \Formaro\Cabinet\Seo\OpenGraph::set(
+                (string)($this->arResult['GALLERY'][0]['SRC'] ?? ''),
+                'product',
+                (string)($this->arResult['SHORT_DESCRIPTION'] ?? '')
+            );
         }
 
         return (int)($this->arResult['PARTNER_ID'] ?? 0);

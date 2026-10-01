@@ -14,6 +14,10 @@
 
 
 <?php
+if (\Bitrix\Main\Loader::includeModule('formaro.cabinet')) {
+    \Formaro\Cabinet\Seo\OpenGraph::set((string)($arResult['OG']['IMAGE'] ?? ''), 'article', (string)($arResult['OG']['TEXT'] ?? ''));
+}
+
 $hasSidebar = $arResult['PROPERTIES']['PARTNER_ID']['VALUE']
     || !empty($arResult['PROPERTIES']['CATALOG_SECTIONS']['VALUE'])
     || !empty($arResult['PROPERTIES']['CATALOG_PRODUCTS']['VALUE']);

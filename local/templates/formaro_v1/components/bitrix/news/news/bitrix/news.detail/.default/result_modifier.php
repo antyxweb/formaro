@@ -29,4 +29,10 @@ while ($arSection = $rsSections->GetNext())
     $arResult['SECTIONS'][$arSection['ID']] = $arSection;
 }
 
-$this->__component->SetResultCacheKeys(['PROPERTIES']);
+// Превью ссылки (Open Graph, component_epilog.php): картинка и анонс.
+$arResult['OG'] = [
+    'IMAGE' => (string)($arResult['DETAIL_PICTURE']['SRC'] ?? '') ?: (string)($arResult['PREVIEW_PICTURE']['SRC'] ?? ''),
+    'TEXT' => (string)($arResult['~PREVIEW_TEXT'] ?? '') ?: (string)($arResult['~DETAIL_TEXT'] ?? ''),
+];
+
+$this->__component->SetResultCacheKeys(['PROPERTIES', 'OG']);
