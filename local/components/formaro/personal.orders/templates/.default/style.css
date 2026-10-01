@@ -16,6 +16,11 @@
 .orders .order-item__actions .f-button {
     margin-right: 15px; /* уголок :after кнопки */
 }
+/* Пустое место под ошибку не занимает строку — иначе «Отменить заказ» не
+   доходит до правого края (между ними gap). */
+.orders .order-item__actions .js-order-cancel-error:empty {
+    display: none;
+}
 /* Ссылки «Скачать счёт» / «Сообщить об оплате» в колонке «Оплата». */
 .orders .order-item__payment-links > * {
     display: block;
