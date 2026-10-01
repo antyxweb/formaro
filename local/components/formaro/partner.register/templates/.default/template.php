@@ -4,11 +4,12 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
 }
 /** @var array $arResult */
 
-// Форма регистрации партнёра. Поля — как «Контактные данные» профиля
-// покупателя; e-mail — логин для входа. Скрытое поле website — ловушка для
-// ботов. Отправка и ошибки — script.js.
+// Гость — форма регистрации партнёра (поля — как «Контактные данные» профиля
+// покупателя; e-mail — логин для входа; website — ловушка для ботов).
+// Вошедший покупатель — данные профиля, которые перенесутся, и кнопка
+// «Создать кабинет партнёра» (подтверждение — FormaroConfirm). Отправка и
+// ошибки — script.js.
 $e = static fn($s) => htmlspecialcharsbx((string)$s);
-$u = $arResult['USER'];
 $field = static function (string $name, string $label, string $value, string $col, array $attrs = []) use ($e): void {
     $id = 'partner-register-' . $name;
     $extra = '';
@@ -30,38 +31,60 @@ $field = static function (string $name, string $label, string $value, string $co
         <p>Вы уже партнёр маркетплейса.</p>
         <a href="/cabinet/" class="f-button c-primary">Перейти в кабинет партнёра</a>
     </div>
+    <?php elseif ($arResult['PROFILE'] !== null): ?>
+    <?php
+    $p = $arResult['PROFILE'];
+    $person = trim($p['last_name'] . ' ' . $p['name'] . ' ' . $p['second_name']);
+    $rows = [
+        'Название организации / ИП' => $p['company'],
+        'ИНН' => $p['inn'],
+        'ОГРН / ОГРНИП' => $p['ogrn'],
+        'Юридический адрес' => $p['legal_address'],
+        'Банк' => $p['bank_name'] !== '' ? $p['bank_name'] . ($p['bik'] !== '' ? ', БИК ' . $p['bik'] : '') : '',
+        'Расчётный счёт' => $p['account'],
+        'Руководитель' => $p['ceo_name'],
+        'Контактное лицо' => $person,
+        'Телефон' => $p['phone'],
+        'E-mail' => $p['email'],
+    ];
+    ?>
+    <h2>Кабинет партнёра</h2>
+    <div class="partner-register__block js-partner-create" data-sessid="<?= bitrix_sessid() ?>">
+        <p>Вы уже зарегистрированы как покупатель — можно создать кабинет партнёра для этой же учётной записи: входите с тем же e-mail и паролем, а покупки и заказы останутся на месте.</p>
+        <p class="mb-2">В данные партнёра перенесутся данные вашего профиля:</p>
+        <table class="text-page__props partner-register__profile"><tbody>
+            <?php foreach ($rows as $label => $value): ?>
+            <tr><th scope="row"><?= $e($label) ?></th><td><?= $value !== '' ? $e($value) : '<span class="text-muted">не указано — заполните в кабинете</span>' ?></td></tr>
+            <?php endforeach; ?>
+        </tbody></table>
+        <p class="small text-muted">Изменить их сейчас можно в <a href="/personal/profile/">профиле покупателя</a>. После создания кабинета дополните профиль компании и отправьте его на проверку — магазин появится на витрине после проверки маркетплейсом.</p>
+        <div class="d-flex flex-wrap align-items-center">
+            <button type="button" class="f-button c-primary js-partner-create-submit">Создать кабинет партнёра</button>
+            <small class="partner-register__status text-danger js-partner-create-error" role="alert"></small>
+        </div>
+    </div>
     <?php else: ?>
     <h2>Регистрация в кабинете партнёра</h2>
     <form class="partner-register__block js-partner-register" data-sessid="<?= bitrix_sessid() ?>" novalidate>
-        <?php if ($arResult['AUTHORIZED']): ?>
-        <p class="text-muted">Вы вошли как <?= $e($u['email']) ?> — кабинет партнёра будет привязан к этой учётной записи, входите с тем же e-mail и паролем.</p>
-        <?php endif; ?>
-
         <h3>Компания</h3>
         <div class="form-row">
-            <?php $field('company', 'Название организации / ИП *', $u['company'], 'col-md-8', ['type' => 'text', 'autocomplete' => 'organization', 'maxlength' => 255, 'required' => true]); ?>
-            <?php $field('inn', 'ИНН *', $u['inn'], 'col-md-4', ['type' => 'text', 'inputmode' => 'numeric', 'maxlength' => 12, 'pattern' => '\d{10}|\d{12}', 'required' => true]); ?>
+            <?php $field('company', 'Название организации / ИП *', '', 'col-md-8', ['type' => 'text', 'autocomplete' => 'organization', 'maxlength' => 255, 'required' => true]); ?>
+            <?php $field('inn', 'ИНН *', '', 'col-md-4', ['type' => 'text', 'inputmode' => 'numeric', 'maxlength' => 12, 'pattern' => '\d{10}|\d{12}', 'required' => true]); ?>
         </div>
 
         <h3>Контактное лицо</h3>
         <div class="form-row">
-            <?php $field('last_name', 'Фамилия *', $u['last_name'], 'col-md-6', ['type' => 'text', 'autocomplete' => 'family-name', 'maxlength' => 50, 'required' => true]); ?>
-            <?php $field('name', 'Имя *', $u['name'], 'col-md-6', ['type' => 'text', 'autocomplete' => 'given-name', 'maxlength' => 50, 'required' => true]); ?>
-            <?php $field('phone', 'Телефон *', $u['phone'], 'col-md-6', ['type' => 'tel', 'autocomplete' => 'tel', 'maxlength' => 50, 'placeholder' => '+7 999 123-45-67', 'required' => true]); ?>
-            <?php if ($arResult['AUTHORIZED']): ?>
-            <?php $field('email', 'E-mail для связи *', $u['email'], 'col-md-6', ['type' => 'email', 'autocomplete' => 'email', 'maxlength' => 255, 'required' => true]); ?>
-            <?php else: ?>
+            <?php $field('last_name', 'Фамилия *', '', 'col-md-6', ['type' => 'text', 'autocomplete' => 'family-name', 'maxlength' => 50, 'required' => true]); ?>
+            <?php $field('name', 'Имя *', '', 'col-md-6', ['type' => 'text', 'autocomplete' => 'given-name', 'maxlength' => 50, 'required' => true]); ?>
+            <?php $field('phone', 'Телефон *', '', 'col-md-6', ['type' => 'tel', 'autocomplete' => 'tel', 'maxlength' => 50, 'placeholder' => '+7 999 123-45-67', 'required' => true]); ?>
             <?php $field('email', 'E-mail (логин для входа) *', '', 'col-md-6', ['type' => 'email', 'autocomplete' => 'email', 'maxlength' => 255, 'required' => true]); ?>
-            <?php endif; ?>
         </div>
 
-        <?php if (!$arResult['AUTHORIZED']): ?>
         <h3>Пароль для входа</h3>
         <div class="form-row">
             <?php $field('password', 'Пароль * (не короче 6 символов)', '', 'col-md-6', ['type' => 'password', 'autocomplete' => 'new-password', 'minlength' => 6, 'required' => true]); ?>
             <?php $field('password_repeat', 'Повторите пароль *', '', 'col-md-6', ['type' => 'password', 'autocomplete' => 'new-password', 'minlength' => 6, 'required' => true]); ?>
         </div>
-        <?php endif; ?>
 
         <div class="partner-register__trap" aria-hidden="true">
             <label for="partner-register-website">Сайт</label>

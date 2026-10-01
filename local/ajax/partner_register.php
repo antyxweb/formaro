@@ -2,8 +2,11 @@
 /**
  * Регистрация партнёра («Стать партнером», formaro:partner.register).
  *
- * POST sessid, company, inn, last_name, name, phone, email, password,
- * password_repeat, consent, website (ловушка для ботов — должно быть пусто)
+ * POST sessid и
+ *   гость: company, inn, last_name, name, phone, email, password,
+ *          password_repeat, consent, website (ловушка для ботов — пусто);
+ *   вошедший покупатель: action=from_profile — кабинет из данных профиля
+ *          (кнопка «Создать кабинет партнёра»).
  * → {partner_id, redirect} или {error}. См. PartnerRegistrationService.
  */
 define('NO_KEEP_STATISTIC', true);
@@ -36,7 +39,9 @@ if (trim((string)($_POST['website'] ?? '')) !== '') {
 }
 
 try {
-    $partnerId = PartnerRegistrationService::register($_POST);
+    $partnerId = ($_POST['action'] ?? '') === 'from_profile'
+        ? PartnerRegistrationService::createFromBuyerProfile()
+        : PartnerRegistrationService::register($_POST);
     $respond(200, ['partner_id' => $partnerId, 'redirect' => '/cabinet/profile/']);
 } catch (\RuntimeException $e) {
     $respond(400, ['error' => $e->getMessage()]);

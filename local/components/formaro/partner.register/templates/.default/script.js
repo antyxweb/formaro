@@ -1,8 +1,51 @@
-/* formaro:partner.register — отправка формы регистрации партнёра
-   (POST /local/ajax/partner_register.php). Успех — переход в профиль
+/* formaro:partner.register — регистрация партнёра (POST
+   /local/ajax/partner_register.php): форма гостя или, у вошедшего
+   покупателя, кнопка «Создать кабинет партнёра» с окном подтверждения
+   (FormaroConfirm) — данные берутся из профиля. Успех — переход в профиль
    кабинета партнёра; ошибка — рядом с кнопкой. Скрипт подключается в
    <head> — запуск после загрузки разметки. */
+function initCreate() {
+    var block = document.querySelector('.js-partner-create');
+    if (!block) return;
+    var button = block.querySelector('.js-partner-create-submit');
+    var error = block.querySelector('.js-partner-create-error');
+
+    button.addEventListener('click', function () {
+        window.FormaroConfirm({
+            title: 'Создать кабинет партнёра?',
+            message: 'Данные вашего профиля перенесутся в данные партнёра. Входить в кабинет партнёра — с тем же e-mail и паролем.',
+            okText: 'Да, подтверждаю',
+            cancelText: 'Отмена'
+        }).then(function (ok) {
+            if (!ok) return;
+            error.textContent = '';
+            button.disabled = true;
+            var body = new FormData();
+            body.append('sessid', block.getAttribute('data-sessid'));
+            body.append('action', 'from_profile');
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/local/ajax/partner_register.php', true);
+            xhr.onload = function () {
+                var data = null;
+                try { data = JSON.parse(xhr.responseText); } catch (err) { /* пусто */ }
+                if (xhr.status === 200 && data && data.redirect) {
+                    window.location.href = data.redirect;
+                    return;
+                }
+                button.disabled = false;
+                error.textContent = (data && data.error) || 'Не удалось создать кабинет, попробуйте ещё раз';
+            };
+            xhr.onerror = function () {
+                button.disabled = false;
+                error.textContent = 'Нет связи с сервером, попробуйте ещё раз';
+            };
+            xhr.send(body);
+        });
+    });
+}
+
 document.addEventListener('DOMContentLoaded', function () {
+    initCreate();
     var form = document.querySelector('.js-partner-register');
     if (!form) return;
     var button = form.querySelector('.js-partner-register-submit');
