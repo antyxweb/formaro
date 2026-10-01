@@ -79,6 +79,8 @@ $this->setFrameMode(true);
 // cabinet_partners, по нему привязаны товары (PROPERTY_PARTNER_ID) и
 // новости партнёра.
 $partnerId = (int)$ElementID;
+// Раздел партнёра: «Будьте в курсе» в подвале — подписка на этого партнёра.
+$APPLICATION->SetPageProperty('PARTNER_ID', (string)$partnerId);
 // Свой каталог партнёра — /partners/<код>/catalog/ (partners/catalog.php):
 // ссылки на товары и категории на этой странице ведут в него.
 $partnerCatalogUrl = $partnerId > 0 && \Bitrix\Main\Loader::includeModule('formaro.cabinet')

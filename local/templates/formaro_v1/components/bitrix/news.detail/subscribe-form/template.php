@@ -25,7 +25,11 @@ $this->setFrameMode(true);
                     ?>
                     <h3 class="h3"><?=$arResult["NAME"]?></h3>
                 </div>
-                <h5 class="text-secondary"><?echo $arResult["PREVIEW_TEXT"];?></h5>
+                <?if($arResult['PARTNER_ID']):?>
+                    <h5 class="text-secondary">Первыми узнавайте о новых предложениях, акциях и скидках <?=htmlspecialcharsbx($arResult['PARTNER_NAME'])?></h5>
+                <?else:?>
+                    <h5 class="text-secondary"><?echo $arResult["PREVIEW_TEXT"];?></h5>
+                <?endif;?>
             </div>
 
             <div class="section-body">
@@ -36,6 +40,9 @@ $this->setFrameMode(true);
                         <input type="email" name="email" class="form-control form-control-lg" id="subscribe-news-email" aria-describedby="subscribe-news-help" autocomplete="email" required>
                         <small id="subscribe-news-help" class="form-text text-muted">Мы никогда не передадим ваш адрес электронной почты третьим лицам</small>
                     </div>
+                    <?if($arResult['PARTNER_ID']):?>
+                        <input type="hidden" name="partner" value="<?=(int)$arResult['PARTNER_ID']?>">
+                    <?else:?>
                     <div class="form-group">
                         <label for="subscribe-news-topic">Какая тема вас интересует</label>
                         <select class="custom-select form-control-lg mr-sm-2" name="topic" id="subscribe-news-topic">
@@ -45,6 +52,7 @@ $this->setFrameMode(true);
                             <?endforeach;?>
                         </select>
                     </div>
+                    <?endif;?>
                     <div class="subscribe-trap" aria-hidden="true">
                         <label for="subscribe-news-website">Сайт</label>
                         <input type="text" name="website" id="subscribe-news-website" tabindex="-1" autocomplete="off">

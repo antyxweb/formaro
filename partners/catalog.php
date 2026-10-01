@@ -19,6 +19,8 @@ if ($catalogPartnerCode !== '' && \Bitrix\Main\Loader::includeModule('iblock')) 
 if (!$catalogPartner) {
     \Bitrix\Iblock\Component\Tools::process404('Страница не найдена', true, true, true);
 } else {
+    // Раздел партнёра: «Будьте в курсе» в подвале — подписка на этого партнёра.
+    $APPLICATION->SetPageProperty('PARTNER_ID', (string)$catalogPartner['ID']);
 ?>
 <script>
     document.getElementById('header').classList.add('partner-page');

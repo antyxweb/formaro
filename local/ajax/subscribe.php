@@ -4,6 +4,7 @@
  * в форме!» в подвале (form=footer). См. SubscriptionService.
  *
  * POST sessid, form, email, topic (id раздела каталога, необязательно),
+ * partner (раздел партнёра — подписка на его обновления, без темы),
  * consent, page, website (ловушка для ботов) → {message} или {error}.
  */
 define('NO_KEEP_STATISTIC', true);
@@ -40,7 +41,8 @@ try {
         (string)($_POST['email'] ?? ''),
         (int)($_POST['topic'] ?? 0),
         !empty($_POST['consent']),
-        (string)($_POST['page'] ?? '')
+        (string)($_POST['page'] ?? ''),
+        (int)($_POST['partner'] ?? 0)
     );
     $respond(200, ['message' => $isNew ? 'Спасибо! Вы подписаны на рассылку.' : 'Вы уже подписаны — спасибо!']);
 } catch (\RuntimeException $e) {

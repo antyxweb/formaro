@@ -29,6 +29,9 @@ if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
                     "DISPLAY_PREVIEW_TEXT" => "Y",
                     "DISPLAY_TOP_PAGER" => "N",
                     "ELEMENT_CODE" => "subscribe-form",
+                    // Раздел партнёра (свойство страницы PARTNER_ID ставят его
+                    // главная и каталог): подписка только на этого партнёра.
+                    "PARTNER_ID" => (int)$APPLICATION->GetPageProperty("PARTNER_ID"),
                     "ELEMENT_ID" => $_REQUEST["ELEMENT_ID"],
                     "FIELD_CODE" => array(	// Поля
                         0 => "PREVIEW_PICTURE",
