@@ -268,6 +268,13 @@
     right: 0;
     z-index: 2;
     display: block;
+    transition: opacity 0.3s;
+}
+/* Шапка выезжает при наведении (#header:hover .header, styles.css) — копия
+   под ней становится прозрачной, чтобы не просвечивала и не дублировалась. */
+#header.partner-page:hover ~ .partner-actions {
+    opacity: 0;
+    pointer-events: none;
 }
 .partner-actions .header__actions {
     display: flex;
