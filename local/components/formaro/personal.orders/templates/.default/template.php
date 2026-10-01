@@ -22,12 +22,12 @@ $e = static fn($s) => htmlspecialcharsbx((string)$s);
                 <div class="col-12 col-xl-9">
                     <div class="orders mr-xl-5" id="personal-orders" data-sessid="<?= bitrix_sessid() ?>">
                         <?php if (!$arResult['AUTHORIZED']): ?>
-                        <div class="bg-white py-4 px-3 px-lg-4 mb-4">
+                        <div class="personal-block bg-white py-4 px-3 px-lg-4 mb-4">
                             <p class="mb-4">Войдите, чтобы увидеть свои заказы.</p>
                             <a href="/login/?backurl=<?= urlencode('/personal/orders/') ?>" class="f-button c-primary">Войти</a>
                         </div>
                         <?php elseif (!$arResult['ORDERS']): ?>
-                        <div class="bg-white py-4 px-3 px-lg-4 mb-4">
+                        <div class="personal-block bg-white py-4 px-3 px-lg-4 mb-4">
                             <p class="mb-4">У вас пока нет заказов.</p>
                             <a href="<?= $e($arParams['CATALOG_URL']) ?>" class="f-button c-primary">Перейти в каталог</a>
                         </div>

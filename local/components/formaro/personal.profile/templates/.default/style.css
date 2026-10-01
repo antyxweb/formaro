@@ -10,3 +10,24 @@
 .personal-profile .profile-legal dd {
     margin-bottom: .5rem;
 }
+
+/* Скошенный правый нижний угол, как у меню личного кабинета (.sidebar-menu
+   в styles.css): уголок :after цвета фона страницы. */
+.personal-profile .profile-block {
+    position: relative;
+}
+.personal-profile .profile-block:after {
+    -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+    border-style: solid;
+    border-color: transparent;
+    border-width: 15px;
+    content: "";
+    display: block;
+    bottom: 0;
+    position: absolute;
+    height: 0;
+    border-bottom-color: #efefef;
+    border-right-color: #efefef;
+    right: 0;
+}

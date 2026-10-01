@@ -67,3 +67,26 @@
 .orders .order-item .product-carousel .carousel-cell .product-card .product-card__info {
     flex-grow: 1;
 }
+
+/* Скошенный правый нижний угол, как у меню личного кабинета (.sidebar-menu
+   в styles.css): уголок :after цвета фона страницы. */
+.orders .order-item__head,
+.orders .personal-block {
+    position: relative;
+}
+.orders .order-item__head:after,
+.orders .personal-block:after {
+    -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+    border-style: solid;
+    border-color: transparent;
+    border-width: 15px;
+    content: "";
+    display: block;
+    bottom: 0;
+    position: absolute;
+    height: 0;
+    border-bottom-color: #efefef;
+    border-right-color: #efefef;
+    right: 0;
+}
