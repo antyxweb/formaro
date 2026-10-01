@@ -100,9 +100,10 @@ $e = static fn($s) => htmlspecialcharsbx((string)$s);
                                     </a>
                                     <?php endif; ?>
                                     <?php if ($order['CAN_CANCEL']): ?>
-                                    <button type="button" class="f-button c-gray text-secondary ml-auto js-order-cancel" data-order-id="<?= (int)$order['ID'] ?>" data-order-number="<?= $e($order['NUMBER']) ?>">
-                                        <svg width="16" height="16"><use xlink:href="#icon-close"></use></svg>
-                                        <span class="pl-2">Отменить заказ</span>
+                                    <?php // На телефоне — только иконка (подпись — для экранного диктора и в подсказке). ?>
+                                    <button type="button" class="f-button c-gray text-secondary ml-auto js-order-cancel" data-order-id="<?= (int)$order['ID'] ?>" data-order-number="<?= $e($order['NUMBER']) ?>" aria-label="Отменить заказ" title="Отменить заказ">
+                                        <svg width="16" height="16" aria-hidden="true"><use xlink:href="#icon-close"></use></svg>
+                                        <span class="pl-2 d-none d-sm-inline">Отменить заказ</span>
                                     </button>
                                     <?php endif; ?>
                                     <small class="text-danger js-order-cancel-error" role="alert"></small>
