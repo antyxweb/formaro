@@ -1,0 +1,26 @@
+/* Плитки разделов личного кабинета (/personal/). Иконки меню — контурные
+   (stroke), а в .support__icon-wrapper стоят белые залитые: здесь — белый
+   контур без заливки. */
+.personal-tiles .support__icon-wrapper {
+    position: relative;
+}
+.personal-tiles .support__link svg {
+    fill: none;
+    stroke: #ffffff;
+    color: #ffffff;
+}
+.personal-tiles .personal-tiles__count {
+    position: absolute;
+    top: 0;
+    right: 0;
+    min-width: 24px;
+    height: 24px;
+    padding: 0 6px;
+    border-radius: 12px;
+    background: #dc3545;
+    color: #ffffff;
+    font-size: .8rem;
+    font-weight: 500;
+    line-height: 24px;
+    text-align: center;
+}
