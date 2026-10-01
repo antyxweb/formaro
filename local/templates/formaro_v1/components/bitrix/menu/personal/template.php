@@ -8,7 +8,8 @@
 
                 <div class="bg-menu__actions mb-4">
             <?else:?>
-                <a class="header__action-link" href="<?=$arItem['LINK']?>" aria-label="Профиль">
+                <?// Текущая страница — полупрозрачной, как в соседних меню подвала (content). ?>
+                <a class="header__action-link" href="<?=$arItem['LINK']?>"<?if($arItem['SELECTED']):?> style="opacity: 0.5" aria-current="page"<?endif;?>>
                     <svg class="header__action-icon" width="20" height="20">
                         <use xlink:href="#<?=$arItem['PARAMS']['ICON']?>"></use>
                     </svg>
