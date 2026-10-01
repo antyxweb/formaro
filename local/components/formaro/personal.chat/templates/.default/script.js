@@ -320,13 +320,6 @@ document.addEventListener('DOMContentLoaded', function () {
         e.preventDefault();
         send();
     });
-    textEl.addEventListener('keydown', function (e) {
-        // Enter — отправить, Shift+Enter — новая строка.
-        if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) {
-            e.preventDefault();
-            send();
-        }
-    });
     textEl.addEventListener('input', autosize);
 
     root.querySelectorAll('.js-chat-attach').forEach(function (el) {
