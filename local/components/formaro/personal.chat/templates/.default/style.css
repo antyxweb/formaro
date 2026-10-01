@@ -257,16 +257,45 @@
     opacity: .7;
 }
 
-/* Поле ввода */
+/* Поле ввода — как в «Чате с клиентами» кабинета партнёра: строка
+   «Прикрепить файл» (серая квадратная кнопка со скрепкой), под ней — поле
+   и квадратная кнопка отправки той же высоты (со скошенным углом). */
 .personal-chat .chat__compose {
-    padding: 12px 20px 16px;
     border-top: 1px solid #e1e1e1;
+}
+.personal-chat .chat__attach-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 20px;
+    border-bottom: 1px solid #e1e1e1;
+}
+.personal-chat .chat__attach {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border: 0;
+    background: #f5f5f5;
+    color: #6c757d;
+    transition: color .2s, background .2s;
+}
+.personal-chat .chat__attach:hover {
+    color: #1976d2;
+    background: #eaf2fb;
+}
+.personal-chat .chat__attach-label {
+    color: #6c757d;
+    font-size: .9rem;
+    cursor: pointer;
 }
 .personal-chat .chat__files:not(:empty) {
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
-    margin-bottom: 8px;
+    padding: 10px 20px 0;
 }
 .personal-chat .chat__file {
     display: inline-flex;
@@ -288,33 +317,33 @@
 }
 .personal-chat .chat__compose-row {
     display: flex;
-    align-items: flex-end;
-    gap: 8px;
-}
-.personal-chat .chat__attach {
-    flex: 0 0 auto;
-    width: 42px;
-    height: 42px;
-    border: 0;
-    background: none;
-    color: #6c757d;
-}
-.personal-chat .chat__attach:hover {
-    color: #1976d2;
+    align-items: stretch;
+    gap: 10px;
+    padding: 12px 20px 16px;
 }
 .personal-chat .chat__input {
     flex: 1 1 auto;
-    min-height: 42px;
+    min-height: 64px;
     resize: none;
 }
+/* Квадратная кнопка отправки на всю высоту поля; скошенный угол — :after
+   у .f-button, поэтому справа место под уголок. */
 .personal-chat .chat__send {
     flex: 0 0 auto;
-    display: inline-flex;
+    display: flex;
     align-items: center;
-    margin-right: 15px; /* уголок :after кнопки */
-    height: 42px;
-    padding-top: 0;
-    padding-bottom: 0;
+    justify-content: center;
+    width: 64px;
+    height: auto;
+    min-height: 64px;
+    padding: 0;
+    margin-right: 15px;
+}
+/* .f-button svg path заливает иконку белым — делаем контурной, как в кабинете. */
+.personal-chat .chat__send svg,
+.personal-chat .chat__send svg path {
+    fill: none;
+    stroke: currentColor;
 }
 .personal-chat .chat__send:disabled {
     opacity: .6;
@@ -323,7 +352,7 @@
     display: none;
 }
 .personal-chat .js-chat-error {
-    margin-top: 6px;
+    padding: 0 20px 12px;
 }
 
 /* Телефон: список или диалог. */
@@ -350,7 +379,8 @@
     }
     .personal-chat .chat__head,
     .personal-chat .chat__messages,
-    .personal-chat .chat__compose {
+    .personal-chat .chat__attach-row,
+    .personal-chat .chat__compose-row {
         padding-left: 12px;
         padding-right: 12px;
     }

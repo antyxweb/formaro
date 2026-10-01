@@ -278,7 +278,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function autosize() {
         textEl.style.height = 'auto';
-        textEl.style.height = Math.min(textEl.scrollHeight + 2, 160) + 'px';
+        textEl.style.height = Math.max(64, Math.min(textEl.scrollHeight + 2, 160)) + 'px';
     }
 
     /* ---------- Обновление ---------- */
@@ -329,7 +329,9 @@ document.addEventListener('DOMContentLoaded', function () {
     });
     textEl.addEventListener('input', autosize);
 
-    root.querySelector('.js-chat-attach').addEventListener('click', function () { fileInput.click(); });
+    root.querySelectorAll('.js-chat-attach').forEach(function (el) {
+        el.addEventListener('click', function () { fileInput.click(); });
+    });
     fileInput.addEventListener('change', function () {
         addFiles(fileInput.files);
         fileInput.value = '';

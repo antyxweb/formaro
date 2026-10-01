@@ -25,18 +25,21 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
                             <div class="chat__dialog" aria-live="polite">
                                 <div class="chat__head js-chat-head"></div>
                                 <div class="chat__messages js-chat-messages"></div>
+                                <?php // Как в «Чате с клиентами» кабинета партнёра: сверху — «Прикрепить файл», ниже — поле и квадратная кнопка отправки (со скошенным углом, как кнопки сайта). ?>
                                 <form class="chat__compose js-chat-compose d-none" novalidate>
+                                    <div class="chat__attach-row">
+                                        <button type="button" class="chat__attach js-chat-attach" aria-label="Прикрепить файл">
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m16 6-8.414 8.586a2 2 0 0 0 2.829 2.829l8.414-8.586a4 4 0 1 0-5.657-5.657l-8.379 8.551a6 6 0 1 0 8.485 8.485l8.379-8.551"/></svg>
+                                        </button>
+                                        <span class="chat__attach-label js-chat-attach" aria-hidden="true">Прикрепить файл</span>
+                                        <input type="file" class="d-none js-chat-file" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt,.zip">
+                                    </div>
                                     <div class="chat__files js-chat-files"></div>
                                     <div class="chat__compose-row">
-                                        <button type="button" class="chat__attach js-chat-attach" title="Прикрепить файл" aria-label="Прикрепить файл">
-                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
-                                        </button>
-                                        <input type="file" class="d-none js-chat-file" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt,.zip">
                                         <label for="chat-text" class="sr-only">Сообщение</label>
-                                        <textarea id="chat-text" class="form-control chat__input js-chat-text" rows="1" maxlength="4000" placeholder="Напишите сообщение…"></textarea>
-                                        <button type="submit" class="f-button c-primary chat__send js-chat-send" aria-label="Отправить">
-                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.714 3.048a.498.498 0 0 0-.683.627l2.843 7.627a2 2 0 0 1 0 1.396l-2.842 7.627a.498.498 0 0 0 .682.627l18-8.5a.5.5 0 0 0 0-.904z"/><path d="M6 12h16"/></svg>
-                                            <span class="d-none d-sm-inline pl-2">Отправить</span>
+                                        <textarea id="chat-text" class="form-control chat__input js-chat-text" rows="2" maxlength="4000" placeholder="Напишите сообщение…"></textarea>
+                                        <button type="submit" class="f-button c-primary chat__send js-chat-send" aria-label="Отправить" title="Отправить (Enter)">
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.714 3.048a.498.498 0 0 0-.683.627l2.843 7.627a2 2 0 0 1 0 1.396l-2.842 7.627a.498.498 0 0 0 .682.627l18-8.5a.5.5 0 0 0 0-.904z"/><path d="M6 12h16"/></svg>
                                         </button>
                                     </div>
                                     <small class="d-block text-danger js-chat-error" role="alert"></small>
