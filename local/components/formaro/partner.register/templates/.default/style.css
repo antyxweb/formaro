@@ -1,0 +1,51 @@
+/* Форма регистрации партнёра — белым блоком со скошенным углом (страница
+   контента — на сером фоне без подложки). */
+.partner-register {
+    margin-top: 2.5rem;
+}
+.partner-register__block {
+    position: relative;
+    background: #ffffff;
+    padding: 1.5rem 1.25rem;
+}
+@media (min-width: 992px) {
+    .partner-register__block {
+        padding: 2rem 2.5rem;
+    }
+}
+.partner-register__block:after {
+    -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+    border-style: solid;
+    border-color: transparent;
+    border-width: 15px;
+    content: "";
+    display: block;
+    bottom: 0;
+    position: absolute;
+    height: 0;
+    border-bottom-color: #efefef;
+    border-right-color: #efefef;
+    right: 0;
+}
+.partner-register__block h3 {
+    font-size: 1.05rem;
+    margin: 1.5rem 0 1rem;
+}
+.partner-register__block h3:first-of-type {
+    margin-top: 0;
+}
+.partner-register__status {
+    margin-left: 1.5rem;
+}
+.partner-register__status:empty {
+    display: none;
+}
+/* Ловушка для ботов — вне экрана, не display:none (его боты пропускают). */
+.partner-register__trap {
+    position: absolute;
+    left: -10000px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+}

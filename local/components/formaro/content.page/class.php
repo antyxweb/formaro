@@ -15,7 +15,8 @@ use Bitrix\Main\Loader;
  * заголовок, DETAIL_TEXT — текст, вкладка «SEO» — title/description.
  * Свойство EMBED — блоки других инфоблоков под текстом (XML_ID значения =
  * код инфоблока): «Вопросы и ответы» (content_faq), «Отзывы»
- * (content_reviews), «Вакансии» (content_vacancies); вёрстка блока —
+ * (content_reviews), «Вакансии» (content_vacancies), а также компоненты —
+ * «Форма регистрации партнёра» (partner_registration); вёрстка блока —
  * templates/.default/embeds/<код>.php.
  *
  * Кэш (только данные) — тегированный по инфоблокам: правка элемента в
@@ -30,6 +31,8 @@ class FormaroContentPageComponent extends CBitrixComponent
 {
     private const PAGES = 'content_pages';
     private const EMBEDS = ['content_faq', 'content_reviews', 'content_vacancies'];
+    /** Блоки не из инфоблоков — компоненты (embeds/<код>.php). */
+    private const COMPONENT_EMBEDS = ['partner_registration'];
 
     public function onPrepareComponentParams($params)
     {
@@ -115,8 +118,13 @@ class FormaroContentPageComponent extends CBitrixComponent
         $props = CIBlockElement::GetProperty($pagesId, $element['ID'], ['SORT' => 'ASC', 'VALUE_SORT' => 'ASC'], ['CODE' => 'EMBED']);
         while ($prop = $props->Fetch()) {
             $code = (string)$prop['VALUE_XML_ID'];
-            if (in_array($code, self::EMBEDS, true) && !isset($embeds[$code])) {
+            if (isset($embeds[$code])) {
+                continue;
+            }
+            if (in_array($code, self::EMBEDS, true)) {
                 $embeds[$code] = $this->embedItems($code);
+            } elseif (in_array($code, self::COMPONENT_EMBEDS, true)) {
+                $embeds[$code] = [true]; // выводится компонентом, данных нет
             }
         }
 
