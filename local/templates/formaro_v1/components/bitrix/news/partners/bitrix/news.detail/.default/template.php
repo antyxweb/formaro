@@ -39,7 +39,8 @@ $this->setFrameMode(true);
                         <?endif?>
                     </div>
                     <div class="pt-4 d-flex">
-                        <a href="#hero-search" class="f-button c-success">Каталог товаров</a>
+                        <?php // Свой каталог партнёра (partners/catalog.php). ?>
+                        <a href="<?= htmlspecialcharsbx($arResult["~DETAIL_PAGE_URL"]) ?>catalog/" class="f-button c-success">Каталог товаров</a>
                         <a href="/personal/messages/?partner=<?= (int)$arResult["ID"] ?>" class="f-button">Чат с продавцом</a>
                     </div>
                 </div><?if($arResult["PREVIEW_PICTURE"]["SRC"]):?>

@@ -7,8 +7,10 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
 /** @global CMain $APPLICATION */
 
 // Карточка товара — вёрстка /html/product-detail.html. Ниже: товары
-// продавца, похожие (та же категория), просмотренные.
+// продавца, похожие (та же категория), просмотренные. Каталог партнёра
+// (PARTNER_ID): похожие и просмотренные — только его товары.
 $productId = (int)$arResult['ELEMENT_ID'];
+$catalogPartnerId = (int)$arResult['PARTNER_ID'];
 $partnerId = (int)$APPLICATION->IncludeComponent(
     'formaro:catalog.element',
     '',
@@ -48,6 +50,7 @@ $partnerId = (int)$APPLICATION->IncludeComponent(
         'MODE' => 'NEW',
         'COUNT' => '12',
         'SECTION_ID' => (int)$arResult['SECTION']['ID'],
+        'PARTNER_ID' => $catalogPartnerId,
         'EXCLUDE_ID' => $productId,
         'TITLE_ACCENT' => 'Похожие',
         'TITLE' => 'товары',
@@ -64,6 +67,7 @@ $partnerId = (int)$APPLICATION->IncludeComponent(
     [
         'MODE' => 'VIEWED',
         'COUNT' => '20',
+        'PARTNER_ID' => $catalogPartnerId,
         'EXCLUDE_ID' => $productId,
         'TITLE_ACCENT' => 'Просмотренные',
         'TITLE' => 'товары',

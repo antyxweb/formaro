@@ -7,8 +7,10 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
 /** @global CMain $APPLICATION */
 
 // Категория — вёрстка /html/section.html: фильтр + товары, ниже выгодные
-// предложения и новинки этой категории, просмотренные товары.
+// предложения и новинки этой категории, просмотренные товары. Каталог
+// партнёра (PARTNER_ID) — везде только его товары.
 $sectionId = (int)$arResult['SECTION']['ID'];
+$partnerId = (int)$arResult['PARTNER_ID'];
 ?>
 <?php $APPLICATION->IncludeComponent(
     'formaro:catalog.section',
@@ -16,6 +18,7 @@ $sectionId = (int)$arResult['SECTION']['ID'];
     [
         'SECTION_ID' => $sectionId,
         'FILTER_PATH' => $arResult['FILTER_PATH'],
+        'PARTNER_ID' => $partnerId,
         'PAGE_SIZE' => $arParams['PAGE_SIZE'],
         'CACHE_TYPE' => $arParams['CACHE_TYPE'] ?? 'A',
         'CACHE_TIME' => $arParams['CACHE_TIME'],
@@ -29,6 +32,7 @@ $sectionId = (int)$arResult['SECTION']['ID'];
     [
         'MODE' => 'DISCOUNT',
         'COUNT' => '12',
+        'PARTNER_ID' => $partnerId,
         'SECTION_ID' => $sectionId,
         'FILTER_PATH' => $arResult['FILTER_PATH'],
         'TITLE_ACCENT' => 'Выгодные',
@@ -47,6 +51,7 @@ $sectionId = (int)$arResult['SECTION']['ID'];
     [
         'MODE' => 'NEW',
         'COUNT' => '12',
+        'PARTNER_ID' => $partnerId,
         'SECTION_ID' => $sectionId,
         'FILTER_PATH' => $arResult['FILTER_PATH'],
         'TITLE_ACCENT' => 'Новые',
@@ -64,6 +69,7 @@ $sectionId = (int)$arResult['SECTION']['ID'];
     [
         'MODE' => 'VIEWED',
         'COUNT' => '20',
+        'PARTNER_ID' => $partnerId,
         'TITLE_ACCENT' => 'Просмотренные',
         'TITLE' => 'товары',
         'CATALOG_URL' => '',

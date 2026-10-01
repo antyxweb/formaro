@@ -36,6 +36,7 @@ if (empty($arResult['ITEMS']) && !$isViewed) {
             <div class="main-carousel product-carousel js-product-carousel"
                  data-mode="<?= htmlspecialcharsbx($arParams['MODE']) ?>"
                  data-partner-id="<?= (int)$arParams['PARTNER_ID'] ?>"
+                 data-catalog-root="<?= htmlspecialcharsbx($arResult['CATALOG_ROOT']) ?>"
                  data-section-id="<?= (int)$arParams['SECTION_ID'] ?>"
                  data-exclude-id="<?= (int)$arParams['EXCLUDE_ID'] ?>"
                  data-page-size="<?= (int)$arParams['COUNT'] ?>"

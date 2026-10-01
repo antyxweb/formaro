@@ -20,6 +20,8 @@
     // Страница партнёра (data-partner-id на #hero-search): все запросы —
     // только по его товарам.
     var partnerId = 0;
+    // …и ссылки на товары — в каталог партнёра (data-catalog-root, CatalogUrl).
+    var catalogRoot = '';
     var state = {query: {}, offset: 0, items: [], hasMore: false, loaded: false, loading: false, requestId: 0};
     var views = [];
 
@@ -79,7 +81,7 @@
         state.loading = true;
         eachView('setLoading', true);
         var requestId = state.requestId;
-        var params = {offset: state.offset, limit: limit, partner: partnerId || ''};
+        var params = {offset: state.offset, limit: limit, partner: partnerId || '', root: catalogRoot};
         Object.keys(state.query).forEach(function (k) { params[k] = state.query[k]; });
 
         request(params, function (data) {
@@ -439,7 +441,7 @@
             }
             timer = setTimeout(function () {
                 var id = ++suggestId;
-                request({q: q, offset: 0, limit: SUGGEST_LIMIT, partner: partnerId || ''}, function (data) {
+                request({q: q, offset: 0, limit: SUGGEST_LIMIT, partner: partnerId || '', root: catalogRoot}, function (data) {
                     if (id !== suggestId) return;
                     var items = (data && data.items) || [];
                     suggest.innerHTML = items.length
@@ -503,6 +505,7 @@
         if (!hero) return;
         limit = parseInt(hero.getAttribute('data-page-size'), 10) || limit;
         partnerId = parseInt(hero.getAttribute('data-partner-id'), 10) || 0;
+        catalogRoot = hero.getAttribute('data-catalog-root') || '';
 
         var grid = document.getElementById('catalog-grid');
         if (grid) addView(createDesktopView(grid));

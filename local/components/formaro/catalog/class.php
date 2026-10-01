@@ -5,6 +5,8 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
 
 use Bitrix\Iblock\Component\Tools;
 use Bitrix\Main\Loader;
+use Formaro\Cabinet\Catalog\CatalogUrl;
+use Formaro\Cabinet\Repository\ProductRepository;
 use Formaro\Cabinet\Service\CatalogFilterService;
 
 /**
@@ -23,6 +25,11 @@ use Formaro\Cabinet\Service\CatalogFilterService;
  * (UF_APPROVED, вместе с родителями), и активные товары; иначе — 404.
  * Товар, открытый не по своему пути категории (например, его перенесли),
  * редиректится 301 на актуальный адрес.
+ *
+ * PARTNER_ID — каталог одного партнёра (/partners/<код>/catalog/,
+ * /partners/catalog.php): только категории, где есть его товары, и только
+ * его товары; ссылки — от SEF_FOLDER (CatalogUrl); в хлебных крошках
+ * корень — «Главная» партнёра вместо «Главная — Партнеры» сайта.
  */
 class FormaroCatalogComponent extends CBitrixComponent
 {
@@ -36,6 +43,7 @@ class FormaroCatalogComponent extends CBitrixComponent
     {
         $params['SEF_FOLDER'] = (string)($params['SEF_FOLDER'] ?? '/catalog/');
         $params['PAGE_SIZE'] = max(1, (int)($params['PAGE_SIZE'] ?? 24));
+        $params['PARTNER_ID'] = max(0, (int)($params['PARTNER_ID'] ?? 0));
         $params['CACHE_TIME'] = isset($params['CACHE_TIME']) ? (int)$params['CACHE_TIME'] : 3600;
 
         return $params;
@@ -49,6 +57,8 @@ class FormaroCatalogComponent extends CBitrixComponent
         }
         // resolveComponentEngine берёт инфоблок из параметров компонента.
         $this->arParams['IBLOCK_ID'] = CatalogFilterService::getCatalogIblockId();
+        // Ссылки на товары и категории на этой странице — от SEF_FOLDER.
+        CatalogUrl::setRoot($this->arParams['SEF_FOLDER']);
 
         $templates = CComponentEngine::makeComponentUrlTemplates(self::DEFAULT_TEMPLATES, $this->arParams['SEF_URL_TEMPLATES'] ?? []);
         $engine = new CComponentEngine($this);
@@ -82,6 +92,7 @@ class FormaroCatalogComponent extends CBitrixComponent
             'FILTER_PATH' => $filterPath,
             'SECTION' => null,
             'ELEMENT_ID' => 0,
+            'PARTNER_ID' => $this->arParams['PARTNER_ID'],
         ];
 
         if ($page === 'section' || $page === 'element') {
@@ -93,7 +104,7 @@ class FormaroCatalogComponent extends CBitrixComponent
                 $codePath = trim((string)($variables['SECTION_CODE_PATH'] ?? ''), '/');
                 $element = $page === 'section' ? $this->resolveElement((string)substr(strrchr('/' . $codePath, '/'), 1)) : null;
                 if ($element) {
-                    LocalRedirect($element['DETAIL_PAGE_URL'], false, '301 Moved Permanently');
+                    LocalRedirect(CatalogUrl::localize($element['~DETAIL_PAGE_URL']), false, '301 Moved Permanently');
                     return;
                 }
                 $this->show404();
@@ -109,7 +120,7 @@ class FormaroCatalogComponent extends CBitrixComponent
                 return;
             }
             if ((int)$element['IBLOCK_SECTION_ID'] !== $this->arResult['SECTION']['ID']) {
-                LocalRedirect($element['DETAIL_PAGE_URL'], false, '301 Moved Permanently');
+                LocalRedirect(CatalogUrl::localize($element['~DETAIL_PAGE_URL']), false, '301 Moved Permanently');
                 return;
             }
             $this->arResult['ELEMENT_ID'] = (int)$element['ID'];
@@ -122,7 +133,8 @@ class FormaroCatalogComponent extends CBitrixComponent
         $this->includeComponentTemplate($page);
     }
 
-    /** Раздел по пути кодов; активный и одобренный вместе со всеми родителями. */
+    /** Раздел по пути кодов; активный и одобренный вместе со всеми
+     *  родителями; в каталоге партнёра — только если в нём есть его товары. */
     private function resolveSection(string $codePath): ?array
     {
         $sectionId = (int)CIBlockFindTools::GetSectionIDByCodePath($this->arParams['IBLOCK_ID'], $codePath);
@@ -146,13 +158,20 @@ class FormaroCatalogComponent extends CBitrixComponent
             $chain[] = [
                 'ID' => (int)$row['ID'],
                 'NAME' => $row['NAME'],
-                'URL' => $m['SECTION_PAGE_URL'],
+                'URL' => CatalogUrl::localize($m['~SECTION_PAGE_URL']),
                 'PARENT_ID' => (int)$row['IBLOCK_SECTION_ID'],
                 'DEPTH_LEVEL' => (int)$row['DEPTH_LEVEL'],
             ];
         }
 
         $current = end($chain);
+        if ($this->arParams['PARTNER_ID'] && !(new ProductRepository())->countPublic([
+            'SECTION_ID' => $current['ID'],
+            'INCLUDE_SUBSECTIONS' => 'Y',
+            'PROPERTY_PARTNER_ID' => $this->arParams['PARTNER_ID'],
+        ])) {
+            return null;
+        }
 
         return $current + ['CHAIN' => $chain];
     }
@@ -162,9 +181,13 @@ class FormaroCatalogComponent extends CBitrixComponent
         if ($code === '') {
             return null;
         }
+        $filter = ['IBLOCK_ID' => $this->arParams['IBLOCK_ID'], '=CODE' => $code, 'ACTIVE' => 'Y', 'CHECK_PERMISSIONS' => 'N'];
+        if ($this->arParams['PARTNER_ID']) {
+            $filter['PROPERTY_PARTNER_ID'] = $this->arParams['PARTNER_ID'];
+        }
         $element = CIBlockElement::GetList(
             [],
-            ['IBLOCK_ID' => $this->arParams['IBLOCK_ID'], '=CODE' => $code, 'ACTIVE' => 'Y', 'CHECK_PERMISSIONS' => 'N'],
+            $filter,
             false,
             ['nTopCount' => 1],
             ['ID', 'NAME', 'IBLOCK_SECTION_ID', 'DETAIL_PAGE_URL']
@@ -175,13 +198,24 @@ class FormaroCatalogComponent extends CBitrixComponent
 
     /** Заголовок страницы и хлебные крошки (корень «Каталог» даёт
      *  .section.php папки). Для товара заголовок ставит
-     *  formaro:catalog.element. */
+     *  formaro:catalog.element.
+     *
+     *  Каталог партнёра: «Главная — Партнеры» сайта (.section.php папок)
+     *  пропускаются (свойство страницы BREADCRUMB_SKIP, шаблон крошек
+     *  header), корень — «Главная» партнёра, за ней «Каталог». */
     private function setChain(string $page): void
     {
         global $APPLICATION;
 
+        if ($this->arParams['PARTNER_ID']) {
+            $APPLICATION->SetPageProperty('BREADCRUMB_SKIP', '2');
+            $APPLICATION->AddChainItem('Главная', CatalogUrl::partnerHome($this->arParams['PARTNER_ID']));
+            $APPLICATION->AddChainItem('Каталог', $page === 'sections' ? '' : $this->arParams['SEF_FOLDER']);
+        }
+
         if ($page === 'sections') {
             $APPLICATION->SetTitle('Каталог товаров');
+            $APPLICATION->SetPageProperty('title', 'Каталог товаров');
             return;
         }
 

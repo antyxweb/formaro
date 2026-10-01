@@ -2,6 +2,7 @@
 
 namespace Formaro\Cabinet\Repository;
 
+use Formaro\Cabinet\Catalog\CatalogUrl;
 use Bitrix\Main\Loader;
 use CIBlock;
 use CIBlockElement;
@@ -389,7 +390,8 @@ class ProductRepository
     }
 
     /** См. CategoryRepository::getPublicUrl() — тот же принцип, но для
-     *  элемента (DETAIL_PAGE_URL вместо SECTION_PAGE_URL). */
+     *  элемента (DETAIL_PAGE_URL вместо SECTION_PAGE_URL). На страницах
+     *  партнёра — от корня его каталога (CatalogUrl). */
     private function getPublicUrl(array $el): string
     {
         $iblock = CIBlock::GetArrayByID($this->iblockId);
@@ -398,11 +400,11 @@ class ProductRepository
             return '';
         }
 
-        return CIBlock::ReplaceDetailUrl($template, [
+        return CatalogUrl::localize(CIBlock::ReplaceDetailUrl($template, [
             'ID' => (int)$el['ID'],
             'CODE' => $el['CODE'],
             'IBLOCK_SECTION_ID' => (int)($el['IBLOCK_SECTION_ID'] ?? 0),
-        ], false, 'E');
+        ], false, 'E'));
     }
 
     /** PREVIEW_PICTURE — нативное поле элемента, не обычное File-свойство

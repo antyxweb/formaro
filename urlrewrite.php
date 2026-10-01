@@ -16,6 +16,14 @@ $arUrlRewrite=array (
     'PATH' => '/bitrix/services/ymarket/index.php',
     'SORT' => 100,
   ),
+  25 => 
+  array (
+    'CONDITION' => '#^/partners/([^/]+)/catalog/[^?]*\\??#',
+    'RULE' => 'PARTNER_CODE=$1&',
+    'ID' => 'formaro:catalog',
+    'PATH' => '/partners/catalog.php',
+    'SORT' => 100,
+  ),
   4 => 
   array (
     'CONDITION' => '#^/partners/#',

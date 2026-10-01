@@ -4,6 +4,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
 }
 
 use Bitrix\Main\Loader;
+use Formaro\Cabinet\Catalog\CatalogUrl;
 use Formaro\Cabinet\Service\ProductCarouselService;
 
 /**
@@ -16,6 +17,8 @@ use Formaro\Cabinet\Service\ProductCarouselService;
  * партнёра, «Товары продавца», «Похожие товары», категория каталога).
  * Сервер отдаёт первые COUNT товаров; если есть ещё — последний слайд «+»
  * подгружает следующие по COUNT через /local/ajax/product_carousel.php.
+ * Ссылки на товары — от текущего корня каталога (CatalogUrl: в каталоге
+ * партнёра — его каталог); корень — в ключе кэша и в запросах подгрузки.
  */
 class FormaroProductCarouselComponent extends CBitrixComponent
 {
@@ -44,7 +47,7 @@ class FormaroProductCarouselComponent extends CBitrixComponent
     {
         // Скидки действуют по датам — день входит в ключ кэша, чтобы
         // закончившаяся/начавшаяся акция не висела в кэше до его истечения.
-        if ($this->startResultCache(false, [date('Y-m-d')])) {
+        if ($this->startResultCache(false, [date('Y-m-d'), CatalogUrl::root()])) {
             if (!Loader::includeModule('formaro.cabinet')) {
                 $this->abortResultCache();
                 ShowError('formaro.cabinet module not found');
@@ -58,6 +61,7 @@ class FormaroProductCarouselComponent extends CBitrixComponent
                 : ProductCarouselService::load($this->arParams['MODE'], $this->getScope(), 0, $this->arParams['COUNT']);
             $this->arResult['ITEMS'] = $page['items'];
             $this->arResult['HAS_MORE'] = $page['hasMore'];
+            $this->arResult['CATALOG_ROOT'] = CatalogUrl::root() !== CatalogUrl::ROOT ? CatalogUrl::root() : '';
 
             if (!$page['items'] && $this->arParams['MODE'] !== ProductCarouselService::MODE_VIEWED) {
                 $this->abortResultCache();

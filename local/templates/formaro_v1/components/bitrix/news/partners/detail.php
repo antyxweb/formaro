@@ -79,6 +79,14 @@ $this->setFrameMode(true);
 // cabinet_partners, по нему привязаны товары (PROPERTY_PARTNER_ID) и
 // новости партнёра.
 $partnerId = (int)$ElementID;
+// Свой каталог партнёра — /partners/<код>/catalog/ (partners/catalog.php):
+// ссылки на товары и категории на этой странице ведут в него.
+$partnerCatalogUrl = $partnerId > 0 && \Bitrix\Main\Loader::includeModule('formaro.cabinet')
+    ? \Formaro\Cabinet\Catalog\CatalogUrl::partnerRoot($partnerId)
+    : '';
+if ($partnerCatalogUrl !== '') {
+    \Formaro\Cabinet\Catalog\CatalogUrl::setRoot($partnerCatalogUrl);
+}
 // Блоки с товарами — только если у партнёра есть активные товары
 // (иначе пустая строка поиска с «ничего не найдено»). Новости — всегда.
 $partnerHasProducts = $partnerId > 0
@@ -114,7 +122,7 @@ if ($partnerHasProducts):
             "COUNT" => "12",
             "TITLE_ACCENT" => "Выгодные",
             "TITLE" => "предложения",
-            "CATALOG_URL" => "#hero-search",
+            "CATALOG_URL" => $partnerCatalogUrl,
             "SECTION_CLASS" => "light-gray-stripe",
             "CACHE_TYPE" => "A",
             "CACHE_TIME" => "600",
@@ -132,7 +140,7 @@ if ($partnerHasProducts):
             "COUNT" => "12",
             "TITLE_ACCENT" => "Новые",
             "TITLE" => "поступления",
-            "CATALOG_URL" => "#hero-search",
+            "CATALOG_URL" => $partnerCatalogUrl,
             "SECTION_CLASS" => "",
             "CACHE_TYPE" => "A",
             "CACHE_TIME" => "600",
@@ -164,7 +172,7 @@ if ($partnerHasProducts):
             "FILTER_NAME" => "partnerSectionsFilter",
             "VIEW_MODE" => "LIST",
             "SHOW_PARENT_NAME" => "Y",
-            "SECTION_URL" => "",
+            "SECTION_URL" => $partnerCatalogUrl !== '' ? $partnerCatalogUrl . "#SECTION_CODE_PATH#/" : "",
             "CACHE_TYPE" => "A",
             "CACHE_TIME" => "36000000",
             "CACHE_GROUPS" => "Y",

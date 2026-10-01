@@ -47,7 +47,8 @@ class FormaroCatalogElementComponent extends CBitrixComponent
         }
 
         // Скидки действуют по датам — день входит в ключ кэша.
-        if ($this->startResultCache(false, [date('Y-m-d')])) {
+        // Ссылки — от корня каталога (в каталоге партнёра — его).
+        if ($this->startResultCache(false, [date('Y-m-d'), \Formaro\Cabinet\Catalog\CatalogUrl::root()])) {
             if (!Loader::includeModule('iblock') || !Loader::includeModule('formaro.cabinet')) {
                 $this->abortResultCache();
                 ShowError('formaro.cabinet module not found');

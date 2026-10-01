@@ -7,6 +7,14 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
 global $APPLICATION;
 
+// Свойство страницы BREADCRUMB_SKIP — сколько первых пунктов пропустить
+// (каталог партнёра: вместо «Главная — Партнеры» сайта свой корень, см.
+// formaro:catalog). Шаблон выполняется отложенно — свойство уже задано.
+$breadcrumbSkip = (int)$APPLICATION->GetPageProperty('BREADCRUMB_SKIP');
+if ($breadcrumbSkip > 0) {
+	$arResult = array_values(array_slice($arResult, $breadcrumbSkip));
+}
+
 //delayed function must return a string
 if(empty($arResult))
 	return "";

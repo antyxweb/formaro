@@ -22,6 +22,8 @@
             return {
                 mode: $carousel.attr('data-mode'),
                 partner: $carousel.attr('data-partner-id') || 0,
+                // Каталог партнёра — ссылки в его каталог (CatalogUrl).
+                root: $carousel.attr('data-catalog-root') || '',
                 section: $carousel.attr('data-section-id') || 0,
                 exclude: $carousel.attr('data-exclude-id') || 0
             };

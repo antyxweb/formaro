@@ -5,7 +5,8 @@
  * JSON {items:[...], hasMore:bool, total:int}. Необязательные параметры
  * поиска/фильтра (компонент formaro:catalog.search): q, sections (id через
  * запятую), price_min, price_max, colors, sizes (через "|"), partner
- * (страница партнёра — только его товары), sort (popular|new|cheap|expensive
+ * (страница партнёра — только его товары), root (корень каталога
+ * партнёра — ссылки в его каталог, CatalogUrl), sort (popular|new|cheap|expensive
  * — каталог, ProductRepository::publicOrder()). Метки/цена со скидкой считает
  * ProductPricingService (общая логика с order-detail.js:
  * autoApplyBestDiscount).
@@ -18,6 +19,7 @@ define('NOT_CHECK_PERMISSIONS', true);
 require($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_before.php');
 
 use Bitrix\Main\Loader;
+use Formaro\Cabinet\Catalog\CatalogUrl;
 use Formaro\Cabinet\Repository\ProductRepository;
 use Formaro\Cabinet\Repository\DiscountRepository;
 use Formaro\Cabinet\Service\ProductPricingService;
@@ -29,6 +31,9 @@ if (!Loader::includeModule('formaro.cabinet')) {
     echo json_encode(['error' => 'formaro.cabinet module not found']);
     die();
 }
+
+// Каталог партнёра (/partners/<код>/catalog/): ссылки на товары — от его корня.
+CatalogUrl::applyRequestRoot((string)($_GET['root'] ?? ''), (int)($_GET['partner'] ?? 0));
 
 $limit = min(48, max(1, (int)($_GET['limit'] ?? 24)));
 $offset = max(0, (int)($_GET['offset'] ?? 0));

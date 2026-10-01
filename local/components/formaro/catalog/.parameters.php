@@ -6,6 +6,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
 $arComponentParameters = [
     'PARAMETERS' => [
         'PAGE_SIZE' => ['PARENT' => 'BASE', 'NAME' => 'Товаров на странице категории', 'TYPE' => 'STRING', 'DEFAULT' => '24'],
+        'PARTNER_ID' => ['PARENT' => 'BASE', 'NAME' => 'Каталог партнёра (ID элемента cabinet_partners)', 'TYPE' => 'STRING', 'DEFAULT' => ''],
         'SEF_MODE' => [
             'sections' => ['NAME' => 'Корень каталога', 'DEFAULT' => '', 'VARIABLES' => []],
             'section' => ['NAME' => 'Категория', 'DEFAULT' => '#SECTION_CODE_PATH#/', 'VARIABLES' => ['SECTION_CODE_PATH']],

@@ -5,6 +5,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
 
 use Bitrix\Iblock\Component\Tools;
 use Bitrix\Main\Loader;
+use Formaro\Cabinet\Catalog\CatalogUrl;
 use Formaro\Cabinet\Repository\ProductRepository;
 use Formaro\Cabinet\Service\CatalogFilterService;
 use Formaro\Cabinet\Service\CatalogFilterUrl;
@@ -26,6 +27,10 @@ use Formaro\Cabinet\Service\ProductCardService;
  * Группа категорий в фильтре: у категории с подкатегориями — её
  * подкатегории; у конечной — соседние (подкатегории родителя), текущая
  * отмечена. Цена/цвета/размеры — по товарам этой группы.
+ *
+ * PARTNER_ID — каталог партнёра: все выборки и подкатегории фильтра — только
+ * с его товарами; ссылки — от корня его каталога (CatalogUrl, входит в ключ
+ * кэша).
  */
 class FormaroCatalogSectionComponent extends CBitrixComponent
 {
@@ -35,6 +40,7 @@ class FormaroCatalogSectionComponent extends CBitrixComponent
     {
         $params['SECTION_ID'] = max(0, (int)($params['SECTION_ID'] ?? 0));
         $params['FILTER_PATH'] = trim((string)($params['FILTER_PATH'] ?? ''), '/');
+        $params['PARTNER_ID'] = max(0, (int)($params['PARTNER_ID'] ?? 0));
         $params['PAGE_SIZE'] = min(48, max(1, (int)($params['PAGE_SIZE'] ?? 24)));
         $params['CACHE_TIME'] = isset($params['CACHE_TIME']) ? (int)$params['CACHE_TIME'] : 3600;
 
@@ -47,7 +53,7 @@ class FormaroCatalogSectionComponent extends CBitrixComponent
 
         // Скидки действуют по датам — день входит в ключ кэша. Шаблон — вне
         // кэша: сначала решаем, нужен ли редирект или 404.
-        if ($this->startResultCache(false, [$request, date('Y-m-d')])) {
+        if ($this->startResultCache(false, [$request, date('Y-m-d'), CatalogUrl::root()])) {
             if (!Loader::includeModule('iblock') || !Loader::includeModule('formaro.cabinet')) {
                 $this->abortResultCache();
                 ShowError('formaro.cabinet module not found');
@@ -132,7 +138,8 @@ class FormaroCatalogSectionComponent extends CBitrixComponent
     {
         $sectionId = (int)$section['ID'];
         $parentId = (int)$section['IBLOCK_SECTION_ID'];
-        $baseUrl = $section['SECTION_PAGE_URL'];
+        $baseUrl = CatalogUrl::localize($section['~SECTION_PAGE_URL']);
+        $partnerId = $this->arParams['PARTNER_ID'];
 
         // Группа категорий фильтра.
         $children = $this->listSubsections($iblockId, $sectionId);
@@ -147,7 +154,7 @@ class FormaroCatalogSectionComponent extends CBitrixComponent
 
         // Значения фильтра — по товарам всей группы.
         $repo = new ProductRepository();
-        $scopeFilter = ProductRepository::buildPublicFilter(['sections' => [$group['SCOPE_ID']]]);
+        $scopeFilter = ProductRepository::buildPublicFilter(['sections' => [$group['SCOPE_ID']], 'partner_id' => $partnerId]);
         $range = $repo->getPublicPriceRange($scopeFilter);
         $priceMin = (int)floor($range['min']);
         $priceMax = max($priceMin + 1, (int)ceil($range['max']));
@@ -201,6 +208,7 @@ class FormaroCatalogSectionComponent extends CBitrixComponent
             'price_max' => $selected['price_to'],
             'colors' => $selected['colors'],
             'sizes' => $selected['sizes'],
+            'partner_id' => $partnerId,
         ]);
         $total = $repo->countPublic($filter);
         $pageSize = $this->arParams['PAGE_SIZE'];
@@ -242,6 +250,8 @@ class FormaroCatalogSectionComponent extends CBitrixComponent
                 'colors' => implode('|', $selected['colors']),
                 'sizes' => implode('|', $selected['sizes']),
                 'sort' => $request['sort'],
+                'partner' => $partnerId ?: '',
+                'root' => $partnerId ? CatalogUrl::root() : '',
             ],
         ];
     }
@@ -311,9 +321,11 @@ class FormaroCatalogSectionComponent extends CBitrixComponent
     }
 
     /** Активные одобренные подкатегории, в которых есть активные товары
-     *  (+ $keepId — текущая, даже если пуста). */
+     *  (в каталоге партнёра — его товары; +$keepId — текущая, даже если пуста). */
     private function listSubsections(int $iblockId, int $parentId, int $keepId = 0): array
     {
+        $partnerId = $this->arParams['PARTNER_ID'];
+        $repo = $partnerId ? new ProductRepository() : null;
         $items = [];
         $res = CIBlockSection::GetList(
             ['SORT' => 'ASC', 'NAME' => 'ASC'],
@@ -322,8 +334,12 @@ class FormaroCatalogSectionComponent extends CBitrixComponent
             ['ID', 'NAME', 'CODE', 'SECTION_PAGE_URL']
         );
         while ($row = $res->GetNext()) {
-            if ((int)$row['ELEMENT_CNT'] > 0 || (int)$row['ID'] === $keepId) {
-                $items[] = ['ID' => (int)$row['ID'], 'NAME' => $row['NAME'], 'CODE' => $row['~CODE'], 'URL' => $row['SECTION_PAGE_URL'], 'COUNT' => (int)$row['ELEMENT_CNT']];
+            $count = (int)$row['ELEMENT_CNT'];
+            if ($repo && $count > 0) {
+                $count = $repo->countPublic(['SECTION_ID' => (int)$row['ID'], 'INCLUDE_SUBSECTIONS' => 'Y', 'PROPERTY_PARTNER_ID' => $partnerId]);
+            }
+            if ($count > 0 || (int)$row['ID'] === $keepId) {
+                $items[] = ['ID' => (int)$row['ID'], 'NAME' => $row['NAME'], 'CODE' => $row['~CODE'], 'URL' => htmlspecialcharsbx(CatalogUrl::localize($row['~SECTION_PAGE_URL'])), 'COUNT' => $count];
             }
         }
 
