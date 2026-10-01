@@ -508,8 +508,12 @@
             } else {
                 var ids = items.filter(function (item) { return !unchecked[item.id]; }).map(function (item) { return item.id; });
                 if (!ids.length) return;
-                if (!window.confirm('Удалить выбранные товары (' + ids.length + ') из корзины?')) return;
-                window.FormaroCart.remove(ids);
+                window.FormaroConfirm({
+                    title: 'Удалить выбранные товары?',
+                    message: 'Из корзины будут удалены отмеченные товары этого продавца (позиций: ' + ids.length + ').',
+                    okText: 'Удалить',
+                    danger: true
+                }).then(function (ok) { if (ok) window.FormaroCart.remove(ids); });
             }
         });
 

@@ -39,6 +39,7 @@ if($GLOBALS["APPLICATION"]->GetCurPage(false) == '/'
     <link rel="manifest" href="/site.webmanifest" />
 
     <link rel="stylesheet" href="<?=SITE_TEMPLATE_PATH;?>/css/styles.min.css?v<?=time()?>" />
+    <link rel="stylesheet" href="<?=SITE_TEMPLATE_PATH;?>/css/confirm.css?v=<?= filemtime($_SERVER['DOCUMENT_ROOT'] . SITE_TEMPLATE_PATH . '/css/confirm.css') ?>" />
 
     <title><?$APPLICATION->ShowTitle();?></title>
 </head>
