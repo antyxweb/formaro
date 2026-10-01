@@ -335,6 +335,14 @@ function cabinetAjax(params) {
 function dsLoad(entity) {
     return cabinetAjax({ajax_action: 'list', entity: entity});
 }
+/** Как dsLoad, но без окна ошибки — для фонового опроса (счётчики, чат):
+    моргнула сеть или истекла сессия — просто пропускаем этот раз. */
+function dsLoadSilent(entity) {
+    var url = (window.CABINET_BOOTSTRAP && window.CABINET_BOOTSTRAP.ajaxUrl) || window.location.pathname;
+    return $.post(url, {ajax_action: 'list', entity: entity}).then(function (resp) {
+        return resp && resp.success ? resp.data : $.Deferred().reject().promise();
+    });
+}
 function dsSaveOne(entity, row) {
     return cabinetAjax({ajax_action: 'save', entity: entity, row: JSON.stringify(row)});
 }
@@ -868,6 +876,18 @@ function initCabinetChrome(pageTitle) {
     initTopbarWidgets();
     refreshSidebarCounts();
     refreshTopbarCounts();
+    // Живые счётчики (уведомления, чат, обращения): раз в 30 с и при
+    // возврате на вкладку, пока она видна.
+    setInterval(function () {
+        if (document.hidden) return;
+        refreshSidebarCounts();
+        refreshTopbarCounts();
+    }, 30000);
+    document.addEventListener('visibilitychange', function () {
+        if (document.hidden) return;
+        refreshSidebarCounts();
+        refreshTopbarCounts();
+    });
 }
 
 function initTopbarWidgets() {
@@ -994,41 +1014,41 @@ function renderGlobalSearchResults(groups, $results) {
 }
 
 function refreshSidebarCounts() {
-    dsLoad('orders').done(function (rows) {
+    dsLoadSilent('orders').done(function (rows) {
         var n = (rows || []).filter(function (o) { return o.status === 'new'; }).length;
         $('.side-count[data-count="orders-new"]').text(n).toggleClass('attention', n > 0).toggle(n > 0);
     });
-    dsLoad('notifications').done(function (rows) {
+    dsLoadSilent('notifications').done(function (rows) {
         var n = (rows || []).filter(function (r) { return !r.is_read; }).length;
         $('.side-count[data-count="notifications"]').text(n).toggleClass('attention', n > 0).toggle(n > 0);
     });
-    dsLoad('chat').done(function (threads) {
+    dsLoadSilent('chat').done(function (threads) {
         var n = (threads || []).reduce(function (sum, t) {
             return sum + t.messages.filter(function (m) { return m.sender === 'client' && m.is_read === false; }).length;
         }, 0);
         $('.side-count[data-count="chat"]').text(n).toggleClass('attention', n > 0).toggle(n > 0);
     });
-    dsLoad('tickets').done(function (rows) {
+    dsLoadSilent('tickets').done(function (rows) {
         var n = (rows || []).filter(function (t) { return t.status !== 'closed'; }).length;
         $('.side-count[data-count="support"]').text(n).toggleClass('attention', n > 0).toggle(n > 0);
     });
-    dsLoad('finance').done(function (data) {
+    dsLoadSilent('finance').done(function (data) {
         $('#sidebarBalanceValue').html(fmtMoneyHtml(data && data.available_balance));
     });
 }
 
 function refreshTopbarCounts() {
-    dsLoad('notifications').done(function (rows) {
+    dsLoadSilent('notifications').done(function (rows) {
         var n = (rows || []).filter(function (r) { return !r.is_read; }).length;
         $('#notifDot').text(n).toggle(n > 0);
     });
-    dsLoad('chat').done(function (threads) {
+    dsLoadSilent('chat').done(function (threads) {
         var n = (threads || []).reduce(function (sum, t) {
             return sum + t.messages.filter(function (m) { return m.sender === 'client' && m.is_read === false; }).length;
         }, 0);
         $('#chatDot').text(n).toggle(n > 0);
     });
-    dsLoad('tickets').done(function (rows) {
+    dsLoadSilent('tickets').done(function (rows) {
         var n = (rows || []).filter(function (t) { return t.status !== 'closed'; }).length;
         $('#supportDot').text(n).toggle(n > 0);
     });

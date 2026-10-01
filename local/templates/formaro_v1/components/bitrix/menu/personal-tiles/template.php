@@ -36,8 +36,9 @@ $countAttrs = ['orders' => ' data-orders-count', 'notify' => ' data-notify-count
                             <svg class="support__link-icon" width="26" height="28" viewBox="0 0 26 28" aria-hidden="true">
                                 <use xlink:href="#<?= htmlspecialcharsbx($item['PARAMS']['ICON'] ?? 'icon-profile') ?>"></use>
                             </svg>
-                            <?php if ($counter !== '' && ($counts[$counter] ?? 0) > 0): ?>
-                            <small class="personal-tiles__count"<?= $countAttrs[$counter] ?? '' ?>><?= (int)$counts[$counter] ?></small>
+                            <?php if ($counter !== ''): ?>
+                            <?php // Ноль скрыт; js/live-counters.js и скрипты корзины/избранного обновляют число, при нуле — прячут (data-hide-zero). ?>
+                            <small class="personal-tiles__count<?= empty($counts[$counter]) ? ' d-none' : '' ?>"<?= $countAttrs[$counter] ?? '' ?> data-hide-zero><?= (int)($counts[$counter] ?? 0) ?></small>
                             <?php endif; ?>
                         </span>
                         <?= htmlspecialcharsbx($item['TEXT']) ?>

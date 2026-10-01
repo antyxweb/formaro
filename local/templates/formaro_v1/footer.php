@@ -310,6 +310,9 @@ if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
         <script src="<?=SITE_TEMPLATE_PATH;?>/js/scripts.min.js?v=<?= filemtime($_SERVER['DOCUMENT_ROOT'] . SITE_TEMPLATE_PATH . '/js/scripts.min.js') ?>"></script>
         <script src="<?=SITE_TEMPLATE_PATH;?>/js/confirm.js?v=<?= filemtime($_SERVER['DOCUMENT_ROOT'] . SITE_TEMPLATE_PATH . '/js/confirm.js') ?>"></script>
         <script src="<?=SITE_TEMPLATE_PATH;?>/js/subscribe.js?v=<?= filemtime($_SERVER['DOCUMENT_ROOT'] . SITE_TEMPLATE_PATH . '/js/subscribe.js') ?>"></script>
+        <?if ($USER->IsAuthorized()):?>
+        <script src="<?=SITE_TEMPLATE_PATH;?>/js/live-counters.js?v=<?= filemtime($_SERVER['DOCUMENT_ROOT'] . SITE_TEMPLATE_PATH . '/js/live-counters.js') ?>"></script>
+        <?endif;?>
         <script src="<?=SITE_TEMPLATE_PATH;?>/js/catalog-common.js?v=<?= filemtime($_SERVER['DOCUMENT_ROOT'] . SITE_TEMPLATE_PATH . '/js/catalog-common.js') ?>"></script>
         <script src="<?=SITE_TEMPLATE_PATH;?>/js/favorites.js?v=<?= filemtime($_SERVER['DOCUMENT_ROOT'] . SITE_TEMPLATE_PATH . '/js/favorites.js') ?>"></script>
         <script src="<?=SITE_TEMPLATE_PATH;?>/js/cart.js?v=<?= filemtime($_SERVER['DOCUMENT_ROOT'] . SITE_TEMPLATE_PATH . '/js/cart.js') ?>"></script>

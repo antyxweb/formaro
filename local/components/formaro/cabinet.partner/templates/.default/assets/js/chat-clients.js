@@ -9,6 +9,7 @@
      вместо dsSave(whole-array); партнёр не может создавать новые диалоги
      (их начинает покупатель в «Чатах и сообщениях» на сайте);
    - ?thread=ID в адресе — сразу открыть этот диалог (из уведомления);
+   - новые сообщения появляются без перезагрузки (pollThreads, раз в 10 с);
    - у диалога — строка темы (заказ / товар / общий вопрос): покупатель
      заводит отдельный диалог на каждую тему. */
 var allThreads = [];
@@ -46,7 +47,39 @@ $(function () {
     });
 
     $('#sendBtn').on('click', sendMessage);
+
+    // Новые сообщения покупателей — без перезагрузки: опрос раз в 10 с, пока
+    // вкладка видна (и сразу при возврате на неё).
+    setInterval(pollThreads, 10000);
+    document.addEventListener('visibilitychange', function () { if (!document.hidden) pollThreads(); });
 });
+
+/** Подтягивает диалоги; изменилось — перерисовывает список и открытый
+    диалог (прокрутка вниз, только если и так была внизу), новые сообщения
+    в открытом диалоге сразу отмечаются прочитанными. */
+function pollThreads() {
+    if (document.hidden) return;
+    dsLoadSilent('chat').done(function (threads) {
+        if (JSON.stringify(threads) === JSON.stringify(allThreads)) return;
+        allThreads = threads;
+        renderThreads();
+        var t = allThreads.find(function (x) { return x.thread_id === activeThreadId; });
+        if (!t) return;
+        var $s = $('#messagesScroll');
+        var atBottom = $s[0].scrollHeight - $s.scrollTop() - $s.innerHeight() < 40;
+        var scrollTop = $s.scrollTop();
+        renderMessages(t);
+        if (!atBottom) $s.scrollTop(scrollTop);
+        if (unreadCount(t) > 0) {
+            cabinetAjax({ajax_action: 'mark_thread_read', thread_id: activeThreadId}).done(function (updated) {
+                allThreads = allThreads.map(function (x) { return x.thread_id === activeThreadId ? updated : x; });
+                renderThreads();
+                if (typeof refreshSidebarCounts === 'function') refreshSidebarCounts();
+                if (typeof refreshTopbarCounts === 'function') refreshTopbarCounts();
+            });
+        }
+    });
+}
 
 function renderAttachPreview() {
     var $w = $('#attachPreviewWrap').empty();
