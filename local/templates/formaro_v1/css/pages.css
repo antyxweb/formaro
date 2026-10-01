@@ -256,41 +256,51 @@
 }
 
 /* Раздел партнёра: шапка уезжает вверх (#header.partner-page), поэтому
-   Заказы / Избранное / Корзина / профиль дублируются справа вверху
-   страницы (header.php, include/header_actions.php) — оформление как у
-   ссылок шапки (#header .header .header__actions в styles.css). */
+   Заказы / Избранное / Корзина / профиль дублируются вертикальной панелью
+   справа — только иконки со счётчиками, закреплена при прокрутке
+   (header.php, include/header_actions.php). Пока выезжает шапка — панель
+   прозрачная. */
 .partner-actions {
     display: none;
 }
 #header.partner-page ~ .partner-actions {
-    position: absolute;
-    top: 0;
+    position: fixed;
+    top: 80px;
     right: 0;
-    z-index: 2;
+    z-index: 78;
     display: block;
+    background: #ffffff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .08);
     transition: opacity 0.3s;
 }
-/* Шапка выезжает при наведении (#header:hover .header, styles.css) — копия
-   под ней становится прозрачной, чтобы не просвечивала и не дублировалась. */
 #header.partner-page:hover ~ .partner-actions {
     opacity: 0;
     pointer-events: none;
 }
+/* Место под панель справа — как под левую полосу (padding-left у #main/#footer). */
+#header.partner-page ~ #main,
+#header.partner-page ~ #footer {
+    padding-right: 60px;
+}
 .partner-actions .header__actions {
     display: flex;
-    padding: 0 15px;
+    flex-direction: column;
 }
 .partner-actions .header__action-link {
     position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
+    width: 60px;
     height: 60px;
-    padding: 0 15px;
     border: none;
     background: none;
     text-decoration: none;
     transition: 0.3s;
+}
+/* Подписи не нужны — только иконки (подсказка — title). */
+.partner-actions .header__action-link span {
+    display: none !important;
 }
 .partner-actions .header__action-link .header__action-icon {
     width: 20px;
@@ -299,14 +309,10 @@
     fill: none;
     stroke: #111111;
 }
-.partner-actions .header__action-link span {
-    padding-left: 10px;
-    color: #6c757d;
-}
 .partner-actions .header__action-link .header__action-count {
     position: absolute;
     top: 12px;
-    left: 27px;
+    left: 32px;
     display: flex;
     justify-content: center;
     align-items: center;
