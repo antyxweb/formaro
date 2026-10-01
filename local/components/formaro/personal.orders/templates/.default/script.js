@@ -7,7 +7,7 @@
    рядом с кнопками.
 
    «Сообщить об оплате» → POST /local/ajax/order_payment_notice.php; после —
-   «Вы сообщили об оплате …». */
+   «Вы сообщили об оплате …» вместо ссылок на счёт и сообщение. */
 (function () {
     function post(url, id, onDone, onFail) {
         var root = document.getElementById('personal-orders');
@@ -54,6 +54,9 @@
             var note = document.createElement('small');
             note.className = 'text-muted js-order-payment-notice';
             note.textContent = 'Вы сообщили об оплате ' + data.date;
+            // Счёт больше не нужен — ссылку на него убираем.
+            var invoice = link.closest('.js-order-payment').querySelector('.js-order-invoice');
+            if (invoice) invoice.remove();
             link.replaceWith(note);
         }, function (message) {
             link.removeAttribute('aria-disabled');

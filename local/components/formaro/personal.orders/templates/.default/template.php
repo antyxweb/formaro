@@ -64,10 +64,11 @@ $e = static fn($s) => htmlspecialcharsbx((string)$s);
                                         <small class="<?= $e($order['PAYMENT_STATUS_CLASS']) ?>"><?= $e($order['PAYMENT_STATUS']) ?></small>
                                         <?php if ($order['INVOICE_URL'] !== ''): ?>
                                         <div class="order-item__payment-links js-order-payment">
-                                            <a href="<?= $e($order['INVOICE_URL']) ?>" class="js-order-invoice" download>Скачать счёт</a>
                                             <?php if ($order['PAYMENT_NOTICE_DATE'] !== ''): ?>
+                                            <?php // Уже сообщил об оплате — счёт больше не нужен. ?>
                                             <small class="text-muted js-order-payment-notice">Вы сообщили об оплате <?= $e($order['PAYMENT_NOTICE_DATE']) ?></small>
                                             <?php else: ?>
+                                            <a href="<?= $e($order['INVOICE_URL']) ?>" class="js-order-invoice" download>Скачать счёт</a>
                                             <a href="#" class="js-order-payment-notice" data-order-id="<?= (int)$order['ID'] ?>" data-order-number="<?= $e($order['NUMBER']) ?>">Сообщить об оплате</a>
                                             <?php endif; ?>
                                             <small class="text-danger js-order-payment-error" role="alert"></small>
