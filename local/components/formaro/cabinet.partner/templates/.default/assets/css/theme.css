@@ -758,6 +758,8 @@ input[type="file"].form-control::file-selector-button:hover { background: var(--
 /* ---------------- Индикатор новых сообщений в чате ---------------- */
 .thread-unread-badge { background: var(--brand); color: #fff; font-size: .7rem; font-weight: 700; padding: .05rem .4rem; min-width: 18px; text-align: center; display: inline-block; border-radius: 999px !important; }
 .chat-thread-item.has-unread .thread-name { font-weight: 700; }
+/* Тема диалога (заказ / товар / общий вопрос) — chat-clients.js. */
+.chat-thread-item .thread-subject { color: var(--brand); }
 .chat-thread-item.has-unread { border-left: 3px solid var(--brand); }
 
 /* ---------------- Переключатель (form-switch) под тему сайта ---------------- */

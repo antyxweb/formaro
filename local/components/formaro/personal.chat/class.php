@@ -4,17 +4,16 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
 }
 
 use Bitrix\Main\Loader;
-use Formaro\Cabinet\Repository\ProductRepository;
 use Formaro\Cabinet\Service\BuyerChatService;
 
 /**
  * «Чаты и сообщения» покупателя (/personal/messages/): диалоги с продавцами
  * (BuyerChatService). Адрес:
  *   ?thread=ID                    — открыть диалог (из уведомления);
- *   ?partner=ID[&order=F-…|&product=ID] — написать продавцу: есть диалог —
- *                                   открыть его, нет — новый (создастся
- *                                   первым сообщением); заказ/товар —
- *                                   о чём вопрос (подсказка над полем ввода).
+ *   ?partner=ID[&order=F-…|&product=ID] — написать продавцу по теме
+ *                                   (заказ, товар или общий вопрос): на каждую
+ *                                   тему свой диалог; есть — открыть, нет —
+ *                                   черновик (создастся первым сообщением).
  * Сама переписка рисуется script.js из CHAT_DATA; обновление — опросом
  * /local/ajax/chat.php.
  *
@@ -41,51 +40,34 @@ class FormaroPersonalChatComponent extends CBitrixComponent
         $threadId = (int)($_GET['thread'] ?? 0);
         $partnerId = (int)($_GET['partner'] ?? 0);
         $active = null;
-        $newPartner = null;
-        $context = ['order' => '', 'product' => 0, 'label' => ''];
+        $draft = null;
 
         if ($threadId && in_array($threadId, array_column($threads, 'id'), true)) {
             $active = $threadId;
-        } elseif ($partnerId) {
-            foreach ($threads as $thread) {
-                if ($thread['partner']['id'] === $partnerId) {
-                    $active = $thread['id'];
-                }
-            }
+        } elseif ($partnerId && ($partner = BuyerChatService::partner($partnerId))) {
+            // Тема из адреса (заказ/товар/общий вопрос): диалог по ней уже
+            // есть — открываем, нет — черновик нового (создастся первым сообщением).
+            $subject = BuyerChatService::subject($userId, $partnerId, [
+                'order' => (string)($_GET['order'] ?? ''),
+                'product' => (int)($_GET['product'] ?? 0),
+            ]);
+            $active = BuyerChatService::findThread($userId, $partnerId, $subject) ?: null;
             if (!$active) {
-                $newPartner = BuyerChatService::partnerForNewThread($userId, $partnerId);
-            }
-            if ($active || $newPartner) {
-                $context = $this->context($partnerId);
+                $draft = [
+                    'partner' => ['id' => $partner['id'], 'name' => $partner['name'], 'url' => $partner['url'], 'logo' => $partner['logo']],
+                    'subject' => $subject['subject'],
+                    'order' => $subject['order'],
+                    'product' => $subject['product_id'],
+                ];
             }
         }
 
         return [
             'threads' => $threads,
             'active' => $active,
-            'newPartner' => $newPartner,
-            'context' => $context,
-            'unread' => array_sum(array_column($threads, 'unread')),
+            'draft' => $draft,
             'maxFiles' => BuyerChatService::MAX_FILES,
             'maxFileSize' => BuyerChatService::MAX_FILE_SIZE,
         ];
-    }
-
-    /** Подсказка «Вопрос по заказу F-… / по товару …»; проверяет её сервер при отправке. */
-    private function context(int $partnerId): array
-    {
-        $order = preg_match('/^F-\d+$/', (string)($_GET['order'] ?? '')) ? (string)$_GET['order'] : '';
-        $productId = (int)($_GET['product'] ?? 0);
-        $label = $order !== '' ? 'Вопрос по заказу ' . $order : '';
-        if (!$label && $productId) {
-            $product = (new ProductRepository())->findPublic(['ID' => $productId], ['ID' => 'ASC'], 1)[0] ?? null;
-            if ($product && (int)$product['partner_id'] === $partnerId) {
-                $label = 'Вопрос по товару «' . $product['name'] . '»';
-            } else {
-                $productId = 0;
-            }
-        }
-
-        return ['order' => $order, 'product' => $productId, 'label' => $label];
     }
 }

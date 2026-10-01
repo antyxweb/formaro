@@ -8,7 +8,9 @@
    - отправка/удаление сообщения — send_chat_message/delete_chat_message
      вместо dsSave(whole-array); партнёр не может создавать новые диалоги
      (их начинает покупатель в «Чатах и сообщениях» на сайте);
-   - ?thread=ID в адресе — сразу открыть этот диалог (из уведомления). */
+   - ?thread=ID в адресе — сразу открыть этот диалог (из уведомления);
+   - у диалога — строка темы (заказ / товар / общий вопрос): покупатель
+     заводит отдельный диалог на каждую тему. */
 var allThreads = [];
 var activeThreadId = 0;
 var refreshClearBtn = null;
@@ -99,13 +101,20 @@ function renderThreads() {
             '<div class="chat-thread-item' + active + (unread > 0 ? ' has-unread' : '') + '" onclick="openThread(' + t.thread_id + ')">' +
               '<div class="d-flex justify-content-between align-items-center">' +
                 '<span class="thread-name">' + esc(t.client_name) + '</span>' +
-                (unread > 0 ? '<span class="thread-unread-badge">' + unread + '</span>' : '<span class="text-muted-2" style="font-size:.7rem;">' + esc(t.order_id) + '</span>') +
+                (unread > 0 ? '<span class="thread-unread-badge">' + unread + '</span>' : '') +
               '</div>' +
-              '<div class="text-muted-2 small text-truncate">' + esc(t.product_name) + '</div>' +
+              '<div class="thread-subject small text-truncate">' + esc(threadSubject(t)) + '</div>' +
               '<div class="text-muted-2 small text-truncate">' + esc(last ? last.text : '') + '</div>' +
             '</div>'
         );
     });
+}
+
+/** Тема диалога: у покупателя на каждую — отдельный диалог (заказ, товар, общий вопрос). */
+function threadSubject(t) {
+    if (t.order_id) return 'Заказ ' + t.order_id;
+    if (t.product_name) return 'Товар: ' + t.product_name;
+    return 'Общий вопрос';
 }
 
 function openThread(threadId) {

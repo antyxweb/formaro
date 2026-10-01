@@ -93,6 +93,25 @@
     font-size: .875rem;
     color: #6c757d;
 }
+/* Тема диалога: заказ, товар или общий вопрос. */
+.personal-chat .chat__thread-subject {
+    display: block;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-size: .8rem;
+    color: #1976d2;
+}
+.personal-chat .chat__thread-subject--general {
+    color: #6c757d;
+}
+.personal-chat .chat__head-subject {
+    display: block;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-size: .8rem;
+}
 .personal-chat .chat__thread.has-unread .chat__thread-preview {
     color: #111111;
 }
@@ -242,9 +261,6 @@
 .personal-chat .chat__compose {
     padding: 12px 20px 16px;
     border-top: 1px solid #e1e1e1;
-}
-.personal-chat .chat__context:not(:empty) {
-    margin-bottom: 8px;
 }
 .personal-chat .chat__files:not(:empty) {
     display: flex;

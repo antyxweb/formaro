@@ -4,8 +4,9 @@
  *
  * POST sessid, action:
  *   list                                   — {threads, unread};
- *   send + partner_id, text, attachments (JSON [{name, type, data}]),
- *          order, product                  — {thread, unread};
+ *   send + text, attachments (JSON [{name, type, data}]) и
+ *          thread_id (в существующий диалог) или partner_id + order /
+ *          product (тема нового: заказ, товар, общий вопрос) — {thread, unread};
  *   read + thread_id                       — {unread}.
  * Ошибки — {error}. См. BuyerChatService.
  */
@@ -47,6 +48,7 @@ try {
         case 'send':
             $thread = BuyerChatService::send(
                 $userId,
+                (int)($_POST['thread_id'] ?? 0),
                 (int)($_POST['partner_id'] ?? 0),
                 (string)($_POST['text'] ?? ''),
                 json_decode((string)($_POST['attachments'] ?? '[]'), true) ?: [],

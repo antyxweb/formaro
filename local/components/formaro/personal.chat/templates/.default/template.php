@@ -29,7 +29,6 @@ $backUrl = $_SERVER['REQUEST_URI'] ?? '/personal/messages/';
                                 <div class="chat__head js-chat-head"></div>
                                 <div class="chat__messages js-chat-messages"></div>
                                 <form class="chat__compose js-chat-compose d-none" novalidate>
-                                    <div class="chat__context small text-muted js-chat-context"></div>
                                     <div class="chat__files js-chat-files"></div>
                                     <div class="chat__compose-row">
                                         <button type="button" class="chat__attach js-chat-attach" title="Прикрепить файл" aria-label="Прикрепить файл">

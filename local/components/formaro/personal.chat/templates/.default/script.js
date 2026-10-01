@@ -1,8 +1,10 @@
 /* formaro:personal.chat — «Чаты и сообщения» покупателя.
 
    Данные — window.FORMARO_CHAT (class.php): диалоги, открытый диалог
-   (active), продавец для нового диалога (newPartner — диалога с ним ещё
-   нет, создастся первым сообщением), контекст (заказ/товар).
+   (active), черновик нового (draft: продавец и тема — заказ, товар или
+   общий вопрос; диалога по этой теме ещё нет, создастся первым
+   сообщением). На каждую тему — отдельный диалог, тема видна в списке и
+   в шапке переписки (со ссылкой на заказ/товар).
    Запросы — POST /local/ajax/chat.php: send, read, list (опрос раз в 10 с,
    пока вкладка видна). Ответы продавца в открытом диалоге отмечаются
    прочитанными; счётчик в меню кабинета — [data-messages-count].
@@ -15,8 +17,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var data = window.FORMARO_CHAT;
     var threads = data.threads || [];
     var activeId = data.active || null;
-    var newPartner = activeId ? null : data.newPartner;
-    var context = data.context || {};
+    var draft = activeId ? null : data.draft;
     var files = [];
     var sending = false;
 
@@ -27,7 +28,6 @@ document.addEventListener('DOMContentLoaded', function () {
     var textEl = root.querySelector('.js-chat-text');
     var fileInput = root.querySelector('.js-chat-file');
     var filesEl = root.querySelector('.js-chat-files');
-    var contextEl = root.querySelector('.js-chat-context');
     var errorEl = root.querySelector('.js-chat-error');
     var sendBtn = root.querySelector('.js-chat-send');
 
@@ -65,6 +65,11 @@ document.addEventListener('DOMContentLoaded', function () {
         var p = parts(iso);
         if (!p) return '';
         return p.key === dayKey(new Date()) ? p.time : ('0' + p.d).slice(-2) + '.' + ('0' + p.mo).slice(-2);
+    }
+
+    var SUBJECT_PREFIX = {order: '', product: 'Товар: ', general: ''};
+    function subjectText(subject) {
+        return subject ? (SUBJECT_PREFIX[subject.type] || '') + subject.label : '';
     }
 
     function avatar(partner) {
@@ -105,12 +110,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function renderList() {
         var html = '';
-        if (newPartner) {
-            html += threadItem({id: 'new', partner: newPartner, messages: [], unread: 0, last_date: ''}, true);
+        if (draft) {
+            html += threadItem({id: 'new', partner: draft.partner, subject: draft.subject, messages: [], unread: 0, last_date: ''}, activeId === null);
         }
         threads.forEach(function (t) { html += threadItem(t, t.id === activeId); });
         if (!html) {
-            html = '<div class="chat__empty-list">Диалогов пока нет. Написать продавцу можно из заказа или карточки товара — кнопка «Чат с продавцом».</div>';
+            html = '<div class="chat__empty-list">Диалогов пока нет. Написать продавцу можно из заказа, карточки товара или со страницы продавца — кнопка «Чат с продавцом».</div>';
         }
         listEl.innerHTML = html;
     }
@@ -125,6 +130,7 @@ document.addEventListener('DOMContentLoaded', function () {
             '<span class="chat__thread-body">' +
                 '<span class="chat__thread-top"><span class="chat__thread-name">' + esc(t.partner.name) + '</span>' +
                 '<span class="chat__thread-date">' + esc(t.last_date && last ? shortDate(t.last_date) : '') + '</span></span>' +
+                '<span class="chat__thread-subject chat__thread-subject--' + esc(t.subject.type) + '">' + esc(subjectText(t.subject)) + '</span>' +
                 '<span class="chat__thread-bottom"><span class="chat__thread-preview">' + esc(preview) + '</span>' +
                 (t.unread ? '<span class="chat__badge" aria-label="Непрочитанных: ' + t.unread + '">' + t.unread + '</span>' : '') + '</span>' +
             '</span>' +
@@ -135,7 +141,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function renderDialog(keepScroll) {
         var thread = activeThread();
-        var partner = thread ? thread.partner : newPartner;
+        var partner = thread ? thread.partner : (draft && draft.partner);
+        var subject = thread ? thread.subject : (draft && draft.subject);
         root.classList.toggle('is-dialog-open', !!partner);
         if (!partner) {
             headEl.innerHTML = '';
@@ -150,9 +157,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 '<svg width="20" height="20" aria-hidden="true"><use xlink:href="#icon-arrow-left"></use></svg></button>' +
             avatar(partner) +
             '<div class="chat__head-body"><div class="chat__head-name">' + esc(partner.name) + '</div>' +
-            (thread && (thread.order_number || thread.product_name)
-                ? '<small class="text-muted">' + esc(thread.order_number ? 'Заказ ' + thread.order_number : thread.product_name) + '</small>'
-                : '<small class="text-muted">Продавец</small>') +
+            (subject.url
+                ? '<a href="' + esc(subject.url) + '" class="chat__head-subject">' + esc(subjectText(subject)) + '</a>'
+                : '<small class="chat__head-subject text-muted">' + esc(subjectText(subject)) + '</small>') +
             '</div>' +
             (partner.url ? '<a href="' + esc(partner.url) + '" class="chat__head-link">Страница продавца</a>' : '');
 
@@ -183,14 +190,10 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!keepScroll || wasAtBottom) messagesEl.scrollTop = messagesEl.scrollHeight;
 
         form.classList.remove('d-none');
-        contextEl.textContent = context.label || '';
-        contextEl.classList.toggle('d-none', !context.label);
     }
 
     function open(id) {
         activeId = id;
-        if (id !== null) newPartner = null;
-        context = {};
         errorEl.textContent = '';
         renderList();
         renderDialog(false);
@@ -240,19 +243,19 @@ document.addEventListener('DOMContentLoaded', function () {
     function send() {
         var text = textEl.value.trim();
         var thread = activeThread();
-        var partner = thread ? thread.partner : newPartner;
-        if (sending || !partner || (!text && !files.length)) return;
+        if (sending || (!thread && !draft) || (!text && !files.length)) return;
         sending = true;
         sendBtn.disabled = true;
         errorEl.textContent = '';
-        post({
-            action: 'send',
-            partner_id: partner.id,
-            text: text,
-            attachments: JSON.stringify(files),
-            order: context.order || '',
-            product: context.product || ''
-        }, function (res) {
+        var params = {action: 'send', text: text, attachments: JSON.stringify(files)};
+        if (thread) {
+            params.thread_id = thread.id;
+        } else {
+            params.partner_id = draft.partner.id;
+            params.order = draft.order || '';
+            params.product = draft.product || '';
+        }
+        post(params, function (res) {
             sending = false;
             sendBtn.disabled = false;
             textEl.value = '';
@@ -260,8 +263,7 @@ document.addEventListener('DOMContentLoaded', function () {
             files = [];
             renderFiles();
             threads = [res.thread].concat(threads.filter(function (t) { return t.id !== res.thread.id; }));
-            newPartner = null;
-            context = {};
+            draft = null;
             activeId = res.thread.id;
             if (window.history && history.replaceState) history.replaceState(null, '', '/personal/messages/?thread=' + activeId);
             renderList();
@@ -300,7 +302,11 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!item) return;
         var id = item.getAttribute('data-thread');
         if (id === 'new') {
-            root.classList.add('is-dialog-open');
+            // Обратно к черновику нового диалога (он в списке, пока не отправлен).
+            activeId = null;
+            errorEl.textContent = '';
+            renderList();
+            renderDialog(false);
             return;
         }
         open(parseInt(id, 10));
@@ -345,6 +351,6 @@ document.addEventListener('DOMContentLoaded', function () {
     renderList();
     renderDialog(false);
     markRead();
-    if (activeId || newPartner) textEl.focus({preventScroll: true});
+    if (activeId || draft) textEl.focus({preventScroll: true});
     setInterval(refresh, 10000);
 });

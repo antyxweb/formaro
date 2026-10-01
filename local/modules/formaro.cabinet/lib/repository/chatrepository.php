@@ -15,8 +15,9 @@ use Formaro\Cabinet\Upload\FileUploader;
  *
  * Партнёр диалоги не создаёт — их начинает покупатель на витрине
  * («Чаты и сообщения», /personal/messages/, BuyerChatService): диалог —
- * покупатель (UF_USER_ID, миграция Version20261001160001) × продавец, один
- * на пару. Партнёр отвечает в существующих, помечает прочитанными, удаляет
+ * покупатель (UF_USER_ID, миграция Version20261001160001) × продавец × тема:
+ * заказ (UF_ORDER_NUMBER), товар (UF_PRODUCT_ID, Version20261001170001) или
+ * общий вопрос — на каждую тему отдельный диалог. Партнёр отвечает в существующих, помечает прочитанными, удаляет
  * свои сообщения — 1:1 с cabinet-html/assets/js/chat-clients.js.
  *
  * UF_IS_READ сообщения — прочитано ли оно получателем: сообщения клиента —
@@ -120,20 +121,28 @@ class ChatRepository
         return array_map(fn(array $row) => $this->toArray($row), $rows);
     }
 
-    public function findByUserAndPartner(int $userId, int $partnerId): ?array
+    /**
+     * Диалог покупателя с продавцом по теме: заказ, товар или общий вопрос
+     * (оба пустые) — точное совпадение темы.
+     */
+    public function findBuyerThread(int $userId, int $partnerId, string $orderNumber, int $productId): ?array
     {
         $dataClass = HlblockEntityFactory::getDataClass(self::THREADS_HLBLOCK);
-        $row = $dataClass::getList([
+        $rows = $dataClass::getList([
             'filter' => ['=UF_USER_ID' => $userId, '=UF_PARTNER_ID' => $partnerId],
             'order' => ['ID' => 'ASC'],
-            'limit' => 1,
-        ])->fetch();
+        ])->fetchAll();
+        foreach ($rows as $row) {
+            if ((string)$row['UF_ORDER_NUMBER'] === $orderNumber && (int)$row['UF_PRODUCT_ID'] === $productId) {
+                return $this->toArray($row);
+            }
+        }
 
-        return $row ? $this->toArray($row) : null;
+        return null;
     }
 
-    /** Новый диалог покупателя с продавцом. @return int id диалога */
-    public function createThread(int $userId, int $partnerId, string $clientName, string $orderNumber = '', string $productName = ''): int
+    /** Новый диалог покупателя с продавцом по теме. @return int id диалога */
+    public function createThread(int $userId, int $partnerId, string $clientName, string $orderNumber = '', int $productId = 0, string $productName = ''): int
     {
         $dataClass = HlblockEntityFactory::getDataClass(self::THREADS_HLBLOCK);
         $result = $dataClass::add([
@@ -141,6 +150,7 @@ class ChatRepository
             'UF_PARTNER_ID' => $partnerId,
             'UF_CLIENT_NAME' => $clientName,
             'UF_ORDER_NUMBER' => $orderNumber,
+            'UF_PRODUCT_ID' => $productId,
             'UF_PRODUCT_NAME' => $productName,
             'UF_CREATED_AT' => new DateTime(),
         ]);
@@ -149,15 +159,6 @@ class ChatRepository
         }
 
         return (int)$result->getId();
-    }
-
-    /** Заказ/товар, о котором сейчас речь (видно продавцу в списке диалогов); пустые — не трогаем. */
-    public function updateContext(int $threadId, string $orderNumber, string $productName): void
-    {
-        $fields = array_filter(['UF_ORDER_NUMBER' => $orderNumber, 'UF_PRODUCT_NAME' => $productName], 'strlen');
-        if ($fields) {
-            HlblockEntityFactory::getDataClass(self::THREADS_HLBLOCK)::update($threadId, $fields);
-        }
     }
 
     /** Помечает все непрочитанные сообщения клиента в диалоге прочитанными (открытие диалога партнёром) */
@@ -214,6 +215,7 @@ class ChatRepository
             'client_name' => $thread['UF_CLIENT_NAME'],
             'order_id' => $thread['UF_ORDER_NUMBER'] ?? '',
             'product_name' => $thread['UF_PRODUCT_NAME'] ?? '',
+            'product_id' => (int)($thread['UF_PRODUCT_ID'] ?? 0),
             'partner_id' => (int)$thread['UF_PARTNER_ID'],
             'user_id' => (int)($thread['UF_USER_ID'] ?? 0),
             'created_at' => $this->dateToString($thread['UF_CREATED_AT']),
