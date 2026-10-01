@@ -352,11 +352,13 @@
 .personal-chat .chat__send:disabled {
     opacity: .6;
 }
-.personal-chat .js-chat-error:empty {
-    display: none;
-}
-.personal-chat .js-chat-error {
+.personal-chat .chat__error {
+    display: block;
     padding: 0 20px 12px;
+}
+/* Пустой — не занимает места (без d-block: его !important перебивал :empty). */
+.personal-chat .chat__error:empty {
+    display: none;
 }
 
 /* Телефон: список или диалог. */
