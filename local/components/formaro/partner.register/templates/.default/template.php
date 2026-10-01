@@ -24,13 +24,14 @@ $field = static function (string $name, string $label, string $value, string $co
 };
 ?>
 <div class="partner-register" id="partner-register">
-    <h2>Регистрация в кабинете партнёра</h2>
     <?php if ($arResult['IS_PARTNER']): ?>
+    <h2>Кабинет партнёра</h2>
     <div class="partner-register__block">
         <p>Вы уже партнёр маркетплейса.</p>
         <a href="/cabinet/" class="f-button c-primary">Перейти в кабинет партнёра</a>
     </div>
     <?php else: ?>
+    <h2>Регистрация в кабинете партнёра</h2>
     <form class="partner-register__block js-partner-register" data-sessid="<?= bitrix_sessid() ?>" novalidate>
         <?php if ($arResult['AUTHORIZED']): ?>
         <p class="text-muted">Вы вошли как <?= $e($u['email']) ?> — кабинет партнёра будет привязан к этой учётной записи, входите с тем же e-mail и паролем.</p>

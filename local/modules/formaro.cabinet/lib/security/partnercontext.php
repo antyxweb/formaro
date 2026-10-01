@@ -64,6 +64,26 @@ class PartnerContext
         return self::getPartnerId() > 0;
     }
 
+    /**
+     * Пользователь сам привязан к партнёру (свой UF_CABINET_PARTNER_ID и
+     * группа CABINET_PARTNERS; администратору группа не нужна). В отличие от
+     * hasAccess() не учитывает подстановку партнёра по умолчанию для
+     * администратора без привязки — для «уже партнёр?» (регистрация).
+     */
+    public static function hasOwnPartner(): bool
+    {
+        if (!self::isAuthorized()) {
+            return false;
+        }
+        global $USER;
+        $row = CUser::GetList($by = 'id', $order = 'asc', ['ID' => $USER->GetID()], ['SELECT' => [self::UF_FIELD]])->Fetch();
+        if ((int)($row[self::UF_FIELD] ?? 0) <= 0) {
+            return false;
+        }
+
+        return $USER->IsAdmin() || in_array(self::getGroupId(), $USER->GetUserGroupArray(), false);
+    }
+
     /** @return int ELEMENT_ID в инфоблоке cabinet_partners, 0 — если не резолвится */
     public static function getPartnerId(): int
     {

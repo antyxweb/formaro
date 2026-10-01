@@ -42,7 +42,7 @@ class PartnerRegistrationService
 
         $field = static fn(string $key) => trim((string)($data[$key] ?? ''));
         $userId = (is_object($USER) && $USER->IsAuthorized()) ? (int)$USER->GetID() : 0;
-        if ($userId && PartnerContext::hasAccess() && !$USER->IsAdmin()) {
+        if ($userId && PartnerContext::hasOwnPartner()) {
             throw new \RuntimeException('Вы уже партнёр — войдите в кабинет партнёра');
         }
 

@@ -22,7 +22,7 @@ class FormaroPartnerRegisterComponent extends CBitrixComponent
         global $USER;
         $authorized = is_object($USER) && $USER->IsAuthorized();
         $user = $authorized ? (CUser::GetByID((int)$USER->GetID())->Fetch() ?: []) : [];
-        $isPartner = $authorized && !$USER->IsAdmin() && Loader::includeModule('formaro.cabinet') && PartnerContext::hasAccess();
+        $isPartner = $authorized && Loader::includeModule('formaro.cabinet') && PartnerContext::hasOwnPartner();
 
         $this->arResult = [
             'AUTHORIZED' => $authorized,
