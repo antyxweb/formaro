@@ -349,6 +349,7 @@ class CartCheckoutService
             'Покупатель ' . $buyer . ' сообщил об оплате счета на сумму ' . $sum . ' руб. Оплату проверит и подтвердит маркетплейс.',
             self::orderLink($order['id'])
         );
+        BuyerNotificationService::paymentReported($order);
 
         return $date;
     }

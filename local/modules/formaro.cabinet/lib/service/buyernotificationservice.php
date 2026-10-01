@@ -9,7 +9,8 @@ use Formaro\Cabinet\Repository\NotificationRepository;
  * о его заказах с витрины: заказ оформлен (CartCheckoutService::checkout()),
  * продавец сменил статус заказа или маркетплейс подтвердил оплату
  * (orderUpdated() — из кабинета партнёра при сохранении заказа), покупатель
- * сам отменил заказ (orderCancelledByBuyer() — CartCheckoutService::cancel()).
+ * сам отменил заказ (orderCancelledByBuyer() — CartCheckoutService::cancel())
+ * или сообщил об оплате (paymentReported() — CartCheckoutService::reportPayment()).
  * Заказы без покупателя (созданные продавцом вручную) — без уведомлений.
  */
 class BuyerNotificationService
@@ -49,6 +50,21 @@ class BuyerNotificationService
             'order',
             'Заказ ' . $order['order_number'] . ' отменён',
             'Вы отменили заказ на сумму ' . self::money($order['total']) . ' руб. Продавец получил уведомление об отмене.',
+            self::orderLink($order)
+        );
+    }
+
+    /** Покупатель нажал «Сообщить об оплате» — запись в ленту, что сообщение принято. */
+    public static function paymentReported(array $order): void
+    {
+        if (empty($order['user_id'])) {
+            return;
+        }
+        NotificationRepository::forBuyer()->addForBuyer(
+            (int)$order['user_id'],
+            'order',
+            'Вы сообщили об оплате заказа ' . $order['order_number'],
+            'Маркетплейс проверит поступление ' . self::money($order['total']) . ' руб. и подтвердит оплату — об этом придёт уведомление.',
             self::orderLink($order)
         );
     }
