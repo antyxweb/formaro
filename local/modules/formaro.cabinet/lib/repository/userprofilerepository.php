@@ -11,12 +11,22 @@ use CUser;
  * свойства элемента-партнёра): здесь — данные для входа в кабинет самого
  * пользователя (вкладка "Авторизация", см. profile.php).
  *
- * EMAIL здесь — тот же email, по которому происходит вход (см.
- * login.php — резолвит LOGIN по точному совпадению EMAIL), поэтому смена
- * почты на этой вкладке одновременно меняет логин для входа.
+ * EMAIL — он же логин: меняются парой (обработчик OnBeforeUserUpdate в
+ * init.php ставит LOGIN = EMAIL), поэтому смена почты на этой вкладке
+ * меняет и логин для входа.
  */
 class UserProfileRepository
 {
+    /** E-mail — он же логин: занят, если это чужой e-mail или чужой логин. */
+    public static function isEmailTaken(string $email, int $userId): bool
+    {
+        return (bool)\Bitrix\Main\UserTable::getList([
+            'select' => ['ID'],
+            'filter' => ['!=ID' => $userId, ['LOGIC' => 'OR', '=EMAIL' => $email, '=LOGIN' => $email]],
+            'limit' => 1,
+        ])->fetch();
+    }
+
     public function get(int $userId): array
     {
         $user = CUser::GetByID($userId)->Fetch();
@@ -40,11 +50,8 @@ class UserProfileRepository
     public function save(int $userId, array $payload): array
     {
         $email = trim((string)($payload['email'] ?? ''));
-        if ($email !== '') {
-            $existing = CUser::GetList($by = 'id', $order = 'asc', ['=EMAIL' => $email], ['SELECT' => ['ID']])->Fetch();
-            if ($existing && (int)$existing['ID'] !== $userId) {
-                throw new \RuntimeException('Этот e-mail уже используется другим пользователем');
-            }
+        if ($email !== '' && self::isEmailTaken($email, $userId)) {
+            throw new \RuntimeException('Этот e-mail уже используется другим пользователем');
         }
 
         $fields = [

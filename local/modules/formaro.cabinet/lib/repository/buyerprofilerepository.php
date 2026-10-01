@@ -9,7 +9,8 @@ use Formaro\Cabinet\Security\PartnerContext;
  * «Ваш профиль» покупателя (/personal/profile/, formaro:personal.profile).
  *
  * Контакты — поля пользователя Bitrix (b_user): фамилия, имя, отчество,
- * e-mail, телефон. Те же поля правит вкладка «Авторизация» кабинета
+ * e-mail, телефон. E-mail — он же логин: меняются парой (обработчик
+ * OnBeforeUserUpdate в init.php ставит LOGIN = EMAIL). Те же поля правит вкладка «Авторизация» кабинета
  * партнёра (UserProfileRepository), поэтому у партнёра телефон — рабочий
  * (WORK_PHONE, как в кабинете), у остальных — PERSONAL_PHONE.
  *
@@ -95,8 +96,7 @@ class BuyerProfileRepository
         if ($phone !== '' && !preg_match('/^\+?[\d\s\-()]{7,20}$/', $phone)) {
             throw new \RuntimeException('Проверьте телефон');
         }
-        $existing = CUser::GetList($by = 'id', $order = 'asc', ['=EMAIL' => $email], ['FIELDS' => ['ID']])->Fetch();
-        if ($existing && (int)$existing['ID'] !== $userId) {
+        if (UserProfileRepository::isEmailTaken($email, $userId)) {
             throw new \RuntimeException('Этот e-mail уже используется другим пользователем');
         }
 
@@ -154,7 +154,9 @@ class BuyerProfileRepository
         if (strlen($new) < 6) {
             throw new \RuntimeException('Новый пароль должен быть не короче 6 символов');
         }
-        if ((int)$USER->GetID() !== $userId || $USER->Login($USER->GetLogin(), $current, 'N') !== true) {
+        // Логин — из базы: e-mail (= логин) мог смениться в этой же сессии.
+        $login = (string)(CUser::GetByID($userId)->Fetch()['LOGIN'] ?? '');
+        if ((int)$USER->GetID() !== $userId || $USER->Login($login, $current, 'N') !== true) {
             throw new \RuntimeException('Текущий пароль указан неверно');
         }
         $user = new CUser();

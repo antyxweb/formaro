@@ -24,3 +24,20 @@ function print_p($val, $name = 'Содержимое переменной', $mod
         if ($die) die;
     }
 }
+
+/**
+ * E-mail пользователя — одновременно его логин: меняются только парой. При
+ * создании и изменении пользователя (личный кабинет покупателя, вкладка
+ * «Авторизация» кабинета партнёра, регистрация, админка) LOGIN ставится
+ * равным EMAIL, если тот передан и не пуст.
+ */
+$formaroSyncLoginWithEmail = static function (&$fields) {
+    $email = trim((string)($fields['EMAIL'] ?? ''));
+    if ($email !== '') {
+        $fields['LOGIN'] = $email;
+    }
+
+    return true;
+};
+\Bitrix\Main\EventManager::getInstance()->addEventHandlerCompatible('main', 'OnBeforeUserAdd', $formaroSyncLoginWithEmail);
+\Bitrix\Main\EventManager::getInstance()->addEventHandlerCompatible('main', 'OnBeforeUserUpdate', $formaroSyncLoginWithEmail);
