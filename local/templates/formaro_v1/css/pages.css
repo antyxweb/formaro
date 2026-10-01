@@ -118,6 +118,18 @@
     margin-bottom: 1.5rem;
 }
 
+/* Карточка с логотипом (транспортные компании). */
+.text-page .text-page__card--logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 96px;
+}
+.text-page .text-page__card--logo img {
+    max-width: 100%;
+    height: 32px;
+}
+
 /* Отзывы. */
 .text-page .review + .review {
     margin-top: 1.5rem;
