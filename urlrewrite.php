@@ -56,4 +56,36 @@ $arUrlRewrite=array (
     'PATH' => '/news/index.php',
     'SORT' => 100,
   ),
+  20 => 
+  array (
+    'CONDITION' => '#^/for-buyers/#',
+    'RULE' => '',
+    'ID' => 'formaro:content.section',
+    'PATH' => '/for-buyers/index.php',
+    'SORT' => 100,
+  ),
+  21 => 
+  array (
+    'CONDITION' => '#^/for-partners/#',
+    'RULE' => '',
+    'ID' => 'formaro:content.section',
+    'PATH' => '/for-partners/index.php',
+    'SORT' => 100,
+  ),
+  22 => 
+  array (
+    'CONDITION' => '#^/about/#',
+    'RULE' => '',
+    'ID' => 'formaro:content.section',
+    'PATH' => '/about/index.php',
+    'SORT' => 100,
+  ),
+  23 => 
+  array (
+    'CONDITION' => '#^/support/#',
+    'RULE' => '',
+    'ID' => 'formaro:content.section',
+    'PATH' => '/support/index.php',
+    'SORT' => 100,
+  ),
 );

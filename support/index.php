@@ -1,19 +1,22 @@
 <?
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
-$APPLICATION->SetPageProperty("title", "Поддержка");
-$APPLICATION->SetTitle("Поддержка");
+// Раздел из инфоблока «Контентные страницы» (раздел «support»): главная — плитки
+// (или страница с кодом раздела), страницы — /support/<код>/ (urlrewrite.php).
 ?><?$APPLICATION->IncludeComponent(
-	"bitrix:menu",
-	"section-tiles",
+	"formaro:content.section",
+	"",
 	[
-		"ROOT_MENU_TYPE" => "left",
-		"MAX_LEVEL" => "1",
-		"USE_EXT" => "N",
-		"ALLOW_MULTI_SELECT" => "N",
-		"MENU_CACHE_TYPE" => "N",
+		"SECTION_CODE" => "support",
+		"SEF_MODE" => "Y",
+		"SEF_FOLDER" => "/support/",
+		"SEF_URL_TEMPLATES" => [
+			"index" => "",
+			"page" => "#ELEMENT_CODE#/",
+		],
+		"CACHE_TYPE" => "A",
+		"CACHE_TIME" => "36000000",
 	],
-	false,
-	["HIDE_ICONS" => "Y"]
+	false
 );?>
 
 <?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/footer.php");?>

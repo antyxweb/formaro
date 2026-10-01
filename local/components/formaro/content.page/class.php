@@ -22,7 +22,8 @@ use Bitrix\Main\Loader;
  * админке сразу видна.
  * Нет элемента — 404.
  *
- * Параметры: CODE, ADD_CHAIN (Y — название в хлебные крошки; N — когда у
+ * Параметры: CODE, SECTION_CODE (код раздела инфоблока — страница только из
+ * него; так её вызывает formaro:content.section), ADD_CHAIN (Y — название в хлебные крошки; N — когда у
  * папки есть свой .section.php), CACHE_TYPE/CACHE_TIME.
  */
 class FormaroContentPageComponent extends CBitrixComponent
@@ -33,6 +34,7 @@ class FormaroContentPageComponent extends CBitrixComponent
     public function onPrepareComponentParams($params)
     {
         $params['CODE'] = trim((string)($params['CODE'] ?? ''));
+        $params['SECTION_CODE'] = trim((string)($params['SECTION_CODE'] ?? ''));
         $params['ADD_CHAIN'] = ($params['ADD_CHAIN'] ?? 'Y') === 'N' ? 'N' : 'Y';
         $params['CACHE_TIME'] = (int)($params['CACHE_TIME'] ?? 36000000);
 
@@ -93,9 +95,14 @@ class FormaroContentPageComponent extends CBitrixComponent
         }
         CIBlock::registerWithTagCache($pagesId);
 
+        $filter = ['IBLOCK_ID' => $pagesId, '=CODE' => $this->arParams['CODE'], 'ACTIVE' => 'Y', 'ACTIVE_DATE' => 'Y', 'CHECK_PERMISSIONS' => 'Y'];
+        if ($this->arParams['SECTION_CODE'] !== '') {
+            // Страница только своего раздела: /about/payment/ — 404.
+            $filter['SECTION_CODE'] = $this->arParams['SECTION_CODE'];
+        }
         $element = CIBlockElement::GetList(
             [],
-            ['IBLOCK_ID' => $pagesId, '=CODE' => $this->arParams['CODE'], 'ACTIVE' => 'Y', 'CHECK_PERMISSIONS' => 'Y'],
+            $filter,
             false,
             ['nTopCount' => 1],
             ['ID', 'IBLOCK_ID', 'NAME', 'DETAIL_TEXT', 'DETAIL_TEXT_TYPE']

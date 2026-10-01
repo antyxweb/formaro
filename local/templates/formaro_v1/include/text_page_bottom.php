@@ -1,8 +1,9 @@
 <?php
 /**
  * Низ текстовой страницы (см. text_page_top.php): меню раздела справа —
- * меню типа left (.left.menu.php ближайшей папки), заголовок — название
- * раздела из .section.php той же папки.
+ * меню типа left ближайшей папки (с .left.menu_ext.php — у разделов из
+ * инфоблока «Контентные страницы»), заголовок — название раздела из
+ * .section.php той же папки.
  *
  * @global CMain $APPLICATION
  */
@@ -31,7 +32,7 @@ while ($textPageDir !== '') {
                         [
                             'ROOT_MENU_TYPE' => 'left',
                             'MAX_LEVEL' => '1',
-                            'USE_EXT' => 'N',
+                            'USE_EXT' => 'Y', // пункты разделов — .left.menu_ext.php из инфоблока
                             'ALLOW_MULTI_SELECT' => 'N',
                             'MENU_CACHE_TYPE' => 'N',
                             'TITLE' => $textPageMenuTitle,
