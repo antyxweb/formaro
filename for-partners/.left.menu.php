@@ -1,7 +1,7 @@
 <?
 $aMenuLinks = Array(
 	Array(
-		"Личный кабинет партнера", 
+		"Кабинет партнёра", 
 		"/cabinet/",
 		Array(), 
 		Array(), 
