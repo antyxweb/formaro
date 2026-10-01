@@ -117,6 +117,8 @@ require __DIR__ . '/inc/layout_app_top.php';
                 </select>
                 <div class="text-muted-2 small mb-3" id="paymentStatusHint">Оплату по счёту подтверждает маркетплейс</div>
                 <button class="btn btn-primary w-100" id="saveOrderBtn"><svg class="ic-inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"></path><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"></path><path d="M7 3v4a1 1 0 0 0 1 1h7"></path></svg> Сохранить заказ</button>
+                <?php // У выполненного и отменённого заказа вместо «Сохранить» — «Повторить заказ» (order-detail.js). ?>
+                <button type="button" class="btn btn-primary w-100 d-none" id="repeatOrderBtn"><svg class="ic-inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path><path d="M21 3v5h-5"></path><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path><path d="M8 16H3v5"></path></svg> Повторить заказ</button>
                 <div class="text-muted-2 small mt-2">Дата оформления: <span id="orderDate">—</span></div>
             </div>
         </div>

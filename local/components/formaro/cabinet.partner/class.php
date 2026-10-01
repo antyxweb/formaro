@@ -24,6 +24,7 @@ use Formaro\Cabinet\Repository\TransactionRepository;
 use Formaro\Cabinet\Repository\UserProfileRepository;
 use Formaro\Cabinet\Security\PartnerContext;
 use Formaro\Cabinet\Service\BuyerNotificationService;
+use Formaro\Cabinet\Service\OrderRepeatService;
 
 /**
  * Комплексный компонент кабинета партнёра — один компонент, один физический
@@ -232,6 +233,9 @@ class CabinetPartnerComponent extends CBitrixComponent
                 'mark_notifications_read' => (new NotificationRepository())->markReadMany($partnerId, (array)($_REQUEST['ids'] ?? [])),
                 'delete_notifications' => (new NotificationRepository())->deleteMany($partnerId, (array)($_REQUEST['ids'] ?? [])),
                 'save_user_profile' => $this->ajaxSaveUserProfile(),
+                // «Повторить заказ» (выполненный/отменённый) — новый заказ с теми же товарами.
+                'repeat_order_check' => OrderRepeatService::checkForPartner($partnerId, (int)($_REQUEST['id'] ?? 0)),
+                'repeat_order' => OrderRepeatService::repeatForPartner($partnerId, (int)($_REQUEST['id'] ?? 0)),
                 default => throw new \RuntimeException('Неизвестное действие: ' . $action),
             };
 

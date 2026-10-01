@@ -56,6 +56,9 @@ function applyLockState() {
     $('#applyDiscountSelect, #couponCodeInput, #applyCouponBtn, #removeAppliedBtn').prop('disabled', locked);
     // Назад в «Новый»/«В обработке» нельзя; выполненный и отменённый — без смены статуса.
     $('#statusSelect').prop('disabled', final);
+    // Выполненный и отменённый: вместо «Сохранить заказ» — «Повторить заказ».
+    $('#saveOrderBtn').toggleClass('d-none', final);
+    $('#repeatOrderBtn').toggleClass('d-none', !final);
     $('#statusSelect option').each(function () {
         $(this).prop('disabled', savedLocked && EDITABLE_STATUSES.indexOf(this.value) !== -1);
     });
@@ -150,9 +153,12 @@ $(function () {
         currentHistory.push({date: new Date().toISOString(), text: text, author: 'Менеджер'});
         $('#historyComment').val('');
         renderHistory();
+        // У выполненного и отменённого «Сохранить заказ» нет — комментарий сохраняем сразу.
+        if (FINAL_STATUSES.indexOf(savedStatus) !== -1) doSaveOrder();
     });
 
     $('#saveOrderBtn').on('click', doSaveOrder);
+    $('#repeatOrderBtn').on('click', repeatOrder);
 });
 
 function findProductLive(productId) {
@@ -462,4 +468,35 @@ function doSaveOrder() {
             applyLockState();
         }
     });
+}
+
+/** «Повторить заказ» (выполненный/отменённый): новый заказ с теми же товарами
+ *  (по текущим ценам), покупателем, доставкой и оплатой — и переход к нему.
+ *  Чего нет в продаже или меньше в наличии — сначала окно подтверждения. */
+function repeatOrder() {
+    var $btn = $('#repeatOrderBtn').prop('disabled', true);
+    var create = function () {
+        cabinetAjax({ajax_action: 'repeat_order', id: orderId}).done(function (order) {
+            window.location.href = CABINET_URL + 'orders/edit/' + order.id + '/';
+        }).fail(function () { $btn.prop('disabled', false); });
+    };
+    cabinetAjax({ajax_action: 'repeat_order_check', id: orderId}).done(function (check) {
+        if (!check.items.length) {
+            $btn.prop('disabled', false);
+            showResult(false, 'Ни одного товара из заказа сейчас нет в продаже: ' + check.missing.join(', ') + '.');
+            return;
+        }
+        if (!check.missing.length && !check.reduced.length) {
+            create();
+            return;
+        }
+        var parts = [];
+        if (check.missing.length) parts.push('Нет в продаже: ' + check.missing.join(', ') + '.');
+        if (check.reduced.length) parts.push('Меньше в наличии: ' + check.reduced.join('; ') + '.');
+        $btn.prop('disabled', false);
+        showConfirm(parts.join(' ') + ' Создать новый заказ с остальными товарами?', function () {
+            $btn.prop('disabled', true);
+            create();
+        }, {title: 'Не все товары доступны', okText: 'Создать заказ'});
+    }).fail(function () { $btn.prop('disabled', false); });
 }
