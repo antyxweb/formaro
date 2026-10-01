@@ -115,6 +115,10 @@
 .personal-chat .chat__thread.has-unread .chat__thread-preview {
     color: #111111;
 }
+/* Непрочитанный диалог — синяя полоска слева, как в «Чате с клиентами» кабинета. */
+.personal-chat .chat__thread.has-unread {
+    box-shadow: inset 3px 0 0 #1976d2;
+}
 .personal-chat .chat__badge {
     flex: 0 0 auto;
     min-width: 20px;
