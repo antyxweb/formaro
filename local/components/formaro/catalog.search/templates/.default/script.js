@@ -511,6 +511,16 @@
         if (grid) addView(createDesktopView(grid));
 
         initSearch();
+        // Запрос из адреса (/?q=… — поиск в шапке, js/header-search.js).
+        var initialQuery = '';
+        try { initialQuery = (new URLSearchParams(window.location.search).get('q') || '').trim(); } catch (e) { /* старый браузер */ }
+        if (initialQuery) {
+            state.query.q = initialQuery;
+            var heroInput = document.getElementById('hero-search-input');
+            if (heroInput) heroInput.value = initialQuery;
+            var heroClear = document.getElementById('hero-search-clear');
+            if (heroClear) heroClear.classList.remove('d-none');
+        }
         load(true);
     });
 

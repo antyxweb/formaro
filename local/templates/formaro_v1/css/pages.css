@@ -358,3 +358,78 @@
         padding-bottom: 60px;
     }
 }
+
+/* Поиск в шапке (js/header-search.js): группы совпадений — категории,
+   товары, партнёры, новости. Блок остаётся открытым, пока курсор над ним
+   (иначе клик по ссылке терялся бы при потере фокуса строкой); на широком
+   экране шире строки, с прокруткой при длинном списке. */
+.header__search-input .header-search:hover,
+.header__search-input .header-search:hover + .search-result-bg {
+    opacity: 1;
+    visibility: visible;
+}
+.header__search-input .header-search .search-result-block-wrap {
+    max-height: calc(100vh - 100px);
+    overflow-y: auto;
+}
+@media (min-width: 992px) {
+    .header__search-input .header-search {
+        min-width: 460px;
+    }
+}
+.header-search__group + .header-search__group {
+    margin-top: 1rem;
+}
+.header-search__group h6 {
+    margin-bottom: .5rem;
+}
+.header__search-input .header-search ul li a.header-search__item {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 6px 0;
+}
+.header-search__thumb {
+    flex: 0 0 40px;
+    width: 40px;
+    height: 40px;
+    margin-right: 12px;
+    border-radius: 4px;
+    background: #f3f3f3 center / contain no-repeat;
+}
+.header-search__text {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-width: 0;
+}
+.header-search__name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.header-search__name b {
+    font-weight: 600;
+}
+.header-search__hint {
+    color: #6c757d;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.header-search__price {
+    flex: 0 0 auto;
+    margin-left: 12px;
+    color: #e3262f;
+    font-weight: 500;
+    white-space: nowrap;
+}
+.header-search__price s {
+    color: #6c757d;
+    font-weight: 400;
+}
+.header-search__all {
+    display: inline-block;
+    margin-top: .5rem;
+    color: #1976d2;
+}

@@ -98,99 +98,15 @@ if($GLOBALS["APPLICATION"]->GetCurPage(false) == '/'
 
             <div class="header__search">
                 <div class="header__search-input">
-                    <input id="header-search" class="search-input" type="text" placeholder="Поиск по каталогу">
-                    <div class="search-result-block">
-                        <div class="search-result-block-wrap p-3">
-                            <div class="search-result-block-wrap-ajax d-none">
-                                <ul class="mb-0">
-                                    <li>
-                                        <svg width="16" height="16">
-                                            <use xlink:href="#icon-search"></use>
-                                        </svg>
-                                        <a href="#"><span></span> красный</a>
-                                    </li>
-                                    <li>
-                                        <svg width="16" height="16">
-                                            <use xlink:href="#icon-search"></use>
-                                        </svg>
-                                        <a href="#"><span></span> большой</a>
-                                    </li>
-                                    <li>
-                                        <svg width="16" height="16">
-                                            <use xlink:href="#icon-search"></use>
-                                        </svg>
-                                        <a href="#"><span></span> с подкладом</a>
-                                    </li>
-                                    <li>
-                                        <svg width="16" height="16">
-                                            <use xlink:href="#icon-search"></use>
-                                        </svg>
-                                        <a href="#"><span></span> и много с чем еще</a>
-                                    </li>
-                                </ul>
-                            </div>
-
-                            <div class="search-result-block-wrap-offer">
-                                <h6 class="h6 text-secondary">История поиска</h6>
-                                <ul>
-                                    <li>
-                                        <svg width="16" height="16">
-                                            <use xlink:href="#icon-search"></use>
-                                        </svg>
-                                        <a href="#">Жилет утепленный Фаворит</a>
-                                    </li>
-                                    <li>
-                                        <svg width="16" height="16">
-                                            <use xlink:href="#icon-search"></use>
-                                        </svg>
-                                        <a href="#">Панорамная маска</a>
-                                    </li>
-                                    <li>
-                                        <svg width="16" height="16">
-                                            <use xlink:href="#icon-search"></use>
-                                        </svg>
-                                        <a href="#">Каскетка-бейсболка</a>
-                                    </li>
-                                    <li>
-                                        <svg width="16" height="16">
-                                            <use xlink:href="#icon-search"></use>
-                                        </svg>
-                                        <a href="#">Сапоги войлочные</a>
-                                    </li>
-                                </ul>
-
-                                <h6 class="h6 text-secondary">Часто ищут</h6>
-                                <ul class="mb-0">
-                                    <li>
-                                        <svg width="16" height="16">
-                                            <use xlink:href="#icon-search"></use>
-                                        </svg>
-                                        <a href="#">Жилет утепленный Фаворит</a>
-                                    </li>
-                                    <li>
-                                        <svg width="16" height="16">
-                                            <use xlink:href="#icon-search"></use>
-                                        </svg>
-                                        <a href="#">Панорамная маска</a>
-                                    </li>
-                                    <li>
-                                        <svg width="16" height="16">
-                                            <use xlink:href="#icon-search"></use>
-                                        </svg>
-                                        <a href="#">Каскетка-бейсболка</a>
-                                    </li>
-                                    <li>
-                                        <svg width="16" height="16">
-                                            <use xlink:href="#icon-search"></use>
-                                        </svg>
-                                        <a href="#">Сапоги войлочные</a>
-                                    </li>
-                                </ul>
-                            </div>
+                    <?php // Поиск по категориям, товарам, партнёрам и новостям — js/header-search.js → /local/ajax/header_search.php. ?>
+                    <input id="header-search" class="search-input js-header-search" type="search" placeholder="Поиск по сайту" autocomplete="off" aria-label="Поиск по сайту">
+                    <div class="search-result-block header-search">
+                        <div class="search-result-block-wrap p-3 js-header-search-results">
+                            <div class="text-secondary">Категории, товары, партнёры и новости</div>
                         </div>
                     </div>
                     <div class="search-result-bg"></div>
-                    <button class="header-search-icon" type="submit">
+                    <button class="header-search-icon js-header-search-go" type="button" aria-label="Найти">
                         <svg width="20" height="20">
                             <use xlink:href="#icon-search"></use>
                         </svg>

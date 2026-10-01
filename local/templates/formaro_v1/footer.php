@@ -313,6 +313,7 @@ if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
         <script src="<?=SITE_TEMPLATE_PATH;?>/js/scripts.min.js?v=<?= filemtime($_SERVER['DOCUMENT_ROOT'] . SITE_TEMPLATE_PATH . '/js/scripts.min.js') ?>"></script>
         <script src="<?=SITE_TEMPLATE_PATH;?>/js/confirm.js?v=<?= filemtime($_SERVER['DOCUMENT_ROOT'] . SITE_TEMPLATE_PATH . '/js/confirm.js') ?>"></script>
         <script src="<?=SITE_TEMPLATE_PATH;?>/js/subscribe.js?v=<?= filemtime($_SERVER['DOCUMENT_ROOT'] . SITE_TEMPLATE_PATH . '/js/subscribe.js') ?>"></script>
+        <script src="<?=SITE_TEMPLATE_PATH;?>/js/header-search.js?v=<?= filemtime($_SERVER['DOCUMENT_ROOT'] . SITE_TEMPLATE_PATH . '/js/header-search.js') ?>"></script>
         <?if ($USER->IsAuthorized()):?>
         <script src="<?=SITE_TEMPLATE_PATH;?>/js/live-counters.js?v=<?= filemtime($_SERVER['DOCUMENT_ROOT'] . SITE_TEMPLATE_PATH . '/js/live-counters.js') ?>"></script>
         <?endif;?>
