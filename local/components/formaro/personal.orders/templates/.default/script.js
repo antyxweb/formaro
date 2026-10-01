@@ -6,6 +6,9 @@
    оплате») убираются. Ошибка (например, продавец уже взял заказ в работу) —
    рядом с кнопками.
 
+   «Повторить заказ» (выполненный/отменённый) → POST /local/ajax/order_repeat.php:
+   товары — в корзину; чего нет — окно с перечнем.
+
    «Сообщить об оплате» → POST /local/ajax/order_payment_notice.php; после —
    «Вы сообщили об оплате …» вместо ссылок на счёт и сообщение.
 
@@ -107,7 +110,77 @@
         }
     }
 
+    function repeatPost(id, action, onDone, onFail) {
+        var root = document.getElementById('personal-orders');
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '/local/ajax/order_repeat.php', true);
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhr.onload = function () {
+            var data = null;
+            try { data = JSON.parse(xhr.responseText); } catch (err) { /* пусто */ }
+            if (xhr.status === 200 && data && !data.error) onDone(data); else onFail((data && data.error) || '');
+        };
+        xhr.onerror = function () { onFail('Нет связи с сервером, попробуйте ещё раз'); };
+        xhr.send('sessid=' + encodeURIComponent(root.getAttribute('data-sessid')) + '&id=' + encodeURIComponent(id) + '&action=' + action);
+    }
+
+    /* «Повторить заказ»: проверка → (если чего-то нет — окно с перечнем) →
+       товары в корзину → переход в корзину. Добавленные товары в корзине —
+       выбранными (снимаем их из сохранённых «невыбранных», см. cart/script.js). */
+    function repeatOrder(button) {
+        var error = button.closest('.js-order-actions').querySelector('.js-order-cancel-error');
+        var id = button.getAttribute('data-order-id');
+        var fail = function (message) {
+            button.disabled = false;
+            error.textContent = message || 'Не удалось повторить заказ, попробуйте ещё раз';
+        };
+        var add = function () {
+            repeatPost(id, 'add', function (data) {
+                try {
+                    var key = 'formaro_cart_unchecked';
+                    var unchecked = JSON.parse(window.localStorage.getItem(key) || '[]').filter(function (x) { return data.ids.indexOf(Number(x)) === -1; });
+                    window.localStorage.setItem(key, JSON.stringify(unchecked));
+                } catch (err) { /* без localStorage — просто перейдём */ }
+                window.location.href = data.redirect;
+            }, fail);
+        };
+
+        button.disabled = true;
+        error.textContent = '';
+        repeatPost(id, 'check', function (data) {
+            if (!data.available) {
+                button.disabled = false;
+                window.FormaroModal({
+                    title: 'Товаров нет в продаже',
+                    content: 'Ни одного товара из заказа ' + button.getAttribute('data-order-number') + ' сейчас нет в продаже: ' + data.missing.join(', ') + '.'
+                });
+                return;
+            }
+            if (!data.missing.length && !data.reduced.length) {
+                add();
+                return;
+            }
+            var parts = [];
+            if (data.missing.length) parts.push('Нет в продаже: ' + data.missing.join(', ') + '.');
+            if (data.reduced.length) parts.push('Меньше в наличии: ' + data.reduced.join('; ') + '.');
+            window.FormaroConfirm({
+                title: 'Не все товары доступны',
+                message: parts.join(' ') + ' Остальные товары добавим в корзину.',
+                okText: 'Добавить в корзину',
+                cancelText: 'Отмена'
+            }).then(function (ok) {
+                if (ok) add(); else button.disabled = false;
+            });
+        }, fail);
+    }
+
     document.addEventListener('click', function (e) {
+        var repeat = e.target.closest && e.target.closest('.js-order-repeat');
+        if (repeat && !repeat.disabled) {
+            repeatOrder(repeat);
+            return;
+        }
+
         var history = e.target.closest && e.target.closest('.js-order-history');
         if (history) {
             e.preventDefault();

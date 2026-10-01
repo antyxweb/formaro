@@ -12,7 +12,8 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
 // и «Сообщить об оплате» (script.js → /local/ajax/order_payment_notice.php;
 // после — дата сообщения). Под данными заказа — «Чат с продавцом» (диалог
 // с продавцом в «Чатах и сообщениях», с вопросом по этому заказу) и
-// «Отменить заказ» (только новый; script.js → /local/ajax/order_cancel.php).
+// «Отменить заказ» (только новый; script.js → /local/ajax/order_cancel.php),
+// у выполненного и отменённого — «Повторить заказ» (товары — в корзину).
 // Товары заказа (карусель) по умолчанию скрыты — «Показать товары».
 $fmt = static fn($n) => number_format((float)$n, 0, '', ' ');
 $e = static fn($s) => htmlspecialcharsbx((string)$s);
@@ -91,7 +92,7 @@ $e = static fn($s) => htmlspecialcharsbx((string)$s);
                                 <small class="d-block text-muted mt-3">Комментарий: <?= $e($order['COMMENT']) ?></small>
                                 <?php endif; ?>
 
-                                <?php if ($order['PARTNER']['url'] !== '' || $order['CAN_CANCEL']): ?>
+                                <?php if ($order['PARTNER']['url'] !== '' || $order['CAN_CANCEL'] || $order['CAN_REPEAT']): ?>
                                 <div class="order-item__actions d-flex flex-wrap align-items-center mt-4 js-order-actions">
                                     <?php if ($order['PARTNER']['url'] !== ''): ?>
                                     <a href="/personal/messages/?partner=<?= (int)$order['PARTNER']['id'] ?>&amp;order=<?= urlencode($order['NUMBER']) ?>" class="f-button c-success">
@@ -104,6 +105,13 @@ $e = static fn($s) => htmlspecialcharsbx((string)$s);
                                     <button type="button" class="f-button c-gray text-secondary ml-auto js-order-cancel" data-order-id="<?= (int)$order['ID'] ?>" data-order-number="<?= $e($order['NUMBER']) ?>" aria-label="Отменить заказ" title="Отменить заказ">
                                         <svg width="16" height="16" aria-hidden="true"><use xlink:href="#icon-close"></use></svg>
                                         <span class="pl-2 d-none d-sm-inline">Отменить заказ</span>
+                                    </button>
+                                    <?php endif; ?>
+                                    <?php if ($order['CAN_REPEAT']): ?>
+                                    <?php // Товары заказа — снова в корзину (script.js → /local/ajax/order_repeat.php). ?>
+                                    <button type="button" class="f-button c-primary ml-auto js-order-repeat" data-order-id="<?= (int)$order['ID'] ?>" data-order-number="<?= $e($order['NUMBER']) ?>">
+                                        <svg width="16" height="16" aria-hidden="true"><use xlink:href="#icon-cart"></use></svg>
+                                        <span class="pl-2">Повторить заказ</span>
                                     </button>
                                     <?php endif; ?>
                                     <small class="text-danger js-order-cancel-error" role="alert"></small>

@@ -7,6 +7,7 @@ use Bitrix\Main\Loader;
 use Formaro\Cabinet\Repository\OrderRepository;
 use Formaro\Cabinet\Repository\ProductRepository;
 use Formaro\Cabinet\Service\CartCheckoutService;
+use Formaro\Cabinet\Service\OrderRepeatService;
 
 /**
  * «Ваши заказы» покупателя (/personal/orders/). Вёрстка — /html/orders.html:
@@ -106,6 +107,8 @@ class FormaroPersonalOrdersComponent extends CBitrixComponent
                 'STATUS' => $status[0],
                 // Отменить может сам покупатель, пока продавец не взял заказ в работу.
                 'CAN_CANCEL' => $order['status'] === 'new',
+                // Повторить (товары — снова в корзину) — выполненный или отменённый.
+                'CAN_REPEAT' => in_array($order['status'], OrderRepeatService::STATUSES, true),
                 // Счёт — пока заказ не оплачен (и не отменён).
                 'INVOICE_URL' => $order['status'] !== 'cancelled' && $order['payment_status'] !== 'paid'
                     ? '/local/ajax/order_invoice.php?id=' . $order['id']
