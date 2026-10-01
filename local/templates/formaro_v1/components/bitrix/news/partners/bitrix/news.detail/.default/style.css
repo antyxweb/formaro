@@ -1,0 +1,7 @@
+/* Обложка партнёра над карточкой (template.php): на телефоне 16:9, как в
+   карточках на главной; на широком экране — невысоким баннером. */
+@media (min-width: 768px) {
+    #partner-hero .partner-hero__cover .embed-responsive::before {
+        padding-top: 28%;
+    }
+}
