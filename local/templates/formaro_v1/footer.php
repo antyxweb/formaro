@@ -522,7 +522,7 @@ if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
                     <path d="M2.5 11.562v6.218c0 1.302 0 1.954.259 2.451.228.438.59.793 1.038 1.016.507.253 1.172.253 2.5.253h11.407c1.327 0 1.991 0 2.498-.253a2.352 2.352 0 0 0 1.04-1.016c.258-.497.258-1.148.258-2.447v-6.222c0-.621 0-.932-.078-1.221a2.3 2.3 0 0 0-.332-.718c-.172-.247-.41-.452-.887-.861l-5.7-4.883c-.887-.76-1.33-1.14-1.83-1.284a2.426 2.426 0 0 0-1.347 0c-.498.145-.941.524-1.826 1.282L3.798 8.762c-.478.41-.716.614-.887.861-.152.22-.265.462-.334.718-.077.29-.077.6-.077 1.221Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
                 </symbol>
                 <symbol fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 22" id="icon-icon-case">
-                    <path d="m19 11-9 6-9-6m18 4-9 6-9-6m18-8-9 6-9-6 9-6 9 6Z" stroke="#000" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+                    <path d="m19 11-9 6-9-6m18 4-9 6-9-6m18-8-9 6-9-6 9-6 9 6Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
                 </symbol>
                 <symbol fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" id="icon-icon-cursor">
                     <path d="m10.018 8.036 12.427 3.824c.678.208.755 1.137.12 1.454L17.3 15.947a.787.787 0 0 0-.352.352l-2.633 5.266a.786.786 0 0 1-1.454-.12L9.036 9.018a.786.786 0 0 1 .982-.982Z" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>

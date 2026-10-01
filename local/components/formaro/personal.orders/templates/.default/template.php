@@ -109,9 +109,10 @@ $e = static fn($s) => htmlspecialcharsbx((string)$s);
                                     <?php endif; ?>
                                     <?php if ($order['CAN_REPEAT']): ?>
                                     <?php // Товары заказа — снова в корзину (script.js → /local/ajax/order_repeat.php). ?>
-                                    <button type="button" class="f-button c-primary ml-auto js-order-repeat" data-order-id="<?= (int)$order['ID'] ?>" data-order-number="<?= $e($order['NUMBER']) ?>">
-                                        <svg width="16" height="16" aria-hidden="true"><use xlink:href="#icon-cart"></use></svg>
-                                        <span class="pl-2">Повторить заказ</span>
+                                    <?php // На телефоне — только иконка, как у «Отменить заказ» (подпись — для экранного диктора и в подсказке). ?>
+                                    <button type="button" class="f-button c-primary ml-auto js-order-repeat" data-order-id="<?= (int)$order['ID'] ?>" data-order-number="<?= $e($order['NUMBER']) ?>" aria-label="Повторить заказ" title="Повторить заказ">
+                                        <svg width="16" height="16" viewBox="0 0 20 22" aria-hidden="true"><use xlink:href="#icon-icon-case"></use></svg>
+                                        <span class="pl-2 d-none d-sm-inline">Повторить заказ</span>
                                     </button>
                                     <?php endif; ?>
                                     <small class="text-danger js-order-cancel-error" role="alert"></small>
