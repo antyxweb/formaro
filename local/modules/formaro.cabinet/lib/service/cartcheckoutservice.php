@@ -291,6 +291,7 @@ class CartCheckoutService
             'Покупатель ' . ($order['customer']['name'] ?? '') . ' отменил заказ на сумму ' . number_format($order['total'], 0, ',', ' ') . ' руб.',
             self::orderLink($order['id'])
         );
+        BuyerNotificationService::orderCancelledByBuyer($saved);
 
         return $saved;
     }
