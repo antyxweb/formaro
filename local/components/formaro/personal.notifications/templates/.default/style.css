@@ -52,7 +52,7 @@
     display: flex;
     align-items: flex-start;
     gap: 1rem;
-    padding: 20px 20px 12px 24px;
+    padding: 20px 20px 20px 24px;
 }
 .personal-notify .notify-item.has-link {
     cursor: pointer;
@@ -128,7 +128,7 @@
 }
 @media (max-width: 575.98px) {
     .personal-notify .notify-item {
-        padding: 16px 12px 10px 16px;
+        padding: 16px 12px 16px 16px;
         gap: .75rem;
     }
     .personal-notify .notify-toolbar .custom-checkbox {
