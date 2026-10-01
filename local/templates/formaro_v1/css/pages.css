@@ -1,24 +1,9 @@
 /* Текстовые страницы (include/text_page_top.php): «Покупателям», «Партнерам»,
-   «О нас», «Поддержка». Белый блок со скошенным правым нижним углом, как
-   блоки кабинета покупателя; типографика длинного текста. */
+   «О нас», «Поддержка». Текст прямо на сером фоне страницы (без белой
+   подложки); карточки и выноски внутри — белые; типографика длинного текста. */
 .text-page {
     position: relative;
     line-height: 1.6;
-}
-.text-page:after {
-    -webkit-box-sizing: border-box;
-            box-sizing: border-box;
-    border-style: solid;
-    border-color: transparent;
-    border-width: 15px;
-    content: "";
-    display: block;
-    bottom: 0;
-    position: absolute;
-    height: 0;
-    border-bottom-color: #efefef;
-    border-right-color: #efefef;
-    right: 0;
 }
 .text-page > :last-child {
     margin-bottom: 0;
@@ -67,7 +52,7 @@
 .text-page .text-page__props th,
 .text-page .text-page__props td {
     padding: .6rem 0;
-    border-bottom: 1px solid #e9ecef;
+    border-bottom: 1px solid #dcdcdc;
     vertical-align: top;
 }
 .text-page .text-page__props th {
@@ -89,7 +74,7 @@
     }
     .text-page .text-page__props td {
         padding-bottom: .75rem;
-        border-bottom: 1px solid #e9ecef;
+        border-bottom: 1px solid #dcdcdc;
     }
 }
 
@@ -101,8 +86,25 @@
     margin-bottom: 1.5rem;
 }
 .text-page .text-page__card {
+    position: relative;
     padding: 1.25rem;
-    background: #f7f7f7;
+    background: #ffffff;
+}
+/* Скошенный угол у карточки — как у блоков сайта. */
+.text-page .text-page__card:after {
+    -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+    border-style: solid;
+    border-color: transparent;
+    border-width: 10px;
+    content: "";
+    display: block;
+    bottom: 0;
+    position: absolute;
+    height: 0;
+    border-bottom-color: #efefef;
+    border-right-color: #efefef;
+    right: 0;
 }
 .text-page .text-page__card h3,
 .text-page .text-page__card h4 {
@@ -114,7 +116,7 @@
 .text-page .text-page__note {
     padding: 1rem 1.25rem;
     border-left: 3px solid #1976d2;
-    background: #f1f6fc;
+    background: #ffffff;
     margin-bottom: 1.5rem;
 }
 
@@ -134,7 +136,7 @@
 .text-page .review + .review {
     margin-top: 1.5rem;
     padding-top: 1.5rem;
-    border-top: 1px solid #e9ecef;
+    border-top: 1px solid #dcdcdc;
 }
 .text-page .review__head {
     display: flex;
@@ -149,7 +151,7 @@
 
 /* Вопросы и ответы — раскрывающиеся <details>. */
 .text-page .faq details {
-    border-bottom: 1px solid #e9ecef;
+    border-bottom: 1px solid #dcdcdc;
 }
 .text-page .faq summary {
     position: relative;
