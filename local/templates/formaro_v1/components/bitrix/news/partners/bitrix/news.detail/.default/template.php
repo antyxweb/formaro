@@ -44,7 +44,10 @@ $this->setFrameMode(true);
                     </div>
                     <div class="pt-4 d-flex">
                         <?php // Общий вопрос продавцу — новый или существующий диалог в «Чатах и сообщениях». ?>
-                        <a href="/personal/messages/?partner=<?= (int)$arResult["ID"] ?>" class="f-button c-success">Написать продавцу</a>
+                        <a href="/personal/messages/?partner=<?= (int)$arResult["ID"] ?>" class="f-button c-success">
+                            <svg width="16" height="16" aria-hidden="true"><use xlink:href="#icon-mail"></use></svg>
+                            <span class="pl-2">Связаться с продавцом</span>
+                        </a>
                     </div>
                 </div><?if($arResult["PREVIEW_PICTURE"]["SRC"]):?>
                     <div class="col-12 col-lg-4 col-xl-2 py-md-3 pr-md-0 order-1 order-lg-2">
