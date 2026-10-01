@@ -675,6 +675,11 @@ input[type="file"].form-control::file-selector-button:hover { background: var(--
 .chat-bubble.out { background: var(--brand); color: #fff; align-self: flex-end; margin-left: auto; }
 .chat-bubble .chat-time { display: block; font-size: .67rem; opacity: .7; margin-top: .2rem; }
 .chat-bubble .chat-file { display: flex; align-items: center; gap: .4rem; background: rgba(0,0,0,.12); padding: .3rem .5rem; font-size: .8rem; margin-top: .3rem; }
+/* Вложения — ссылки (attachmentHtml() в common.js): файл скачивается, картинка открывается. */
+.chat-bubble a.chat-file { color: inherit; text-decoration: none; }
+.chat-bubble a.chat-file:hover { background: rgba(0,0,0,.2); }
+.chat-bubble a.chat-file .chat-file-name { text-decoration: underline; word-break: break-all; }
+.chat-bubble .msg-image-link { display: block; cursor: zoom-in; }
 .chat-input-row { border-top: 1px solid var(--border); padding: .7rem; display: flex; gap: .5rem; align-items: center; }
 
 /* ---------------- Gallery / props ---------------- */

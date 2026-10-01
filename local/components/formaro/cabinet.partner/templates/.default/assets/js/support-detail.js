@@ -68,11 +68,7 @@ function renderTicket(t) {
         }
         html += esc(m.text || '');
         (m.attachments || []).forEach(function (att) {
-            if (att.type === 'image' && att.data) {
-                html += bgThumbHtml(att.data, 'msg-image');
-            } else {
-                html += '<div class="chat-file">' + (att.type === 'image' ? '<i class="bi bi-image"></i>' : '<i class="bi bi-file-earmark-text"></i>') + ' ' + esc(att.name) + '</div>';
-            }
+            html += attachmentHtml(att);
         });
         html += '<span class="chat-time">' + fmtDate(m.date) + '</span></div>';
         $m.append(html);

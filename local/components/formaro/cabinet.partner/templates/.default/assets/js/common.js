@@ -656,6 +656,21 @@ function attachmentFromFile(file, cb) {
 function setBgImage(sel, url) {
     $(sel).css('background-image', url ? "url('" + String(url).replace(/'/g, "%27") + "')" : 'none');
 }
+/** Вложение сообщения (чат, техподдержка): картинка — миниатюра, по клику
+    открывается в новой вкладке; файл — ссылка со скачиванием (имя — как у
+    файла). Файла нет (удалён) — просто подпись. */
+function attachmentHtml(att) {
+    var isImage = att.type === 'image';
+    if (!att.data) {
+        return '<div class="chat-file"><i class="bi ' + (isImage ? 'bi-image' : 'bi-file-earmark-text') + '"></i> ' + esc(att.name) + '</div>';
+    }
+    if (isImage) {
+        return '<a href="' + esc(att.data) + '" target="_blank" rel="noopener" class="msg-image-link" title="Открыть: ' + esc(att.name) + '">' + bgThumbHtml(att.data, 'msg-image') + '</a>';
+    }
+    return '<a href="' + esc(att.data) + '" download="' + esc(att.name) + '" target="_blank" rel="noopener" class="chat-file" title="Скачать">' +
+        '<i class="bi bi-file-earmark-text"></i> <span class="chat-file-name">' + esc(att.name) + '</span> <i class="bi bi-download ms-auto"></i></a>';
+}
+
 function bgThumbHtml(url, cls, extra) {
     var safeUrl = (url || 'https://placehold.co/240x180?text=%20').replace(/'/g, "%27");
     return '<div class="' + cls + ' bg-thumb" style="background-image:url(\'' + safeUrl + '\');" ' + (extra || '') + '></div>';
