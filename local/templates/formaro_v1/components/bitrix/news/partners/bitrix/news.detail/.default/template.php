@@ -30,7 +30,8 @@ $this->setFrameMode(true);
             </div>
             <div class="row mx-0">
                 <div class="col-12  col-lg-8 col-xl-10 partners-card__info order-2 order-lg-1">
-                    <h1 class="h2 mb-4"><?echo $arResult["NAME"];?></h1>
+                    <?php // Краткое название партнёра (NAME_SHORT), если заполнено, иначе полное. ?>
+                    <h1 class="h2 mb-4"><?= trim((string)($arResult["PROPERTIES"]["NAME_SHORT"]["VALUE"] ?? '')) !== '' ? htmlspecialcharsbx(trim((string)$arResult["PROPERTIES"]["NAME_SHORT"]["VALUE"])) : $arResult["NAME"] ?></h1>
                     <div class="text-secondary">
                         <?if($arResult["DETAIL_TEXT"] <> ''):?>
                             <?echo $arResult["DETAIL_TEXT"];?>

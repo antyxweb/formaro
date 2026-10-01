@@ -65,7 +65,7 @@ $APPLICATION->SetTitle("Партнеры");
             1 => "",
         ],
         "DETAIL_PROPERTY_CODE" => [
-            0 => "",
+            0 => "NAME_SHORT",
             1 => "",
         ],
         "DETAIL_DISPLAY_TOP_PAGER" => "N",
