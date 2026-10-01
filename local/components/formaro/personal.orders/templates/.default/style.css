@@ -89,11 +89,13 @@
 /* Скошенный правый нижний угол, как у меню личного кабинета (.sidebar-menu
    в styles.css): уголок :after цвета фона страницы. */
 .orders .order-item__head,
-.orders .personal-block {
+.orders .personal-block,
+.orders .order-item .product-card .product-card__info {
     position: relative;
 }
 .orders .order-item__head:after,
-.orders .personal-block:after {
+.orders .personal-block:after,
+.orders .order-item .product-card .product-card__info:after {
     -webkit-box-sizing: border-box;
             box-sizing: border-box;
     border-style: solid;
