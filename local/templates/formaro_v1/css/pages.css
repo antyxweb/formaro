@@ -265,7 +265,7 @@
 }
 #header.partner-page ~ .partner-actions {
     position: fixed;
-    top: 80px;
+    top: 60px;
     right: 0;
     z-index: 78;
     display: block;
