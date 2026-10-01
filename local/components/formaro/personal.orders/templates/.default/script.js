@@ -7,7 +7,11 @@
    рядом с кнопками.
 
    «Сообщить об оплате» → POST /local/ajax/order_payment_notice.php; после —
-   «Вы сообщили об оплате …» вместо ссылок на счёт и сообщение. */
+   «Вы сообщили об оплате …» вместо ссылок на счёт и сообщение.
+
+   «Показать / Скрыть товары» — карусель товаров заказа (по умолчанию
+   скрыта). Flickity запускается scripts.js на скрытой карусели и меряет
+   нули — после показа пересчитываем размеры (resize). */
 (function () {
     function post(url, id, onDone, onFail) {
         var root = document.getElementById('personal-orders');
@@ -64,7 +68,26 @@
         });
     }
 
+    function toggleItems(link) {
+        var items = document.getElementById(link.getAttribute('aria-controls'));
+        var open = items.hidden;
+        items.hidden = !open;
+        link.setAttribute('aria-expanded', open ? 'true' : 'false');
+        link.querySelector('.js-order-items-toggle-text').textContent = open ? 'Скрыть товары' : 'Показать товары';
+        if (open && window.jQuery) {
+            var $carousel = window.jQuery(items).find('.product-carousel');
+            if ($carousel.data('flickity')) $carousel.flickity('resize');
+        }
+    }
+
     document.addEventListener('click', function (e) {
+        var toggle = e.target.closest && e.target.closest('.js-order-items-toggle');
+        if (toggle) {
+            e.preventDefault();
+            toggleItems(toggle);
+            return;
+        }
+
         var button = e.target.closest && e.target.closest('.js-order-cancel');
         if (button && !button.disabled) {
             window.FormaroConfirm({

@@ -4,7 +4,20 @@
    <small>, у заказа нужны все (артикул, цвет/размер, сумма). */
 .orders .order-item__head {
     position: relative;
-    margin-bottom: 1.5rem;
+}
+/* Товары заказа — под шапкой с отступом; по умолчанию скрыты (hidden). */
+.orders .order-item__items {
+    margin-top: 1.5rem;
+}
+.orders .order-item__toggle {
+    white-space: nowrap;
+}
+.orders .order-item__toggle svg {
+    vertical-align: -3px;
+    transition: transform .3s;
+}
+.orders .order-item__toggle[aria-expanded="true"] svg {
+    transform: rotate(180deg);
 }
 .orders .order-item .product-carousel .carousel-cell .product-card .product-card__info .order-item__meta small {
     display: block;

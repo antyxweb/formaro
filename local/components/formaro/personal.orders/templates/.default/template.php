@@ -12,6 +12,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
 // после — дата сообщения). Под данными заказа — «Чат с продавцом» (пока —
 // страница продавца, как в карточке товара: чата у покупателя ещё нет) и
 // «Отменить заказ» (только новый; script.js → /local/ajax/order_cancel.php).
+// Товары заказа (карусель) по умолчанию скрыты — «Показать товары».
 $fmt = static fn($n) => number_format((float)$n, 0, '', ' ');
 $e = static fn($s) => htmlspecialcharsbx((string)$s);
 ?>
@@ -92,7 +93,6 @@ $e = static fn($s) => htmlspecialcharsbx((string)$s);
                                 <small class="d-block text-muted mt-3">Комментарий: <?= $e($order['COMMENT']) ?></small>
                                 <?php endif; ?>
 
-                                <?php if ($order['PARTNER']['url'] !== '' || $order['CAN_CANCEL']): ?>
                                 <div class="order-item__actions d-flex flex-wrap align-items-center mt-4 js-order-actions">
                                     <?php if ($order['PARTNER']['url'] !== ''): ?>
                                     <a href="<?= $e($order['PARTNER']['url']) ?>" class="f-button c-success">
@@ -100,6 +100,11 @@ $e = static fn($s) => htmlspecialcharsbx((string)$s);
                                         <span class="pl-2">Чат с продавцом</span>
                                     </a>
                                     <?php endif; ?>
+                                    <?php // Товары заказа по умолчанию скрыты (script.js). ?>
+                                    <a href="#order-items-<?= (int)$order['ID'] ?>" class="order-item__toggle js-order-items-toggle" role="button" aria-expanded="false" aria-controls="order-items-<?= (int)$order['ID'] ?>">
+                                        <span class="js-order-items-toggle-text">Показать товары</span> (<?= count($order['ITEMS']) ?>)
+                                        <svg width="16" height="16" aria-hidden="true"><use xlink:href="#icon-arrow-down"></use></svg>
+                                    </a>
                                     <?php if ($order['CAN_CANCEL']): ?>
                                     <?php // На телефоне — только иконка (подпись — для экранного диктора и в подсказке). ?>
                                     <button type="button" class="f-button c-gray text-secondary ml-auto js-order-cancel" data-order-id="<?= (int)$order['ID'] ?>" data-order-number="<?= $e($order['NUMBER']) ?>" aria-label="Отменить заказ" title="Отменить заказ">
@@ -109,9 +114,9 @@ $e = static fn($s) => htmlspecialcharsbx((string)$s);
                                     <?php endif; ?>
                                     <small class="text-danger js-order-cancel-error" role="alert"></small>
                                 </div>
-                                <?php endif; ?>
                             </div>
 
+                            <div class="order-item__items" id="order-items-<?= (int)$order['ID'] ?>" hidden>
                             <div class="main-carousel product-carousel">
                                 <?php foreach ($order['ITEMS'] as $item): ?>
                                 <div class="carousel-cell">
@@ -143,6 +148,7 @@ $e = static fn($s) => htmlspecialcharsbx((string)$s);
                                     </div>
                                 </div>
                                 <?php endforeach; ?>
+                            </div>
                             </div>
                         </div>
                         <?php endforeach; ?>
