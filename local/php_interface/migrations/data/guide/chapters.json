@@ -1,0 +1,128 @@
+[
+    {
+        "code": "overview",
+        "name": "Обзор сайта",
+        "icon": "icon-info",
+        "sort": 10,
+        "file": "010-overview.html"
+    },
+    {
+        "code": "navigation",
+        "name": "Шапка, меню и подвал",
+        "icon": "icon-burger",
+        "sort": 20,
+        "file": "020-navigation.html"
+    },
+    {
+        "code": "catalog",
+        "name": "Каталог и поиск",
+        "icon": "icon-search",
+        "sort": 30,
+        "file": "030-catalog.html"
+    },
+    {
+        "code": "product",
+        "name": "Карточка товара",
+        "icon": "icon-icon-case",
+        "sort": 40,
+        "file": "040-product.html"
+    },
+    {
+        "code": "cart",
+        "name": "Корзина и оформление заказа",
+        "icon": "icon-cart",
+        "sort": 50,
+        "file": "050-cart.html"
+    },
+    {
+        "code": "auth",
+        "name": "Вход и регистрация покупателя",
+        "icon": "icon-edit",
+        "sort": 60,
+        "file": "060-auth.html"
+    },
+    {
+        "code": "buyer-cabinet",
+        "name": "Кабинет покупателя",
+        "icon": "icon-profile",
+        "sort": 70,
+        "file": "070-buyer-cabinet.html"
+    },
+    {
+        "code": "buyer-orders",
+        "name": "Заказы покупателя",
+        "icon": "icon-bill",
+        "sort": 80,
+        "file": "080-buyer-orders.html"
+    },
+    {
+        "code": "buyer-notify-chat",
+        "name": "Уведомления и чаты покупателя",
+        "icon": "icon-mail",
+        "sort": 90,
+        "file": "090-buyer-notify-chat.html"
+    },
+    {
+        "code": "partners-public",
+        "name": "Партнёры на сайте и регистрация",
+        "icon": "icon-hand-heart",
+        "sort": 100,
+        "file": "100-partners-public.html"
+    },
+    {
+        "code": "cabinet-start",
+        "name": "Кабинет партнёра: вход и главная",
+        "icon": "icon-building",
+        "sort": 110,
+        "file": "110-cabinet-start.html"
+    },
+    {
+        "code": "cabinet-catalog",
+        "name": "Категории и товары партнёра",
+        "icon": "icon-grid",
+        "sort": 120,
+        "file": "120-cabinet-catalog.html"
+    },
+    {
+        "code": "cabinet-orders",
+        "name": "Заказы в кабинете партнёра",
+        "icon": "icon-clipboard-text",
+        "sort": 130,
+        "file": "130-cabinet-orders.html"
+    },
+    {
+        "code": "cabinet-marketing",
+        "name": "Скидки, купоны и новости",
+        "icon": "icon-sale",
+        "sort": 140,
+        "file": "140-cabinet-marketing.html"
+    },
+    {
+        "code": "cabinet-finance",
+        "name": "Финансы, профиль и документы",
+        "icon": "icon-wallet",
+        "sort": 150,
+        "file": "150-cabinet-finance.html"
+    },
+    {
+        "code": "cabinet-communication",
+        "name": "Чат, техподдержка и уведомления партнёра",
+        "icon": "icon-exchange",
+        "sort": 160,
+        "file": "160-cabinet-communication.html"
+    },
+    {
+        "code": "content",
+        "name": "Информационные разделы, новости и подписки",
+        "icon": "icon-list-done",
+        "sort": 170,
+        "file": "170-content.html"
+    },
+    {
+        "code": "owner-tasks",
+        "name": "Задачи владельца площадки",
+        "icon": "icon-shield-keyhole",
+        "sort": 180,
+        "file": "180-owner-tasks.html"
+    }
+]

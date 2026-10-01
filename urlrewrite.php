@@ -88,4 +88,12 @@ $arUrlRewrite=array (
     'PATH' => '/support/index.php',
     'SORT' => 100,
   ),
+  24 => 
+  array (
+    'CONDITION' => '#^/guide/#',
+    'RULE' => '',
+    'ID' => 'formaro:content.section',
+    'PATH' => '/guide/index.php',
+    'SORT' => 100,
+  ),
 );

@@ -1,0 +1,360 @@
+[
+ {
+  "name": "home",
+  "url": "/"
+ },
+ {
+  "name": "header",
+  "url": "/catalog/",
+  "rect": {
+   "x": 0,
+   "y": 0,
+   "width": 1440,
+   "height": 60
+  }
+ },
+ {
+  "name": "sidebar-menu",
+  "url": "/catalog/",
+  "actions": [
+   {
+    "click": ".bg-menu-open.button-icon",
+    "wait": 900
+   }
+  ]
+ },
+ {
+  "name": "search",
+  "url": "/",
+  "actions": [
+   {
+    "type": [
+     "#hero-search-input",
+     "поло"
+    ],
+    "wait": 500
+   },
+   {
+    "eval": "[...document.querySelectorAll('button,a')].find(e=>/^\\s*ИСКАТЬ\\s*$/i.test(e.textContent)).click()",
+    "wait": 2500
+   },
+   {
+    "eval": "document.activeElement.blur(); window.scrollTo(0,0)",
+    "wait": 500
+   }
+  ]
+ },
+ {
+  "name": "filter-popup",
+  "url": "/",
+  "actions": [
+   {
+    "eval": "[...document.querySelectorAll('button,a')].find(e=>/ФИЛЬТРЫ/i.test(e.textContent)).click()",
+    "wait": 1200
+   }
+  ]
+ },
+ {
+  "name": "catalog",
+  "url": "/catalog/"
+ },
+ {
+  "name": "section",
+  "url": "/catalog/trikotazh/futbolki-polo-rubashki/"
+ },
+ {
+  "name": "product",
+  "url": "/catalog/trikotazh/futbolki-polo-rubashki/rubashka_polo_belyy_l-56773d/",
+  "height": 1150
+ },
+ {
+  "name": "partners",
+  "url": "/partners/"
+ },
+ {
+  "name": "partner",
+  "url": "/partners/ip-antukh-d-a/"
+ },
+ {
+  "name": "news",
+  "url": "/news/"
+ },
+ {
+  "name": "footer",
+  "url": "/catalog/",
+  "clip": "#footer"
+ },
+ {
+  "name": "subscribe",
+  "url": "/catalog/trikotazh/",
+  "actions": [
+   {
+    "scrollText": "Будьте",
+    "offset": 120
+   }
+  ]
+ },
+ {
+  "name": "content-tiles",
+  "url": "/for-buyers/"
+ },
+ {
+  "name": "content-page",
+  "url": "/for-buyers/make-order/"
+ },
+ {
+  "name": "faq",
+  "url": "/support/faq/"
+ },
+ {
+  "name": "auth-login",
+  "url": "/personal/profile/"
+ },
+ {
+  "name": "auth-register",
+  "url": "/personal/profile/",
+  "actions": [
+   {
+    "click": ".js-auth-tab[data-view=register]"
+   }
+  ]
+ },
+ {
+  "name": "auth-forgot",
+  "url": "/personal/profile/",
+  "actions": [
+   {
+    "click": ".js-auth-tab[data-view=forgot]"
+   }
+  ]
+ },
+ {
+  "name": "become-guest",
+  "url": "/for-partners/become-a-partner/",
+  "actions": [
+   {
+    "scrollText": "Регистрация",
+    "offset": 100
+   }
+  ]
+ },
+ {
+  "name": "cart",
+  "url": "/personal/cart/",
+  "storage": {
+   "formaro_cart": "[{\"id\":100,\"qty\":2},{\"id\":101,\"qty\":1},{\"id\":83,\"qty\":3}]"
+  },
+  "height": 1100,
+  "wait": 2500
+ },
+ {
+  "name": "cart-checkout",
+  "url": "/personal/cart/",
+  "storage": {
+   "formaro_cart": "[{\"id\":100,\"qty\":2},{\"id\":101,\"qty\":1},{\"id\":83,\"qty\":3}]"
+  },
+  "height": 1100,
+  "wait": 2500,
+  "actions": [
+   {
+    "eval": "window.scrollTo(0, 900)",
+    "wait": 800
+   }
+  ]
+ },
+ {
+  "name": "b-personal",
+  "url": "/personal/",
+  "auth": true
+ },
+ {
+  "name": "b-profile",
+  "url": "/personal/profile/",
+  "auth": true,
+  "height": 1100
+ },
+ {
+  "name": "b-orders",
+  "url": "/personal/orders/",
+  "auth": true,
+  "height": 1000
+ },
+ {
+  "name": "b-order-items",
+  "url": "/personal/orders/",
+  "auth": true,
+  "height": 1000,
+  "actions": [
+   {
+    "click": ".js-order-items-toggle",
+    "wait": 800
+   }
+  ]
+ },
+ {
+  "name": "b-order-history",
+  "url": "/personal/orders/",
+  "auth": true,
+  "actions": [
+   {
+    "click": ".js-order-history",
+    "wait": 900
+   }
+  ]
+ },
+ {
+  "name": "b-notify",
+  "url": "/personal/notify/",
+  "auth": true
+ },
+ {
+  "name": "b-messages",
+  "url": "/personal/messages/?thread=8",
+  "auth": true
+ },
+ {
+  "name": "b-favorites",
+  "url": "/personal/favorites/",
+  "auth": true
+ },
+ {
+  "name": "become-buyer",
+  "url": "/for-partners/become-a-partner/",
+  "auth": true,
+  "actions": [
+   {
+    "eval": "document.querySelectorAll('.partner-register, [class*=partner-reg]').length"
+   }
+  ]
+ },
+ {
+  "name": "c-login",
+  "url": "/cabinet/login/"
+ },
+ {
+  "name": "c-dashboard",
+  "url": "/cabinet/",
+  "auth": true
+ },
+ {
+  "name": "c-categories",
+  "url": "/cabinet/categories/",
+  "auth": true
+ },
+ {
+  "name": "c-products",
+  "url": "/cabinet/products/",
+  "auth": true
+ },
+ {
+  "name": "c-product-edit",
+  "url": "/cabinet/products/",
+  "auth": true,
+  "height": 1400,
+  "actions": [
+   {
+    "follow": "table a[href*='/cabinet/products/edit/']:not([href*='new'])",
+    "wait": 1500
+   }
+  ]
+ },
+ {
+  "name": "c-category-edit",
+  "url": "/cabinet/categories/edit/new/",
+  "auth": true,
+  "height": 1100
+ },
+ {
+  "name": "c-orders",
+  "url": "/cabinet/orders/",
+  "auth": true
+ },
+ {
+  "name": "c-order",
+  "url": "/cabinet/orders/edit/19/",
+  "auth": true,
+  "height": 1950
+ },
+ {
+  "name": "c-discounts",
+  "url": "/cabinet/discounts/",
+  "auth": true
+ },
+ {
+  "name": "c-discount-edit",
+  "url": "/cabinet/discounts/",
+  "auth": true,
+  "height": 1200,
+  "actions": [
+   {
+    "follow": "table a[href*='/cabinet/discounts/edit/']:not([href*='new'])",
+    "wait": 1500
+   }
+  ]
+ },
+ {
+  "name": "c-coupons",
+  "url": "/cabinet/discounts/",
+  "auth": true,
+  "actions": [
+   {
+    "eval": "[...document.querySelectorAll('a,button')].find(e=>e.textContent.trim()==='Купоны').click()",
+    "wait": 1200
+   }
+  ]
+ },
+ {
+  "name": "c-finance",
+  "url": "/cabinet/finance/",
+  "auth": true
+ },
+ {
+  "name": "c-news",
+  "url": "/cabinet/news/",
+  "auth": true
+ },
+ {
+  "name": "c-news-edit",
+  "url": "/cabinet/news/edit/new/",
+  "auth": true,
+  "height": 1200
+ },
+ {
+  "name": "c-chat",
+  "url": "/cabinet/chat/?thread=8",
+  "auth": true,
+  "wait": 1500
+ },
+ {
+  "name": "c-support",
+  "url": "/cabinet/support/",
+  "auth": true
+ },
+ {
+  "name": "c-notifications",
+  "url": "/cabinet/notifications/",
+  "auth": true
+ },
+ {
+  "name": "c-profile",
+  "url": "/cabinet/profile/",
+  "auth": true,
+  "height": 1250
+ },
+ {
+  "name": "m-home",
+  "url": "/",
+  "mobile": true
+ },
+ {
+  "name": "m-product",
+  "url": "/catalog/trikotazh/futbolki-polo-rubashki/rubashka_polo_belyy_l-56773d/",
+  "mobile": true
+ },
+ {
+  "name": "m-orders",
+  "url": "/personal/orders/",
+  "auth": true,
+  "mobile": true
+ }
+]

@@ -40,11 +40,17 @@ class SectionPages
         return self::section($sectionCode)['name'];
     }
 
-    /** @return array{name: string, items: array} */
+    /** Описание раздела инфоблока (HTML) — вступление над плитками главной раздела. */
+    public static function description(string $sectionCode): string
+    {
+        return self::section($sectionCode)['description'] ?? '';
+    }
+
+    /** @return array{name: string, description: string, items: array} */
     private static function section(string $sectionCode): array
     {
         if ($sectionCode === '' || !Loader::includeModule('iblock')) {
-            return ['name' => '', 'items' => []];
+            return ['name' => '', 'description' => '', 'items' => []];
         }
         $cache = Cache::createInstance();
         $dir = '/formaro/content_section';
@@ -53,7 +59,7 @@ class SectionPages
         }
         $cache->startDataCache();
         $iblockId = self::iblockId();
-        $data = $iblockId ? self::load($iblockId, $sectionCode) : ['name' => '', 'items' => []];
+        $data = $iblockId ? self::load($iblockId, $sectionCode) : ['name' => '', 'description' => '', 'items' => []];
         if ($iblockId) {
             $tagged = Application::getInstance()->getTaggedCache();
             $tagged->startTagCache($dir);
@@ -87,12 +93,12 @@ class SectionPages
         return $row ? (int)$row['ID'] : 0;
     }
 
-    /** @return array{name: string, items: array} */
+    /** @return array{name: string, description: string, items: array} */
     private static function load(int $iblockId, string $sectionCode): array
     {
-        $section = CIBlockSection::GetList([], ['IBLOCK_ID' => $iblockId, '=CODE' => $sectionCode, 'ACTIVE' => 'Y', 'CHECK_PERMISSIONS' => 'N'], false, ['ID', 'NAME'])->Fetch();
+        $section = CIBlockSection::GetList([], ['IBLOCK_ID' => $iblockId, '=CODE' => $sectionCode, 'ACTIVE' => 'Y', 'CHECK_PERMISSIONS' => 'N'], false, ['ID', 'NAME', 'DESCRIPTION', 'DESCRIPTION_TYPE'])->Fetch();
         if (!$section) {
-            return ['name' => '', 'items' => []];
+            return ['name' => '', 'description' => '', 'items' => []];
         }
         $items = [];
         $res = CIBlockElement::GetList(
@@ -114,6 +120,11 @@ class SectionPages
             ];
         }
 
-        return ['name' => (string)$section['NAME'], 'items' => $items];
+        $description = (string)$section['DESCRIPTION'];
+        if ($description !== '' && $section['DESCRIPTION_TYPE'] !== 'html') {
+            $description = nl2br(htmlspecialcharsbx($description));
+        }
+
+        return ['name' => (string)$section['NAME'], 'description' => $description, 'items' => $items];
     }
 }

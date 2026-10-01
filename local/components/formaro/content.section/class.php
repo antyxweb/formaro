@@ -13,7 +13,8 @@ use Formaro\Cabinet\Content\SectionPages;
  *
  *   SEF_FOLDER           — главная раздела: страница с кодом, равным коду
  *                          раздела (как «Общая информация» в /about/), если
- *                          она есть, иначе плитки пунктов раздела;
+ *                          она есть, иначе плитки пунктов раздела (над ними —
+ *                          описание раздела инфоблока, если заполнено);
  *   SEF_FOLDER#CODE#/    — страница (formaro:content.page по коду элемента;
  *                          элемент-ссылка — редирект по ссылке).
  *
@@ -77,7 +78,7 @@ class FormaroContentSectionComponent extends CBitrixComponent
             $page = 'page';
             $this->arResult = ['CODE' => $this->arParams['SECTION_CODE'], 'ADD_CHAIN' => 'N'];
         } elseif ($page === 'index') {
-            $this->arResult = ['ITEMS' => $items];
+            $this->arResult = ['ITEMS' => $items, 'DESCRIPTION' => SectionPages::description($this->arParams['SECTION_CODE'])];
             $name = SectionPages::name($this->arParams['SECTION_CODE']);
             if ($name !== '') {
                 global $APPLICATION;
