@@ -26,7 +26,9 @@ document.addEventListener('click', function (e) {
             badge.className = badge.className.replace(/\bbadge-\S+/, 'badge-secondary');
             badge.textContent = 'Отменён';
             button.remove();
-            Array.prototype.forEach.call(wrap.querySelectorAll('.js-order-invoice, .js-order-payment-notice'), function (el) { el.remove(); });
+            // Отменённый — без счёта и «Сообщить об оплате».
+            var payment = button.closest('.order-item').querySelector('.js-order-payment');
+            if (payment) payment.remove();
             return;
         }
         button.disabled = false;
@@ -47,7 +49,7 @@ document.addEventListener('click', function (e) {
     e.preventDefault();
     if (link.getAttribute('aria-disabled') === 'true') return;
     var root = document.getElementById('personal-orders');
-    var error = link.closest('.js-order-actions').querySelector('.js-order-cancel-error');
+    var error = link.closest('.js-order-payment').querySelector('.js-order-payment-error');
     if (!window.confirm('Сообщить продавцу, что заказ ' + link.getAttribute('data-order-number') + ' оплачен?')) return;
 
     link.setAttribute('aria-disabled', 'true');

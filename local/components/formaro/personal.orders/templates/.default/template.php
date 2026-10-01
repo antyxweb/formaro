@@ -7,11 +7,11 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
 
 // Вёрстка — /html/orders.html: слева заказы (товары — каруселью
 // .product-carousel, её запускает scripts.js), справа меню личного кабинета.
-// Под данными заказа — «Чат с продавцом» (пока — страница продавца, как
-// в карточке товара: чата на стороне покупателя ещё нет), «Скачать счёт»
-// (PDF, пока заказ не оплачен) со ссылкой «Сообщить об оплате» (script.js →
-// /local/ajax/order_payment_notice.php; после — дата сообщения) и «Отменить
-// заказ» (только новый; script.js → /local/ajax/order_cancel.php).
+// В колонке «Оплата», пока заказ не оплачен, — ссылки «Скачать счёт» (PDF)
+// и «Сообщить об оплате» (script.js → /local/ajax/order_payment_notice.php;
+// после — дата сообщения). Под данными заказа — «Чат с продавцом» (пока —
+// страница продавца, как в карточке товара: чата у покупателя ещё нет) и
+// «Отменить заказ» (только новый; script.js → /local/ajax/order_cancel.php).
 $fmt = static fn($n) => number_format((float)$n, 0, '', ' ');
 $e = static fn($s) => htmlspecialcharsbx((string)$s);
 ?>
@@ -62,6 +62,17 @@ $e = static fn($s) => htmlspecialcharsbx((string)$s);
                                         <h6 class="mb-1">Оплата</h6>
                                         <div><?= $e($order['PAYMENT'] ?: '—') ?></div>
                                         <small class="<?= $e($order['PAYMENT_STATUS_CLASS']) ?>"><?= $e($order['PAYMENT_STATUS']) ?></small>
+                                        <?php if ($order['INVOICE_URL'] !== ''): ?>
+                                        <div class="order-item__payment-links js-order-payment">
+                                            <a href="<?= $e($order['INVOICE_URL']) ?>" class="js-order-invoice" download>Скачать счёт</a>
+                                            <?php if ($order['PAYMENT_NOTICE_DATE'] !== ''): ?>
+                                            <small class="text-muted js-order-payment-notice">Вы сообщили об оплате <?= $e($order['PAYMENT_NOTICE_DATE']) ?></small>
+                                            <?php else: ?>
+                                            <a href="#" class="js-order-payment-notice" data-order-id="<?= (int)$order['ID'] ?>" data-order-number="<?= $e($order['NUMBER']) ?>">Сообщить об оплате</a>
+                                            <?php endif; ?>
+                                            <small class="text-danger js-order-payment-error" role="alert"></small>
+                                        </div>
+                                        <?php endif; ?>
                                     </div>
                                     <div class="col-12 col-md-6 col-lg-3">
                                         <h6 class="mb-1"><?= (int)$order['QTY'] ?> шт. на сумму</h6>
@@ -80,24 +91,13 @@ $e = static fn($s) => htmlspecialcharsbx((string)$s);
                                 <small class="d-block text-muted mt-3">Комментарий: <?= $e($order['COMMENT']) ?></small>
                                 <?php endif; ?>
 
-                                <?php if ($order['PARTNER']['url'] !== '' || $order['INVOICE_URL'] !== '' || $order['CAN_CANCEL']): ?>
+                                <?php if ($order['PARTNER']['url'] !== '' || $order['CAN_CANCEL']): ?>
                                 <div class="order-item__actions d-flex flex-wrap align-items-center mt-4 js-order-actions">
                                     <?php if ($order['PARTNER']['url'] !== ''): ?>
                                     <a href="<?= $e($order['PARTNER']['url']) ?>" class="f-button c-success">
                                         <svg width="16" height="16"><use xlink:href="#icon-mail"></use></svg>
                                         <span class="pl-2">Чат с продавцом</span>
                                     </a>
-                                    <?php endif; ?>
-                                    <?php if ($order['INVOICE_URL'] !== ''): ?>
-                                    <a href="<?= $e($order['INVOICE_URL']) ?>" class="f-button order-button-outline js-order-invoice" download>
-                                        <svg width="16" height="16"><use xlink:href="#icon-clipboard-text"></use></svg>
-                                        <span class="pl-2">Скачать счёт</span>
-                                    </a>
-                                    <?php if ($order['PAYMENT_NOTICE_DATE'] !== ''): ?>
-                                    <small class="text-muted js-order-payment-notice">Вы сообщили об оплате <?= $e($order['PAYMENT_NOTICE_DATE']) ?></small>
-                                    <?php else: ?>
-                                    <a href="#" class="js-order-payment-notice" data-order-id="<?= (int)$order['ID'] ?>" data-order-number="<?= $e($order['NUMBER']) ?>">Сообщить об оплате</a>
-                                    <?php endif; ?>
                                     <?php endif; ?>
                                     <?php if ($order['CAN_CANCEL']): ?>
                                     <button type="button" class="f-button c-gray text-secondary ml-auto js-order-cancel" data-order-id="<?= (int)$order['ID'] ?>" data-order-number="<?= $e($order['NUMBER']) ?>">
