@@ -45,9 +45,6 @@ if($GLOBALS["APPLICATION"]->GetCurPage(false) == '/'
     <title><?$APPLICATION->ShowTitle();?></title>
 </head>
 <body class="d-flex flex-column">
-    <div id="panel">
-        <?$APPLICATION->ShowPanel();?>
-    </div>
     <header id="header" class="_main-page _main-page-active _partner-page _overtop-page">
         <div class="header d-flex">
             <div class="logo">
