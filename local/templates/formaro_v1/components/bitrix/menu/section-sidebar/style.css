@@ -1,0 +1,34 @@
+/* Меню раздела справа на текстовых страницах: как меню кабинета покупателя
+   (.sidebar-menu — белый блок со скошенным углом), пункты — со стрелкой,
+   как в подвале; текущий — синим и жирным. На xl прилипает к верху окна. */
+.section-sidebar .section-sidebar__list li + li {
+    margin-top: 14px;
+}
+.section-sidebar .section-sidebar__link {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    color: #111111;
+    text-decoration: none;
+    transition: color .2s;
+}
+.section-sidebar .section-sidebar__link svg {
+    flex: 0 0 12px;
+    position: relative;
+    top: 1px;
+    color: #6c757d;
+}
+.section-sidebar .section-sidebar__link:hover,
+.section-sidebar .section-sidebar__link.is-active {
+    color: #1976d2;
+}
+.section-sidebar .section-sidebar__link.is-active {
+    font-weight: 700;
+}
+@media (min-width: 1200px) {
+    .sidebar-menu.section-sidebar {
+        position: -webkit-sticky;
+        position: sticky;
+        top: 60px;
+    }
+}

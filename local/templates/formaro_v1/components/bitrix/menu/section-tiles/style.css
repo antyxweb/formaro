@@ -1,0 +1,8 @@
+/* Плитки подразделов на главной раздела. Иконки спрайта рисуются через
+   currentColor — делаем белыми на синем круге .support__icon-wrapper. */
+.section-tiles .support__link svg {
+    color: #ffffff;
+}
+.section-tiles .support__link {
+    text-align: center;
+}

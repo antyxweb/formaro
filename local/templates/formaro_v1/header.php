@@ -40,6 +40,7 @@ if($GLOBALS["APPLICATION"]->GetCurPage(false) == '/'
 
     <link rel="stylesheet" href="<?=SITE_TEMPLATE_PATH;?>/css/styles.min.css?v<?=time()?>" />
     <link rel="stylesheet" href="<?=SITE_TEMPLATE_PATH;?>/css/confirm.css?v=<?= filemtime($_SERVER['DOCUMENT_ROOT'] . SITE_TEMPLATE_PATH . '/css/confirm.css') ?>" />
+    <link rel="stylesheet" href="<?=SITE_TEMPLATE_PATH;?>/css/pages.css?v=<?= filemtime($_SERVER['DOCUMENT_ROOT'] . SITE_TEMPLATE_PATH . '/css/pages.css') ?>" />
 
     <title><?$APPLICATION->ShowTitle();?></title>
 </head>

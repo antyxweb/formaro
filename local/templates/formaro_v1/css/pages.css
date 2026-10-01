@@ -1,0 +1,178 @@
+/* Текстовые страницы (include/text_page_top.php): «Покупателям», «Партнерам»,
+   «О нас», «Поддержка». Белый блок со скошенным правым нижним углом, как
+   блоки кабинета покупателя; типографика длинного текста. */
+.text-page {
+    position: relative;
+    line-height: 1.6;
+}
+.text-page:after {
+    -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+    border-style: solid;
+    border-color: transparent;
+    border-width: 15px;
+    content: "";
+    display: block;
+    bottom: 0;
+    position: absolute;
+    height: 0;
+    border-bottom-color: #efefef;
+    border-right-color: #efefef;
+    right: 0;
+}
+.text-page > :last-child {
+    margin-bottom: 0;
+}
+.text-page h2 {
+    font-size: 1.5rem;
+    margin: 2rem 0 1rem;
+}
+.text-page h3 {
+    font-size: 1.25rem;
+    margin: 1.75rem 0 .75rem;
+}
+.text-page h4 {
+    font-size: 1.05rem;
+    margin: 1.25rem 0 .5rem;
+}
+.text-page > h2:first-child,
+.text-page > h3:first-child {
+    margin-top: 0;
+}
+.text-page p,
+.text-page ul,
+.text-page ol {
+    margin-bottom: 1rem;
+}
+.text-page ul,
+.text-page ol {
+    padding-left: 1.25rem;
+}
+.text-page li + li {
+    margin-top: .35rem;
+}
+.text-page a {
+    color: #1976d2;
+}
+.text-page .lead {
+    font-size: 1.1rem;
+}
+
+/* Таблица «название — значение» (реквизиты, контакты, оплата). */
+.text-page .text-page__props {
+    width: 100%;
+    margin-bottom: 1.5rem;
+    border-collapse: collapse;
+}
+.text-page .text-page__props th,
+.text-page .text-page__props td {
+    padding: .6rem 0;
+    border-bottom: 1px solid #e9ecef;
+    vertical-align: top;
+}
+.text-page .text-page__props th {
+    width: 40%;
+    padding-right: 1.5rem;
+    font-weight: 500;
+    color: #6c757d;
+}
+@media (max-width: 575.98px) {
+    .text-page .text-page__props th,
+    .text-page .text-page__props td {
+        display: block;
+        width: 100%;
+        padding: 0;
+        border: 0;
+    }
+    .text-page .text-page__props th {
+        padding-top: .75rem;
+    }
+    .text-page .text-page__props td {
+        padding-bottom: .75rem;
+        border-bottom: 1px solid #e9ecef;
+    }
+}
+
+/* Карточки внутри текста (способы оплаты/доставки, вакансии, отзывы). */
+.text-page .text-page__cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+.text-page .text-page__card {
+    padding: 1.25rem;
+    background: #f7f7f7;
+}
+.text-page .text-page__card h3,
+.text-page .text-page__card h4 {
+    margin-top: 0;
+}
+.text-page .text-page__card > :last-child {
+    margin-bottom: 0;
+}
+.text-page .text-page__note {
+    padding: 1rem 1.25rem;
+    border-left: 3px solid #1976d2;
+    background: #f1f6fc;
+    margin-bottom: 1.5rem;
+}
+
+/* Отзывы. */
+.text-page .review + .review {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e9ecef;
+}
+.text-page .review__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: .25rem 1rem;
+    margin-bottom: .5rem;
+}
+.text-page .review__author {
+    font-weight: 500;
+}
+
+/* Вопросы и ответы — раскрывающиеся <details>. */
+.text-page .faq details {
+    border-bottom: 1px solid #e9ecef;
+}
+.text-page .faq summary {
+    position: relative;
+    padding: 1rem 2rem 1rem 0;
+    font-weight: 500;
+    cursor: pointer;
+    list-style: none;
+}
+.text-page .faq summary::-webkit-details-marker {
+    display: none;
+}
+.text-page .faq summary:after {
+    content: "+";
+    position: absolute;
+    right: 0;
+    top: .85rem;
+    font-size: 1.25rem;
+    line-height: 1;
+    color: #1976d2;
+}
+.text-page .faq details[open] summary:after {
+    content: "−";
+}
+.text-page .faq summary:focus-visible {
+    outline: 2px solid #1976d2;
+    outline-offset: 2px;
+}
+.text-page .faq details > div {
+    padding-bottom: 1rem;
+}
+
+/* Термины (политика cookie). */
+.text-page .text-page__terms dt {
+    font-weight: 500;
+}
+.text-page .text-page__terms dd {
+    margin: 0 0 1rem;
+}
