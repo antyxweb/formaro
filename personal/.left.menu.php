@@ -24,7 +24,8 @@ $aMenuLinks = Array(
 		"/personal/notify/", 
 		Array(),
         Array(
-            "ICON" => "icon-bell"
+            "ICON" => "icon-bell",
+            "COUNTER" => "notify"
         ),
         ""
 	),

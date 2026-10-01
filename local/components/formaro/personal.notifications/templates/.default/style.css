@@ -1,0 +1,127 @@
+/* «Уведомления» покупателя. Блоки — белые со скошенным правым нижним углом,
+   как в «Ваших заказах» (уголок :after цвета фона страницы). */
+.personal-notify .notify-block,
+.personal-notify .notify-item {
+    position: relative;
+}
+.personal-notify .notify-block:after,
+.personal-notify .notify-item:after {
+    -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+    border-style: solid;
+    border-color: transparent;
+    border-width: 15px;
+    content: "";
+    display: block;
+    bottom: 0;
+    position: absolute;
+    height: 0;
+    border-bottom-color: #efefef;
+    border-right-color: #efefef;
+    right: 0;
+}
+
+.personal-notify .notify-toolbar {
+    gap: .5rem 0;
+}
+.personal-notify .notify-toolbar__selected {
+    gap: .5rem;
+}
+.personal-notify .notify-toolbar__selected:not(.d-none) {
+    display: flex;
+}
+.personal-notify .js-notify-error:empty {
+    display: none !important;
+}
+
+.personal-notify .notify-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 20px 20px 20px 24px;
+    transition: box-shadow .3s;
+}
+.personal-notify .notify-item.has-link {
+    cursor: pointer;
+}
+.personal-notify .notify-item.has-link:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, .08);
+}
+.personal-notify .notify-item__check {
+    flex: 0 0 auto;
+    margin-top: 12px;
+    min-height: 0;
+}
+.personal-notify .notify-item__icon {
+    flex: 0 0 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #efefef;
+}
+.personal-notify .notify-item__icon svg {
+    width: 22px;
+    height: 24px;
+    fill: none;
+    stroke: #6c757d;
+}
+.personal-notify .notify-item.is-unread .notify-item__icon {
+    background: #1976d2;
+}
+.personal-notify .notify-item.is-unread .notify-item__icon svg {
+    stroke: #ffffff;
+}
+.personal-notify .notify-item__body {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+.personal-notify .notify-item__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: .25rem 1rem;
+    margin-bottom: .25rem;
+}
+.personal-notify .notify-item__title {
+    color: #111111;
+    text-decoration: none;
+}
+.personal-notify .notify-item.is-unread .notify-item__title {
+    font-weight: 700;
+}
+/* Непрочитанное — синяя точка перед заголовком. */
+.personal-notify .notify-item.is-unread .notify-item__title:before {
+    content: "";
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    margin-right: 8px;
+    border-radius: 50%;
+    background: #1976d2;
+    vertical-align: 2px;
+}
+.personal-notify .notify-item__date {
+    margin-left: auto;
+    white-space: nowrap;
+}
+.personal-notify .notify-item__delete {
+    flex: 0 0 auto;
+    margin: 4px 0 0;
+    color: #6c757d;
+}
+@media (max-width: 575.98px) {
+    .personal-notify .notify-item {
+        padding: 16px 12px 16px 16px;
+        gap: .75rem;
+    }
+    .personal-notify .notify-item__icon {
+        display: none;
+    }
+    .personal-notify .notify-item__date {
+        margin-left: 0;
+        width: 100%;
+    }
+}

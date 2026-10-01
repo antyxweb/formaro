@@ -236,6 +236,7 @@ class CartCheckoutService
                 'Покупатель ' . $customer['name'] . ' оформил заказ на сумму ' . number_format($order['total'], 0, ',', ' ') . ' руб.',
                 self::orderLink($order['id'])
             );
+            BuyerNotificationService::orderCreated($order, $group['partner']['name']);
             $created[] = [
                 'id' => $order['id'],
                 'order_number' => $order['order_number'],

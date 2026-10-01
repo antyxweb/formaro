@@ -5,6 +5,11 @@
 .orders .order-item__head {
     position: relative;
 }
+/* Переход по ссылке /personal/orders/#order-14 (из уведомлений) — заказ
+   не уходит под фиксированную шапку сайта. */
+.orders .order-item {
+    scroll-margin-top: 90px;
+}
 /* Товары заказа — под шапкой с отступом; по умолчанию скрыты (hidden). */
 .orders .order-item__items {
     margin-top: 1rem;

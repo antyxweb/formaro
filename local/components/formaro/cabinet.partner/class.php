@@ -23,6 +23,7 @@ use Formaro\Cabinet\Repository\TicketRepository;
 use Formaro\Cabinet\Repository\TransactionRepository;
 use Formaro\Cabinet\Repository\UserProfileRepository;
 use Formaro\Cabinet\Security\PartnerContext;
+use Formaro\Cabinet\Service\BuyerNotificationService;
 
 /**
  * Комплексный компонент кабинета партнёра — один компонент, один физический
@@ -297,6 +298,26 @@ class CabinetPartnerComponent extends CBitrixComponent
         return $row;
     }
 
+    /**
+     * Заказ из кабинета: покупателя (user_id) продавец не задаёт — он
+     * ставится только при оформлении на витрине; покупателю — уведомление
+     * о смене статуса (BuyerNotificationService).
+     */
+    private function saveOrder(int $partnerId, array $row): array
+    {
+        unset($row['user_id']);
+        $repo = new OrderRepository();
+        $id = (int)($row['id'] ?? 0);
+        $before = $id ? $repo->get($id) : null;
+        if ($before && !$repo->canEdit($partnerId, $before)) {
+            $before = null;
+        }
+        $after = $repo->save($partnerId, $this->keepPaymentStatus($partnerId, $row));
+        BuyerNotificationService::orderUpdated($before, $after);
+
+        return $after;
+    }
+
     private function ajaxSave(string $entity, int $partnerId)
     {
         $row = json_decode((string)($_REQUEST['row'] ?? '{}'), true) ?: [];
@@ -304,7 +325,7 @@ class CabinetPartnerComponent extends CBitrixComponent
         return match ($entity) {
             'categories' => (new CategoryRepository())->save($partnerId, $row),
             'products' => (new ProductRepository())->save($partnerId, $row),
-            'orders' => (new OrderRepository())->save($partnerId, $this->keepPaymentStatus($partnerId, $row)),
+            'orders' => $this->saveOrder($partnerId, $row),
             'discounts' => (new DiscountRepository())->save($partnerId, $row),
             'coupons' => (new CouponRepository())->save($partnerId, $row),
             'news' => (new NewsRepository())->save($partnerId, $row),

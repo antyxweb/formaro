@@ -7,21 +7,22 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
 
 // Меню личного кабинета (вёрстка /html/orders.html: блок справа).
 // Счётчики — по PARAMS.COUNTER пункта (.left.menu.php раздела /personal/):
-// orders — заказы, cart — позиции корзины, favorites — избранное. Корзину и
+// orders — заказы, notify — непрочитанные уведомления, cart — позиции корзины, favorites — избранное. Корзину и
 // избранное дальше обновляют cart.js/favorites.js (data-атрибуты те же,
 // что у счётчиков в шапке).
 if (empty($arResult)) {
     return;
 }
 
-$counts = ['orders' => 0, 'cart' => 0, 'favorites' => 0];
+$counts = ['orders' => 0, 'notify' => 0, 'cart' => 0, 'favorites' => 0];
 if ($USER->IsAuthorized() && \Bitrix\Main\Loader::includeModule('formaro.cabinet')) {
     $userId = (int)$USER->GetID();
     $counts['orders'] = (new \Formaro\Cabinet\Repository\OrderRepository())->countByUser($userId);
+    $counts['notify'] = \Formaro\Cabinet\Repository\NotificationRepository::forBuyer()->countUnread($userId);
     $counts['cart'] = count((new \Formaro\Cabinet\Repository\CartRepository())->listItems($userId));
     $counts['favorites'] = (new \Formaro\Cabinet\Repository\FavoriteRepository())->count($userId);
 }
-$countAttrs = ['orders' => ' data-orders-count', 'cart' => ' data-cart-count', 'favorites' => ' data-favorites-count'];
+$countAttrs = ['orders' => ' data-orders-count', 'notify' => ' data-notify-count', 'cart' => ' data-cart-count', 'favorites' => ' data-favorites-count'];
 ?>
 <div class="sidebar-menu personal-sidebar bg-white py-4 px-3 px-lg-4 mb-4">
     <h4 class="mb-4"><span class="text-primary">Личный</span> кабинет</h4>
