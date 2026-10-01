@@ -38,7 +38,7 @@ $e = static fn($s) => htmlspecialcharsbx((string)$s);
                             <div class="order-item__head bg-white py-4 px-3 px-lg-4">
                                 <div class="d-flex flex-wrap align-items-center mb-3">
                                     <h4 class="mb-0 mr-3">Заказ <?= $e($order['NUMBER']) ?></h4>
-                                    <span class="badge <?= $e($order['STATUS_CLASS']) ?> mr-3 js-order-status"><?= $e($order['STATUS']) ?></span>
+                                    <span class="order-status <?= $e($order['STATUS_CLASS']) ?> mr-3 js-order-status"><?= $e($order['STATUS']) ?></span>
                                     <small class="text-muted ml-md-auto"><?= $e($order['DATE']) ?></small>
                                 </div>
 

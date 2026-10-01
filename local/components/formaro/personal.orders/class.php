@@ -20,12 +20,12 @@ use Formaro\Cabinet\Service\CartCheckoutService;
 class FormaroPersonalOrdersComponent extends CBitrixComponent
 {
     private const STATUSES = [
-        'new' => ['Новый', 'badge-primary'],
-        'processing' => ['В обработке', 'badge-warning'],
-        'confirmed' => ['Подтверждён', 'badge-info'],
-        'shipped' => ['Отправлен', 'badge-info'],
-        'completed' => ['Выполнен', 'badge-success'],
-        'cancelled' => ['Отменён', 'badge-secondary'],
+        'new' => ['Новый', 'bg-primary'],
+        'processing' => ['В обработке', 'bg-warning'],
+        'confirmed' => ['Подтверждён', 'bg-info'],
+        'shipped' => ['Отправлен', 'bg-info'],
+        'completed' => ['Выполнен', 'bg-success'],
+        'cancelled' => ['Отменён', 'bg-secondary'],
     ];
     private const PAYMENT_STATUSES = [
         'awaiting' => ['Ожидает оплаты', 'text-warning'],
@@ -96,7 +96,7 @@ class FormaroPersonalOrdersComponent extends CBitrixComponent
                 ];
             }
 
-            $status = self::STATUSES[$order['status']] ?? [$order['status'], 'badge-secondary'];
+            $status = self::STATUSES[$order['status']] ?? [$order['status'], 'bg-secondary'];
             $payment = self::PAYMENT_STATUSES[$order['payment_status']] ?? [$order['payment_status'], 'text-secondary'];
             $created = strtotime((string)$order['created_at']) ?: 0;
             $result[] = [

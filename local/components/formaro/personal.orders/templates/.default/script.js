@@ -34,7 +34,7 @@
         error.textContent = '';
         post('/local/ajax/order_cancel.php', button.getAttribute('data-order-id'), function () {
             var badge = order.querySelector('.js-order-status');
-            badge.className = badge.className.replace(/\bbadge-\S+/, 'badge-secondary');
+            badge.className = badge.className.replace(/\bbg-\S+/, 'bg-secondary');
             badge.textContent = 'Отменён';
             button.remove();
             // Отменённый — без счёта и «Сообщить об оплате».
