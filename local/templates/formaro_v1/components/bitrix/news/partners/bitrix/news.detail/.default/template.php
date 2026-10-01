@@ -50,7 +50,7 @@ $this->setFrameMode(true);
                         </a>
                     </div>
                 </div><?if($arResult["PREVIEW_PICTURE"]["SRC"]):?>
-                    <div class="col-12 col-lg-4 col-xl-2 py-md-3 pr-md-0 order-1 order-lg-2">
+                    <div class="col-12 col-lg-4 col-xl-2 py-md-3 pr-md-4 order-1 order-lg-2">
                         <div class="embed-responsive embed-responsive-4by3" style="background-image: url('<?=$arResult["PREVIEW_PICTURE"]["SRC"]?>')"></div>
                     </div>
                 <?endif;?>
