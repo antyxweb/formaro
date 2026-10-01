@@ -13,11 +13,14 @@ use Formaro\Cabinet\Upload\FileUploader;
  * text, date, is_read, attachments}]}), чтобы chat-clients.js работал почти
  * без переделки.
  *
- * В прототипе новые диалоги не создаются партнёром — они появляются от
- * действий клиента на витрине маркетплейса (её ещё нет в этом проекте), тут
- * репозиторий тоже не даёт создавать диалоги, только отвечать в
- * существующих/помечать прочитанными/удалять свои сообщения — 1:1 с
- * cabinet-html/assets/js/chat-clients.js, где кнопки "новый диалог" тоже нет.
+ * Партнёр диалоги не создаёт — их начинает покупатель на витрине
+ * («Чаты и сообщения», /personal/messages/, BuyerChatService): диалог —
+ * покупатель (UF_USER_ID, миграция Version20261001160001) × продавец, один
+ * на пару. Партнёр отвечает в существующих, помечает прочитанными, удаляет
+ * свои сообщения — 1:1 с cabinet-html/assets/js/chat-clients.js.
+ *
+ * UF_IS_READ сообщения — прочитано ли оно получателем: сообщения клиента —
+ * партнёром, сообщения партнёра — покупателем.
  */
 class ChatRepository
 {
@@ -57,20 +60,104 @@ class ChatRepository
             throw new \RuntimeException('Диалог не найден или недоступен');
         }
 
+        $this->addMessage($threadId, 'partner', $text, $attachments);
+
+        return $this->get($threadId);
+    }
+
+    /**
+     * Сообщение в диалог; непрочитанное получателем (UF_IS_READ — см. выше).
+     *
+     * @param string $sender client|partner
+     * @param array $attachments [{name, type, data}]
+     */
+    public function addMessage(int $threadId, string $sender, string $text, array $attachments = []): void
+    {
         $messagesClass = HlblockEntityFactory::getDataClass(self::MESSAGES_HLBLOCK);
         $result = $messagesClass::add([
             'UF_THREAD_ID' => $threadId,
-            'UF_SENDER' => 'partner',
+            'UF_SENDER' => $sender,
             'UF_TEXT' => $text,
             'UF_DATE' => new DateTime(),
-            'UF_IS_READ' => true,
+            'UF_IS_READ' => false,
             'UF_ATTACHMENTS' => $this->saveAttachments($attachments),
         ]);
         if (!$result->isSuccess()) {
             throw new \RuntimeException(implode('; ', $result->getErrorMessages()));
         }
+    }
 
-        return $this->get($threadId);
+    /** Есть ли в диалоге непрочитанные сообщения от $sender (client|partner). */
+    public function hasUnreadFrom(int $threadId, string $sender): bool
+    {
+        $messagesClass = HlblockEntityFactory::getDataClass(self::MESSAGES_HLBLOCK);
+
+        return (bool)$messagesClass::getCount(['=UF_THREAD_ID' => $threadId, '=UF_SENDER' => $sender, '=UF_IS_READ' => false]);
+    }
+
+    /** Все сообщения от $sender в диалоге — прочитанными (получатель открыл диалог). */
+    public function markReadFrom(int $threadId, string $sender): void
+    {
+        $messagesClass = HlblockEntityFactory::getDataClass(self::MESSAGES_HLBLOCK);
+        $unread = $messagesClass::getList([
+            'select' => ['ID'],
+            'filter' => ['=UF_THREAD_ID' => $threadId, '=UF_SENDER' => $sender, '=UF_IS_READ' => false],
+        ])->fetchAll();
+        foreach ($unread as $row) {
+            $messagesClass::update((int)$row['ID'], ['UF_IS_READ' => true]);
+        }
+    }
+
+    /** Диалоги покупателя, свежие сверху (по последнему сообщению — сортирует BuyerChatService). */
+    public function listByUser(int $userId): array
+    {
+        $dataClass = HlblockEntityFactory::getDataClass(self::THREADS_HLBLOCK);
+        $rows = $dataClass::getList([
+            'filter' => ['=UF_USER_ID' => $userId],
+            'order' => ['ID' => 'DESC'],
+        ])->fetchAll();
+
+        return array_map(fn(array $row) => $this->toArray($row), $rows);
+    }
+
+    public function findByUserAndPartner(int $userId, int $partnerId): ?array
+    {
+        $dataClass = HlblockEntityFactory::getDataClass(self::THREADS_HLBLOCK);
+        $row = $dataClass::getList([
+            'filter' => ['=UF_USER_ID' => $userId, '=UF_PARTNER_ID' => $partnerId],
+            'order' => ['ID' => 'ASC'],
+            'limit' => 1,
+        ])->fetch();
+
+        return $row ? $this->toArray($row) : null;
+    }
+
+    /** Новый диалог покупателя с продавцом. @return int id диалога */
+    public function createThread(int $userId, int $partnerId, string $clientName, string $orderNumber = '', string $productName = ''): int
+    {
+        $dataClass = HlblockEntityFactory::getDataClass(self::THREADS_HLBLOCK);
+        $result = $dataClass::add([
+            'UF_USER_ID' => $userId,
+            'UF_PARTNER_ID' => $partnerId,
+            'UF_CLIENT_NAME' => $clientName,
+            'UF_ORDER_NUMBER' => $orderNumber,
+            'UF_PRODUCT_NAME' => $productName,
+            'UF_CREATED_AT' => new DateTime(),
+        ]);
+        if (!$result->isSuccess()) {
+            throw new \RuntimeException(implode('; ', $result->getErrorMessages()));
+        }
+
+        return (int)$result->getId();
+    }
+
+    /** Заказ/товар, о котором сейчас речь (видно продавцу в списке диалогов); пустые — не трогаем. */
+    public function updateContext(int $threadId, string $orderNumber, string $productName): void
+    {
+        $fields = array_filter(['UF_ORDER_NUMBER' => $orderNumber, 'UF_PRODUCT_NAME' => $productName], 'strlen');
+        if ($fields) {
+            HlblockEntityFactory::getDataClass(self::THREADS_HLBLOCK)::update($threadId, $fields);
+        }
     }
 
     /** Помечает все непрочитанные сообщения клиента в диалоге прочитанными (открытие диалога партнёром) */
@@ -81,14 +168,7 @@ class ChatRepository
             throw new \RuntimeException('Диалог не найден или недоступен');
         }
 
-        $messagesClass = HlblockEntityFactory::getDataClass(self::MESSAGES_HLBLOCK);
-        $unread = $messagesClass::getList([
-            'select' => ['ID'],
-            'filter' => ['=UF_THREAD_ID' => $threadId, '=UF_SENDER' => 'client', '=UF_IS_READ' => false],
-        ])->fetchAll();
-        foreach ($unread as $row) {
-            $messagesClass::update((int)$row['ID'], ['UF_IS_READ' => true]);
-        }
+        $this->markReadFrom($threadId, 'client');
 
         return $this->get($threadId);
     }
@@ -115,22 +195,10 @@ class ChatRepository
         return $this->get($threadId);
     }
 
-    /** @return int[] */
+    /** @return array[] файловые массивы для UF_ATTACHMENTS (см. FileUploader::fileArraysFromDataUrls()) */
     private function saveAttachments(array $attachments): array
     {
-        $fileIds = [];
-        foreach ($attachments as $att) {
-            $dataUrl = (string)($att['data'] ?? '');
-            if ($dataUrl === '') {
-                continue;
-            }
-            $fileId = FileUploader::saveFromDataUrl($dataUrl, self::UPLOAD_SUBDIR, (string)($att['name'] ?? ''));
-            if ($fileId) {
-                $fileIds[] = $fileId;
-            }
-        }
-
-        return $fileIds;
+        return FileUploader::fileArraysFromDataUrls($attachments, self::UPLOAD_SUBDIR);
     }
 
     private function toArray(array $thread): array
@@ -147,6 +215,7 @@ class ChatRepository
             'order_id' => $thread['UF_ORDER_NUMBER'] ?? '',
             'product_name' => $thread['UF_PRODUCT_NAME'] ?? '',
             'partner_id' => (int)$thread['UF_PARTNER_ID'],
+            'user_id' => (int)($thread['UF_USER_ID'] ?? 0),
             'created_at' => $this->dateToString($thread['UF_CREATED_AT']),
             'messages' => array_map(function (array $m) {
                 return [

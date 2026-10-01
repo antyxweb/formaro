@@ -207,7 +207,7 @@ $propsTable = static function (array $props): string {
                             </div>
                             <div class="partners-card__actions">
                                 <a href="<?= htmlspecialcharsbx($partner['URL']) ?>" class="f-button c-success">Каталог товаров</a>
-                                <a href="<?= htmlspecialcharsbx($partner['URL']) ?>" class="f-button">Чат с продавцом</a>
+                                <a href="/personal/messages/?partner=<?= (int)$partner['ID'] ?>&amp;product=<?= (int)$arResult['ID'] ?>" class="f-button">Чат с продавцом</a>
                             </div>
                         </div>
                         <?php endif; ?>

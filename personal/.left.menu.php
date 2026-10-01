@@ -34,7 +34,8 @@ $aMenuLinks = Array(
 		"/personal/messages/", 
 		Array(),
         Array(
-            "ICON" => "icon-gift-cart"
+            "ICON" => "icon-gift-cart",
+            "COUNTER" => "messages"
         ),
         ""
 	),

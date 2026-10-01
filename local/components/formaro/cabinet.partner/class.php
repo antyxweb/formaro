@@ -23,6 +23,7 @@ use Formaro\Cabinet\Repository\TicketRepository;
 use Formaro\Cabinet\Repository\TransactionRepository;
 use Formaro\Cabinet\Repository\UserProfileRepository;
 use Formaro\Cabinet\Security\PartnerContext;
+use Formaro\Cabinet\Service\BuyerChatService;
 use Formaro\Cabinet\Service\BuyerNotificationService;
 
 /**
@@ -212,12 +213,7 @@ class CabinetPartnerComponent extends CBitrixComponent
                     (int)($_REQUEST['ticket_id'] ?? 0),
                     (int)($_REQUEST['message_id'] ?? 0)
                 ),
-                'send_chat_message' => (new ChatRepository())->sendMessage(
-                    $partnerId,
-                    (int)($_REQUEST['thread_id'] ?? 0),
-                    (string)($_REQUEST['text'] ?? ''),
-                    $this->decodeAttachments()
-                ),
+                'send_chat_message' => $this->sendChatMessage($partnerId),
                 'mark_thread_read' => (new ChatRepository())->markRead($partnerId, (int)($_REQUEST['thread_id'] ?? 0)),
                 'delete_chat_message' => (new ChatRepository())->deleteMessage(
                     $partnerId,
@@ -262,6 +258,20 @@ class CabinetPartnerComponent extends CBitrixComponent
             'product_colors' => (new ProductColorRepository())->listAll(),
             default => [],
         };
+    }
+
+    /** Ответ покупателю в чате — и уведомление ему (BuyerChatService). */
+    private function sendChatMessage(int $partnerId): array
+    {
+        $thread = (new ChatRepository())->sendMessage(
+            $partnerId,
+            (int)($_REQUEST['thread_id'] ?? 0),
+            (string)($_REQUEST['text'] ?? ''),
+            $this->decodeAttachments()
+        );
+        BuyerChatService::notifyBuyerOfReply($thread);
+
+        return $thread;
     }
 
     /** @return array [{name, type, data}] — общий разбор для create_ticket/reply_ticket/send_chat_message */

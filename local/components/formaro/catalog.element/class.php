@@ -291,6 +291,7 @@ class FormaroCatalogElementComponent extends CBitrixComponent
         }
 
         return [
+            'ID' => (int)$row['ID'],
             'NAME' => $row['NAME'],
             'TEXT' => $row['PREVIEW_TEXT'],
             'LOGO' => $row['PREVIEW_PICTURE'] ? CFile::GetPath($row['PREVIEW_PICTURE']) : '',

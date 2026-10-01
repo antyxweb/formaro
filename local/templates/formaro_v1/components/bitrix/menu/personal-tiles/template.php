@@ -13,15 +13,16 @@ if (empty($arResult)) {
     return;
 }
 
-$counts = ['orders' => 0, 'notify' => 0, 'cart' => 0, 'favorites' => 0];
+$counts = ['orders' => 0, 'notify' => 0, 'messages' => 0, 'cart' => 0, 'favorites' => 0];
 if ($USER->IsAuthorized() && \Bitrix\Main\Loader::includeModule('formaro.cabinet')) {
     $userId = (int)$USER->GetID();
     $counts['orders'] = (new \Formaro\Cabinet\Repository\OrderRepository())->countByUser($userId);
     $counts['notify'] = \Formaro\Cabinet\Repository\NotificationRepository::forBuyer()->countUnread($userId);
+    $counts['messages'] = \Formaro\Cabinet\Service\BuyerChatService::countUnread($userId);
     $counts['cart'] = count((new \Formaro\Cabinet\Repository\CartRepository())->listItems($userId));
     $counts['favorites'] = (new \Formaro\Cabinet\Repository\FavoriteRepository())->count($userId);
 }
-$countAttrs = ['orders' => ' data-orders-count', 'notify' => ' data-notify-count', 'cart' => ' data-cart-count', 'favorites' => ' data-favorites-count'];
+$countAttrs = ['orders' => ' data-orders-count', 'notify' => ' data-notify-count', 'messages' => ' data-messages-count', 'cart' => ' data-cart-count', 'favorites' => ' data-favorites-count'];
 ?>
 <section class="section pt-4">
     <div class="section-body">

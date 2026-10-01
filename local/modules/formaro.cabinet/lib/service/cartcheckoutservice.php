@@ -425,13 +425,15 @@ class CartCheckoutService
             return [];
         }
         $partners = [];
-        $res = CIBlockElement::GetList([], ['ID' => $ids, 'CHECK_PERMISSIONS' => 'N'], false, false, ['ID', 'NAME', 'DETAIL_PAGE_URL', 'ACTIVE', 'PROPERTY_NAME_SHORT']);
+        $res = CIBlockElement::GetList([], ['ID' => $ids, 'CHECK_PERMISSIONS' => 'N'], false, false, ['ID', 'NAME', 'DETAIL_PAGE_URL', 'ACTIVE', 'PREVIEW_PICTURE', 'PROPERTY_NAME_SHORT']);
         while ($row = $res->GetNext()) {
             $shortName = trim((string)($row['~PROPERTY_NAME_SHORT_VALUE'] ?? ''));
             $partners[(int)$row['ID']] = [
                 'id' => (int)$row['ID'],
                 'name' => $shortName !== '' ? $shortName : $row['~NAME'],
                 'url' => $row['ACTIVE'] === 'Y' ? $row['DETAIL_PAGE_URL'] : '',
+                'active' => $row['ACTIVE'] === 'Y',
+                'logo' => $row['PREVIEW_PICTURE'] ? (string)\CFile::GetPath($row['PREVIEW_PICTURE']) : '',
             ];
         }
 

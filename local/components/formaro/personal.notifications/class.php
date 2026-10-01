@@ -20,6 +20,7 @@ class FormaroPersonalNotificationsComponent extends CBitrixComponent
     /** Тип уведомления => иконка спрайта. */
     private const ICONS = [
         'order' => 'icon-order',
+        'chat' => 'icon-gift-cart', // как у «Чатов и сообщений» в меню
     ];
 
     public function executeComponent()

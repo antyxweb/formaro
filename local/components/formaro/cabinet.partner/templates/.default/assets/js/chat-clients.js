@@ -7,8 +7,8 @@
      mark_thread_read вместо dsSave(whole-array) с изменённым is_read;
    - отправка/удаление сообщения — send_chat_message/delete_chat_message
      вместо dsSave(whole-array); партнёр не может создавать новые диалоги
-     (как и в прототипе — они появляются от действий клиента на витрине,
-     которой в этом проекте пока нет). */
+     (их начинает покупатель в «Чатах и сообщениях» на сайте);
+   - ?thread=ID в адресе — сразу открыть этот диалог (из уведомления). */
 var allThreads = [];
 var activeThreadId = 0;
 var refreshClearBtn = null;
@@ -20,6 +20,9 @@ $(function () {
     dsLoad('chat').done(function (threads) {
         allThreads = threads;
         renderThreads();
+        // ?thread=ID — переход из уведомления о сообщении покупателя.
+        var fromUrl = parseInt(new URLSearchParams(window.location.search).get('thread'), 10);
+        if (fromUrl && allThreads.some(function (t) { return t.thread_id === fromUrl; })) openThread(fromUrl);
     });
 
     $('#findBtn').on('click', renderThreads);
@@ -115,6 +118,9 @@ function openThread(threadId) {
         cabinetAjax({ajax_action: 'mark_thread_read', thread_id: threadId}).done(function (updated) {
             allThreads = allThreads.map(function (x) { return x.thread_id === threadId ? updated : x; });
             renderThreads();
+            // Счётчики непрочитанных в меню и шапке (common.js).
+            if (typeof refreshSidebarCounts === 'function') refreshSidebarCounts();
+            if (typeof refreshTopbarCounts === 'function') refreshTopbarCounts();
         });
     }
 

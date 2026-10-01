@@ -9,8 +9,8 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
 // .product-carousel, её запускает scripts.js), справа меню личного кабинета.
 // В колонке «Оплата», пока заказ не оплачен, — ссылки «Скачать счёт» (PDF)
 // и «Сообщить об оплате» (script.js → /local/ajax/order_payment_notice.php;
-// после — дата сообщения). Под данными заказа — «Чат с продавцом» (пока —
-// страница продавца, как в карточке товара: чата у покупателя ещё нет) и
+// после — дата сообщения). Под данными заказа — «Чат с продавцом» (диалог
+// с продавцом в «Чатах и сообщениях», с вопросом по этому заказу) и
 // «Отменить заказ» (только новый; script.js → /local/ajax/order_cancel.php).
 // Товары заказа (карусель) по умолчанию скрыты — «Показать товары».
 $fmt = static fn($n) => number_format((float)$n, 0, '', ' ');
@@ -96,7 +96,7 @@ $e = static fn($s) => htmlspecialcharsbx((string)$s);
                                 <?php if ($order['PARTNER']['url'] !== '' || $order['CAN_CANCEL']): ?>
                                 <div class="order-item__actions d-flex flex-wrap align-items-center mt-4 js-order-actions">
                                     <?php if ($order['PARTNER']['url'] !== ''): ?>
-                                    <a href="<?= $e($order['PARTNER']['url']) ?>" class="f-button c-success">
+                                    <a href="/personal/messages/?partner=<?= (int)$order['PARTNER']['id'] ?>&amp;order=<?= urlencode($order['NUMBER']) ?>" class="f-button c-success">
                                         <svg width="16" height="16"><use xlink:href="#icon-mail"></use></svg>
                                         <span class="pl-2">Чат с продавцом</span>
                                     </a>

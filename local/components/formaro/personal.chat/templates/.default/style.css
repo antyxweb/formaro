@@ -1,0 +1,347 @@
+/* «Чаты и сообщения». Блок — белый со скошенным правым нижним углом, как в
+   «Ваших заказах» (уголок :after цвета фона страницы). Слева — диалоги,
+   справа — переписка; на телефоне — по очереди (.is-dialog-open). */
+.personal-chat .chat-block {
+    position: relative;
+}
+.personal-chat .chat-block:after {
+    -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+    border-style: solid;
+    border-color: transparent;
+    border-width: 15px;
+    content: "";
+    display: block;
+    bottom: 0;
+    position: absolute;
+    height: 0;
+    border-bottom-color: #efefef;
+    border-right-color: #efefef;
+    right: 0;
+    z-index: 2;
+}
+
+.personal-chat .chat {
+    display: flex;
+    height: calc(100vh - 220px);
+    min-height: 480px;
+    max-height: 760px;
+}
+.personal-chat .chat__threads {
+    flex: 0 0 300px;
+    border-right: 1px solid #e1e1e1;
+    overflow-y: auto;
+}
+.personal-chat .chat__dialog {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Список диалогов */
+.personal-chat .chat__thread {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 14px 16px;
+    border: 0;
+    border-bottom: 1px solid #f0f0f0;
+    background: #ffffff;
+    text-align: left;
+    transition: background .2s;
+}
+.personal-chat .chat__thread:hover {
+    background: #f7f7f7;
+}
+.personal-chat .chat__thread.is-active {
+    background: #eaf2fb;
+}
+.personal-chat .chat__thread:focus-visible {
+    outline: 2px solid #1976d2;
+    outline-offset: -2px;
+}
+.personal-chat .chat__thread-body {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+.personal-chat .chat__thread-top,
+.personal-chat .chat__thread-bottom {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.personal-chat .chat__thread-name,
+.personal-chat .chat__thread-preview {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.personal-chat .chat__thread-name {
+    font-weight: 500;
+    color: #111111;
+}
+.personal-chat .chat__thread-date {
+    flex: 0 0 auto;
+    font-size: .75rem;
+    color: #6c757d;
+}
+.personal-chat .chat__thread-preview {
+    font-size: .875rem;
+    color: #6c757d;
+}
+.personal-chat .chat__thread.has-unread .chat__thread-preview {
+    color: #111111;
+}
+.personal-chat .chat__badge {
+    flex: 0 0 auto;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 10px;
+    background: #1976d2;
+    color: #ffffff;
+    font-size: .75rem;
+    font-weight: 500;
+    line-height: 20px;
+    text-align: center;
+}
+.personal-chat .chat__empty-list {
+    padding: 24px 16px;
+    color: #6c757d;
+    font-size: .9rem;
+}
+
+.personal-chat .chat__avatar {
+    flex: 0 0 44px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1px solid #e1e1e1;
+    background: #ffffff center / contain no-repeat;
+}
+.personal-chat .chat__avatar--letter {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    background: #1976d2;
+    color: #ffffff;
+    font-weight: 500;
+    font-size: 1.1rem;
+}
+
+/* Шапка диалога */
+.personal-chat .chat__head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    border-bottom: 1px solid #e1e1e1;
+    min-height: 69px;
+}
+.personal-chat .chat__head:empty {
+    display: none;
+}
+.personal-chat .chat__head-body {
+    flex: 1 1 auto;
+    min-width: 0;
+    line-height: 1.3;
+}
+.personal-chat .chat__head-name {
+    font-weight: 500;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.personal-chat .chat__head-link {
+    flex: 0 0 auto;
+    font-size: .875rem;
+}
+.personal-chat .chat__back {
+    display: none;
+    flex: 0 0 auto;
+    padding: 4px;
+    margin-left: -8px;
+    border: 0;
+    background: none;
+    color: #111111;
+}
+
+/* Сообщения */
+.personal-chat .chat__messages {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    padding: 16px 20px;
+    background: #f7f7f7;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.personal-chat .chat__placeholder {
+    margin: auto;
+    max-width: 320px;
+    text-align: center;
+    color: #6c757d;
+}
+.personal-chat .chat__day {
+    align-self: center;
+    margin: 8px 0;
+    padding: 2px 10px;
+    border-radius: 10px;
+    background: #e9ecef;
+    color: #6c757d;
+    font-size: .75rem;
+}
+.personal-chat .chat__msg {
+    align-self: flex-start;
+    max-width: 75%;
+    padding: 8px 12px 6px;
+    background: #ffffff;
+    border-radius: 12px 12px 12px 4px;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, .04);
+    word-wrap: break-word;
+}
+.personal-chat .chat__msg--mine {
+    align-self: flex-end;
+    background: #1976d2;
+    color: #ffffff;
+    border-radius: 12px 12px 4px 12px;
+}
+.personal-chat .chat__msg-text {
+    white-space: pre-wrap;
+}
+.personal-chat .chat__msg-image {
+    display: block;
+    margin-top: 6px;
+}
+.personal-chat .chat__msg-image img {
+    display: block;
+    max-width: 240px;
+    max-height: 240px;
+    border-radius: 8px;
+}
+.personal-chat .chat__msg-file {
+    display: block;
+    margin-top: 6px;
+    color: inherit;
+    text-decoration: underline;
+}
+.personal-chat .chat__msg-meta {
+    display: block;
+    margin-top: 2px;
+    text-align: right;
+    font-size: .7rem;
+    opacity: .7;
+}
+
+/* Поле ввода */
+.personal-chat .chat__compose {
+    padding: 12px 20px 16px;
+    border-top: 1px solid #e1e1e1;
+}
+.personal-chat .chat__context:not(:empty) {
+    margin-bottom: 8px;
+}
+.personal-chat .chat__files:not(:empty) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 8px;
+}
+.personal-chat .chat__file {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    max-width: 100%;
+    padding: 2px 4px 2px 10px;
+    border-radius: 12px;
+    background: #e9ecef;
+    font-size: .8rem;
+}
+.personal-chat .chat__file-remove {
+    border: 0;
+    background: none;
+    padding: 0 4px;
+    line-height: 1;
+    font-size: 1.1rem;
+    color: #6c757d;
+}
+.personal-chat .chat__compose-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+}
+.personal-chat .chat__attach {
+    flex: 0 0 auto;
+    width: 42px;
+    height: 42px;
+    border: 0;
+    background: none;
+    color: #6c757d;
+}
+.personal-chat .chat__attach:hover {
+    color: #1976d2;
+}
+.personal-chat .chat__input {
+    flex: 1 1 auto;
+    min-height: 42px;
+    resize: none;
+}
+.personal-chat .chat__send {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    margin-right: 15px; /* уголок :after кнопки */
+    height: 42px;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+.personal-chat .chat__send:disabled {
+    opacity: .6;
+}
+.personal-chat .js-chat-error:empty {
+    display: none;
+}
+.personal-chat .js-chat-error {
+    margin-top: 6px;
+}
+
+/* Телефон: список или диалог. */
+@media (max-width: 767.98px) {
+    .personal-chat .chat {
+        height: calc(100vh - 160px);
+        min-height: 420px;
+    }
+    .personal-chat .chat__threads {
+        flex: 1 1 auto;
+        border-right: 0;
+    }
+    .personal-chat .chat__dialog {
+        display: none;
+    }
+    .personal-chat .chat.is-dialog-open .chat__threads {
+        display: none;
+    }
+    .personal-chat .chat.is-dialog-open .chat__dialog {
+        display: flex;
+    }
+    .personal-chat .chat__back {
+        display: block;
+    }
+    .personal-chat .chat__head,
+    .personal-chat .chat__messages,
+    .personal-chat .chat__compose {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+    .personal-chat .chat__head-link {
+        display: none;
+    }
+    .personal-chat .chat__msg {
+        max-width: 85%;
+    }
+}
