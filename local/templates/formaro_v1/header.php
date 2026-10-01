@@ -219,17 +219,6 @@ if($GLOBALS["APPLICATION"]->GetCurPage(false) == '/'
             </div>
         </div>
     </header>
-    <?php
-    // Раздел партнёра (шапка уезжает вверх — #header.partner-page): те же
-    // Заказы / Избранное / Корзина / профиль справа вверху страницы
-    // (css/pages.css, видна только при #header.partner-page). Счётчики —
-    // те же data-*-count, их обновляют cart.js / favorites.js / live-counters.js.
-    ?>
-    <div class="partner-actions">
-        <div class="header__actions">
-            <?php include $_SERVER['DOCUMENT_ROOT'] . SITE_TEMPLATE_PATH . '/include/header_actions.php'; ?>
-        </div>
-    </div>
 
     <div id="bg-menu">
         <div class="bg-menu-background">
@@ -463,6 +452,19 @@ if($GLOBALS["APPLICATION"]->GetCurPage(false) == '/'
         );?>
     </div>
 
+    <?php
+    // Раздел партнёра (шапка уезжает вверх — #header.partner-page): те же
+    // Заказы / Избранное / Корзина / профиль панелью иконок (css/pages.css,
+    // видна только при #header.partner-page). Стоит после .sidebar: на
+    // телефоне панель внизу и поднимается над нижней полосой сайта, когда та
+    // выезжает (селектор .sidebar ~ .partner-actions). Счётчики — те же
+    // data-*-count, их обновляют cart.js / favorites.js / live-counters.js.
+    ?>
+    <div class="partner-actions">
+        <div class="header__actions">
+            <?php include $_SERVER['DOCUMENT_ROOT'] . SITE_TEMPLATE_PATH . '/include/header_actions.php'; ?>
+        </div>
+    </div>
     <main id="main" class="flex-shrink-0 mb-auto">
 
         <?if($showTitleBlock):?>

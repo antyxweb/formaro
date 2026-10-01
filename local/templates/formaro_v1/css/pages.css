@@ -291,6 +291,10 @@
     text-decoration: none;
     transition: 0.3s;
 }
+/* Все иконки — на любой ширине (в шапке часть скрыта до sm: d-none d-sm-flex). */
+.partner-actions .header__action-link.d-none {
+    display: flex !important;
+}
 /* Подписи не нужны — только иконки (подсказка — title). */
 .partner-actions .header__action-link span {
     display: none !important;
@@ -320,4 +324,37 @@
 }
 .partner-actions .header__action-link:hover {
     opacity: 0.6;
+}
+/* Меньше 768px — панель внизу экрана, горизонтальная, на белой подложке;
+   подвал получает отступ снизу, чтобы панель его не закрывала. */
+@media (max-width: 767.98px) {
+    #header.partner-page ~ .partner-actions {
+        top: auto;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background: #ffffff;
+        box-shadow: 0 -1px 3px rgba(0, 0, 0, .08);
+        transition: opacity 0.3s, bottom 0.3s;
+    }
+    /* Нижняя полоса сайта (.sidebar, до 992px) выезжает при прокрутке вниз —
+       панель поднимается над ней. */
+    #header.partner-page ~ .sidebar:not(.overtop-page) ~ .partner-actions {
+        bottom: 60px;
+    }
+    .partner-actions .header__actions {
+        flex-direction: row;
+        justify-content: space-around;
+    }
+    .partner-actions .header__action-link {
+        flex: 1 1 0;
+        width: auto;
+    }
+    .partner-actions .header__action-link .header__action-count {
+        left: 50%;
+        margin-left: 2px;
+    }
+    #header.partner-page ~ #footer {
+        padding-bottom: 60px;
+    }
 }
