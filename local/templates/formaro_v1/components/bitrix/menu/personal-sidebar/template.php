@@ -6,7 +6,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
 /** @global CUser $USER */
 
 // Меню личного кабинета (вёрстка /html/orders.html: блок справа).
-// Счётчики — по PARAMS.COUNTER пункта (.left.menu.php раздела /personal/):
+// Счётчики — по PARAMS.COUNTER пункта (ноль не показывается) (.left.menu.php раздела /personal/):
 // orders — заказы, notify — непрочитанные уведомления, messages — непрочитанные ответы продавцов, cart — позиции корзины, favorites — избранное. Корзину и
 // избранное дальше обновляют cart.js/favorites.js (data-атрибуты те же,
 // что у счётчиков в шапке).
@@ -37,7 +37,7 @@ $countAttrs = ['orders' => ' data-orders-count', 'notify' => ' data-notify-count
                     <use xlink:href="#<?= htmlspecialcharsbx($item['PARAMS']['ICON'] ?? 'icon-profile') ?>"></use>
                 </svg>
                 <?php if ($counter !== ''): ?>
-                <small class="header__action-count"<?= $countAttrs[$counter] ?? '' ?>><?= (int)($counts[$counter] ?? 0) ?></small>
+                <small class="header__action-count js-personal-count<?= empty($counts[$counter]) ? ' d-none' : '' ?>"<?= $countAttrs[$counter] ?? '' ?>><?= (int)($counts[$counter] ?? 0) ?></small>
                 <?php endif; ?>
                 <span<?= $item['SELECTED'] ? ' class="font-weight-bold"' : '' ?>><?= htmlspecialcharsbx($item['TEXT']) ?></span>
             </a>
@@ -55,3 +55,14 @@ $countAttrs = ['orders' => ' data-orders-count', 'notify' => ' data-notify-count
         <?php endif; ?>
     </ul>
 </div>
+<script>
+// Ноль у счётчиков не показываем. Число меняют скрипты корзины, избранного,
+// уведомлений и чатов (textContent по data-*-count) — следим за ним здесь,
+// чтобы не править каждый из них.
+(function () {
+    document.querySelectorAll('.personal-sidebar .js-personal-count').forEach(function (node) {
+        var sync = function () { node.classList.toggle('d-none', !(parseInt(node.textContent, 10) > 0)); };
+        new MutationObserver(sync).observe(node, {childList: true, characterData: true, subtree: true});
+    });
+})();
+</script>
