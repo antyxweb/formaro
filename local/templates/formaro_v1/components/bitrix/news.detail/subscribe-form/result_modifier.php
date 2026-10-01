@@ -11,9 +11,10 @@
 /** @var string $componentPath */
 /** @var CBitrixComponent $component */
 
-$arFilter = array('IBLOCK_ID'=>3, 'DEPTH_LEVEL'=>1);
-$rsSections = CIBlockSection::GetList(array('LEFT_MARGIN' => 'ASC'), $arFilter, true, array(), false);
-while ($arSection = $rsSections->GetNext())
-{
-    $arResult['SECTIONS'][] = $arSection;
+// Темы подписки — разделы каталога верхнего уровня (SubscriptionService::topics()).
+$arResult['SECTIONS'] = [];
+if (\Bitrix\Main\Loader::includeModule('formaro.cabinet')) {
+    foreach (\Formaro\Cabinet\Service\SubscriptionService::topics() as $id => $name) {
+        $arResult['SECTIONS'][] = ['ID' => $id, 'NAME' => htmlspecialcharsbx($name)];
+    }
 }

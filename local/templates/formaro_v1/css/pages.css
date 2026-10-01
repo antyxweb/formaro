@@ -190,3 +190,34 @@
 .text-page .text-page__terms dd {
     margin: 0 0 1rem;
 }
+
+/* Подписка на рассылку (js/subscribe.js): «Будьте в курсе» и подвал. */
+.subscribe-trap {
+    position: absolute;
+    left: -10000px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+}
+.subscribe-status:empty {
+    display: none;
+}
+.subscribe-status.is-success {
+    color: #28a745;
+}
+.subscribe-status.is-error {
+    color: #dc3545;
+}
+#footer .subscribe-status.is-success {
+    color: #8fdc9f;
+}
+#footer .subscribe-status.is-error {
+    color: #ff9aa4;
+}
+#footer .subscribe-consent {
+    opacity: .6;
+}
+#footer .subscribe-consent a {
+    color: inherit;
+    text-decoration: underline;
+}

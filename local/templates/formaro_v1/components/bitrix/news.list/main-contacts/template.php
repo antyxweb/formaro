@@ -33,10 +33,17 @@ $this->setFrameMode(true);
     </div>
 
     <h5 class="mb-3 mt-auto">Будь всегда в форме!</h5>
-    <p class="ьи-4">Подписаться на рассылку</p>
+    <p class="mb-4">Подписаться на рассылку</p>
 
-    <form action="" class="subscribe-form d-flex mb-4">
-        <input type="text" placeholder="Ваш e-mail" class="subscribe-form-input">
-        <button class="f-button f-button-inner c-white">Отправить</button>
+    <?/* Отправка — js/subscribe.js → /local/ajax/subscribe.php (HL-блок «Подписки на рассылку»).
+         Шаблон выводится дважды (подвал и меню) — id поля свой у каждого. */?>
+    <?$subscribeId = 'subscribe-footer-email-' . $this->randString();?>
+    <form class="subscribe-form js-subscribe d-flex flex-wrap mb-4" data-form="footer" novalidate>
+        <label for="<?=$subscribeId?>" class="sr-only">Ваш e-mail</label>
+        <input type="email" name="email" id="<?=$subscribeId?>" placeholder="Ваш e-mail" class="subscribe-form-input" autocomplete="email" required>
+        <span class="subscribe-trap" aria-hidden="true"><input type="text" name="website" tabindex="-1" autocomplete="off" aria-label="Сайт"></span>
+        <button type="submit" class="f-button f-button-inner c-white js-subscribe-submit">Отправить</button>
+        <small class="subscribe-status w-100 mt-2 js-subscribe-status" role="status"></small>
+        <small class="subscribe-consent w-100 mt-2">Нажимая «Отправить», вы соглашаетесь с <a href="/support/policy/">политикой обработки персональных данных</a></small>
     </form>
 </div>
