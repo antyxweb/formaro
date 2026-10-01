@@ -269,18 +269,11 @@
     right: 0;
     z-index: 78;
     display: block;
-    background: #ffffff;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, .08);
     transition: opacity 0.3s;
 }
 #header.partner-page:hover ~ .partner-actions {
     opacity: 0;
     pointer-events: none;
-}
-/* Место под панель справа — как под левую полосу (padding-left у #main/#footer). */
-#header.partner-page ~ #main,
-#header.partner-page ~ #footer {
-    padding-right: 60px;
 }
 .partner-actions .header__actions {
     display: flex;
