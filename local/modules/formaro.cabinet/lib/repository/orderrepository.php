@@ -112,6 +112,10 @@ class OrderRepository
         ];
 
         if ($existing) {
+            // Покупатель привязывается один раз: к ещё не привязанному заказу.
+            if (!$existing['user_id'] && (int)($payload['user_id'] ?? 0) > 0) {
+                $fields['UF_USER_ID'] = (int)$payload['user_id'];
+            }
             $result = $dataClass::update($id, $fields);
         } else {
             // order_number считает сервер по настоящему id (в прототипе это

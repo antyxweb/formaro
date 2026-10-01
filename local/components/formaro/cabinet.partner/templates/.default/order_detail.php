@@ -55,7 +55,8 @@ require __DIR__ . '/inc/layout_app_top.php';
         </div>
 
         <div class="card mb-3">
-            <div class="card-header">Данные покупателя</div>
+            <?php // Пометка — заказ привязан к покупателю сайта (найден по e-mail/телефону или оформлен на витрине). ?>
+            <div class="card-header d-flex align-items-center gap-2">Данные покупателя <span class="badge bg-success-subtle text-success d-none" id="custLinkedBadge" title="Заказ виден покупателю в «Ваших заказах» на сайте, уведомления о нём приходят покупателю">Покупатель сайта</span></div>
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-6 mb-3"><label class="form-label">Имя / название компании</label><input type="text" class="form-control" id="custName" data-validate="text"></div>

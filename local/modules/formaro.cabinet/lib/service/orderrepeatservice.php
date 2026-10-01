@@ -54,7 +54,10 @@ class OrderRepeatService
         $order = self::partnerOrder($partnerId, $orderId);
 
         // has_buyer — заказ с витрины: новый привяжется к покупателю, ему — уведомление.
-        return self::resolve($order, $partnerId) + ['has_buyer' => $order['user_id'] > 0];
+        $hasBuyer = $order['user_id'] > 0
+            || BuyerLookupService::find((string)($order['customer']['email'] ?? ''), (string)($order['customer']['phone'] ?? '')) > 0;
+
+        return self::resolve($order, $partnerId) + ['has_buyer' => $hasBuyer];
     }
 
     /**
@@ -87,7 +90,8 @@ class OrderRepeatService
 
         $new = (new OrderRepository())->save($partnerId, [
             'status' => 'new',
-            'user_id' => (int)$order['user_id'],
+            // Покупатель исходного заказа; не был привязан — ищем по e-mail/телефону.
+            'user_id' => (int)$order['user_id'] ?: BuyerLookupService::find((string)($order['customer']['email'] ?? ''), (string)($order['customer']['phone'] ?? '')),
             'payment_status' => 'awaiting',
             'customer' => $order['customer'],
             'items' => $orderItems,

@@ -377,6 +377,7 @@ function selectMethod(selector, value) {
 
 function renderOrder(o) {
     savedStatus = o.status;
+    $('#custLinkedBadge').toggleClass('d-none', !o.user_id);
     $('#orderNumber').text(o.order_number);
     $('#orderStatusPill').html(statusPill(o.status));
     $('#orderDate').text(fmtDate(o.created_at));
@@ -462,6 +463,10 @@ function doSaveOrder() {
         var o = allOrders.find(function (x) { return x.id === orderId; });
         if (o) {
             savedStatus = o.status;
+            // Покупателя сайта сервер мог найти и привязать при сохранении.
+            var saved = (savedRows || []).filter(function (r) { return r && r.id === orderId; })[0];
+            if (saved) o.user_id = saved.user_id;
+            $('#custLinkedBadge').toggleClass('d-none', !o.user_id);
             $('#orderStatusPill').html(statusPill(o.status));
             currentHistory = (o.history || []).slice();
             renderHistory();

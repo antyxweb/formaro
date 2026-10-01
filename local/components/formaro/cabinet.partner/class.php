@@ -23,6 +23,7 @@ use Formaro\Cabinet\Repository\TicketRepository;
 use Formaro\Cabinet\Repository\TransactionRepository;
 use Formaro\Cabinet\Repository\UserProfileRepository;
 use Formaro\Cabinet\Security\PartnerContext;
+use Formaro\Cabinet\Service\BuyerLookupService;
 use Formaro\Cabinet\Service\BuyerNotificationService;
 use Formaro\Cabinet\Service\OrderRepeatService;
 
@@ -331,9 +332,11 @@ class CabinetPartnerComponent extends CBitrixComponent
     }
 
     /**
-     * Заказ из кабинета: покупателя (user_id) продавец не задаёт — он
-     * ставится только при оформлении на витрине; покупателю — уведомление
-     * о смене статуса (BuyerNotificationService).
+     * Заказ из кабинета: покупателя (user_id) продавец напрямую не задаёт —
+     * сервер сам ищет покупателя сайта по e-mail/телефону из данных
+     * покупателя (BuyerLookupService) и привязывает новый или ещё не
+     * привязанный заказ; покупателю — уведомление о заказе и о смене статуса
+     * (BuyerNotificationService).
      */
     private function saveOrder(int $partnerId, array $row): array
     {
@@ -347,8 +350,22 @@ class CabinetPartnerComponent extends CBitrixComponent
         if ($before) {
             $row = $this->lockOrderData($before, $row);
         }
+        // Новый заказ или ещё не привязанный (пока его можно менять) — ищем
+        // покупателя сайта по e-mail/телефону из данных покупателя.
+        $canLink = !$before || (!$before['user_id'] && in_array($before['status'], ['new', 'processing'], true));
+        if ($canLink) {
+            $customer = (array)($row['customer'] ?? []);
+            $buyerId = BuyerLookupService::find((string)($customer['email'] ?? ''), (string)($customer['phone'] ?? ''));
+            if ($buyerId) {
+                $row['user_id'] = $buyerId;
+            }
+        }
         $after = $repo->save($partnerId, $this->keepPaymentStatus($partnerId, $row));
-        BuyerNotificationService::orderUpdated($before, $after);
+        if ($after['user_id'] && (!$before || !$before['user_id'])) {
+            BuyerNotificationService::orderCreatedByPartner($after);
+        } else {
+            BuyerNotificationService::orderUpdated($before, $after);
+        }
 
         return $after;
     }
