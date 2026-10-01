@@ -11,7 +11,11 @@
 
    «Показать / Скрыть товары» — карусель товаров заказа (по умолчанию
    скрыта). Flickity запускается scripts.js на скрытой карусели и меряет
-   нули — после показа пересчитываем размеры (resize). */
+   нули — после показа пересчитываем размеры (resize).
+
+   «История заказа» — во всплывающем окне (FormaroModal, js/confirm.js);
+   записи — из <template> заказа, отмена и сообщение об оплате дописывают
+   туда новую запись сверху. */
 (function () {
     function post(url, id, onDone, onFail) {
         var root = document.getElementById('personal-orders');
@@ -40,6 +44,7 @@
             var badge = order.querySelector('.js-order-status');
             badge.className = badge.className.replace(/\bbg-\S+/, 'bg-secondary');
             badge.textContent = 'Отменён';
+            addHistory(order, 'Заказ отменён покупателем');
             button.remove();
             // Отменённый — без счёта и «Сообщить об оплате».
             var payment = order.querySelector('.js-order-payment');
@@ -61,11 +66,33 @@
             // Счёт больше не нужен — ссылку на него убираем.
             var invoice = link.closest('.js-order-payment').querySelector('.js-order-invoice');
             if (invoice) invoice.remove();
+            addHistory(link.closest('.order-item'), 'Вы сообщили об оплате');
             link.replaceWith(note);
         }, function (message) {
             link.removeAttribute('aria-disabled');
             error.textContent = message || 'Не удалось отправить, попробуйте ещё раз';
         });
+    }
+
+    // Новая запись истории сверху — после отмены и сообщения об оплате.
+    function addHistory(order, text) {
+        var list = order.querySelector('.js-order-history-list').content.querySelector('.order-history');
+        var item = document.createElement('li');
+        item.className = 'order-history__item';
+        var textNode = document.createElement('div');
+        textNode.className = 'order-history__text';
+        textNode.textContent = text;
+        var meta = document.createElement('small');
+        meta.className = 'text-muted';
+        meta.textContent = 'Вы · только что';
+        item.appendChild(textNode);
+        item.appendChild(meta);
+        list.insertBefore(item, list.firstChild);
+    }
+
+    function showHistory(link) {
+        var list = link.parentNode.querySelector('.js-order-history-list').content.cloneNode(true);
+        window.FormaroModal({title: 'История заказа ' + link.getAttribute('data-order-number'), content: list});
     }
 
     function toggleItems(link) {
@@ -81,6 +108,13 @@
     }
 
     document.addEventListener('click', function (e) {
+        var history = e.target.closest && e.target.closest('.js-order-history');
+        if (history) {
+            e.preventDefault();
+            showHistory(history);
+            return;
+        }
+
         var toggle = e.target.closest && e.target.closest('.js-order-items-toggle');
         if (toggle) {
             e.preventDefault();

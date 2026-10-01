@@ -48,6 +48,18 @@
 .f-confirm__actions .f-button:last-child {
     margin-right: 15px;
 }
+/* FormaroModal — окно просмотра: шире, длинное содержимое прокручивается. */
+.f-confirm__dialog--modal {
+    max-width: 560px;
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100vh - 32px);
+}
+.f-confirm__body {
+    overflow-y: auto;
+    margin: 0 0 24px;
+    padding-top: 4px;
+}
 body.f-confirm-open {
     overflow: hidden;
 }

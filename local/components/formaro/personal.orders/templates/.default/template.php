@@ -113,11 +113,24 @@ $e = static fn($s) => htmlspecialcharsbx((string)$s);
                                 <?php endif; ?>
                             </div>
 
-                            <?php // Под карточкой заказа; товары по умолчанию скрыты (script.js). ?>
-                            <a href="#order-items-<?= (int)$order['ID'] ?>" class="order-item__toggle d-inline-block mt-3 js-order-items-toggle" role="button" aria-expanded="false" aria-controls="order-items-<?= (int)$order['ID'] ?>">
-                                <span class="js-order-items-toggle-text">Показать товары</span> (<?= count($order['ITEMS']) ?>)
-                                <svg width="16" height="16" aria-hidden="true"><use xlink:href="#icon-arrow-down"></use></svg>
-                            </a>
+                            <?php // Под карточкой заказа; товары по умолчанию скрыты, история — во всплывающем окне (script.js). ?>
+                            <div class="order-item__links d-flex flex-wrap mt-3">
+                                <a href="#order-items-<?= (int)$order['ID'] ?>" class="order-item__toggle js-order-items-toggle" role="button" aria-expanded="false" aria-controls="order-items-<?= (int)$order['ID'] ?>">
+                                    <span class="js-order-items-toggle-text">Показать товары</span> (<?= count($order['ITEMS']) ?>)
+                                    <svg width="16" height="16" aria-hidden="true"><use xlink:href="#icon-arrow-down"></use></svg>
+                                </a>
+                                <a href="#" class="js-order-history" role="button" data-order-number="<?= $e($order['NUMBER']) ?>">История заказа</a>
+                                <template class="js-order-history-list">
+                                    <ul class="order-history">
+                                        <?php foreach ($order['HISTORY'] as $entry): ?>
+                                        <li class="order-history__item">
+                                            <div class="order-history__text"><?= $e($entry['TEXT']) ?></div>
+                                            <small class="text-muted"><?= $e($entry['AUTHOR']) ?> · <?= $e($entry['DATE']) ?></small>
+                                        </li>
+                                        <?php endforeach; ?>
+                                    </ul>
+                                </template>
+                            </div>
 
                             <div class="order-item__items" id="order-items-<?= (int)$order['ID'] ?>" hidden>
                             <div class="main-carousel product-carousel">

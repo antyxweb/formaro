@@ -126,11 +126,41 @@ class FormaroPersonalOrdersComponent extends CBitrixComponent
                 'DISCOUNT' => $order['discount_amount'],
                 'COUPON' => (string)$order['coupon_code'],
                 'TOTAL' => $order['total'],
+                'HISTORY' => $this->history($order['history']),
                 'QTY' => array_sum(array_column($items, 'QTY')),
                 'ITEMS' => $items,
             ];
         }
 
         return $result;
+    }
+
+    /**
+     * «История заказа» для покупателя: записи от покупателя («Вы») и смены
+     * статуса продавцом («Продавец»). Свободные комментарии менеджера из
+     * кабинета партнёра («Комментарий менеджера») — его внутренние заметки,
+     * покупателю не показываются.
+     */
+    private function history(array $history): array
+    {
+        $result = [];
+        foreach ($history as $entry) {
+            $text = (string)($entry['text'] ?? '');
+            $author = (string)($entry['author'] ?? '');
+            if ($author === 'Менеджер' && strpos($text, 'Статус изменён') !== 0 && strpos($text, 'Заказ создан') !== 0) {
+                continue;
+            }
+            if ($text === CartCheckoutService::PAYMENT_NOTICE_TEXT) {
+                $text = 'Вы сообщили об оплате';
+            }
+            $time = strtotime((string)($entry['date'] ?? '')) ?: 0;
+            $result[] = [
+                'DATE' => $time ? FormatDate('j F Y, H:i', $time) : '',
+                'TEXT' => $text,
+                'AUTHOR' => $author === 'Покупатель' ? 'Вы' : 'Продавец',
+            ];
+        }
+
+        return array_reverse($result); // свежие — сверху
     }
 }

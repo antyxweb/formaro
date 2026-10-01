@@ -4,7 +4,11 @@
    true — нажали кнопку действия, false — «Отмена», Esc, клик мимо окна.
    danger — красная кнопка действия (удалить, отменить), фокус тогда — на
    «Отмене», иначе — на кнопке действия; из окна не уходит (Tab), после
-   закрытия возвращается туда, где был. Стили — css/confirm.css. */
+   закрытия возвращается туда, где был. Стили — css/confirm.css.
+
+   FormaroModal({title, content, closeText}) — то же окно для просмотра
+   (например, «История заказа»): content — DOM-узел или текст, одна кнопка
+   «Закрыть» (и Esc, клик мимо окна). Длинное содержимое прокручивается. */
 (function () {
     function el(tag, className, text) {
         var node = document.createElement(tag);
@@ -72,5 +76,61 @@
             // У опасного действия фокус — на «Отмене»: случайный Enter ничего не сломает.
             (options.danger ? cancel : ok).focus();
         });
+    };
+
+    window.FormaroModal = function (options) {
+        options = options || {};
+        var previous = document.activeElement;
+        var overlay = el('div', 'f-confirm');
+        var dialog = el('div', 'f-confirm__dialog f-confirm__dialog--modal');
+        dialog.setAttribute('role', 'dialog');
+        dialog.setAttribute('aria-modal', 'true');
+
+        var title = el('h4', 'f-confirm__title', options.title || '');
+        title.id = 'f-modal-title-' + Date.now();
+        dialog.setAttribute('aria-labelledby', title.id);
+        dialog.appendChild(title);
+
+        var body = el('div', 'f-confirm__body');
+        if (options.content && options.content.nodeType) {
+            body.appendChild(options.content);
+        } else if (options.content) {
+            body.textContent = options.content;
+        }
+        dialog.appendChild(body);
+
+        var actions = el('div', 'f-confirm__actions');
+        var closeButton = el('button', 'f-button c-gray text-secondary', options.closeText || 'Закрыть');
+        closeButton.type = 'button';
+        actions.appendChild(closeButton);
+        dialog.appendChild(actions);
+        overlay.appendChild(dialog);
+
+        var close = function () {
+            document.removeEventListener('keydown', onKey, true);
+            overlay.classList.remove('is-open');
+            document.body.classList.remove('f-confirm-open');
+            setTimeout(function () { overlay.remove(); }, 200);
+            if (previous && previous.focus) previous.focus({preventScroll: true});
+        };
+        var onKey = function (e) {
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                close();
+            } else if (e.key === 'Tab') {
+                // В окне одна кнопка — фокус из окна не уходит.
+                e.preventDefault();
+                closeButton.focus();
+            }
+        };
+
+        closeButton.addEventListener('click', close);
+        overlay.addEventListener('click', function (e) { if (e.target === overlay) close(); });
+        document.addEventListener('keydown', onKey, true);
+
+        document.body.appendChild(overlay);
+        document.body.classList.add('f-confirm-open');
+        window.requestAnimationFrame(function () { overlay.classList.add('is-open'); });
+        closeButton.focus();
     };
 })();
