@@ -486,17 +486,22 @@ function repeatOrder() {
             showResult(false, 'Ни одного товара из заказа сейчас нет в продаже: ' + check.missing.join(', ') + '.');
             return;
         }
-        if (!check.missing.length && !check.reduced.length) {
-            create();
-            return;
-        }
+        // Подтверждение — всегда; чего нет или меньше в наличии — в том же окне.
         var parts = [];
         if (check.missing.length) parts.push('Нет в продаже: ' + check.missing.join(', ') + '.');
         if (check.reduced.length) parts.push('Меньше в наличии: ' + check.reduced.join('; ') + '.');
+        var full = !parts.length;
         $btn.prop('disabled', false);
-        showConfirm(parts.join(' ') + ' Создать новый заказ с остальными товарами?', function () {
-            $btn.prop('disabled', true);
-            create();
-        }, {title: 'Не все товары доступны', okText: 'Создать заказ'});
+        showConfirm(
+            (full
+                ? 'Будет создан новый заказ с теми же товарами (' + check.items.length + ' поз.) по текущим ценам, тем же покупателем, доставкой и оплатой.'
+                : parts.join(' ') + ' Будет создан новый заказ с остальными товарами (' + check.items.length + ' поз.) по текущим ценам.')
+                + (check.has_buyer ? ' Заказ появится у покупателя в «Ваших заказах», ему придёт уведомление.' : ''),
+            function () {
+                $btn.prop('disabled', true);
+                create();
+            },
+            {title: full ? 'Повторить заказ?' : 'Не все товары доступны', okText: 'Да, создать заказ'}
+        );
     }).fail(function () { $btn.prop('disabled', false); });
 }

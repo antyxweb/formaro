@@ -69,6 +69,22 @@ class BuyerNotificationService
         );
     }
 
+    /** Продавец повторил заказ покупателя («Повторить заказ» в кабинете) — новый заказ. */
+    public static function orderRepeatedByPartner(array $order, array $source): void
+    {
+        if (empty($order['user_id'])) {
+            return;
+        }
+        $partner = CartCheckoutService::partners([$order['partner_id']])[$order['partner_id']] ?? ['name' => 'Продавец'];
+        NotificationRepository::forBuyer()->addForBuyer(
+            (int)$order['user_id'],
+            'order',
+            'Новый заказ ' . $order['order_number'],
+            'Продавец ' . $partner['name'] . ' повторил ваш заказ ' . $source['order_number'] . ' — новый заказ на сумму ' . self::money($order['total']) . ' руб. ждёт подтверждения и оплаты.',
+            self::orderLink($order)
+        );
+    }
+
     /** $before — заказ до сохранения (null — новый), $after — после. */
     public static function orderUpdated(?array $before, array $after): void
     {

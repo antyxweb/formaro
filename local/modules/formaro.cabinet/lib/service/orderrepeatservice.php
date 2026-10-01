@@ -46,19 +46,22 @@ class OrderRepeatService
     /**
      * Кабинет партнёра: что войдёт в новый заказ — товары этого продавца.
      *
-     * @return array{items: array, missing: string[], reduced: string[]}
+     * @return array{items: array, missing: string[], reduced: string[], has_buyer: bool}
      * @throws \RuntimeException
      */
     public static function checkForPartner(int $partnerId, int $orderId): array
     {
-        return self::resolve(self::partnerOrder($partnerId, $orderId), $partnerId);
+        $order = self::partnerOrder($partnerId, $orderId);
+
+        // has_buyer — заказ с витрины: новый привяжется к покупателю, ему — уведомление.
+        return self::resolve($order, $partnerId) + ['has_buyer' => $order['user_id'] > 0];
     }
 
     /**
      * Кабинет партнёра: новый заказ («Новый», ожидает оплаты) с доступными
      * товарами по текущим ценам, тем же покупателем, доставкой и оплатой.
-     * Покупатель с витрины к нему не привязывается — как и к любому заказу,
-     * созданному продавцом вручную.
+     * Исходный заказ был с витрины — новый привязан к тому же покупателю
+     * (появится в его «Ваших заказах») и ему уходит уведомление.
      *
      * @return array новый заказ (OrderRepository::get())
      * @throws \RuntimeException
@@ -82,8 +85,9 @@ class OrderRepeatService
         ], $items);
         $subtotal = array_sum(array_map(static fn($i) => $i['price'] * $i['qty'], $orderItems));
 
-        return (new OrderRepository())->save($partnerId, [
+        $new = (new OrderRepository())->save($partnerId, [
             'status' => 'new',
+            'user_id' => (int)$order['user_id'],
             'payment_status' => 'awaiting',
             'customer' => $order['customer'],
             'items' => $orderItems,
@@ -98,6 +102,9 @@ class OrderRepeatService
                 'author' => 'Менеджер',
             ]],
         ]);
+        BuyerNotificationService::orderRepeatedByPartner($new, $order);
+
+        return $new;
     }
 
     /** @return int[] id добавленных товаров */
