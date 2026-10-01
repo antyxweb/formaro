@@ -1,15 +1,15 @@
 <?
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
-$APPLICATION->SetPageProperty("title", "Стать партнером");
-$APPLICATION->SetTitle("Стать партнером");
-include $_SERVER['DOCUMENT_ROOT'] . SITE_TEMPLATE_PATH . '/include/text_page_top.php';
-?>
-<h2>Продавать на Formaro.ru</h2>
-<p class="lead">Добро пожаловать в программу партнерского маркетинга «Форма Партнер»!</p>
-<p>Наш онлайн магазин объединяет на своей площадке производителей и продавцов специальной и форменной одежды, обуви и других сопутствующих товаров, благодаря чему мы имеем широкий ассортимент товаров, а постоянная работа наших специалистов и использование нами многих инструментов для привлечения клиентов, дают нам возможность направлять в свою аудиторию как можно больше покупателей, тем самым продавать ваши товары и зарабатывать с вами на соответствующих продажах.</p>
-<p>Приглашаем вас к сотрудничеству по продаже ваших товаров в нашем интернет-магазине.</p>
-<p>Пожалуйста, <a href="/about/contacts/">напишите нам</a> или свяжитесь с нами по телефону: <a href="tel:+74957927080">+7 495 792 70 80</a></p>
-<p>Уже партнер? <a href="/cabinet/">Войти в кабинет партнёра</a></p>
-<?include $_SERVER['DOCUMENT_ROOT'] . SITE_TEMPLATE_PATH . '/include/text_page_bottom.php';?>
+// Текст, заголовок и SEO — элемент «become-a-partner» инфоблока «Контентные страницы».
+?><?$APPLICATION->IncludeComponent(
+	"formaro:content.page",
+	"",
+	[
+		"CODE" => "become-a-partner",
+		"CACHE_TYPE" => "A",
+		"CACHE_TIME" => "36000000",
+	],
+	false
+);?>
 
 <?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/footer.php");?>
