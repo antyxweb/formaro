@@ -38,6 +38,7 @@ $this->setFrameMode(true);
 
                 <div class="partners-card__actions">
                     <a href="<?=$arItem["DETAIL_PAGE_URL"]?>" class="f-button c-success">Каталог товаров</a>
+                    <a href="/personal/messages/?partner=<?= (int)$arItem["ID"] ?>" class="f-button">Чат с продавцом</a>
                 </div>
             </div>
         </div>
