@@ -7,9 +7,8 @@ require __DIR__ . '/inc/layout_app_top.php';
 ?>
 <a href="<?= $arResult['SEF_FOLDER'] ?>orders/" class="btn btn-link px-0 mb-2"><svg class="ic-inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path></svg> К списку заказов</a>
 
-<div class="alert alert-info d-none" id="orderLockedBanner">
-    <i class="bi bi-lock"></i> Заказ подтверждён — состав товаров и данные покупателя больше нельзя менять. Доступны только статус, доставка, оплата и история.
-</div>
+<?php // Текст — order-detail.js (applyLockState): данные заказа меняются только в «Новый» и «В обработке». ?>
+<div class="alert alert-info d-none" id="orderLockedBanner" role="status"></div>
 
 <div class="row g-3">
     <div class="col-lg-8">

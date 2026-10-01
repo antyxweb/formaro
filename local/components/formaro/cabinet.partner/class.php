@@ -282,6 +282,34 @@ class CabinetPartnerComponent extends CBitrixComponent
     }
 
     /**
+     * Данные заказа (товары, покупатель, доставка, оплата, скидка) меняются
+     * только в статусах «Новый» и «В обработке» (как и в форме,
+     * order-detail.js). Дальше из присланного берём лишь статус (не назад в
+     * «Новый»/«В обработке»; у выполненного и отменённого — без смены) и
+     * новые записи истории — всё остальное из сохранённого заказа.
+     */
+    private function lockOrderData(array $before, array $row): array
+    {
+        $editable = ['new', 'processing'];
+        if (in_array($before['status'], $editable, true)) {
+            return $row;
+        }
+        $status = (string)($row['status'] ?? $before['status']);
+        if (in_array($before['status'], ['completed', 'cancelled'], true) || in_array($status, $editable, true)) {
+            $status = $before['status'];
+        }
+
+        // История — только дописывается: сохранённые записи на месте, новые — в конце.
+        $oldHistory = $before['history'];
+        $newHistory = array_values((array)($row['history'] ?? []));
+        $history = array_slice($newHistory, 0, count($oldHistory)) == $oldHistory
+            ? $newHistory
+            : $oldHistory;
+
+        return ['id' => $before['id'], 'status' => $status, 'history' => $history] + $before;
+    }
+
+    /**
      * Статус оплаты заказа продавец не меняет — счёт выставляет и оплату
      * подтверждает маркетплейс: у своего заказа остаётся сохранённый, у
      * нового (созданного вручную) — «Ожидает оплаты», что бы ни прислала форма.
@@ -311,6 +339,9 @@ class CabinetPartnerComponent extends CBitrixComponent
         $before = $id ? $repo->get($id) : null;
         if ($before && !$repo->canEdit($partnerId, $before)) {
             $before = null;
+        }
+        if ($before) {
+            $row = $this->lockOrderData($before, $row);
         }
         $after = $repo->save($partnerId, $this->keepPaymentStatus($partnerId, $row));
         BuyerNotificationService::orderUpdated($before, $after);

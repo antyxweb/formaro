@@ -19,7 +19,13 @@ var allOrders = [];
 var allProductsForPicker = [];
 var currentItems = [];
 var currentHistory = [];
-var LOCKED_STATUSES = ['confirmed', 'shipped', 'completed'];
+// Данные заказа (товары, покупатель, доставка, оплата, скидка) меняются
+// только в статусах «Новый» и «В обработке». Дальше — только статус и
+// история; у выполненного и отменённого — только история. То же проверяет
+// сервер (class.php, saveOrder()).
+var EDITABLE_STATUSES = ['new', 'processing'];
+var FINAL_STATUSES = ['completed', 'cancelled'];
+var savedStatus = 'new'; // статус сохранённого заказа (новый заказ — «Новый»)
 var activeDiscounts = [];
 var allCouponsForOrder = [];
 var appliedDiscount = null;
@@ -29,14 +35,30 @@ var appliedCoupon = null;
 // где цены уже со скидкой партнёра) скидку при открытии не пересчитываем.
 var autoDiscount = true;
 
-function isOrderLocked() { return LOCKED_STATUSES.indexOf($('#statusSelect').val()) !== -1; }
+/** Заблокирован: сохранённый статус не «Новый»/«В обработке» — или такой
+    статус только что выбран (до сохранения). */
+function isOrderLocked() {
+    return EDITABLE_STATUSES.indexOf(savedStatus) === -1 || EDITABLE_STATUSES.indexOf($('#statusSelect').val()) === -1;
+}
 
 function applyLockState() {
     var locked = isOrderLocked();
-    $('#orderLockedBanner').toggleClass('d-none', !locked);
-    $('#custName, #custPhone, #custEmail, #custAddress, #custComment').prop('disabled', locked);
-    $('#addProductSearch').prop('disabled', locked).attr('placeholder', locked ? 'Заказ подтверждён — товары нельзя менять' : 'Начните вводить название или артикул (от 3 символов)…');
+    var savedLocked = EDITABLE_STATUSES.indexOf(savedStatus) === -1;
+    var final = FINAL_STATUSES.indexOf(savedStatus) !== -1;
+    var statusRu = {confirmed: 'подтверждён', shipped: 'отправлен', completed: 'выполнен', cancelled: 'отменён'};
+    $('#orderLockedBanner').toggleClass('d-none', !locked).html(
+        '<i class="bi bi-lock"></i> ' + (final
+            ? 'Заказ ' + statusRu[savedStatus] + ' — его нельзя изменить. Можно только добавить комментарий в историю.'
+            : 'Данные заказа можно менять только в статусах «Новый» и «В обработке». ' + (savedLocked ? 'Доступны статус и история.' : 'После сохранения в этом статусе они станут недоступны.'))
+    );
+    $('#custName, #custPhone, #custEmail, #custAddress, #custComment, #deliverySelect, #paymentMethodSelect').prop('disabled', locked);
+    $('#addProductSearch').prop('disabled', locked).attr('placeholder', locked ? 'Товары можно менять только в статусах «Новый» и «В обработке»' : 'Начните вводить название или артикул (от 3 символов)…');
     $('#applyDiscountSelect, #couponCodeInput, #applyCouponBtn, #removeAppliedBtn').prop('disabled', locked);
+    // Назад в «Новый»/«В обработке» нельзя; выполненный и отменённый — без смены статуса.
+    $('#statusSelect').prop('disabled', final);
+    $('#statusSelect option').each(function () {
+        $(this).prop('disabled', savedLocked && EDITABLE_STATUSES.indexOf(this.value) !== -1);
+    });
     renderItems();
 }
 
@@ -348,6 +370,7 @@ function selectMethod(selector, value) {
 }
 
 function renderOrder(o) {
+    savedStatus = o.status;
     $('#orderNumber').text(o.order_number);
     $('#orderStatusPill').html(statusPill(o.status));
     $('#orderDate').text(fmtDate(o.created_at));
@@ -432,9 +455,11 @@ function doSaveOrder() {
         showResult(true, 'Заказ сохранён');
         var o = allOrders.find(function (x) { return x.id === orderId; });
         if (o) {
+            savedStatus = o.status;
             $('#orderStatusPill').html(statusPill(o.status));
             currentHistory = (o.history || []).slice();
             renderHistory();
+            applyLockState();
         }
     });
 }
