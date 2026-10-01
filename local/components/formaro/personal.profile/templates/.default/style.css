@@ -1,0 +1,12 @@
+/* «Ваш профиль»: статус сохранения рядом с кнопкой, реквизиты партнёра —
+   списком «название — значение». */
+.personal-profile .profile-status {
+    margin-left: 1rem;
+}
+.personal-profile .profile-legal dt {
+    font-weight: 500;
+    color: #6c757d;
+}
+.personal-profile .profile-legal dd {
+    margin-bottom: .5rem;
+}
