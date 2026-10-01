@@ -254,3 +254,64 @@
     background: #ffffff;
     color: #212529;
 }
+
+/* Раздел партнёра: шапка уезжает вверх (#header.partner-page), поэтому
+   Заказы / Избранное / Корзина / профиль дублируются справа вверху
+   страницы (header.php, include/header_actions.php) — оформление как у
+   ссылок шапки (#header .header .header__actions в styles.css). */
+.partner-actions {
+    display: none;
+}
+#header.partner-page ~ .partner-actions {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 2;
+    display: block;
+}
+.partner-actions .header__actions {
+    display: flex;
+    padding: 0 15px;
+}
+.partner-actions .header__action-link {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 60px;
+    padding: 0 15px;
+    border: none;
+    background: none;
+    text-decoration: none;
+    transition: 0.3s;
+}
+.partner-actions .header__action-link .header__action-icon {
+    width: 20px;
+    height: 27px;
+    color: #111111;
+    fill: none;
+    stroke: #111111;
+}
+.partner-actions .header__action-link span {
+    padding-left: 10px;
+    color: #6c757d;
+}
+.partner-actions .header__action-link .header__action-count {
+    position: absolute;
+    top: 12px;
+    left: 27px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 17px;
+    height: 17px;
+    border: 1px solid #ffffff;
+    border-radius: 50%;
+    background-color: #111111;
+    color: #ffffff;
+    font-size: 0.625rem;
+    line-height: 1;
+}
+.partner-actions .header__action-link:hover {
+    opacity: 0.6;
+}

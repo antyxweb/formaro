@@ -205,67 +205,8 @@ if($GLOBALS["APPLICATION"]->GetCurPage(false) == '/'
                     </svg>
                 </button>
 
-                <a class="header__action-link d-none d-sm-flex" href="/personal/orders/" aria-label="Заказы">
-                    <svg class="header__action-icon" width="26" height="28" viewBox="0 0 26 28">
-                        <use xlink:href="#icon-order"></use>
-                    </svg>
-                    <?php
-                    // Заказы покупателя, оформленные на сайте; после оформления
-                    // в корзине счётчик ([data-orders-count]) увеличивает formaro:cart.
-                    $ordersCount = 0;
-                    if ($USER->IsAuthorized() && \Bitrix\Main\Loader::includeModule('formaro.cabinet')) {
-                        $ordersCount = (new \Formaro\Cabinet\Repository\OrderRepository())->countByUser((int)$USER->GetID());
-                    }
-                    ?>
-                    <small class="header__action-count" data-orders-count><?= $ordersCount ?></small>
-                    <span class="d-none d-xl-inline">Заказы</span>
-                </a>
-                <a class="header__action-link d-none d-sm-flex" href="/personal/favorites/" aria-label="Избранное">
-                    <svg class="header__action-icon" width="20" height="20">
-                        <use xlink:href="#icon-favorites"></use>
-                    </svg>
-                    <?php
-                    // Авторизованному — сразу число из аккаунта (без мигания 0),
-                    // дальше счётчик обновляет favorites.js.
-                    $favoritesCount = 0;
-                    if ($USER->IsAuthorized() && \Bitrix\Main\Loader::includeModule('formaro.cabinet')) {
-                        $favoritesCount = (new \Formaro\Cabinet\Repository\FavoriteRepository())->count((int)$USER->GetID());
-                    }
-                    ?>
-                    <small class="header__action-count" data-favorites-count><?= $favoritesCount ?></small>
-                    <span class="d-none d-xl-inline">Избранное</span>
-                </a>
-                <a class="header__action-link" href="/personal/cart/" aria-label="Корзина">
-                    <svg class="header__action-icon" width="20" height="20">
-                        <use xlink:href="#icon-shopping"></use>
-                    </svg>
-                    <?php
-                    // Авторизованному — сразу число позиций из аккаунта,
-                    // дальше счётчик обновляет cart.js.
-                    $cartCount = 0;
-                    if ($USER->IsAuthorized() && \Bitrix\Main\Loader::includeModule('formaro.cabinet')) {
-                        $cartCount = count((new \Formaro\Cabinet\Repository\CartRepository())->listItems((int)$USER->GetID()));
-                    }
-                    ?>
-                    <small class="header__action-count" data-cart-count><?= $cartCount ?></small>
-                    <span class="d-none d-xl-inline">Корзина</span>
-                </a>
-
-                <?if($USER->IsAuthorized()):?>
-                    <a class="header__action-link d-none d-sm-flex" href="/personal/profile/" aria-label="Профиль">
-                        <svg class="header__action-icon" width="20" height="20">
-                            <use xlink:href="#icon-profile"></use>
-                        </svg>
-                        <span class="d-none d-sm-inline"><?=$USER->GetFirstName()?></span>
-                    </a>
-                <?else:?>
-                    <a class="header__action-link d-none d-sm-flex" href="/personal/profile/" aria-label="Войти">
-                        <svg class="header__action-icon" width="20" height="20">
-                            <use xlink:href="#icon-profile"></use>
-                        </svg>
-                        <span class="d-none d-sm-inline">Войти</span>
-                    </a>
-                <?endif;?>
+                <?php // Заказы, Избранное, Корзина, профиль — общий кусок с копией в разделе партнёра (ниже, после </header>). ?>
+                <?php include $_SERVER['DOCUMENT_ROOT'] . SITE_TEMPLATE_PATH . '/include/header_actions.php'; ?>
 
                 <button class="header__action-link bg-menu-open d-sm-none" type="button" aria-label="Меню" data-search-menu-toggle="">
                     <svg class="header__action-icon" width="20" height="20">
@@ -278,6 +219,17 @@ if($GLOBALS["APPLICATION"]->GetCurPage(false) == '/'
             </div>
         </div>
     </header>
+    <?php
+    // Раздел партнёра (шапка уезжает вверх — #header.partner-page): те же
+    // Заказы / Избранное / Корзина / профиль справа вверху страницы
+    // (css/pages.css, видна только при #header.partner-page). Счётчики —
+    // те же data-*-count, их обновляют cart.js / favorites.js / live-counters.js.
+    ?>
+    <div class="partner-actions">
+        <div class="header__actions">
+            <?php include $_SERVER['DOCUMENT_ROOT'] . SITE_TEMPLATE_PATH . '/include/header_actions.php'; ?>
+        </div>
+    </div>
 
     <div id="bg-menu">
         <div class="bg-menu-background">
