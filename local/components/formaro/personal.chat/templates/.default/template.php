@@ -3,11 +3,11 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
     die();
 }
 /** @var array $arResult */
+/** @global CMain $APPLICATION */
 
 // Вёрстка — как «Ваши заказы»: слева чат, справа меню личного кабинета.
 // Чат: список диалогов с продавцами и переписка выбранного (на телефоне —
 // по очереди: список → диалог, «Назад»). Содержимое рисует script.js.
-$backUrl = $_SERVER['REQUEST_URI'] ?? '/personal/messages/';
 ?>
 <section class="section pt-4">
     <div class="section-body">
@@ -16,10 +16,7 @@ $backUrl = $_SERVER['REQUEST_URI'] ?? '/personal/messages/';
                 <div class="col-12 col-xl-9">
                     <div class="personal-chat mr-xl-5 mb-4">
                         <?php if (!$arResult['AUTHORIZED']): ?>
-                        <div class="chat-block bg-white py-4 px-3 px-lg-4">
-                            <p class="mb-4">Войдите, чтобы переписываться с продавцами.</p>
-                            <a href="/login/?backurl=<?= urlencode($backUrl) ?>" class="f-button c-primary">Войти</a>
-                        </div>
+                        <?php $APPLICATION->IncludeComponent('formaro:auth.form', '', ['TITLE' => 'Войдите, чтобы переписываться с продавцами.'], false, ['HIDE_ICONS' => 'Y']); ?>
                         <?php else: ?>
                         <div class="chat-block chat bg-white" id="personal-chat" data-sessid="<?= bitrix_sessid() ?>">
                             <aside class="chat__threads" aria-label="Диалоги с продавцами">

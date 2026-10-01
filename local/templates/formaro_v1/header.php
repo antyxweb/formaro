@@ -262,7 +262,7 @@ if($GLOBALS["APPLICATION"]->GetCurPage(false) == '/'
                         <span class="d-none d-sm-inline"><?=$USER->GetFirstName()?></span>
                     </a>
                 <?else:?>
-                    <a class="header__action-link d-none d-sm-flex" href="/login/" aria-label="Профиль">
+                    <a class="header__action-link d-none d-sm-flex" href="/personal/profile/" aria-label="Войти">
                         <svg class="header__action-icon" width="20" height="20">
                             <use xlink:href="#icon-profile"></use>
                         </svg>

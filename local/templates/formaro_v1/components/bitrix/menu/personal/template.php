@@ -26,7 +26,7 @@
                             <span>Выйти</span>
                         </a>
                     <?else:?>
-                        <a class="header__action-link" href="/login/" data-popup-opener="profile" aria-label="Профиль">
+                        <a class="header__action-link" href="/personal/profile/">
                             <svg class="header__action-icon" width="20" height="20">
                                 <use xlink:href="#icon-exit"></use>
                             </svg>

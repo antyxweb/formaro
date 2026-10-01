@@ -4,6 +4,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
 }
 /** @var array $arParams */
 /** @var array $arResult */
+/** @global CMain $APPLICATION */
 
 // Вёрстка — /html/orders.html: слева заказы (товары — каруселью
 // .product-carousel, её запускает scripts.js), справа меню личного кабинета.
@@ -23,10 +24,7 @@ $e = static fn($s) => htmlspecialcharsbx((string)$s);
                 <div class="col-12 col-xl-9">
                     <div class="orders mr-xl-5" id="personal-orders" data-sessid="<?= bitrix_sessid() ?>">
                         <?php if (!$arResult['AUTHORIZED']): ?>
-                        <div class="personal-block bg-white py-4 px-3 px-lg-4 mb-4">
-                            <p class="mb-4">Войдите, чтобы увидеть свои заказы.</p>
-                            <a href="/login/?backurl=<?= urlencode('/personal/orders/') ?>" class="f-button c-primary">Войти</a>
-                        </div>
+                        <?php $APPLICATION->IncludeComponent('formaro:auth.form', '', ['TITLE' => 'Войдите, чтобы увидеть свои заказы.'], false, ['HIDE_ICONS' => 'Y']); ?>
                         <?php elseif (!$arResult['ORDERS']): ?>
                         <div class="personal-block bg-white py-4 px-3 px-lg-4 mb-4">
                             <p class="mb-4">У вас пока нет заказов.</p>

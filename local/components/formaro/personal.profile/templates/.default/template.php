@@ -3,6 +3,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
     die();
 }
 /** @var array $arResult */
+/** @global CMain $APPLICATION */
 
 // «Ваш профиль»: слева — контактные данные, юридические реквизиты, смена
 // пароля (каждый блок сохраняется отдельно, script.js → /local/ajax/profile.php),
@@ -42,10 +43,7 @@ $field = static function (string $form, string $name, string $label, string $val
                 <div class="col-12 col-xl-9">
                     <div class="personal-profile mr-xl-5" id="personal-profile" data-sessid="<?= bitrix_sessid() ?>">
                         <?php if (!$arResult['AUTHORIZED']): ?>
-                        <div class="profile-block bg-white py-4 px-3 px-lg-4 mb-4">
-                            <p class="mb-4">Войдите, чтобы увидеть свой профиль.</p>
-                            <a href="/login/?backurl=<?= urlencode('/personal/profile/') ?>" class="f-button c-primary">Войти</a>
-                        </div>
+                        <?php $APPLICATION->IncludeComponent('formaro:auth.form', '', ['TITLE' => 'Войдите, чтобы увидеть свой профиль.'], false, ['HIDE_ICONS' => 'Y']); ?>
                         <?php else: ?>
                         <?php $c = $arResult['contacts']; ?>
                         <form class="profile-block bg-white py-4 px-3 px-lg-4 mb-4 js-profile-form" data-action="contacts" novalidate>

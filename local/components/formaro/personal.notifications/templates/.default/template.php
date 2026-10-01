@@ -3,6 +3,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
     die();
 }
 /** @var array $arResult */
+/** @global CMain $APPLICATION */
 
 // Вёрстка — как «Ваши заказы»: слева список, справа меню личного кабинета.
 // Над списком — выбор флажками и действия с выбранными (прочитать, удалить —
@@ -17,10 +18,7 @@ $e = static fn($s) => htmlspecialcharsbx((string)$s);
                 <div class="col-12 col-xl-9">
                     <div class="personal-notify mr-xl-5" id="personal-notify" data-sessid="<?= bitrix_sessid() ?>">
                         <?php if (!$arResult['AUTHORIZED']): ?>
-                        <div class="notify-block bg-white py-4 px-3 px-lg-4 mb-4">
-                            <p class="mb-4">Войдите, чтобы увидеть свои уведомления.</p>
-                            <a href="/login/?backurl=<?= urlencode('/personal/notify/') ?>" class="f-button c-primary">Войти</a>
-                        </div>
+                        <?php $APPLICATION->IncludeComponent('formaro:auth.form', '', ['TITLE' => 'Войдите, чтобы увидеть свои уведомления.'], false, ['HIDE_ICONS' => 'Y']); ?>
                         <?php else: ?>
                         <div class="notify-block notify-empty bg-white py-4 px-3 px-lg-4 mb-4<?= $arResult['ITEMS'] ? ' d-none' : '' ?>">
                             <p class="mb-0">Уведомлений пока нет. Здесь появятся новости о ваших заказах: смена статуса, подтверждение оплаты.</p>

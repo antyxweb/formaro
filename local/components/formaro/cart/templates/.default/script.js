@@ -26,7 +26,7 @@
 (function () {
     var endpoint = '/local/ajax/cart_list.php';
     var CHECKOUT_URL = '/local/ajax/checkout.php';
-    var LOGIN_URL = '/login/?backurl=' + encodeURIComponent('/personal/cart/');
+    var LOGIN_URL = '/personal/profile/?backurl=' + encodeURIComponent('/personal/cart/');
     var REFRESH_DELAY = 300;
     var STICKY_TOP = 60;
     var COUPON_KEY = 'formaro_cart_coupons';
