@@ -144,22 +144,10 @@ class TicketRepository
         }
     }
 
-    /** @return int[] */
+    /** @return array[] файловые массивы для UF_ATTACHMENTS (см. FileUploader::fileArraysFromDataUrls()) */
     private function saveAttachments(array $attachments): array
     {
-        $fileIds = [];
-        foreach ($attachments as $att) {
-            $dataUrl = (string)($att['data'] ?? '');
-            if ($dataUrl === '') {
-                continue;
-            }
-            $fileId = FileUploader::saveFromDataUrl($dataUrl, self::UPLOAD_SUBDIR, (string)($att['name'] ?? ''));
-            if ($fileId) {
-                $fileIds[] = $fileId;
-            }
-        }
-
-        return $fileIds;
+        return FileUploader::fileArraysFromDataUrls($attachments, self::UPLOAD_SUBDIR);
     }
 
     private function toArray(array $ticket): array

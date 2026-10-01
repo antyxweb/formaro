@@ -52,6 +52,39 @@ class FileUploader
     }
 
     /**
+     * Файловые массивы для множественного file-поля HL-блока (вложения чата
+     * и тикетов). Такое поле не принимает ID уже сохранённого файла — молча
+     * пишет пустой список; ему нужен массив файла, который оно сохранит
+     * само (CFile::SaveFile понимает ключ content).
+     *
+     * @param array $attachments [{name, data: "data:…;base64,…"}]
+     * @return array[] строки, не похожие на data:-URL, пропускаются
+     */
+    public static function fileArraysFromDataUrls(array $attachments, string $subdir): array
+    {
+        $files = [];
+        foreach ($attachments as $att) {
+            if (!preg_match('#^data:([a-z0-9/+.\-]+);base64,(.+)$#is', (string)($att['data'] ?? ''), $m)) {
+                continue;
+            }
+            $binary = base64_decode($m[2], true);
+            if ($binary === false || $binary === '') {
+                continue;
+            }
+            $name = trim((string)($att['name'] ?? ''));
+            $files[] = [
+                'name' => $name !== '' ? $name : uniqid('file_', true) . '.' . self::extensionFromMime($m[1]),
+                'type' => $m[1],
+                'content' => $binary,
+                'MODULE_ID' => 'formaro.cabinet',
+                'SUBDIR' => $subdir,
+            ];
+        }
+
+        return $files;
+    }
+
+    /**
      * Для нативных полей элемента PREVIEW_PICTURE/DETAIL_PICTURE — их нельзя
      * обновить просто передав ID файла (как обычные File-свойства через
      * SetPropertyValuesEx): CIBlockElement::Update()/Add() для этих двух

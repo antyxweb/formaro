@@ -27,8 +27,10 @@ class PartnerDocumentRepository
 
     public function add(int $partnerId, string $name, string $dataUrl): array
     {
-        $fileId = FileUploader::saveFromDataUrl($dataUrl, 'cabinet/partner_documents');
-        if (!$fileId) {
+        // file-поле HL-блока не принимает ID готового файла (молча пишет 0) —
+        // отдаём массив файла, поле сохраняет его само.
+        $file = FileUploader::fileArraysFromDataUrls([['data' => $dataUrl]], 'cabinet/partner_documents')[0] ?? null;
+        if (!$file) {
             throw new \RuntimeException('Не удалось загрузить файл');
         }
 
@@ -36,12 +38,11 @@ class PartnerDocumentRepository
         $result = $dataClass::add([
             'UF_PARTNER_ID' => $partnerId,
             'UF_NAME' => $name,
-            'UF_FILE' => $fileId,
+            'UF_FILE' => $file,
             'UF_UPLOADED_AT' => new \Bitrix\Main\Type\DateTime(),
         ]);
 
         if (!$result->isSuccess()) {
-            FileUploader::delete($fileId);
             throw new \RuntimeException(implode('; ', $result->getErrorMessages()));
         }
 
