@@ -7,7 +7,7 @@
 }
 /* Товары заказа — под шапкой с отступом; по умолчанию скрыты (hidden). */
 .orders .order-item__items {
-    margin-top: 1.5rem;
+    margin-top: 1rem;
 }
 .orders .order-item__toggle {
     white-space: nowrap;

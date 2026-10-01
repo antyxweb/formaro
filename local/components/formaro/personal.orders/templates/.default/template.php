@@ -111,13 +111,13 @@ $e = static fn($s) => htmlspecialcharsbx((string)$s);
                                     <small class="text-danger js-order-cancel-error" role="alert"></small>
                                 </div>
                                 <?php endif; ?>
-
-                                <?php // Товары заказа по умолчанию скрыты (script.js). ?>
-                                <a href="#order-items-<?= (int)$order['ID'] ?>" class="order-item__toggle d-inline-block mt-4 js-order-items-toggle" role="button" aria-expanded="false" aria-controls="order-items-<?= (int)$order['ID'] ?>">
-                                    <span class="js-order-items-toggle-text">Показать товары</span> (<?= count($order['ITEMS']) ?>)
-                                    <svg width="16" height="16" aria-hidden="true"><use xlink:href="#icon-arrow-down"></use></svg>
-                                </a>
                             </div>
+
+                            <?php // Под карточкой заказа; товары по умолчанию скрыты (script.js). ?>
+                            <a href="#order-items-<?= (int)$order['ID'] ?>" class="order-item__toggle d-inline-block mt-3 js-order-items-toggle" role="button" aria-expanded="false" aria-controls="order-items-<?= (int)$order['ID'] ?>">
+                                <span class="js-order-items-toggle-text">Показать товары</span> (<?= count($order['ITEMS']) ?>)
+                                <svg width="16" height="16" aria-hidden="true"><use xlink:href="#icon-arrow-down"></use></svg>
+                            </a>
 
                             <div class="order-item__items" id="order-items-<?= (int)$order['ID'] ?>" hidden>
                             <div class="main-carousel product-carousel">
