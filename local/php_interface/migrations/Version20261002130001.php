@@ -6,7 +6,7 @@ use Sprint\Migration\Exceptions\HelperException;
 
 class Version20261002130001 extends Version
 {
-    protected $description = 'Блок «Связь с поддержкой» переименован в «Связь с formaro»';
+    protected $description = 'Блок «Связь с поддержкой» переименован в «Мы всегда поможем»';
 
     /**
      * Заголовок блока над подвалом — название раздела support-links
@@ -17,7 +17,7 @@ class Version20261002130001 extends Version
      */
     public function up()
     {
-        $this->rename('Связь с formaro');
+        $this->rename('Мы всегда поможем');
     }
 
     /** @throws HelperException */
