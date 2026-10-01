@@ -4,7 +4,6 @@ namespace Formaro\Cabinet\Service;
 
 use CUser;
 use Formaro\Cabinet\Repository\ChatRepository;
-use Formaro\Cabinet\Repository\NotificationRepository;
 use Formaro\Cabinet\Repository\OrderRepository;
 use Formaro\Cabinet\Repository\ProductRepository;
 
@@ -20,10 +19,8 @@ use Formaro\Cabinet\Repository\ProductRepository;
  * Тема проверяется: заказ — свой и этого продавца, товар — этого продавца;
  * не прошла проверку — общий вопрос. Диалог создаётся первым сообщением.
  *
- * Уведомления: продавцу — о новом сообщении покупателя (в кабинет, ссылка
- * chat/?thread=ID), покупателю — об ответе продавца (/personal/notify/,
- * notifyBuyerOfReply() — из кабинета). Только на первое непрочитанное
- * сообщение: пока получатель не открыл диалог, новые уведомления не копятся.
+ * Уведомления о сообщениях — ChatNotificationService: только если сообщение
+ * не прочитали в течение часа.
  */
 class BuyerChatService
 {
@@ -153,20 +150,8 @@ class BuyerChatService
                 ?: $repo->createThread($userId, $partnerId, self::clientName($userId), $subject['order'], $subject['product_id'], $subject['product_name']);
         }
 
-        $notify = !$repo->hasUnreadFrom($threadId, 'client');
         $repo->addMessage($threadId, 'client', $text, $attachments);
         $thread = $repo->get($threadId);
-        if ($notify) {
-            $about = $thread['order_id'] !== '' ? ' по заказу ' . $thread['order_id']
-                : ($thread['product_name'] !== '' ? ' по товару «' . $thread['product_name'] . '»' : '');
-            (new NotificationRepository())->add(
-                $partnerId,
-                'chat',
-                'Сообщение от покупателя ' . self::clientName($userId) . $about,
-                self::preview($text, $attachments),
-                'chat/?thread=' . $threadId
-            );
-        }
 
         return self::present($thread, [$partnerId => $partner], self::subjectLinks($userId, [$thread]));
     }
@@ -180,31 +165,6 @@ class BuyerChatService
             throw new \RuntimeException('Диалог не найден');
         }
         $repo->markReadFrom($threadId, 'partner');
-    }
-
-    /**
-     * Продавец ответил в кабинете — уведомление покупателю, если это первое
-     * непрочитанное сообщение продавца в диалоге. $thread — после отправки.
-     */
-    public static function notifyBuyerOfReply(array $thread): void
-    {
-        if (empty($thread['user_id'])) {
-            return;
-        }
-        $unread = array_values(array_filter($thread['messages'], static fn($m) => $m['sender'] === 'partner' && !$m['is_read']));
-        if (count($unread) !== 1) {
-            return;
-        }
-        $partner = CartCheckoutService::partners([$thread['partner_id']])[$thread['partner_id']] ?? ['name' => 'Продавец'];
-        $about = $thread['order_id'] !== '' ? ' по заказу ' . $thread['order_id']
-            : ($thread['product_name'] !== '' ? ' по товару «' . $thread['product_name'] . '»' : '');
-        NotificationRepository::forBuyer()->addForBuyer(
-            $thread['user_id'],
-            'chat',
-            'Новое сообщение от продавца ' . $partner['name'] . $about,
-            self::preview((string)$unread[0]['text'], $unread[0]['attachments']),
-            '/personal/messages/?thread=' . $thread['thread_id']
-        );
     }
 
     private static function present(array $thread, array $partners, array $links): array
@@ -285,15 +245,5 @@ class BuyerChatService
         $name = trim(($user['NAME'] ?? '') . ' ' . ($user['LAST_NAME'] ?? ''));
 
         return $name !== '' ? $name : (string)($user['EMAIL'] ?? 'Покупатель');
-    }
-
-    private static function preview(string $text, array $attachments): string
-    {
-        $text = trim(preg_replace('/\s+/u', ' ', $text));
-        if ($text === '') {
-            return $attachments ? 'Файл: ' . ($attachments[0]['name'] ?? '') : '';
-        }
-
-        return mb_strlen($text) > 120 ? mb_substr($text, 0, 117) . '…' : $text;
     }
 }

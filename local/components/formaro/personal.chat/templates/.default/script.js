@@ -184,7 +184,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 '</span></div>';
         });
         if (!html) {
-            html = '<div class="chat__placeholder">Напишите продавцу — он ответит здесь. Ответ придёт и в уведомления.</div>';
+            html = '<div class="chat__placeholder">Напишите продавцу — он ответит здесь. Если не прочитаете ответ в течение часа, придёт уведомление.</div>';
         }
         messagesEl.innerHTML = html;
         if (!keepScroll || wasAtBottom) messagesEl.scrollTop = messagesEl.scrollHeight;

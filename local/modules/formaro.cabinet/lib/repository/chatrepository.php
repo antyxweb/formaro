@@ -21,7 +21,8 @@ use Formaro\Cabinet\Upload\FileUploader;
  * свои сообщения — 1:1 с cabinet-html/assets/js/chat-clients.js.
  *
  * UF_IS_READ сообщения — прочитано ли оно получателем: сообщения клиента —
- * партнёром, сообщения партнёра — покупателем.
+ * партнёром, сообщения партнёра — покупателем. UF_NOTIFIED — получателю
+ * отправлено уведомление (через час непрочитанности, ChatNotificationService).
  */
 class ChatRepository
 {
@@ -81,6 +82,7 @@ class ChatRepository
             'UF_TEXT' => $text,
             'UF_DATE' => new DateTime(),
             'UF_IS_READ' => false,
+            'UF_NOTIFIED' => false,
             'UF_ATTACHMENTS' => $this->saveAttachments($attachments),
         ]);
         if (!$result->isSuccess()) {
@@ -88,12 +90,45 @@ class ChatRepository
         }
     }
 
-    /** Есть ли в диалоге непрочитанные сообщения от $sender (client|partner). */
-    public function hasUnreadFrom(int $threadId, string $sender): bool
+    /**
+     * Непрочитанные сообщения не позже $before, о которых ещё не уведомляли
+     * (ChatNotificationService): [{id, thread_id, sender, text, attachments}].
+     */
+    public function listUnnotifiedUnread(DateTime $before): array
     {
         $messagesClass = HlblockEntityFactory::getDataClass(self::MESSAGES_HLBLOCK);
+        $rows = $messagesClass::getList([
+            'filter' => [
+                '=UF_IS_READ' => false,
+                '<=UF_DATE' => $before,
+                ['LOGIC' => 'OR', ['=UF_NOTIFIED' => false], ['=UF_NOTIFIED' => null]],
+            ],
+            'order' => ['UF_DATE' => 'ASC', 'ID' => 'ASC'],
+        ])->fetchAll();
 
-        return (bool)$messagesClass::getCount(['=UF_THREAD_ID' => $threadId, '=UF_SENDER' => $sender, '=UF_IS_READ' => false]);
+        return array_map(static fn(array $m) => [
+            'id' => (int)$m['ID'],
+            'thread_id' => (int)$m['UF_THREAD_ID'],
+            'sender' => (string)$m['UF_SENDER'],
+            'text' => (string)$m['UF_TEXT'],
+            'attachments' => array_values(array_filter(array_map(
+                static fn($fid) => FileUploader::getAttachment((int)$fid),
+                (array)($m['UF_ATTACHMENTS'] ?? [])
+            ))),
+        ], $rows);
+    }
+
+    /** Все непрочитанные сообщения $sender в диалоге — уведомление о них отправлено. */
+    public function markNotified(int $threadId, string $sender): void
+    {
+        $messagesClass = HlblockEntityFactory::getDataClass(self::MESSAGES_HLBLOCK);
+        $rows = $messagesClass::getList([
+            'select' => ['ID'],
+            'filter' => ['=UF_THREAD_ID' => $threadId, '=UF_SENDER' => $sender, '=UF_IS_READ' => false],
+        ])->fetchAll();
+        foreach ($rows as $row) {
+            $messagesClass::update((int)$row['ID'], ['UF_NOTIFIED' => true]);
+        }
     }
 
     /** Все сообщения от $sender в диалоге — прочитанными (получатель открыл диалог). */
