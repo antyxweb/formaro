@@ -275,6 +275,12 @@
     opacity: 0;
     pointer-events: none;
 }
+/* Открыто большое меню (#header.bg-menu-active) — панель его не перекрывает. */
+#header.partner-page.bg-menu-active ~ .partner-actions {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
 .partner-actions .header__actions {
     display: flex;
     flex-direction: column;
