@@ -1,3 +1,3 @@
 <?
-$sSectionName="Сообщения";
+$sSectionName="Чаты и сообщения";
 ?>

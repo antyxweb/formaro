@@ -30,7 +30,7 @@ $aMenuLinks = Array(
         ""
 	),
 	Array(
-		"Сообщения", 
+		"Чаты и сообщения", 
 		"/personal/messages/", 
 		Array(),
         Array(
