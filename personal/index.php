@@ -1,7 +1,7 @@
 <?
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
-$APPLICATION->SetPageProperty("title", "Личный кабинет");
-$APPLICATION->SetTitle("Личный кабинет");
+$APPLICATION->SetPageProperty("title", "Кабинет покупателя");
+$APPLICATION->SetTitle("Кабинет покупателя");
 ?><?$APPLICATION->IncludeComponent(
 	"bitrix:menu",
 	"personal-tiles",

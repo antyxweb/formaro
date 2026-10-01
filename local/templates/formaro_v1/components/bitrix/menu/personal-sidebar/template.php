@@ -26,7 +26,7 @@ if ($USER->IsAuthorized() && \Bitrix\Main\Loader::includeModule('formaro.cabinet
 $countAttrs = ['orders' => ' data-orders-count', 'notify' => ' data-notify-count', 'messages' => ' data-messages-count', 'cart' => ' data-cart-count', 'favorites' => ' data-favorites-count'];
 ?>
 <div class="sidebar-menu personal-sidebar bg-white py-4 px-3 px-lg-4 mb-4">
-    <h4 class="mb-4"><span class="text-primary">Личный</span> кабинет</h4>
+    <h4 class="mb-4"><span class="text-primary">Кабинет</span> покупателя</h4>
 
     <ul class="personal-menu-list header__actions list-unstyled mb-0">
         <?php foreach ($arResult as $item): ?>
