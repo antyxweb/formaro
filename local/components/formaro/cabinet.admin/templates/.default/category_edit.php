@@ -55,7 +55,7 @@ require __DIR__ . '/inc/layout_app_top.php';
             </div>
 
             <div class="mb-3">
-                <label class="form-label" for="f_partner">Владелец</label>
+                <label class="form-label" for="f_partner">Партнёр</label>
                 <select class="form-select" id="f_partner" style="max-width:360px;"></select>
                 <div class="form-text" id="ownerHint">Без партнёра — общая категория площадки, видна всем партнёрам.</div>
             </div>

@@ -1,7 +1,7 @@
 <?php
 /**
  * Категории каталога: общие категории площадки и партнёрские — все сразу,
- * фильтр по владельцу (площадка / партнёр) и статусу. Администратор
+ * фильтр по партнёру (или общие категории площадки) и статусу. Администратор
  * редактирует любые, создаёт общие, допускает/отклоняет партнёрские.
  *
  * @var array $arResult
@@ -14,7 +14,7 @@ require __DIR__ . '/inc/layout_app_top.php';
     <div class="d-flex flex-wrap gap-2 align-items-end">
         <div><label class="form-label small mb-1">Поиск по названию</label>
             <input type="text" class="form-control" id="qInput" placeholder="Например: Обувь" style="min-width:200px;"></div>
-        <div><label class="form-label small mb-1">Владелец</label>
+        <div><label class="form-label small mb-1">Партнёр</label>
             <select class="form-select" id="partnerFilter" style="min-width:200px;"></select></div>
         <div><label class="form-label small mb-1">Статус</label>
             <select class="form-select" id="statusFilter">
@@ -35,7 +35,7 @@ require __DIR__ . '/inc/layout_app_top.php';
         <div class="table-responsive">
             <table class="table mb-0 align-middle" id="categoriesTable">
                 <thead><tr>
-                    <th>Название</th><th>Родительский раздел</th><th>Владелец</th><th>Статус</th><th>Товаров</th><th class="text-end">Действия</th>
+                    <th>Название</th><th>Родительский раздел</th><th>Партнёр</th><th>Статус</th><th>Товаров</th><th class="text-end">Действия</th>
                 </tr></thead>
                 <tbody id="categoriesBody"><tr><td colspan="6" class="text-center text-muted-2 py-4">Загрузка…</td></tr></tbody>
             </table>
