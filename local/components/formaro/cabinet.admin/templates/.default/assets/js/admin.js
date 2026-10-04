@@ -43,8 +43,109 @@ function fillPartnerSelect(sel, opts) {
     var $s = $(sel).html(html);
     var fromUrl = getQueryParam('partner');
     if (fromUrl !== null && fromUrl !== '' && $s.find('option[value="' + fromUrl + '"]').length) $s.val(fromUrl);
+    $s.each(function () { searchableSelect(this); });
     return $s;
 }
+
+/* ---------------- Выпадающий список с поиском ----------------
+   Надстройка над обычным <select>: сам select остаётся в DOM (скрыт) и
+   хранит значение — фильтры, bindClearFilters, формы читают и пишут его
+   как раньше; виджет показывает выбранное и список с поиском. Значение,
+   выставленное кодом через .val(), подхватывается (обёртка valHooks),
+   disabled — тоже (MutationObserver на атрибуте). */
+var SEARCHABLE_CLASS = 'js-searchable-select';
+
+function searchableSelect(select) {
+    var $select = $(select);
+    if ($select.hasClass(SEARCHABLE_CLASS)) { searchableRefresh(select); return; }
+    $select.addClass(SEARCHABLE_CLASS + ' d-none');
+    var $w = $('<div class="ssel"><button type="button" class="form-select ssel-toggle"><span class="ssel-label"></span></button>' +
+        '<div class="ssel-menu"><input type="text" class="form-control form-control-sm ssel-search" placeholder="Поиск…" autocomplete="off">' +
+        '<div class="ssel-list" role="listbox"></div></div></div>');
+    $w.attr('style', $select.attr('style') || '');
+    $select.after($w);
+    $select.data('ssel', $w);
+
+    var $toggle = $w.find('.ssel-toggle');
+    var $search = $w.find('.ssel-search');
+    var $list = $w.find('.ssel-list');
+    if (select.id) {
+        $toggle.attr('id', select.id + '_ssel');
+        $('label[for="' + select.id + '"]').attr('for', select.id + '_ssel');
+    }
+
+    function renderList() {
+        var q = $search.val().trim().toLowerCase();
+        var html = '';
+        $select.find('option').each(function () {
+            if (q && this.text.toLowerCase().indexOf(q) === -1) return;
+            html += '<div class="ssel-item' + (this.value === $select.val() ? ' selected' : '') + '" role="option" data-value="' + esc(this.value) + '">' + esc(this.text) + '</div>';
+        });
+        $list.html(html || '<div class="ssel-empty">Ничего не найдено</div>');
+        $list.find('.ssel-item').first().addClass('active');
+    }
+    function open() {
+        if (select.disabled) return;
+        $('.ssel.open').not($w).removeClass('open');
+        $w.addClass('open');
+        $search.val('');
+        renderList();
+        var $sel = $list.find('.ssel-item.selected');
+        if ($sel.length) { $list.find('.active').removeClass('active'); $sel.addClass('active'); $list.scrollTop($sel[0].offsetTop - 40); }
+        $search.trigger('focus');
+    }
+    function close() { $w.removeClass('open'); }
+    function choose(value) {
+        close();
+        if (value !== $select.val()) $select.val(value).trigger('change');
+        $toggle.trigger('focus');
+    }
+    function move(step) {
+        var $items = $list.find('.ssel-item');
+        var i = $items.index($items.filter('.active'));
+        i = Math.max(0, Math.min($items.length - 1, i + step));
+        $items.removeClass('active').eq(i).addClass('active');
+        var el = $items[i];
+        if (el) el.scrollIntoView({block: 'nearest'});
+    }
+
+    $toggle.on('click', function () { $w.hasClass('open') ? close() : open(); });
+    $toggle.on('keydown', function (e) {
+        if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); }
+    });
+    $search.on('input', renderList);
+    $search.on('keydown', function (e) {
+        if (e.key === 'ArrowDown') { e.preventDefault(); move(1); }
+        else if (e.key === 'ArrowUp') { e.preventDefault(); move(-1); }
+        else if (e.key === 'Enter') { e.preventDefault(); var $a = $list.find('.ssel-item.active'); if ($a.length) choose(String($a.data('value'))); }
+        else if (e.key === 'Escape') { e.preventDefault(); close(); $toggle.trigger('focus'); }
+        else if (e.key === 'Tab') { close(); }
+    });
+    $list.on('mousedown', '.ssel-item', function (e) { e.preventDefault(); choose(String($(this).data('value'))); });
+    $list.on('mousemove', '.ssel-item', function () { $list.find('.active').removeClass('active'); $(this).addClass('active'); });
+    $(document).on('mousedown', function (e) { if (!$(e.target).closest($w).length) close(); });
+    $select.on('change', function () { searchableRefresh(select); });
+    new MutationObserver(function () { searchableRefresh(select); }).observe(select, {attributes: true, attributeFilter: ['disabled']});
+    searchableRefresh(select);
+}
+
+function searchableRefresh(select) {
+    var $w = $(select).data('ssel');
+    if (!$w) return;
+    var opt = select.options[select.selectedIndex];
+    $w.find('.ssel-label').text(opt ? opt.text : '');
+    $w.toggleClass('disabled', !!select.disabled).find('.ssel-toggle').prop('disabled', !!select.disabled);
+}
+
+(function () {
+    var hook = $.valHooks.select;
+    var origSet = hook.set;
+    hook.set = function (elem, value) {
+        var result = origSet ? origSet.apply(this, arguments) : undefined;
+        if ($(elem).hasClass(SEARCHABLE_CLASS)) setTimeout(function () { searchableRefresh(elem); }, 0);
+        return result;
+    };
+})();
 /** Строка подходит под фильтр партнёра ('' — все, '0' — без партнёра). */
 function matchPartner(rowPartnerId, filterValue) {
     if (filterValue === '' || filterValue === null || filterValue === undefined) return true;
