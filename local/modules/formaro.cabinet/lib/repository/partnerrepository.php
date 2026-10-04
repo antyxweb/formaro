@@ -28,12 +28,15 @@ class PartnerRepository
     private const STATUS_PENDING = 'pending';
     private const STATUS_VERIFIED = 'verified';
     private const PENDING_PROPERTY_CODE = 'PENDING_CHANGES';
+    private const STATUS_REJECTED = 'rejected';
+    private const COMMENT_PROPERTY_CODE = 'MODERATION_COMMENT';
 
     /** См. ProductRepository::SELECT_FIELDS — 'PROPERTY_*' отдаёт значения
      *  по ID свойства, а не по коду, который читает toArray(). */
     private const SELECT_FIELDS = [
         '*', 'PREVIEW_TEXT', 'DETAIL_TEXT',
         'PROPERTY_NAME_SHORT', 'PROPERTY_VERIFICATION_STATUS', 'PROPERTY_PENDING_CHANGES',
+        'PROPERTY_MODERATION_COMMENT',
         'PROPERTY_LEGAL_INN', 'PROPERTY_LEGAL_OGRN', 'PROPERTY_LEGAL_ADDRESS',
         'PROPERTY_LEGAL_BANK_NAME', 'PROPERTY_LEGAL_BIK', 'PROPERTY_LEGAL_ACCOUNT',
         'PROPERTY_LEGAL_CORR_ACCOUNT', 'PROPERTY_LEGAL_CEO_NAME',
@@ -171,7 +174,171 @@ class PartnerRepository
         CIBlockElement::SetPropertyValuesEx($partnerId, $this->iblockId, [
             self::STATUS_PROPERTY_CODE => $this->resolveEnumIdByXmlId(self::STATUS_PENDING),
             self::PENDING_PROPERTY_CODE => json_encode($pending, JSON_UNESCAPED_UNICODE),
+            self::COMMENT_PROPERTY_CODE => '',
         ]);
+
+        NotificationRepository::notifyAdmin(
+            'moderation',
+            'Данные партнёра на проверке',
+            'Партнёр «' . ($pending['name_short'] ?: $pending['name_full']) . '» отправил данные компании на проверку.',
+            'partners/edit/' . $partnerId . '/'
+        );
+    }
+
+    /**
+     * Все партнёры для кабинета администратора: краткая карточка, статус
+     * проверки, есть ли черновик на проверке (has_pending), активность.
+     */
+    public function listAll(): array
+    {
+        $rows = [];
+        $res = CIBlockElement::GetList(
+            ['NAME' => 'ASC'],
+            ['IBLOCK_ID' => $this->iblockId, 'CHECK_PERMISSIONS' => 'N'],
+            false,
+            false,
+            self::SELECT_FIELDS
+        );
+        while ($el = $res->Fetch()) {
+            $rows[] = $this->toAdminArray($el);
+        }
+
+        return $rows;
+    }
+
+    /**
+     * Карточка модерации: боевые данные (current), черновик партнёра поверх
+     * них (pending — null, если черновика нет) и учётные записи партнёра.
+     */
+    public function getForModeration(int $partnerId): ?array
+    {
+        $el = $this->fetchElement($partnerId);
+        if (!$el) {
+            return null;
+        }
+        $current = $this->toArray($el);
+        $pending = $this->decodePending($el);
+
+        return $this->toAdminArray($el) + [
+            'current' => $current,
+            'pending' => $pending ? $this->mergePending($current, $pending) : null,
+            'users' => $this->listUsers($partnerId),
+        ];
+    }
+
+    /** Одобрить: статус «Проверен», черновик — в боевые поля (см. get()). */
+    public function approve(int $partnerId): array
+    {
+        $this->requireElement($partnerId);
+        CIBlockElement::SetPropertyValuesEx($partnerId, $this->iblockId, [
+            self::STATUS_PROPERTY_CODE => $this->resolveEnumIdByXmlId(self::STATUS_VERIFIED),
+            self::COMMENT_PROPERTY_CODE => '',
+        ]);
+        $this->get($partnerId);
+        (new NotificationRepository())->add(
+            $partnerId,
+            'system',
+            'Данные компании проверены',
+            'Площадка проверила данные компании — изменения опубликованы на сайте.',
+            'profile/'
+        );
+
+        return $this->getForModeration($partnerId);
+    }
+
+    /** Отклонить: статус «Отклонён» с причиной; черновик остаётся у партнёра для правки. */
+    public function reject(int $partnerId, string $reason): array
+    {
+        $reason = trim($reason);
+        if ($reason === '') {
+            throw new \RuntimeException('Укажите причину отклонения');
+        }
+        $this->requireElement($partnerId);
+        CIBlockElement::SetPropertyValuesEx($partnerId, $this->iblockId, [
+            self::STATUS_PROPERTY_CODE => $this->resolveEnumIdByXmlId(self::STATUS_REJECTED),
+            self::COMMENT_PROPERTY_CODE => $reason,
+        ]);
+        (new NotificationRepository())->add(
+            $partnerId,
+            'system',
+            'Данные компании отклонены',
+            'Причина: ' . $reason,
+            'profile/'
+        );
+
+        return $this->getForModeration($partnerId);
+    }
+
+    /** Показ партнёра на сайте (ACTIVE) — включает и выключает администратор. */
+    public function setActive(int $partnerId, bool $active): array
+    {
+        $this->requireElement($partnerId);
+        (new CIBlockElement())->Update($partnerId, ['ACTIVE' => $active ? 'Y' : 'N']);
+
+        return $this->getForModeration($partnerId);
+    }
+
+    /** Краткое (или полное) название партнёра — для текстов уведомлений. */
+    public static function nameOf(int $partnerId): string
+    {
+        Loader::includeModule('iblock');
+        $row = CIBlockElement::GetList(
+            [],
+            ['IBLOCK_CODE' => self::IBLOCK_CODE, 'ID' => $partnerId, 'CHECK_PERMISSIONS' => 'N'],
+            false,
+            ['nTopCount' => 1],
+            ['ID', 'IBLOCK_ID', 'NAME', 'PROPERTY_NAME_SHORT']
+        )->Fetch();
+        if (!$row) {
+            return 'Партнёр #' . $partnerId;
+        }
+        $short = trim((string)$row['PROPERTY_NAME_SHORT_VALUE']);
+
+        return $short !== '' ? $short : (string)$row['NAME'];
+    }
+
+    private function requireElement(int $partnerId): void
+    {
+        if (!$this->fetchElement($partnerId)) {
+            throw new \RuntimeException('Партнёр не найден (ID=' . $partnerId . ')');
+        }
+    }
+
+    private function toAdminArray(array $el): array
+    {
+        $short = trim((string)($el['PROPERTY_NAME_SHORT_VALUE'] ?? ''));
+
+        return [
+            'id' => (int)$el['ID'],
+            'name' => $short !== '' ? $short : (string)$el['NAME'],
+            'name_full' => (string)$el['NAME'],
+            'logo' => FileUploader::getPath($el['PREVIEW_PICTURE'] ?: null),
+            'active' => $el['ACTIVE'] === 'Y',
+            'verification_status' => $this->resolveStatus($el),
+            'has_pending' => $this->decodePending($el) !== [],
+            'moderation_comment' => (string)($el['PROPERTY_MODERATION_COMMENT_VALUE'] ?? ''),
+            'inn' => (string)($el['PROPERTY_LEGAL_INN_VALUE'] ?? ''),
+            'public_url' => '/partners/' . $el['CODE'] . '/',
+            'created_at' => $el['DATE_CREATE'] ? date('c', MakeTimeStamp($el['DATE_CREATE'])) : null,
+        ];
+    }
+
+    /** Учётные записи партнёра (UF_CABINET_PARTNER_ID) — для связи и проверки. */
+    private function listUsers(int $partnerId): array
+    {
+        $users = [];
+        $res = \CUser::GetList($by = 'id', $order = 'asc', ['UF_CABINET_PARTNER_ID' => $partnerId], ['FIELDS' => ['ID', 'LOGIN', 'EMAIL', 'NAME', 'LAST_NAME', 'PERSONAL_PHONE', 'ACTIVE']]);
+        while ($u = $res->Fetch()) {
+            $users[] = [
+                'id' => (int)$u['ID'],
+                'name' => trim($u['NAME'] . ' ' . $u['LAST_NAME']) ?: $u['LOGIN'],
+                'email' => (string)$u['EMAIL'],
+                'phone' => (string)$u['PERSONAL_PHONE'],
+                'active' => $u['ACTIVE'] === 'Y',
+            ];
+        }
+
+        return $users;
     }
 
     /** Только если картинка реально поменялась — заливаем файл сразу (иначе
@@ -283,6 +450,7 @@ class PartnerRepository
         return [
             'id' => (int)$el['ID'],
             'verification_status' => $this->resolveStatus($el),
+            'moderation_comment' => (string)($el['PROPERTY_MODERATION_COMMENT_VALUE'] ?? ''),
             'name_full' => $el['NAME'],
             'name_short' => $el['PROPERTY_NAME_SHORT_VALUE'] ?? '',
             'logo' => FileUploader::getPath($el['PREVIEW_PICTURE'] ?: null),

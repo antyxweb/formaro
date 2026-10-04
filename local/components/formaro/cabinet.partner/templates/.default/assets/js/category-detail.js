@@ -53,8 +53,11 @@ $(function () {
             if (c.preview_image) { setBgImage('#previewImg', c.preview_image); previewDataUrl = c.preview_image; }
             if (c.full_image) { setBgImage('#fullImg', c.full_image); fullDataUrl = c.full_image; }
 
-            pendingApproval = !readOnly && c.status === 'pending';
+            // Отклонённая администратором — тоже «на проверке» для формы:
+            // после правки уходит на проверку снова (CategoryRepository::save()).
+            pendingApproval = !readOnly && (c.status === 'pending' || c.status === 'rejected');
             if (pendingApproval) lockStatusPending();
+            if (c.status === 'rejected') showRejected(c.reject_reason);
             if (readOnly) applyReadOnlyMode();
         } else {
             $('#categoryImages').addClass('d-none');
@@ -82,6 +85,12 @@ $(function () {
 function lockStatusPending() {
     $('#f_status').val('pending').prop('disabled', true);
     $('#pendingReviewBanner').removeClass('d-none');
+}
+
+/** Категорию отклонили — причина вместо «на проверке»; сохранение отправит снова. */
+function showRejected(reason) {
+    $('#pendingReviewBanner').removeClass('alert-warning').addClass('alert-danger')
+        .text('Категория отклонена администратором площадки. Причина: ' + (reason || '—') + '. Исправьте и сохраните — категория снова уйдёт на проверку.');
 }
 
 function applyReadOnlyMode() {

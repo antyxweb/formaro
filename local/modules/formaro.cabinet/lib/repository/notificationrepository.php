@@ -23,6 +23,8 @@ use Bitrix\Main\Type\DateTime;
 class NotificationRepository
 {
     private const HLBLOCK_NAME = 'CabinetNotifications';
+    /** Владелец уведомлений администраторов (UF_ADMIN), см. forAdmin(). */
+    public const ADMIN_OWNER = 1;
 
     /** Поле владельца: UF_PARTNER_ID (кабинет партнёра) или UF_USER_ID (покупатель). */
     private string $ownerField;
@@ -36,6 +38,39 @@ class NotificationRepository
     public static function forBuyer(): self
     {
         return new self('UF_USER_ID');
+    }
+
+    /**
+     * Общая лента администраторов площадки (кабинет /admin/, миграция
+     * Version20261004100001): UF_ADMIN = ADMIN_OWNER — вместо id партнёра
+     * во все методы передаётся ADMIN_OWNER.
+     */
+    public static function forAdmin(): self
+    {
+        return new self('UF_ADMIN');
+    }
+
+    /**
+     * Уведомление администраторам; $type — moderation/finance/support.
+     * $link — путь от корня кабинета администратора (partners/edit/5/).
+     * Ошибка записи не мешает действию, из-за которого уведомляем.
+     */
+    public static function notifyAdmin(string $type, string $title, string $message, string $link = ''): void
+    {
+        try {
+            $dataClass = HlblockEntityFactory::getDataClass(self::HLBLOCK_NAME);
+            $dataClass::add([
+                'UF_TYPE' => $type,
+                'UF_TITLE' => $title,
+                'UF_MESSAGE' => $message,
+                'UF_IS_READ' => false,
+                'UF_PARTNER_ID' => 0,
+                'UF_ADMIN' => self::ADMIN_OWNER,
+                'UF_CREATED_AT' => new DateTime(),
+                'UF_LINK' => $link,
+            ]);
+        } catch (\Throwable $e) {
+        }
     }
 
     /**

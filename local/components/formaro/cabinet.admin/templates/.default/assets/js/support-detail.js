@@ -1,0 +1,115 @@
+/* Обращение в кабинете администратора — переписка партнёра с техподдержкой
+   площадки (по образцу support-detail.js кабинета партнёра, «своя» сторона
+   здесь — support). Ответ — reply_ticket (статус «Отвечен», партнёру
+   уведомление), закрыть / открыть снова — set_ticket_status. */
+var ticketId = 0;
+var currentTicket = null;
+var pendingAttachments = []; // [{name, type, data}] — выбранные, но ещё не отправленные файлы
+
+$(function () {
+    ticketId = parseInt(ROUTE_ID, 10) || 0;
+
+    bindAutoHeight('#replyInput');
+
+    dsLoad('tickets').done(function (rows) {
+        var t = rows.find(function (x) { return x.id === ticketId; });
+        if (!t) { showResult(false, 'Обращение не найдено'); return; }
+        currentTicket = t;
+        renderTicket(t);
+    });
+
+    $('#closeTicketBtn').on('click', function () { setStatus('closed'); });
+    $('#reopenTicketBtn').on('click', function () { setStatus('open'); });
+
+    $('#attachBtn').on('click', function () { $('#replyFile').click(); });
+    $('#replyFile').on('change', function () {
+        var files = Array.prototype.slice.call(this.files);
+        files.forEach(function (file) {
+            attachmentFromFile(file, function (att) {
+                pendingAttachments.push(att);
+                renderAttachPreview();
+            });
+        });
+        $(this).val('');
+    });
+
+    $('#replySendBtn').on('click', function () {
+        var text = $('#replyInput').val().trim();
+        if (!text && pendingAttachments.length === 0) return;
+        sendReply(text, pendingAttachments.slice());
+    });
+});
+
+function renderAttachPreview() {
+    var $w = $('#attachPreviewWrap').empty();
+    if (pendingAttachments.length === 0) return;
+    var html = '<div class="attach-preview-list">';
+    pendingAttachments.forEach(function (a, idx) {
+        var thumb = a.type === 'image' ? bgThumbHtml(a.data, 'attach-thumb') : '<i class="bi bi-file-earmark-text fs-4"></i>';
+        html += '<div class="attach-preview">' + thumb + '<span>' + esc(a.name) + '</span>' +
+            '<span class="attach-remove" onclick="removePendingAttachment(' + idx + ')"><i class="bi bi-x-lg"></i></span></div>';
+    });
+    html += '</div>';
+    $w.html(html);
+}
+function removePendingAttachment(idx) { pendingAttachments.splice(idx, 1); renderAttachPreview(); }
+
+function renderTicket(t) {
+    $('#ticketSubject').text(t.subject);
+    $('#ticketStatusPill').html(t.status === 'open' ? '<span class="pill pill-blue">Ждёт ответа</span>' : statusPill(t.status));
+    $('#ticketPartner').html(partnerCell(t.partner_id));
+    $('#closeTicketBtn').toggleClass('d-none', t.status === 'closed');
+    $('#reopenTicketBtn').toggleClass('d-none', t.status !== 'closed');
+    document.title = t.subject;
+    $('#topbarTitle').text('Обращение: ' + t.subject);
+    var $m = $('#ticketMessages').empty();
+    t.messages.forEach(function (m) {
+        var cls = m.sender === 'support' ? 'out' : 'in';
+        var html = '<div class="chat-bubble ' + cls + '">';
+        if (m.sender === 'support') {
+            html += '<span class="msg-delete" title="Удалить сообщение" onclick="deleteMessage(' + m.id + ')"><i class="bi bi-x-lg"></i></span>';
+        }
+        html += esc(m.text || '');
+        (m.attachments || []).forEach(function (att) {
+            html += attachmentHtml(att);
+        });
+        html += '<span class="chat-time">' + fmtDate(m.date) + '</span></div>';
+        $m.append(html);
+    });
+    $m.scrollTop($m[0].scrollHeight);
+}
+
+function deleteMessage(messageId) {
+    showConfirm('Удалить это сообщение из переписки?', function () {
+        cabinetAjax({ajax_action: 'delete_ticket_message', ticket_id: ticketId, message_id: messageId}).done(function (t) {
+            currentTicket = t;
+            renderTicket(t);
+        });
+    }, {danger: true, okText: 'Удалить'});
+}
+
+function sendReply(text, attachments) {
+    cabinetAjax({
+        ajax_action: 'reply_ticket',
+        ticket_id: ticketId,
+        text: text,
+        attachments: JSON.stringify(attachments || [])
+    }).done(function (t) {
+        currentTicket = t;
+        $('#replyInput').val('').trigger('input');
+        pendingAttachments = [];
+        $('#replyFile').val('');
+        renderAttachPreview();
+        renderTicket(t);
+        refreshSidebarCounts();
+    });
+}
+
+function setStatus(status) {
+    cabinetAjax({ajax_action: 'set_ticket_status', ticket_id: ticketId, status: status}).done(function (t) {
+        currentTicket = t;
+        renderTicket(t);
+        refreshSidebarCounts();
+        showResult(true, status === 'closed' ? 'Обращение закрыто, партнёр получил уведомление' : 'Обращение открыто снова');
+    });
+}

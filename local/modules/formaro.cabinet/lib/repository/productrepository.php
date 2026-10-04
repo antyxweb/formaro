@@ -58,6 +58,24 @@ class ProductRepository
         return $rows;
     }
 
+    /** Все товары всех партнёров — кабинет администратора. */
+    public function listAll(): array
+    {
+        $rows = [];
+        $res = CIBlockElement::GetList(
+            ['ID' => 'DESC'],
+            ['IBLOCK_ID' => $this->iblockId, 'CHECK_PERMISSIONS' => 'N'],
+            false,
+            false,
+            self::SELECT_FIELDS
+        );
+        while ($el = $res->Fetch()) {
+            $rows[] = $this->toArray($el);
+        }
+
+        return $rows;
+    }
+
     /** Публичная витрина (главная страница, #catalog-grid) — активные
      *  товары всех партнёров, постранично. $offset ожидается кратным
      *  $limit (используется ровно так — "покажи ещё N"), поэтому считаем

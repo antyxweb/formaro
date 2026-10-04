@@ -41,6 +41,15 @@ class ChatRepository
         return array_map(fn(array $row) => $this->toArray($row), $rows);
     }
 
+    /** Все диалоги покупателей со всеми партнёрами — просмотр в кабинете администратора. */
+    public function listAll(): array
+    {
+        $dataClass = HlblockEntityFactory::getDataClass(self::THREADS_HLBLOCK);
+        $rows = $dataClass::getList(['order' => ['ID' => 'DESC']])->fetchAll();
+
+        return array_map(fn(array $row) => $this->toArray($row), $rows);
+    }
+
     public function get(int $id): ?array
     {
         $dataClass = HlblockEntityFactory::getDataClass(self::THREADS_HLBLOCK);

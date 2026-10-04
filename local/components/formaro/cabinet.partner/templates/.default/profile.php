@@ -76,6 +76,9 @@ require __DIR__ . '/inc/layout_app_top.php';
             <span class="pill <?= $statusClass ?>"><?= $statusLabel ?></span>
         </div>
     </div>
+    <?php if ($partner['verification_status'] === 'rejected' && $partner['moderation_comment'] !== ''): ?>
+        <div class="card-body pt-0"><div class="alert alert-danger small mb-0">Причина отклонения: <?= htmlspecialcharsbx($partner['moderation_comment']) ?>. Исправьте данные на вкладке «Основное» и отправьте на проверку снова.</div></div>
+    <?php endif; ?>
 </div>
 
 <div class="card mb-3">

@@ -71,6 +71,48 @@ class TransactionRepository
         return array_map([$this, 'toArray'], $rows);
     }
 
+    /** Операции всех партнёров — кабинет администратора. */
+    public function listAll(): array
+    {
+        $dataClass = HlblockEntityFactory::getDataClass(self::HLBLOCK_NAME);
+        $rows = $dataClass::getList(['order' => ['ID' => 'DESC']])->fetchAll();
+
+        return array_map([$this, 'toArray'], $rows);
+    }
+
+    /**
+     * Обработка заявки на вывод администратором: completed — деньги
+     * перечислены, rejected — отклонена (сумма возвращается в доступный
+     * баланс, см. getSummary()). Партнёру — уведомление.
+     */
+    public function processWithdrawal(int $id, bool $approve, string $comment = ''): array
+    {
+        $dataClass = HlblockEntityFactory::getDataClass(self::HLBLOCK_NAME);
+        $row = $dataClass::getById($id)->fetch();
+        if (!$row || $row['UF_TYPE'] !== 'withdrawal' || $row['UF_STATUS'] !== 'pending') {
+            throw new \RuntimeException('Заявка не найдена или уже обработана');
+        }
+        $comment = trim($comment);
+        if (!$approve && $comment === '') {
+            throw new \RuntimeException('Укажите причину отклонения');
+        }
+        $amount = number_format((float)$row['UF_AMOUNT'], 2, ',', ' ') . ' ₽';
+        $description = $approve
+            ? 'Вывод средств' . ($comment !== '' ? ': ' . $comment : '')
+            : 'Заявка на вывод отклонена: ' . $comment;
+        $dataClass::update($id, ['UF_STATUS' => $approve ? 'completed' : 'rejected', 'UF_DESCRIPTION' => $description]);
+
+        (new NotificationRepository())->add(
+            (int)$row['UF_PARTNER_ID'],
+            'finance',
+            $approve ? 'Вывод средств выполнен' : 'Заявка на вывод отклонена',
+            $approve ? 'Средства ' . $amount . ' перечислены на ваш расчётный счёт.' : 'Заявка на ' . $amount . ' отклонена. Причина: ' . $comment,
+            'finance/'
+        );
+
+        return $this->toArray($dataClass::getById($id)->fetch());
+    }
+
     /** Заявка на вывод средств — партнёр не может выбирать статус/сумму задним
      *  числом, только создать pending-заявку в пределах доступного баланса. */
     public function requestWithdrawal(int $partnerId, float $amount): array
@@ -96,6 +138,12 @@ class TransactionRepository
         if (!$result->isSuccess()) {
             throw new \RuntimeException(implode('; ', $result->getErrorMessages()));
         }
+        NotificationRepository::notifyAdmin(
+            'finance',
+            'Заявка на вывод средств',
+            'Партнёр «' . PartnerRepository::nameOf($partnerId) . '» запросил вывод ' . number_format($amount, 2, ',', ' ') . ' ₽.',
+            'finance/?id=' . $result->getId()
+        );
 
         return $this->getSummary($partnerId);
     }

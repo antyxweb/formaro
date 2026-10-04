@@ -36,6 +36,87 @@ class TicketRepository
         return array_map(fn(array $row) => $this->toArray($row), $rows);
     }
 
+    /** Обращения всех партнёров — кабинет администратора (техподдержка площадки). */
+    public function listAll(): array
+    {
+        $dataClass = HlblockEntityFactory::getDataClass(self::TICKETS_HLBLOCK);
+        $rows = $dataClass::getList(['order' => ['ID' => 'DESC']])->fetchAll();
+
+        return array_map(fn(array $row) => $this->toArray($row), $rows);
+    }
+
+    /**
+     * Ответ техподдержки площадки (sender = support): обращение — «Отвечен»,
+     * партнёру — уведомление со ссылкой на обращение.
+     *
+     * @param array $attachments [{name, type, data}]
+     */
+    public function replyAsSupport(int $ticketId, string $text, array $attachments = []): array
+    {
+        $ticket = $this->get($ticketId);
+        if (!$ticket) {
+            throw new \RuntimeException('Обращение не найдено');
+        }
+        if (trim($text) === '' && !$attachments) {
+            throw new \RuntimeException('Введите сообщение');
+        }
+
+        $this->addMessage($ticketId, 'support', $text, $attachments);
+        $dataClass = HlblockEntityFactory::getDataClass(self::TICKETS_HLBLOCK);
+        $dataClass::update($ticketId, ['UF_STATUS' => 'answered']);
+
+        (new NotificationRepository())->add(
+            $ticket['partner_id'],
+            'support',
+            'Ответ техподдержки',
+            'По обращению «' . $ticket['subject'] . '»: ' . mb_strimwidth(trim($text) ?: 'вложение', 0, 150, '…'),
+            'support/' . $ticketId . '/'
+        );
+
+        return $this->get($ticketId);
+    }
+
+    /** Статус обращения из кабинета администратора: open / answered / closed. */
+    public function setStatus(int $ticketId, string $status): array
+    {
+        if (!in_array($status, ['open', 'answered', 'closed'], true)) {
+            throw new \RuntimeException('Неизвестный статус');
+        }
+        $ticket = $this->get($ticketId);
+        if (!$ticket) {
+            throw new \RuntimeException('Обращение не найдено');
+        }
+        $dataClass = HlblockEntityFactory::getDataClass(self::TICKETS_HLBLOCK);
+        $dataClass::update($ticketId, ['UF_STATUS' => $status]);
+        if ($status === 'closed' && $ticket['status'] !== 'closed') {
+            (new NotificationRepository())->add(
+                $ticket['partner_id'],
+                'support',
+                'Обращение закрыто',
+                'Обращение «' . $ticket['subject'] . '» закрыто. Если вопрос остался — ответьте в нём, и оно откроется снова.',
+                'support/' . $ticketId . '/'
+            );
+        }
+
+        return $this->get($ticketId);
+    }
+
+    /** Удалить своё сообщение техподдержки (sender = support). */
+    public function deleteSupportMessage(int $ticketId, int $messageId): array
+    {
+        $messagesClass = HlblockEntityFactory::getDataClass(self::MESSAGES_HLBLOCK);
+        $row = $messagesClass::getList(['filter' => ['=ID' => $messageId, '=UF_TICKET_ID' => $ticketId, '=UF_SENDER' => 'support']])->fetch();
+        if (!$row) {
+            throw new \RuntimeException('Сообщение не найдено');
+        }
+        foreach ((array)($row['UF_ATTACHMENTS'] ?? []) as $fileId) {
+            FileUploader::delete((int)$fileId);
+        }
+        $messagesClass::delete($messageId);
+
+        return $this->get($ticketId);
+    }
+
     public function get(int $id): ?array
     {
         $dataClass = HlblockEntityFactory::getDataClass(self::TICKETS_HLBLOCK);
@@ -65,6 +146,12 @@ class TicketRepository
         $ticketId = $result->getId();
 
         $this->addMessage($ticketId, 'partner', $text, $attachments);
+        NotificationRepository::notifyAdmin(
+            'support',
+            'Новое обращение в техподдержку',
+            PartnerRepository::nameOf($partnerId) . ' — «' . $subject . '»: ' . mb_strimwidth(trim($text), 0, 150, '…'),
+            'support/' . $ticketId . '/'
+        );
 
         return $this->get($ticketId);
     }
@@ -79,10 +166,17 @@ class TicketRepository
 
         $this->addMessage($ticketId, 'partner', $text, $attachments);
 
-        if ($ticket['status'] === 'closed') {
+        // Ответ партнёра — снова ждёт техподдержку (в т.ч. «Отвечен» и «Закрыт»).
+        if ($ticket['status'] !== 'open') {
             $dataClass = HlblockEntityFactory::getDataClass(self::TICKETS_HLBLOCK);
             $dataClass::update($ticketId, ['UF_STATUS' => 'open']);
         }
+        NotificationRepository::notifyAdmin(
+            'support',
+            'Ответ партнёра в обращении',
+            PartnerRepository::nameOf($partnerId) . ' — «' . $ticket['subject'] . '»: ' . mb_strimwidth(trim($text) ?: 'вложение', 0, 150, '…'),
+            'support/' . $ticketId . '/'
+        );
 
         return $this->get($ticketId);
     }

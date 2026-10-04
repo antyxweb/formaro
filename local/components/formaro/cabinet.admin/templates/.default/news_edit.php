@@ -1,0 +1,131 @@
+<?php
+/**
+ * Новость в кабинете администратора — форма новости кабинета партнёра
+ * (partner:news-detail.js) плюс раздел сайта и партнёр (news-edit.js):
+ * новости площадки — разделы «Маркетплейс»/«Каталог», партнёров — «Партнёры».
+ *
+ * @var array $arResult
+ */
+$activeKey = 'news';
+$pageTitle = 'Новость';
+$needRichText = true;
+$needDatePicker = true;
+$routeId = $arResult['VARIABLES']['ID'] ?? 'new';
+require __DIR__ . '/inc/layout_app_top.php';
+?>
+<a href="<?= $arResult['SEF_FOLDER'] ?>news/" class="btn btn-link px-0 mb-2"><i class="bi bi-arrow-left"></i> К списку новостей</a>
+
+<div class="card">
+    <div class="card-header"><span id="formTitle">Новая новость</span></div>
+    <ul class="nav nav-tabs product-tabs" id="newsTabs">
+        <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tabMain" type="button">Основное</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabCatalog" type="button">Каталог <span class="side-count" id="catalogCountBadge" style="display:none;">0</span></button></li>
+    </ul>
+    <div class="tab-content">
+    <div class="tab-pane fade show active" id="tabMain">
+    <div class="card-body">
+        <form id="newsForm" onsubmit="return false;">
+            <input type="hidden" id="f_id">
+            <div class="row">
+                <div class="col-md-5 mb-3">
+                    <label class="form-label">Заголовок *</label>
+                    <input type="text" class="form-control" id="f_title" required maxlength="200" data-validate="text">
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">Код для ссылки</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="f_code" readonly>
+                        <button type="button" class="btn btn-outline-secondary code-chain-btn d-none" id="codeChainBtn" title="Скопировать полную ссылку на новость">
+                            <i class="bi bi-link-45deg"></i>
+                        </button>
+                    </div>
+                    <div class="form-text">Генерируется автоматически</div>
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label class="form-label">Дата и время</label>
+                    <input type="text" class="form-control" id="f_datetime" placeholder="дд.мм.гггг чч:мм" autocomplete="off">
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label class="form-label">Статус</label>
+                    <select class="form-select" id="f_status"><option value="active">Активен</option><option value="hidden">Скрыт</option></select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label" for="f_section">Раздел</label>
+                    <select class="form-select" id="f_section"></select>
+                </div>
+                <div class="col-md-5 mb-3" id="partnerField">
+                    <label class="form-label" for="f_partner">Партнёр *</label>
+                    <select class="form-select" id="f_partner"></select>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Краткое описание</label>
+                <textarea class="form-control autoheight-input" id="f_short_desc" rows="2" maxlength="300"></textarea>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Подробное описание</label>
+                <textarea id="f_full_desc"></textarea>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label d-block">Картинка превью</label>
+                    <div class="img-field">
+                        <div id="previewImg" class="thumb-detail bg-thumb mb-2" style="background-image:url('https://placehold.co/200x200?text=%20');"></div>
+                        <div class="img-actions">
+                            <label class="btn btn-outline-secondary mb-0">
+                                <svg class="ic-inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"></path><path d="m17 8-5-5-5 5"></path><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path></svg> Загрузить
+                                <input type="file" class="d-none" id="previewFile" accept="image/*">
+                            </label>
+                            <button type="button" class="btn btn-outline-danger" id="previewRemoveBtn"><svg class="ic-inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M3 6h18"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label d-block">Детальная картинка</label>
+                    <div class="img-field">
+                        <div id="fullImg" class="thumb-detail bg-thumb mb-2" style="background-image:url('https://placehold.co/200x200?text=%20');"></div>
+                        <div class="img-actions">
+                            <label class="btn btn-outline-secondary mb-0">
+                                <svg class="ic-inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"></path><path d="m17 8-5-5-5 5"></path><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path></svg> Загрузить
+                                <input type="file" class="d-none" id="fullFile" accept="image/*">
+                            </label>
+                            <button type="button" class="btn btn-outline-danger" id="fullRemoveBtn"><svg class="ic-inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M3 6h18"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    </div>
+
+    <div class="tab-pane fade" id="tabCatalog">
+        <div class="card-body">
+            <p class="text-muted-2 small">Привяжите новость к категориям каталога и/или к своим товарам — например, анонс поступления или акции. Можно выбрать и категории, и товары одновременно.</p>
+
+            <h6 class="mb-2">Категории каталога <span class="side-count" id="catalogSectionsBadge" style="display:none;">0</span></h6>
+            <div class="mb-4" id="f_catalog_sections"></div>
+
+            <h6 class="mb-2">Товары <span class="side-count" id="catalogProductsBadge" style="display:none;">0</span></h6>
+            <div id="catalogProductChips" class="mb-2"></div>
+            <div class="position-relative">
+                <input type="text" class="form-control" id="catalogProductSearch" placeholder="Начните вводить название или артикул своего товара (от 3 символов)…" autocomplete="off">
+                <div class="gsearch-dropdown" id="catalogProductResults"></div>
+            </div>
+        </div>
+    </div>
+    </div>
+    <div class="detail-actionbar">
+        <button type="button" class="btn btn-primary" id="saveBtn"><svg class="ic-inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"></path><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"></path><path d="M7 3v4a1 1 0 0 0 1 1h7"></path></svg> Сохранить</button>
+        <button type="button" class="btn btn-outline-primary" id="applyBtn"><svg class="ic-inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg> Применить</button>
+        <a href="<?= $arResult['SEF_FOLDER'] ?>news/" class="btn btn-light"><svg class="ic-inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg> Отмена</a>
+        <button type="button" class="btn btn-outline-danger d-none" id="deleteBtn"><svg class="ic-inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M3 6h18"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg> Удалить</button>
+        <div class="flex-spacer"></div>
+        <a href="#" class="btn btn-outline-secondary disabled" id="previewBtn" title="Посмотреть, как будет выглядеть на сайте" tabindex="-1" aria-disabled="true"><svg class="ic-inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"></path><circle cx="12" cy="12" r="3"></circle></svg> Предпросмотр</a>
+    </div>
+</div>
+<script>var ROUTE_ID = <?= json_encode($routeId) ?>;</script>
+<?php
+$pageScripts = ['partner:news-detail.js', 'news-edit.js'];
+require __DIR__ . '/inc/layout_app_bottom.php';

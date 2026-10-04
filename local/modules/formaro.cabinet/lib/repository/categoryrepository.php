@@ -123,6 +123,14 @@ class CategoryRepository
         $this->applyImage($fields, 'PICTURE', $payload['preview_image'] ?? null, $existing['preview_image'] ?? null);
         $this->applyImage($fields, 'UF_FULL_IMAGE', $payload['full_image'] ?? null, $existing['full_image'] ?? null);
 
+        // Ещё не допущенная (новая, на проверке или отклонённая) категория
+        // после правки партнёра снова уходит на проверку — причина прежнего
+        // отклонения больше не актуальна, администратору — уведомление.
+        $toModeration = !$existing || in_array($existing['status'], ['pending', 'rejected'], true);
+        if ($toModeration) {
+            $fields['UF_REJECT_REASON'] = '';
+        }
+
         if ($existing) {
             $ok = (new CIBlockSection())->Update($id, $fields);
             if (!$ok) {
@@ -136,14 +144,133 @@ class CategoryRepository
             }
         }
 
+        if ($toModeration) {
+            NotificationRepository::notifyAdmin(
+                'moderation',
+                $existing ? 'Категория партнёра изменена' : 'Новая категория партнёра',
+                PartnerRepository::nameOf($partnerId) . ' — категория «' . $fields['NAME'] . '» ждёт проверки.',
+                'categories/edit/' . $id . '/'
+            );
+        }
+
         return $this->get($id);
     }
 
-    /** @throws \Exception если запись чужая/системная, есть подкатегории или её нельзя удалить */
-    public function delete(int $partnerId, int $id): bool
+    /**
+     * Сохранение из кабинета администратора: любая категория — общая
+     * (системная) или партнёрская. Новая без партнёра — общая категория
+     * площадки, сразу допущенная к показу. Владельца существующей категории
+     * администратор не меняет; допуск — approve()/reject().
+     */
+    public function adminSave(array $payload): array
+    {
+        $id = (int)($payload['id'] ?? 0);
+        $existing = $id ? $this->get($id) : null;
+
+        $fields = [
+            'IBLOCK_ID' => $this->iblockId,
+            'IBLOCK_SECTION_ID' => (int)($payload['parent_id'] ?? 0) ?: false,
+            'NAME' => (string)($payload['name'] ?? ''),
+            'CODE' => (string)($payload['slug'] ?? ''),
+            'DESCRIPTION' => (string)($payload['short_desc'] ?? ''),
+            'DESCRIPTION_TYPE' => 'text',
+            'UF_FULL_DESC' => (string)($payload['full_desc'] ?? ''),
+            'ACTIVE' => ($payload['active'] ?? true) ? 'Y' : 'N',
+        ];
+        if (isset($payload['sort_order']) || !$existing) {
+            $fields['SORT'] = (int)($payload['sort_order'] ?? 500);
+        }
+        if (!$existing) {
+            $partnerId = (int)($payload['partner_id'] ?? 0);
+            $fields['UF_PARTNER_ID'] = $partnerId ?: false;
+            $fields['UF_IS_SYSTEM'] = $partnerId ? 0 : 1;
+            $fields['UF_APPROVED'] = 1;
+        }
+
+        $this->applyImage($fields, 'PICTURE', $payload['preview_image'] ?? null, $existing['preview_image'] ?? null);
+        $this->applyImage($fields, 'UF_FULL_IMAGE', $payload['full_image'] ?? null, $existing['full_image'] ?? null);
+
+        $section = new CIBlockSection();
+        if ($existing) {
+            if (!$section->Update($id, $fields)) {
+                throw new \RuntimeException('Не удалось сохранить категорию: ' . $section->LAST_ERROR);
+            }
+        } else {
+            $id = (int)$section->Add($fields);
+            if (!$id) {
+                throw new \RuntimeException('Не удалось создать категорию: ' . $section->LAST_ERROR);
+            }
+        }
+
+        return $this->get($id);
+    }
+
+    /** Удаление из кабинета администратора — те же проверки, что у партнёра, без проверки владельца. */
+    public function adminDelete(int $id): bool
     {
         $row = $this->get($id);
-        if (!$row || !$this->canEdit($partnerId, $row)) {
+        if (!$row) {
+            throw new \RuntimeException('Категория не найдена');
+        }
+
+        return $this->delete((int)$row['partner_id'], $id, true);
+    }
+
+    /** Допустить категорию партнёра к показу на сайте. */
+    public function approve(int $id): array
+    {
+        $row = $this->requireRow($id);
+        (new CIBlockSection())->Update($id, ['UF_APPROVED' => 1, 'UF_REJECT_REASON' => '']);
+        if ($row['partner_id']) {
+            (new NotificationRepository())->add(
+                $row['partner_id'],
+                'product',
+                'Категория одобрена',
+                'Категория «' . $row['name'] . '» прошла проверку и видна на сайте.',
+                'categories/edit/' . $id . '/'
+            );
+        }
+
+        return $this->get($id);
+    }
+
+    /** Отклонить категорию партнёра с причиной (партнёр поправит и отправит снова). */
+    public function reject(int $id, string $reason): array
+    {
+        $reason = trim($reason);
+        if ($reason === '') {
+            throw new \RuntimeException('Укажите причину отклонения');
+        }
+        $row = $this->requireRow($id);
+        (new CIBlockSection())->Update($id, ['UF_APPROVED' => 0, 'UF_REJECT_REASON' => $reason]);
+        if ($row['partner_id']) {
+            (new NotificationRepository())->add(
+                $row['partner_id'],
+                'product',
+                'Категория отклонена',
+                'Категория «' . $row['name'] . '» не прошла проверку. Причина: ' . $reason,
+                'categories/edit/' . $id . '/'
+            );
+        }
+
+        return $this->get($id);
+    }
+
+    private function requireRow(int $id): array
+    {
+        $row = $this->get($id);
+        if (!$row) {
+            throw new \RuntimeException('Категория не найдена');
+        }
+
+        return $row;
+    }
+
+    /** @throws \Exception если запись чужая/системная, есть подкатегории или её нельзя удалить */
+    public function delete(int $partnerId, int $id, bool $asAdmin = false): bool
+    {
+        $row = $this->get($id);
+        if (!$row || (!$asAdmin && !$this->canEdit($partnerId, $row))) {
             throw new \RuntimeException('Категория не найдена или недоступна для удаления');
         }
 
@@ -202,6 +329,8 @@ class CategoryRepository
         // галочку "Допущен к показу" на разделе в админке, в кабинете вместо
         // Активен/Скрыт всегда показываем "На проверке".
         $approved = !empty($section['UF_APPROVED']);
+        $rejectReason = trim((string)($section['UF_REJECT_REASON'] ?? ''));
+        $moderation = $rejectReason !== '' ? 'rejected' : 'pending';
 
         return [
             'id' => (int)$section['ID'],
@@ -217,7 +346,10 @@ class CategoryRepository
             'full_image_file_id' => $section['UF_FULL_IMAGE'] ?: null,
             'is_system' => !empty($section['UF_IS_SYSTEM']),
             'partner_id' => $section['UF_PARTNER_ID'] ? (int)$section['UF_PARTNER_ID'] : null,
-            'status' => !$approved ? 'pending' : ($section['ACTIVE'] === 'N' ? 'hidden' : 'active'),
+            'status' => !$approved ? $moderation : ($section['ACTIVE'] === 'N' ? 'hidden' : 'active'),
+            'active' => $section['ACTIVE'] !== 'N',
+            'approved' => $approved,
+            'reject_reason' => $rejectReason,
             'public_url' => $this->getPublicUrl($section),
         ];
     }

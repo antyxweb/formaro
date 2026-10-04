@@ -225,6 +225,12 @@ class PartnerRegistrationService
             'MODULE_ID' => 'main',
             'ENABLE_CLOSE' => 'Y',
         ]);
+        \Formaro\Cabinet\Repository\NotificationRepository::notifyAdmin(
+            'moderation',
+            'Новый партнёр',
+            'Партнёр «' . $name . '» (' . $details . ') зарегистрировался — проверьте данные и включите показ на сайте.',
+            'partners/edit/' . $partnerId . '/'
+        );
     }
 
     private static function createUser(array $data, int $partnerId, int $groupId): int

@@ -56,6 +56,77 @@ class NewsRepository
         return $this->attachCatalogLinks($rows);
     }
 
+    /** Все новости сайта (партнёрские и площадки) — кабинет администратора. */
+    public function listAll(): array
+    {
+        $rows = [];
+        $res = CIBlockElement::GetList(
+            ['ID' => 'DESC'],
+            ['IBLOCK_ID' => $this->iblockId, 'CHECK_PERMISSIONS' => 'N'],
+            false,
+            false,
+            self::SELECT_FIELDS
+        );
+        while ($el = $res->Fetch()) {
+            $rows[] = $this->toArray($el);
+        }
+
+        return $this->attachCatalogLinks($rows);
+    }
+
+    /** Разделы новостей: [{id, code, name}] — «Партнёры», «Маркетплейс», «Каталог». */
+    public function listSections(): array
+    {
+        $rows = [];
+        $res = CIBlockSection::GetList(['SORT' => 'ASC', 'NAME' => 'ASC'], ['IBLOCK_ID' => $this->iblockId, 'CHECK_PERMISSIONS' => 'N'], false, ['ID', 'CODE', 'NAME']);
+        while ($row = $res->Fetch()) {
+            $rows[] = ['id' => (int)$row['ID'], 'code' => (string)$row['CODE'], 'name' => (string)$row['NAME']];
+        }
+
+        return $rows;
+    }
+
+    /**
+     * Сохранение из кабинета администратора: любая новость, любой раздел
+     * (section_id); партнёр (partner_id) — только у новостей раздела
+     * «Партнёры». Привязка к каталогу — без ограничения «свои товары».
+     */
+    public function adminSave(array $payload): array
+    {
+        $partnerId = (int)($payload['partner_id'] ?? 0);
+        $sectionId = (int)($payload['section_id'] ?? 0);
+        $sections = array_column($this->listSections(), 'id');
+        if (!in_array($sectionId, $sections, true)) {
+            $sectionId = $partnerId ? $this->sectionId : (int)($sections[0] ?? $this->sectionId);
+        }
+        if ($sectionId !== $this->sectionId) {
+            $partnerId = 0;
+        } elseif (!$partnerId) {
+            throw new \RuntimeException('Выберите партнёра для новости раздела «Партнёры»');
+        }
+
+        $id = (int)($payload['id'] ?? 0);
+        $existing = $id ? $this->get($id) : null;
+        $ownerId = $existing ? $existing['partner_id'] : $partnerId;
+        // save() проверяет владельца — сохраняем от имени владельца новости.
+        $saved = $this->save($ownerId, ['id' => $existing ? $id : 0] + $payload, true);
+
+        (new CIBlockElement())->Update($saved['id'], ['IBLOCK_SECTION_ID' => $sectionId]);
+        CIBlockElement::SetPropertyValuesEx($saved['id'], $this->iblockId, ['PARTNER_ID' => $partnerId ?: false]);
+
+        return $this->get($saved['id']);
+    }
+
+    public function adminDelete(int $id): bool
+    {
+        $row = $this->get($id);
+        if (!$row) {
+            throw new \RuntimeException('Новость не найдена');
+        }
+
+        return $this->delete($row['partner_id'], $id);
+    }
+
     public function get(int $id): ?array
     {
         $el = CIBlockElement::GetList(
@@ -79,7 +150,7 @@ class NewsRepository
      *                       created_at/status/catalog_section_ids/
      *                       catalog_product_ids
      */
-    public function save(int $partnerId, array $payload): array
+    public function save(int $partnerId, array $payload, bool $asAdmin = false): array
     {
         $id = (int)($payload['id'] ?? 0);
         $existing = $id ? $this->get($id) : null;
@@ -141,11 +212,15 @@ class NewsRepository
         // Вкладка «Каталог»: ключи есть в payload — значит форма их прислала
         // (пустой массив = отвязать всё); нет ключа — не трогаем.
         if (array_key_exists('catalog_section_ids', $payload)) {
-            $sectionIds = $this->filterVisibleSections($partnerId, (array)$payload['catalog_section_ids']);
+            $sectionIds = $asAdmin
+                ? array_values(array_filter(array_map('intval', (array)$payload['catalog_section_ids'])))
+                : $this->filterVisibleSections($partnerId, (array)$payload['catalog_section_ids']);
             $props['CATALOG_SECTIONS'] = $sectionIds ?: false;
         }
         if (array_key_exists('catalog_product_ids', $payload)) {
-            $productIds = $this->filterOwnProducts($partnerId, (array)$payload['catalog_product_ids']);
+            $productIds = $asAdmin
+                ? array_values(array_filter(array_map('intval', (array)$payload['catalog_product_ids'])))
+                : $this->filterOwnProducts($partnerId, (array)$payload['catalog_product_ids']);
             $props['CATALOG_PRODUCTS'] = $productIds ?: false;
         }
         CIBlockElement::SetPropertyValuesEx($id, $this->iblockId, $props);
@@ -286,6 +361,7 @@ class NewsRepository
             'full_image' => FileUploader::getPath($el['DETAIL_PICTURE'] ?: null),
             'full_image_file_id' => $el['DETAIL_PICTURE'] ?: null,
             'partner_id' => (int)($el['PROPERTY_PARTNER_ID_VALUE'] ?? 0),
+            'section_id' => (int)($el['IBLOCK_SECTION_ID'] ?? 0),
             'status' => $el['ACTIVE'] === 'N' ? 'hidden' : 'active',
             'created_at' => $el['ACTIVE_FROM'] ?? null,
             'public_url' => $this->getPublicUrl($el),

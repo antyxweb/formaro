@@ -1,0 +1,59 @@
+<?php
+/**
+ * Уведомления администратора — только то, что ждёт решения площадки:
+ * модерация (партнёры, категории), заявки на вывод средств, обращения в
+ * техподдержку. Список — notifications.js кабинета партнёра.
+ *
+ * @var array $arResult
+ */
+$activeKey = 'notifications';
+$pageTitle = 'Уведомления';
+require __DIR__ . '/inc/layout_app_top.php';
+?>
+<div class="filter-bar d-flex justify-content-between align-items-center gap-3">
+    <div class="d-flex align-items-center gap-3">
+        <select class="form-select" id="typeFilter" style="min-width:160px;">
+            <option value="">Все типы</option>
+            <option value="moderation">Модерация</option>
+            <option value="finance">Финансы</option>
+            <option value="support">Техподдержка</option>
+        </select>
+        <div class="form-check form-switch mb-0">
+            <input class="form-check-input" type="checkbox" id="unreadOnlyToggle">
+            <label class="form-check-label" for="unreadOnlyToggle">Только непрочитанные</label>
+        </div>
+    </div>
+    <button class="btn btn-light" id="markAllBtn"><svg class="ic-inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 7 17l-5-5"></path><path d="m22 10-7.5 7.5L13 16"></path></svg> Прочитать все <span id="unreadCountLabel"></span></button>
+</div>
+
+<div class="card" id="notifCard">
+    <div class="card-body p-0">
+        <?php // Групповые действия — с отмеченными на текущей странице. ?>
+        <div class="notif-toolbar">
+            <div class="form-check mb-0">
+                <input type="checkbox" class="form-check-input" id="checkAllNotif">
+                <label class="form-check-label" for="checkAllNotif">Выбрать все</label>
+            </div>
+            <span class="text-muted-2 small d-none" id="selectedCountLabel"></span>
+            <button type="button" class="btn btn-light btn-sm d-none" id="bulkReadBtn"><svg class="ic-inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg> Прочитать</button>
+            <button type="button" class="btn btn-outline-danger btn-sm d-none" id="bulkDeleteBtn"><svg class="ic-inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M3 6h18"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg> Удалить</button>
+        </div>
+        <div id="listBody">
+            <div class="text-center text-muted-2 py-4">Загрузка…</div>
+        </div>
+        <div class="table-footer-bar">
+            <div class="tf-left"><span class="tf-count"></span></div>
+            <div class="tf-right">
+                <div class="tf-pagesize">Показывать
+                    <select class="form-select tf-pagesize-select">
+                        <option value="20">20</option><option value="50">50</option><option value="100">100</option><option value="500">500</option>
+                    </select>
+                </div>
+                <div class="tf-pager"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<?php
+$pageScripts = ['partner:notifications.js', 'notifications.js'];
+require __DIR__ . '/inc/layout_app_bottom.php';

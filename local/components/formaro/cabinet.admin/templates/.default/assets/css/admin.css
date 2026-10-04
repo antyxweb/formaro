@@ -1,0 +1,14 @@
+/* Кабинет администратора (/admin/) — дополнения к theme.css кабинета партнёра. */
+.partner-link { color: inherit; text-decoration: none; border-bottom: 1px dashed currentColor; }
+.partner-link:hover { color: var(--brand); }
+
+.admin-tile { display: flex; flex-direction: column; gap: 2px; padding: 14px 16px; border-radius: 14px; border: 1px solid var(--border); background: var(--surface); color: inherit; text-decoration: none; height: 100%; }
+.admin-tile:hover { border-color: var(--brand); }
+.admin-tile__value { font-size: 1.5rem; font-weight: 700; line-height: 1.2; }
+.admin-tile__label { color: var(--muted); font-size: .85rem; }
+
+.moderation-diff td { vertical-align: top; }
+.moderation-diff td.is-changed { background: var(--yellow-soft); box-shadow: inset 3px 0 0 var(--yellow); }
+.moderation-diff .diff-old { color: var(--muted); text-decoration: line-through; display: block; }
+.moderation-thumb { width: 72px; height: 72px; border-radius: 10px; background-size: cover; background-position: center; border: 1px solid var(--border); }
+.reason-note { white-space: pre-line; }

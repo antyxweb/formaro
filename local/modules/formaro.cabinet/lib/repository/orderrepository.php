@@ -30,6 +30,15 @@ class OrderRepository
         return array_map([$this, 'toArray'], $rows);
     }
 
+    /** Все заказы всех партнёров — кабинет администратора. */
+    public function listAll(): array
+    {
+        $dataClass = HlblockEntityFactory::getDataClass(self::HLBLOCK_NAME);
+        $rows = $dataClass::getList(['order' => ['ID' => 'DESC']])->fetchAll();
+
+        return array_map([$this, 'toArray'], $rows);
+    }
+
     /** Число заказов покупателя с витрины — счётчик в шапке сайта и меню
      *  личного кабинета. */
     public function countByUser(int $userId): int
