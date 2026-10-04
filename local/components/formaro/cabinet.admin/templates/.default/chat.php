@@ -1,7 +1,9 @@
 <?php
 /**
  * Чаты покупателей с партнёрами — только просмотр, фильтр по партнёру,
- * покупателю, заказу и товару.
+ * покупателю, заказу и товару. Сообщения с контактами, разговором об
+ * оплате или сделке в обход площадки помечены (ChatModerationService),
+ * «Только с нарушениями» — диалоги с такими сообщениями.
  *
  * @var array $arResult
  */
@@ -15,6 +17,13 @@ require __DIR__ . '/inc/layout_app_top.php';
     <div><label class="form-label small mb-1">Клиент</label><input type="text" class="form-control" id="fClient" placeholder="Имя клиента" style="min-width:160px;"></div>
     <div><label class="form-label small mb-1">№ заказа</label><input type="text" class="form-control" id="fOrder" placeholder="F-100218" style="min-width:130px;"></div>
     <div><label class="form-label small mb-1">Товар</label><input type="text" class="form-control" id="fProduct" placeholder="Название товара" style="min-width:180px;"></div>
+    <div>
+        <label class="form-label small mb-1 d-block invisible">.</label>
+        <div class="form-check form-switch mb-0" style="height:38px;">
+            <input class="form-check-input" type="checkbox" id="alertsOnly">
+            <label class="form-check-label" for="alertsOnly">Только с нарушениями</label>
+        </div>
+    </div>
     <button class="btn btn-outline-secondary filter-clear-btn" id="clearBtn" title="Сбросить фильтры"><i class="bi bi-x-lg"></i></button>
 </div>
 

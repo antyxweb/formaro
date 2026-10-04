@@ -2,7 +2,7 @@
 /**
  * Уведомления администратора — только то, что ждёт решения площадки:
  * модерация (партнёры, категории), заявки на вывод средств, обращения в
- * техподдержку. Список — notifications.js кабинета партнёра.
+ * техподдержку, подозрительные сообщения в чатах с клиентами. Список — notifications.js кабинета партнёра.
  *
  * @var array $arResult
  */
@@ -17,6 +17,7 @@ require __DIR__ . '/inc/layout_app_top.php';
             <option value="moderation">Модерация</option>
             <option value="finance">Финансы</option>
             <option value="support">Техподдержка</option>
+            <option value="chat">Чаты с клиентами</option>
         </select>
         <div class="form-check form-switch mb-0">
             <input class="form-check-input" type="checkbox" id="unreadOnlyToggle">

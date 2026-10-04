@@ -3,6 +3,7 @@
 namespace Formaro\Cabinet\Repository;
 
 use Bitrix\Main\Type\DateTime;
+use Formaro\Cabinet\Service\ChatModerationService;
 use Formaro\Cabinet\Upload\FileUploader;
 
 /**
@@ -93,10 +94,43 @@ class ChatRepository
             'UF_IS_READ' => false,
             'UF_NOTIFIED' => false,
             'UF_ATTACHMENTS' => $this->saveAttachments($attachments),
+            'UF_ALERT' => ChatModerationService::summary($found = ChatModerationService::check($text)),
         ]);
         if (!$result->isSuccess()) {
             throw new \RuntimeException(implode('; ', $result->getErrorMessages()));
         }
+        if ($found) {
+            $this->notifyAdminAlert($threadId, $sender, $text, $found);
+        }
+    }
+
+    /**
+     * Сообщение с контактами, разговором об оплате или сделке в обход
+     * площадки (ChatModerationService) — уведомление администраторам: кто
+     * кому написал, тема диалога, что найдено, текст; ссылка — на диалог в
+     * «Чатах с клиентами» кабинета администратора.
+     */
+    private function notifyAdminAlert(int $threadId, string $sender, string $text, array $found): void
+    {
+        $dataClass = HlblockEntityFactory::getDataClass(self::THREADS_HLBLOCK);
+        $thread = $dataClass::getById($threadId)->fetch();
+        if (!$thread) {
+            return;
+        }
+        $partner = PartnerRepository::nameOf((int)$thread['UF_PARTNER_ID']);
+        $client = (string)$thread['UF_CLIENT_NAME'] ?: 'Покупатель';
+        $subject = $thread['UF_ORDER_NUMBER'] ? 'заказ ' . $thread['UF_ORDER_NUMBER']
+            : ($thread['UF_PRODUCT_NAME'] ? 'товар «' . $thread['UF_PRODUCT_NAME'] . '»' : 'общий вопрос');
+        $from = $sender === 'partner' ? 'Партнёр «' . $partner . '» → покупателю ' . $client : 'Покупатель ' . $client . ' → партнёру «' . $partner . '»';
+
+        NotificationRepository::notifyAdmin(
+            'chat',
+            'Подозрительное сообщение в чате: ' . ChatModerationService::summary($found),
+            $from . ' (' . $subject . ').' . "\n"
+                . 'Найдено — ' . ChatModerationService::details($found) . '.' . "\n"
+                . 'Сообщение: «' . mb_strimwidth(trim($text), 0, 500, '…') . '»',
+            'chat/?thread=' . $threadId
+        );
     }
 
     /**
@@ -270,6 +304,7 @@ class ChatRepository
                     'text' => $m['UF_TEXT'],
                     'date' => $this->dateToString($m['UF_DATE']),
                     'is_read' => !empty($m['UF_IS_READ']),
+                    'alert' => (string)($m['UF_ALERT'] ?? ''),
                     'attachments' => array_values(array_filter(array_map(
                         static fn($fid) => FileUploader::getAttachment((int)$fid),
                         (array)($m['UF_ATTACHMENTS'] ?? [])

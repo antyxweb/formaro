@@ -27,3 +27,10 @@
 .ssel-item.active { background: var(--surface-3); }
 .ssel-item.selected { color: var(--brand); font-weight: 600; }
 .ssel-empty { padding: 6px 10px; color: var(--muted); }
+
+/* Уведомления: многострочный текст (подозрительное сообщение в чате) */
+.notif-message { white-space: pre-line; }
+/* Чаты: сообщение, отмеченное проверкой (ChatModerationService) */
+.chat-bubble.chat-alert { box-shadow: 0 0 0 2px var(--red); }
+.chat-alert-note { font-size: .78rem; font-weight: 600; color: var(--red); margin-bottom: 4px; }
+.chat-bubble.out .chat-alert-note { color: #fff; }
