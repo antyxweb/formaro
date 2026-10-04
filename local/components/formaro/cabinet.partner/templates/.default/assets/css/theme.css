@@ -894,6 +894,26 @@ input[type="file"].form-control::file-selector-button:hover { background: var(--
    не задевается общим правилом для input/select — убираем отдельно. */
 .trumbowyg-editor:focus, .trumbowyg-editor:focus-visible { outline: none !important; box-shadow: none !important; }
 
+/* Окно редактора (вставка ссылки и т. п.) — по теме кабинета: в тёмной
+   теме у trumbowyg белый фон с тёмными полями и бледным заголовком. */
+.trumbowyg-overlay { background-color: rgba(0, 0, 0, .45) !important; }
+.trumbowyg-modal-box { background: var(--surface) !important; color: var(--ink) !important; box-shadow: var(--shadow-lg) !important; border: 1px solid var(--border) !important; }
+.trumbowyg-modal-box .trumbowyg-modal-title { color: var(--ink-strong) !important; background: var(--surface-2) !important; border-bottom: 1px solid var(--border) !important; font-size: 1.05rem !important; font-weight: 700 !important; }
+.trumbowyg-modal-box .trumbowyg-input-row { border-color: var(--border) !important; }
+.trumbowyg-modal-box .trumbowyg-input-infos { background: var(--surface-2) !important; border-color: var(--border) !important; }
+.trumbowyg-modal-box .trumbowyg-input-infos label,
+.trumbowyg-modal-box .trumbowyg-input-infos label span { color: var(--muted) !important; background: transparent !important; border-color: var(--border) !important; }
+.trumbowyg-modal-box .trumbowyg-input-html input,
+.trumbowyg-modal-box .trumbowyg-input-html select,
+.trumbowyg-modal-box .trumbowyg-input-html textarea { background: var(--surface) !important; color: var(--ink) !important; border: none !important; font-weight: 400 !important; }
+.trumbowyg-modal-box .trumbowyg-input-html { border-color: var(--border) !important; background: var(--surface) !important; }
+.trumbowyg-modal-box .trumbowyg-input-row:focus-within .trumbowyg-input-html,
+.trumbowyg-modal-box .trumbowyg-input-row:focus-within .trumbowyg-input-infos label span { border-color: var(--brand) !important; }
+.trumbowyg-modal-box .trumbowyg-modal-submit { background: var(--brand) !important; color: #fff !important; box-shadow: none !important; }
+.trumbowyg-modal-box .trumbowyg-modal-submit:hover { background: var(--brand-dark) !important; }
+.trumbowyg-modal-box .trumbowyg-modal-reset { background: var(--surface-3) !important; color: var(--ink) !important; box-shadow: none !important; }
+.trumbowyg-modal-box .trumbowyg-modal-reset:hover { background: var(--border-strong) !important; }
+
 /* ---------------- Datetimepicker (xdsoft) — подгонка под тему сайта ---------------- */
 .xdsoft_datetimepicker { background: var(--surface) !important; border: 1px solid var(--border) !important; color: var(--ink) !important; box-shadow: var(--shadow-lg) !important; font-family: 'Ubuntu', sans-serif !important; }
 .xdsoft_datetimepicker .xdsoft_calendar td, .xdsoft_datetimepicker .xdsoft_calendar th { color: var(--ink) !important; background: var(--surface) !important; }
