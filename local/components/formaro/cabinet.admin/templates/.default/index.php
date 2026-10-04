@@ -10,10 +10,9 @@ $activeKey = 'dashboard';
 $pageTitle = 'Главная';
 require __DIR__ . '/inc/layout_app_top.php';
 ?>
-<div class="filter-bar d-flex flex-wrap gap-2 align-items-end justify-content-between">
+<div class="filter-bar d-flex flex-wrap gap-2 align-items-center justify-content-between">
     <h4 class="mb-0">Здравствуйте, <?= htmlspecialcharsbx($adminUserName) ?>!</h4>
-    <div><label class="form-label small mb-1">Партнёр</label>
-        <select class="form-select" id="partnerFilter" style="min-width:240px;"></select></div>
+    <select class="form-select" id="partnerFilter" style="width:auto;min-width:240px;" aria-label="Партнёр"></select>
 </div>
 
 <div class="row g-3 mb-3" id="moderationTiles">
