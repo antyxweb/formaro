@@ -3,7 +3,7 @@
 use Formaro\Cabinet\Security\AdminContext;
 
 /** @var array $arResult */
-global $USER;
+global $USER, $APPLICATION;
 
 $error = '';
 
@@ -31,6 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email'], $_POST['pass
 
 $pageTitle = 'Вход для администратора';
 require $_SERVER['DOCUMENT_ROOT'] . '/local/components/formaro/cabinet.partner/templates/.default/inc/layout_auth_top.php';
+$APPLICATION->SetAdditionalCSS(cabinetAssetUrl('/local/components/formaro/cabinet.admin/templates/.default/assets/css/admin.css'));
 ?>
     <p class="text-muted-2 mb-4">Кабинет администратора площадки</p>
     <?php if ($error): ?>
