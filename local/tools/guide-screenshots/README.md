@@ -5,6 +5,9 @@
     npm i --no-save puppeteer-core@23        # Chrome — системный, путь в shoot.js
     node shoot.js shots.json out <BITRIX_PHPSESSID>
 
+Адрес сайта — переменная GUIDE_BASE, по умолчанию http://formaro.test
+(локальный dev-proxy); куки ставятся на этот же домен.
+
 - `shots.json` — кадр: name, url, auth (нужна сессия), height/width,
   mobile, full, rect/clip (обрезка), storage (localStorage, напр. гостевая
   корзина), actions (click, type, eval, follow, scroll, scrollText).

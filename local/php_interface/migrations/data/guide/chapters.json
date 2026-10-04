@@ -119,6 +119,20 @@
         "file": "170-content.html"
     },
     {
+        "code": "admin-start",
+        "name": "Кабинет администратора: модерация, партнёры, каталог",
+        "icon": "icon-checkbox-tick",
+        "sort": 172,
+        "file": "172-admin-start.html"
+    },
+    {
+        "code": "admin-operations",
+        "name": "Кабинет администратора: заказы, финансы, общение",
+        "icon": "icon-row-grid",
+        "sort": 174,
+        "file": "174-admin-operations.html"
+    },
+    {
         "code": "owner-tasks",
         "name": "Задачи владельца площадки",
         "icon": "icon-shield-keyhole",

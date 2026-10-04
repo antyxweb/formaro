@@ -3,7 +3,9 @@ const puppeteer = require('puppeteer-core');
 const fs = require('fs');
 const [,, listFile, outDir, sid] = process.argv;
 const list = JSON.parse(fs.readFileSync(listFile, 'utf8'));
-const BASE = 'http://formaro.localhost';
+// Локальный адрес сайта (dev-proxy): http://formaro.test; другой — переменной GUIDE_BASE.
+const BASE = process.env.GUIDE_BASE || 'http://formaro.test';
+const HOST = new URL(BASE).hostname;
 (async () => {
   const browser = await puppeteer.launch({
     executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
@@ -15,8 +17,8 @@ const BASE = 'http://formaro.localhost';
     const page = await ctx.newPage();
     const mobile = !!s.mobile;
     await page.setViewport({ width: mobile ? 390 : (s.width || 1440), height: s.height || (mobile ? 844 : 900), deviceScaleFactor: mobile ? 2 : 1, isMobile: mobile, hasTouch: mobile });
-    if (s.auth && sid) await page.setCookie({ name: 'BITRIX_PHPSESSID', value: sid, domain: 'formaro.localhost', path: '/' });
-    await page.setCookie({ name: 'cookie-policy', value: 'Y', domain: 'formaro.localhost', path: '/' });
+    if (s.auth && sid) await page.setCookie({ name: 'BITRIX_PHPSESSID', value: sid, domain: HOST, path: '/' });
+    await page.setCookie({ name: 'cookie-policy', value: 'Y', domain: HOST, path: '/' });
     if (s.storage) await page.evaluateOnNewDocument(st => { for (const k in st) localStorage.setItem(k, st[k]); }, s.storage);
     try {
       await page.goto(BASE + s.url, { waitUntil: 'networkidle2', timeout: 45000 });
