@@ -1,5 +1,7 @@
 /* Заказы всех партнёров в кабинете администратора — список с фильтрами и
-   просмотр заказа в окне (?id=ID — открыть сразу, например с главной). */
+   просмотр заказа в окне (?id=ID — открыть сразу, например с главной).
+   В окне — отметка оплаты (оплату подтверждает площадка): «Оплачен»,
+   «Возврат», «Снять отметку»; покупатель и партнёр получают уведомления. */
 var allOrders = [];
 var pager = null;
 var refreshClearBtn = null;
@@ -81,7 +83,7 @@ function openOrder(id) {
             '<div class="col-md-6"><div class="text-muted-2 small">Партнёр</div>' + partnerCell(o.partner_id) + '</div>' +
             '<div class="col-md-6"><div class="text-muted-2 small">Дата</div>' + fmtDate(o.created_at, true) + '</div>' +
             '<div class="col-md-6"><div class="text-muted-2 small">Покупатель</div>' + esc(c.name || '—') + '<div class="small">' + esc([c.phone, c.email].filter(Boolean).join(' · ')) + '</div><div class="small text-muted-2">' + esc(c.address || '') + '</div></div>' +
-            '<div class="col-md-6"><div class="text-muted-2 small">Доставка и оплата</div>' + esc(o.delivery_method || '—') + ' · ' + esc(o.payment_method || '—') + '<div class="mt-1">' + paymentPill(o.payment_status) + '</div></div>' +
+            '<div class="col-md-6"><div class="text-muted-2 small">Доставка и оплата</div>' + esc(o.delivery_method || '—') + ' · ' + esc(o.payment_method || '—') + '<div class="mt-1">' + paymentPill(o.payment_status) + '</div>' + paymentActions(o) + '</div>' +
             (o.customer_comment ? '<div class="col-12"><div class="text-muted-2 small">Комментарий покупателя</div>' + esc(o.customer_comment) + '</div>' : '') +
         '</div>' +
         '<div class="table-responsive"><table class="table table-sm"><thead><tr><th>Товар</th><th class="text-end">Кол-во</th><th class="text-end">Цена</th><th class="text-end">Сумма</th></tr></thead><tbody>' + items + '</tbody>' +
@@ -92,4 +94,39 @@ function openOrder(id) {
         '<h6 class="mt-3">История</h6>' + history
     );
     bootstrap.Modal.getOrCreateInstance($('#orderModal')[0]).show();
+}
+
+/** Кнопки отметки оплаты в окне заказа (кроме текущего статуса; у отменённого — только возврат/снять). */
+function paymentActions(o) {
+    var s = o.payment_status || 'awaiting';
+    var btn = function (status, cls, icon, label) {
+        return '<button type="button" class="btn btn-sm ' + cls + '" onclick="setPaymentStatus(' + o.id + ', \'' + status + '\')"><i class="bi ' + icon + '"></i> ' + label + '</button> ';
+    };
+    var html = '';
+    if (s !== 'paid' && o.status !== 'cancelled') html += btn('paid', 'btn-success', 'bi-check-lg', 'Оплачен');
+    if (s === 'paid') html += btn('refunded', 'btn-outline-danger', 'bi-arrow-counterclockwise', 'Возврат');
+    if (s !== 'awaiting') html += btn('awaiting', 'btn-outline-secondary', 'bi-x-lg', 'Снять отметку');
+    return html ? '<div class="mt-2 d-flex flex-wrap gap-1">' + html + '</div>' : '';
+}
+
+var PAYMENT_CONFIRM = {
+    paid: 'Отметить заказ {n} оплаченным? Покупатель и партнёр получат уведомление.',
+    refunded: 'Отметить возврат оплаты по заказу {n}? Покупатель и партнёр получат уведомление.',
+    awaiting: 'Снять отметку об оплате заказа {n}? Статус станет «Ожидает оплаты».'
+};
+
+function setPaymentStatus(id, status) {
+    var o = allOrders.find(function (x) { return x.id === id; });
+    // Подтверждение — после того как окно заказа закрылось: два окна
+    // Bootstrap в переходе одновременно не открываются.
+    $('#orderModal').one('hidden.bs.modal', function () {
+        showConfirm(PAYMENT_CONFIRM[status].replace('{n}', o.order_number), function () {
+            cabinetAjax({ajax_action: 'set_payment_status', id: id, status: status}).done(function (saved) {
+                allOrders = allOrders.map(function (x) { return x.id === saved.id ? saved : x; });
+                render();
+                showResult(true, 'Статус оплаты: ' + PAYMENT_LABELS[status][0]);
+            });
+        }, {okText: 'Подтвердить', danger: status === 'refunded'});
+    });
+    bootstrap.Modal.getOrCreateInstance($('#orderModal')[0]).hide();
 }

@@ -18,6 +18,7 @@ use Formaro\Cabinet\Repository\ProductRepository;
 use Formaro\Cabinet\Repository\TicketRepository;
 use Formaro\Cabinet\Repository\TransactionRepository;
 use Formaro\Cabinet\Security\AdminContext;
+use Formaro\Cabinet\Service\BuyerNotificationService;
 
 /**
  * Кабинет администратора площадки (/admin/) — по образцу кабинета партнёра
@@ -161,6 +162,7 @@ class CabinetAdminComponent extends CBitrixComponent
                     (int)($_REQUEST['ticket_id'] ?? 0),
                     (int)($_REQUEST['message_id'] ?? 0)
                 ),
+                'set_payment_status' => $this->setPaymentStatus($id, (string)($_REQUEST['status'] ?? '')),
                 'process_withdrawal' => (new TransactionRepository())->processWithdrawal(
                     $id,
                     ($_REQUEST['decision'] ?? '') === 'approve',
@@ -179,6 +181,33 @@ class CabinetAdminComponent extends CBitrixComponent
         }
 
         die();
+    }
+
+    /**
+     * Отметка оплаты заказа: статус и запись в истории (OrderRepository),
+     * покупателю — уведомление (BuyerNotificationService), партнёру — в его
+     * кабинет со ссылкой на заказ.
+     */
+    private function setPaymentStatus(int $id, string $status): array
+    {
+        [$before, $after] = (new OrderRepository())->setPaymentStatus($id, $status);
+        if ($before['payment_status'] !== $after['payment_status']) {
+            BuyerNotificationService::orderUpdated($before, $after);
+            $label = OrderRepository::PAYMENT_STATUSES[$status];
+            (new NotificationRepository())->add(
+                $after['partner_id'],
+                'order',
+                'Заказ ' . $after['order_number'] . ': ' . mb_strtolower($label),
+                match ($status) {
+                    'paid' => 'Площадка подтвердила оплату заказа — можно собирать и отправлять.',
+                    'refunded' => 'Площадка оформила возврат оплаты покупателю.',
+                    default => 'Площадка сняла отметку об оплате заказа.',
+                },
+                'orders/edit/' . $after['id'] . '/'
+            );
+        }
+
+        return $after;
     }
 
     private function ajaxList(string $entity)

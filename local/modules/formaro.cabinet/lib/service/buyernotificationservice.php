@@ -130,6 +130,15 @@ class BuyerNotificationService
                 self::orderLink($after)
             );
         }
+        if ($before['payment_status'] !== 'refunded' && $after['payment_status'] === 'refunded') {
+            $repo->addForBuyer(
+                $userId,
+                'order',
+                'Возврат оплаты по заказу ' . $after['order_number'],
+                'Маркетплейс оформил возврат ' . self::money($after['total']) . ' руб.',
+                self::orderLink($after)
+            );
+        }
     }
 
     private static function orderLink(array $order): string

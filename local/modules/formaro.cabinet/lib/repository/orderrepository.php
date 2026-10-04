@@ -39,6 +39,46 @@ class OrderRepository
         return array_map([$this, 'toArray'], $rows);
     }
 
+    public const PAYMENT_STATUSES = ['awaiting' => 'Ожидает оплаты', 'paid' => 'Оплачен', 'refunded' => 'Возврат'];
+
+    /**
+     * Статус оплаты из кабинета администратора (оплату подтверждает
+     * площадка, партнёр его не меняет): запись в историю заказа —
+     * уведомления покупателю и партнёру отправляет вызывающий
+     * (кабинет администратора). @return array [до, после]
+     */
+    public function setPaymentStatus(int $id, string $status): array
+    {
+        if (!isset(self::PAYMENT_STATUSES[$status])) {
+            throw new \RuntimeException('Неизвестный статус оплаты');
+        }
+        $before = $this->get($id);
+        if (!$before) {
+            throw new \RuntimeException('Заказ не найден');
+        }
+        if ($before['payment_status'] === $status) {
+            return [$before, $before];
+        }
+        $text = match ($status) {
+            'paid' => 'Оплата подтверждена площадкой',
+            'refunded' => 'Площадка оформила возврат оплаты',
+            default => 'Отметка об оплате снята площадкой',
+        };
+        $history = $before['history'];
+        $history[] = ['date' => (new \DateTime())->format('c'), 'text' => $text, 'author' => 'Площадка'];
+
+        $dataClass = HlblockEntityFactory::getDataClass(self::HLBLOCK_NAME);
+        $result = $dataClass::update($id, [
+            'UF_PAYMENT_STATUS' => $status,
+            'UF_HISTORY' => json_encode($history, JSON_UNESCAPED_UNICODE),
+        ]);
+        if (!$result->isSuccess()) {
+            throw new \RuntimeException(implode('; ', $result->getErrorMessages()));
+        }
+
+        return [$before, $this->get($id)];
+    }
+
     /** Число заказов покупателя с витрины — счётчик в шапке сайта и меню
      *  личного кабинета. */
     public function countByUser(int $userId): int
