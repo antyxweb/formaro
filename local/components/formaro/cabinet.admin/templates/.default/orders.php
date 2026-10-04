@@ -1,8 +1,8 @@
 <?php
 /**
- * Заказы всех партнёров — просмотр с фильтрами (партнёр, статус, оплата,
- * поиск). Заказ ведёт партнёр в своём кабинете; здесь — карточка заказа
- * в окне (?id=ID — открыть сразу).
+ * Заказы всех партнёров — список с фильтрами (партнёр, статус, оплата,
+ * поиск). Заказ ведёт партнёр в своём кабинете; страница заказа здесь —
+ * orders/edit/ID/ (статус оплаты, комментарии площадки).
  *
  * @var array $arResult
  */
@@ -57,10 +57,6 @@ require __DIR__ . '/inc/layout_app_top.php';
     </div>
 </div>
 
-<div class="modal fade" id="orderModal" tabindex="-1"><div class="modal-dialog modal-lg modal-dialog-scrollable"><div class="modal-content">
-    <div class="modal-header"><h5 class="modal-title" id="orderModalTitle">Заказ</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-    <div class="modal-body" id="orderModalBody"></div>
-</div></div></div>
 <?php
 $pageScripts = ['orders.js'];
 require __DIR__ . '/inc/layout_app_bottom.php';

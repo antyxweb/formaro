@@ -79,6 +79,25 @@ class OrderRepository
         return [$before, $this->get($id)];
     }
 
+    /** Комментарий в историю заказа (кабинет администратора, автор «Площадка»). */
+    public function addHistory(int $id, string $text, string $author): array
+    {
+        $text = trim($text);
+        if ($text === '') {
+            throw new \RuntimeException('Введите комментарий');
+        }
+        $order = $this->get($id);
+        if (!$order) {
+            throw new \RuntimeException('Заказ не найден');
+        }
+        $history = $order['history'];
+        $history[] = ['date' => (new \DateTime())->format('c'), 'text' => $text, 'author' => $author];
+        $dataClass = HlblockEntityFactory::getDataClass(self::HLBLOCK_NAME);
+        $dataClass::update($id, ['UF_HISTORY' => json_encode($history, JSON_UNESCAPED_UNICODE)]);
+
+        return $this->get($id);
+    }
+
     /** Число заказов покупателя с витрины — счётчик в шапке сайта и меню
      *  личного кабинета. */
     public function countByUser(int $userId): int

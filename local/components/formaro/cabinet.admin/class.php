@@ -42,6 +42,7 @@ class CabinetAdminComponent extends CBitrixComponent
         'partners' => 'partners/',
         'partner_detail' => 'partners/edit/#ID#/',
         'orders' => 'orders/',
+        'order_detail' => 'orders/edit/#ID#/',
         'finance' => 'finance/',
         'news' => 'news/',
         'news_edit' => 'news/edit/#ID#/',
@@ -162,6 +163,7 @@ class CabinetAdminComponent extends CBitrixComponent
                     (int)($_REQUEST['ticket_id'] ?? 0),
                     (int)($_REQUEST['message_id'] ?? 0)
                 ),
+                'add_order_comment' => (new OrderRepository())->addHistory($id, $text, 'Площадка'),
                 'set_payment_status' => $this->setPaymentStatus($id, (string)($_REQUEST['status'] ?? '')),
                 'process_withdrawal' => (new TransactionRepository())->processWithdrawal(
                     $id,

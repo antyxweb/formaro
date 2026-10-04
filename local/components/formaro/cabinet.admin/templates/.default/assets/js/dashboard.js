@@ -124,7 +124,7 @@ function renderRecentOrders(rows) {
     }
     rows.forEach(function (o) {
         $t.append(
-            '<tr class="cursor-pointer" onclick="location.href=\'' + CABINET_URL + 'orders/?id=' + o.id + '\'">' +
+            '<tr class="cursor-pointer" onclick="location.href=\'' + CABINET_URL + 'orders/edit/' + o.id + '/\'">' +
             '<td class="fixed-row-h">' + esc(o.order_number) + '</td>' +
             '<td class="fixed-row-h"><span class="truncate-cell">' + partnerCell(o.partner_id) + '</span></td>' +
             '<td class="fixed-row-h">' + fmtMoney(o.total) + '</td>' +

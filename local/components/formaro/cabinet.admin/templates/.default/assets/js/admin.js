@@ -225,7 +225,7 @@ function runGlobalSearch(q, $results) {
         var t = tickets.filter(function (x) { return has(x.subject); }).slice(0, 5);
         if (p.length) groups.push({title: 'Партнёры', icon: GSEARCH_ICONS.categories, items: p.map(function (x) { return {label: x.name, sub: x.inn, url: CABINET_URL + 'partners/edit/' + x.id + '/'}; })});
         if (c.length) groups.push({title: 'Категории', icon: GSEARCH_ICONS.categories, items: c.map(function (x) { return {label: x.name, sub: x.partner_id ? partnerName(x.partner_id) : 'Площадка', url: CABINET_URL + 'categories/edit/' + x.id + '/'}; })});
-        if (o.length) groups.push({title: 'Заказы', icon: GSEARCH_ICONS.orders, items: o.map(function (x) { return {label: x.order_number + ' — ' + x.customer.name, sub: partnerName(x.partner_id), url: CABINET_URL + 'orders/?id=' + x.id}; })});
+        if (o.length) groups.push({title: 'Заказы', icon: GSEARCH_ICONS.orders, items: o.map(function (x) { return {label: x.order_number + ' — ' + x.customer.name, sub: partnerName(x.partner_id), url: CABINET_URL + 'orders/edit/' + x.id + '/'}; })});
         if (n.length) groups.push({title: 'Новости', icon: GSEARCH_ICONS.news, items: n.map(function (x) { return {label: x.title, url: CABINET_URL + 'news/edit/' + x.id + '/'}; })});
         if (t.length) groups.push({title: 'Обращения', icon: GSEARCH_ICONS.discounts, items: t.map(function (x) { return {label: x.subject, sub: partnerName(x.partner_id), url: CABINET_URL + 'support/' + x.id + '/'}; })});
         renderGlobalSearchResults(groups, $results);
