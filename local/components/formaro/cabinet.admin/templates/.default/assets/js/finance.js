@@ -15,6 +15,11 @@ $(function () {
     if (highlightId) $('#requestStatusFilter').val('');
     load();
     $('#partnerFilter, #requestStatusFilter, #typeFilter').on('change', render);
+    // Фильтр вкладки в шапке — только пока открыта его вкладка.
+    $('button[data-bs-toggle="tab"]').on('shown.bs.tab', function () {
+        var tab = $(this).data('bs-target').slice(1);
+        $('.filter-bar [data-tab]').each(function () { $(this).toggleClass('d-none', $(this).data('tab') !== tab); });
+    });
 });
 
 function load() {

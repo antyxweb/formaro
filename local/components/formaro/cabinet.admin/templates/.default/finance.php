@@ -13,6 +13,22 @@ $pager = static fn(string $key) => '<div class="table-footer-bar"><div class="tf
 <div class="filter-bar d-flex flex-wrap gap-2 align-items-end">
     <div><label class="form-label small mb-1">Партнёр</label>
         <select class="form-select" id="partnerFilter" style="min-width:240px;"></select></div>
+    <?php // Фильтры вкладок — видны только на своей вкладке (finance.js, data-tab). ?>
+    <div data-tab="tabRequests"><label class="form-label small mb-1" for="requestStatusFilter">Статус заявки</label>
+        <select class="form-select" id="requestStatusFilter" style="min-width:200px;">
+            <option value="pending">Ждут выплаты</option>
+            <option value="completed">Выплачены</option>
+            <option value="rejected">Отклонены</option>
+            <option value="">Все заявки</option>
+        </select></div>
+    <div data-tab="tabTransactions" class="d-none"><label class="form-label small mb-1" for="typeFilter">Операции</label>
+        <select class="form-select" id="typeFilter" style="min-width:200px;">
+            <option value="">Все операции</option>
+            <option value="income">Поступления</option>
+            <option value="commission">Списания</option>
+            <option value="refund">Возвраты</option>
+            <option value="withdrawal">Выводы</option>
+        </select></div>
 </div>
 
 <div class="row g-3 mb-3">
@@ -30,14 +46,6 @@ $pager = static fn(string $key) => '<div class="table-footer-bar"><div class="tf
 <div class="card" style="border-top-left-radius:0;">
     <div class="tab-content">
         <div class="tab-pane fade show active" id="tabRequests">
-            <div class="card-body pb-0">
-                <select class="form-select" id="requestStatusFilter" style="max-width:220px;">
-                    <option value="pending">Ждут выплаты</option>
-                    <option value="completed">Выплачены</option>
-                    <option value="rejected">Отклонены</option>
-                    <option value="">Все заявки</option>
-                </select>
-            </div>
             <div class="card border-0 rounded-0 shadow-none" id="requestsTable"><div class="table-responsive">
                 <table class="table mb-0 align-middle">
                     <thead><tr><th>Дата</th><th>Партнёр</th><th>Сумма</th><th>Реквизиты</th><th>Статус</th><th class="text-end">Решение</th></tr></thead>
@@ -47,15 +55,6 @@ $pager = static fn(string $key) => '<div class="table-footer-bar"><div class="tf
             </div>
         </div>
         <div class="tab-pane fade" id="tabTransactions">
-            <div class="card-body pb-0 d-flex gap-2 flex-wrap">
-                <select class="form-select" id="typeFilter" style="max-width:200px;">
-                    <option value="">Все операции</option>
-                    <option value="income">Поступления</option>
-                    <option value="commission">Списания</option>
-                    <option value="refund">Возвраты</option>
-                    <option value="withdrawal">Выводы</option>
-                </select>
-            </div>
             <div class="card border-0 rounded-0 shadow-none" id="transactionsTable"><div class="table-responsive">
                 <table class="table mb-0 align-middle">
                     <thead><tr><th>Дата</th><th>Партнёр</th><th>Тип</th><th>Описание</th><th>Сумма</th><th>Статус</th></tr></thead>
