@@ -117,6 +117,7 @@ function renderContacts(c) {
             '</div>';
     }
     function reqRow(label, value) {
+        if (!value) return '';
         return '<div class="support-req-row"><div class="text-muted-2 small">' + esc(label) + '</div><div>' + esc(value) + '</div></div>';
     }
 
@@ -131,9 +132,9 @@ function renderContacts(c) {
         '<div class="card"><div class="card-body">' +
             '<h6 class="mb-3 d-flex align-items-center gap-2">' + landmarkIcon + ' Реквизиты</h6>' +
             reqRow('Оператор', c.legal_name) +
-            reqRow('ИНН / КПП', c.inn + ' / ' + c.kpp) +
-            reqRow('ОГРН', c.ogrn) +
-            reqRow('Юр. адрес', c.legal_address) +
+            reqRow(c.kpp ? 'ИНН / КПП' : 'ИНН', c.kpp ? c.inn + ' / ' + c.kpp : c.inn) +
+            reqRow(String(c.ogrn || '').replace(/\D/g, '').length === 15 ? 'ОГРНИП' : 'ОГРН', c.ogrn) +
+            reqRow('Адрес', c.legal_address) +
             reqRow('Банк', c.bank_name) +
             reqRow('Р/с', c.account) +
         '</div></div>'

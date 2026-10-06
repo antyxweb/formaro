@@ -3,6 +3,7 @@
 namespace Formaro\Cabinet\Repository;
 
 use Bitrix\Main\Type\DateTime;
+use Formaro\Cabinet\Settings\MarketplaceRequisites;
 use Formaro\Cabinet\Upload\FileUploader;
 
 /**
@@ -205,6 +206,8 @@ class TicketRepository
 
     public function getMarketplaceContacts(): array
     {
+        $requisites = MarketplaceRequisites::get();
+
         return [
             'support_phone' => '8 800 550-38-40',
             'phone_note' => 'бесплатно по РФ',
@@ -213,13 +216,14 @@ class TicketRepository
             'help_url' => 'help.formaro.ru',
             'help_note' => 'инструкции и регламенты',
             'work_hours' => 'Поддержка партнёров: пн–пт, 9:00–19:00 МСК',
-            'legal_name' => 'ООО «Формаро Маркет»',
-            'inn' => '9709077415',
-            'kpp' => '770901001',
-            'ogrn' => '1227700481830',
-            'legal_address' => '125009, г. Москва, ул. Тверская, д. 12, стр. 2',
-            'bank_name' => 'АО «Тинькофф Банк»',
-            'account' => '40702810510000073391',
+            // Реквизиты — из настроек модуля (MarketplaceRequisites).
+            'legal_name' => $requisites['name_short'] ?: $requisites['name_full'],
+            'inn' => $requisites['inn'],
+            'kpp' => $requisites['kpp'],
+            'ogrn' => $requisites['ogrn'],
+            'legal_address' => $requisites['legal_address'] ?: $requisites['actual_address'],
+            'bank_name' => $requisites['bank_name'],
+            'account' => $requisites['account'],
         ];
     }
 

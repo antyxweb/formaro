@@ -4,6 +4,7 @@ namespace Formaro\Cabinet\Service;
 
 use Bitrix\Main\Loader;
 use CSaleTfpdf;
+use Formaro\Cabinet\Settings\MarketplaceRequisites;
 
 /**
  * «Счёт на оплату» заказа в PDF («Скачать счёт» в «Ваших заказах»,
@@ -12,10 +13,9 @@ use CSaleTfpdf;
  * прописью, подписи.
  *
  * Счёт всегда выставляет юрлицо самого маркетплейса, а не продавец:
- * получатель платежа и поставщик — маркетплейс. Пока бланковый — его
- * название и реквизиты (банк, БИК, счета, ИНН, КПП, ОГРН, адрес,
- * руководитель) пустые: источник реквизитов ещё не определён. НДС не
- * указывается.
+ * получатель платежа и поставщик — маркетплейс. Реквизиты — из настроек
+ * модуля (MarketplaceRequisites: Настройки модулей → «Реквизиты
+ * площадки»); незаполненные поля остаются пустыми. НДС не указывается.
  *
  * PDF — генератором модуля «Интернет-магазин» (tFPDF, sale/general/pdf.php)
  * со шрифтом PT Sans из /bitrix/fonts/ (кириллица).
@@ -41,11 +41,8 @@ class OrderInvoiceService
 
     private function render(array $order): string
     {
-        // Бланк: название и реквизиты маркетплейса — пустые поля (источник
-        // появится позже; тогда — сюда, в $sellerName/$legal/$contacts).
-        $sellerName = '';
-        $legal = [];
-        $contacts = [];
+        $legal = MarketplaceRequisites::get();
+        $sellerName = $legal['name_full'] ?: $legal['name_short'];
 
         $this->pdf = new CSaleTfpdf('P', 'mm', 'A4');
         $pdf = $this->pdf;
@@ -69,10 +66,11 @@ class OrderInvoiceService
         $pdf->Ln(4);
 
         $seller = [$sellerName];
-        $seller[] = $legal['inn'] ?? '' ? 'ИНН ' . $legal['inn'] : '';
-        $seller[] = $legal['ogrn'] ?? '' ? 'ОГРН ' . $legal['ogrn'] : '';
-        $seller[] = $legal['legal_address'] ?? '';
-        $seller[] = $contacts['phone'] ?? '' ? 'тел. ' . $contacts['phone'] : '';
+        $seller[] = $legal['inn'] !== '' ? 'ИНН ' . $legal['inn'] : '';
+        $seller[] = $legal['kpp'] !== '' ? 'КПП ' . $legal['kpp'] : '';
+        $seller[] = $legal['ogrn'] !== '' ? MarketplaceRequisites::ogrnLabel($legal['ogrn']) . ' ' . $legal['ogrn'] : '';
+        $seller[] = $legal['legal_address'] ?: $legal['actual_address'];
+        $seller[] = $legal['phone'] !== '' ? 'тел. ' . $legal['phone'] : '';
         $this->party('Поставщик:', $seller);
 
         $customer = $order['customer'] ?? [];
@@ -99,9 +97,9 @@ class OrderInvoiceService
         $pdf->SetLineWidth(0.2);
         $pdf->Ln(10);
 
-        $this->signature('Руководитель', (string)($legal['ceo_name'] ?? ''));
+        $this->signature('Руководитель', $legal['ceo_name']);
         $pdf->Ln(8);
-        $this->signature('Бухгалтер', '');
+        $this->signature('Бухгалтер', $legal['accountant_name']);
 
         return $pdf->Output('', 'S');
     }
@@ -138,7 +136,7 @@ class OrderInvoiceService
         $half = $left / 2;
         $pdf->SetXY($x, $y);
         $pdf->Cell($half, $h, 'ИНН ' . ($legal['inn'] ?? ''), 1);
-        $pdf->Cell($half, $h, 'КПП', 1);
+        $pdf->Cell($half, $h, 'КПП ' . ($legal['kpp'] ?? ''), 1);
         $pdf->Cell($label, $h * 3, '', 1);
         $pdf->Cell($right, $h * 3, '', 1);
         $pdf->SetXY($x + $left, $y);
