@@ -45,7 +45,7 @@ foreach (array_slice(explode(',', (string)($_GET['items'] ?? '')), 0, CartReposi
 }
 $items = CartRepository::normalize($items);
 
-$result = CartCheckoutService::calculate($items, explode(',', (string)($_GET['coupons'] ?? '')));
+$result = CartCheckoutService::forClient(CartCheckoutService::calculate($items, explode(',', (string)($_GET['coupons'] ?? ''))));
 // id купона наружу не нужен.
 $coupons = array_map(static function (array $c) {
     unset($c['id']);

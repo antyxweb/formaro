@@ -84,7 +84,9 @@ class OrderRepeatService
             'color' => (string)($i['product']['color'] ?? ''),
             'size' => (string)($i['product']['size'] ?? ''),
             'qty' => $i['qty'],
-            'price' => (float)$i['product']['price'],
+            // Цена для покупателя — сайта (с наценкой), поставщика — его.
+            'price' => (float)($i['product']['retail_price'] ?? 0) ?: MarkupService::retail((float)$i['product']['price']),
+            'supplier_price' => (float)$i['product']['price'],
         ], $items);
         $subtotal = array_sum(array_map(static fn($i) => $i['price'] * $i['qty'], $orderItems));
 

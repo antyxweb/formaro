@@ -159,6 +159,8 @@
                         '<button type="button" class="button-icon js-cart-delete" title="Удалить выбранные"><svg width="16" height="16"><use xlink:href="#icon-delete"></use></svg></button>' +
                     '</div>' +
                 '</div>' +
+                // Минимальный заказ у поставщика — только предупреждение (updateGroupActions).
+                '<div class="alert alert-warning small py-2 mb-3 d-none js-cart-min-order" role="status"></div>' +
                 '<div class="cart-grid row product-list d-flex flex-wrap">' +
                     group.items.map(itemHtml).join('') +
                 '</div>' +
@@ -189,7 +191,8 @@
         var couponDiscount = 0;
         coupons.forEach(function (coupon) {
             var base = selected.filter(function (item) { return item.partner_id === coupon.partner_id; })
-                .reduce(function (s, item) { return s + item.sum; }, 0);
+                // Промокод поставщика — от его цен (без наценки площадки), как на сервере.
+                .reduce(function (s, item) { return s + (item.coupon_base !== undefined ? item.coupon_base : item.sum); }, 0);
             couponDiscount += coupon.discount_type === 'percent'
                 ? Math.round(base * coupon.value / 100)
                 : Math.min(coupon.value, base);
@@ -215,11 +218,24 @@
 
     /** «Удалить выбранные» у группы — только если в ней что-то отмечено. */
     function updateGroupActions() {
+        var fmt = card().fmtPrice;
         groups.forEach(function (group, index) {
-            var button = el.groups.querySelector('[data-cart-group="' + index + '"] .js-cart-delete');
+            var box = el.groups.querySelector('[data-cart-group="' + index + '"]');
+            var button = box && box.querySelector('.js-cart-delete');
             if (!button) return;
             var any = group.items.some(function (item) { return !unchecked[item.id]; });
             button.classList.toggle('d-none', !any);
+
+            // Сумма выбранных товаров поставщика меньше минимального заказа — предупреждение (оформить можно).
+            var note = box.querySelector('.js-cart-min-order');
+            var sum = group.items.filter(function (item) { return !unchecked[item.id]; })
+                .reduce(function (s, item) { return s + item.sum; }, 0);
+            var min = Number(group.min_order) || 0;
+            var short = any && min > 0 && sum < min;
+            note.classList.toggle('d-none', !short);
+            if (short) {
+                note.textContent = 'Минимальный заказ у поставщика — ' + fmt(min) + ' руб. Добавьте товаров ещё на ' + fmt(min - sum) + ' руб.';
+            }
         });
     }
 

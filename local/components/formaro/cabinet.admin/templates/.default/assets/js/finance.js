@@ -14,6 +14,8 @@ $(function () {
     transactionsPager = initTablePager({root: '#transactionsTable', renderFn: renderTransactions, storageKey: 'admin_pagesize_transactions'});
     if (highlightId) $('#requestStatusFilter').val('');
     load();
+    loadMarkup();
+    $('#saveMarkupBtn').on('click', saveMarkup);
     $('#partnerFilter, #requestStatusFilter, #typeFilter').on('change', render);
     // Фильтр вкладки в шапке — только пока открыта его вкладка.
     $('button[data-bs-toggle="tab"]').on('shown.bs.tab', function () {
@@ -153,4 +155,26 @@ function rejectRequest(id) {
             refreshSidebarCounts();
         });
     });
+}
+
+/* Наценка площадки и минимальный заказ (MarkupService). Смена ставки
+   пересчитывает цены сайта всех товаров. */
+var markupMinRate = 7;
+function loadMarkup() {
+    dsLoad('markup').done(function (m) {
+        markupMinRate = m.min_rate;
+        $('#markupRate').val(m.rate).attr('min', m.min_rate);
+        $('#minOrder').val(m.min_order);
+    });
+}
+function saveMarkup() {
+    var rate = Number($('#markupRate').val());
+    if (!(rate >= markupMinRate)) { showResult(false, 'Наценка не может быть меньше ' + markupMinRate + '%'); return; }
+    showConfirm('Сохранить наценку ' + rate + '% и минимальный заказ ' + fmtMoney(Number($('#minOrder').val())) + '? Если ставка изменилась, цены на сайте пересчитаются для всех товаров.', function () {
+        cabinetAjax({ajax_action: 'save_markup', rate: rate, min_order: Number($('#minOrder').val())}).done(function (m) {
+            $('#markupRate').val(m.rate);
+            $('#minOrder').val(m.min_order);
+            showResult(true, m.recalculated ? 'Сохранено, цены пересчитаны: ' + m.recalculated + ' товаров' : 'Сохранено');
+        });
+    }, {okText: 'Сохранить'});
 }

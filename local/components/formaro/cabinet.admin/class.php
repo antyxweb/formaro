@@ -19,6 +19,7 @@ use Formaro\Cabinet\Repository\TicketRepository;
 use Formaro\Cabinet\Repository\TransactionRepository;
 use Formaro\Cabinet\Security\AdminContext;
 use Formaro\Cabinet\Service\BuyerNotificationService;
+use Formaro\Cabinet\Service\MarkupService;
 use Formaro\Cabinet\Service\OrderInvoiceFlowService;
 
 /**
@@ -168,6 +169,7 @@ class CabinetAdminComponent extends CBitrixComponent
                 // Согласование и счёт: состав по согласованию с покупателем, выставление счёта.
                 'update_order_items' => OrderInvoiceFlowService::updateItems($id, json_decode((string)($_REQUEST['items'] ?? '[]'), true) ?: []),
                 'issue_invoice' => OrderInvoiceFlowService::issueInvoice($id),
+                'save_markup' => MarkupService::save((float)str_replace(',', '.', (string)($_REQUEST['rate'] ?? '')), (float)($_REQUEST['min_order'] ?? 0)),
                 'set_payment_status' => $this->setPaymentStatus($id, (string)($_REQUEST['status'] ?? '')),
                 'process_withdrawal' => (new TransactionRepository())->processWithdrawal(
                     $id,
@@ -229,6 +231,7 @@ class CabinetAdminComponent extends CBitrixComponent
             'chat' => (new ChatRepository())->listAll(),
             'transactions' => (new TransactionRepository())->listAll(),
             'notifications' => NotificationRepository::forAdmin()->listOwn(NotificationRepository::ADMIN_OWNER),
+            'markup' => ['rate' => MarkupService::rate(), 'min_rate' => MarkupService::MIN_RATE, 'min_order' => MarkupService::minOrder()],
             default => [],
         };
     }

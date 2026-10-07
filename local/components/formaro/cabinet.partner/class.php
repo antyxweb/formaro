@@ -237,13 +237,13 @@ class CabinetPartnerComponent extends CBitrixComponent
                 'save_user_profile' => $this->ajaxSaveUserProfile(),
                 // «Повторить заказ» (выполненный/отменённый) — новый заказ с теми же товарами.
                 'repeat_order_check' => OrderRepeatService::checkForPartner($partnerId, (int)($_REQUEST['id'] ?? 0)),
-                'repeat_order' => OrderRepeatService::repeatForPartner($partnerId, (int)($_REQUEST['id'] ?? 0)),
+                'repeat_order' => OrderRepository::partnerView(OrderRepeatService::repeatForPartner($partnerId, (int)($_REQUEST['id'] ?? 0))),
                 // Наличие и срок отгрузки — до выставления счёта площадкой.
-                'confirm_order' => OrderInvoiceFlowService::confirmBySupplier(
+                'confirm_order' => OrderRepository::partnerView(OrderInvoiceFlowService::confirmBySupplier(
                     $partnerId,
                     (int)($_REQUEST['id'] ?? 0),
                     (string)($_REQUEST['lead_time'] ?? '')
-                ),
+                )),
                 default => throw new \RuntimeException('Неизвестное действие: ' . $action),
             };
 
@@ -260,7 +260,8 @@ class CabinetPartnerComponent extends CBitrixComponent
         return match ($entity) {
             'categories' => (new CategoryRepository())->listVisible($partnerId),
             'products' => (new ProductRepository())->listOwn($partnerId),
-            'orders' => (new OrderRepository())->listOwn($partnerId),
+            // Заказы — глазами поставщика: его цены, без наценки площадки.
+            'orders' => array_map([OrderRepository::class, 'partnerView'], (new OrderRepository())->listOwn($partnerId)),
             'discounts' => (new DiscountRepository())->listOwn($partnerId),
             'coupons' => (new CouponRepository())->listOwn($partnerId),
             'finance' => (new TransactionRepository())->getSummary($partnerId),
@@ -354,8 +355,14 @@ class CabinetPartnerComponent extends CBitrixComponent
         if ($before && !$repo->canEdit($partnerId, $before)) {
             $before = null;
         }
+        // Можно менять данные — цены из формы (поставщика) переводим в
+        // хранимые: цена покупателя с наценкой (OrderRepository::fromPartnerView).
+        $editable = !$before || (in_array($before['status'], ['new', 'processing'], true) && $before['invoice_status'] !== 'issued');
         if ($before) {
             $row = $this->lockOrderData($before, $row);
+        }
+        if ($editable) {
+            $row = OrderRepository::fromPartnerView($row, $before);
         }
         // Новый заказ или ещё не привязанный (пока его можно менять) — ищем
         // покупателя сайта по e-mail/телефону из данных покупателя.
@@ -374,7 +381,7 @@ class CabinetPartnerComponent extends CBitrixComponent
             BuyerNotificationService::orderUpdated($before, $after);
         }
 
-        return $after;
+        return OrderRepository::partnerView($after);
     }
 
     private function ajaxSave(string $entity, int $partnerId)

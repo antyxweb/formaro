@@ -228,7 +228,7 @@ class OrderRepository
 
     private function toArray(array $row): array
     {
-        return [
+        $order = [
             'id' => (int)$row['ID'],
             'order_number' => $row['UF_ORDER_NUMBER'],
             'status' => $row['UF_STATUS'] ?: 'new',
@@ -255,6 +255,75 @@ class OrderRepository
             'invoice_date' => self::dateIso($row['UF_INVOICE_DATE'] ?? null),
             'invoice_due' => self::dateIso($row['UF_INVOICE_DUE'] ?? null),
         ];
+        $order['supplier_total'] = self::supplierTotal($order);
+
+        return $order;
+    }
+
+    /**
+     * Наценка площадки (MarkupService): у позиции заказа price — цена для
+     * покупателя, supplier_price — цена поставщика (у старых заказов нет —
+     * считается равной price). Скидка заказа одна для обоих: итог поставщика
+     * = его подытог − скидка; разница с итогом покупателя — комиссия.
+     */
+    public static function supplierSubtotal(array $order): float
+    {
+        return round(array_sum(array_map(
+            static fn($it) => (float)($it['supplier_price'] ?? $it['price'] ?? 0) * (int)($it['qty'] ?? 0),
+            (array)($order['items'] ?? [])
+        )), 2);
+    }
+
+    public static function supplierTotal(array $order): float
+    {
+        return max(0.0, round(self::supplierSubtotal($order) - (float)($order['discount_amount'] ?? 0), 2));
+    }
+
+    /**
+     * Заказ глазами поставщика (кабинет партнёра): его цены и суммы, без
+     * наценки площадки. Обратно (сохранение из кабинета партнёра) —
+     * fromPartnerView().
+     */
+    public static function partnerView(array $order): array
+    {
+        $order['items'] = array_map(static function (array $it) {
+            $it['price'] = (float)($it['supplier_price'] ?? $it['price'] ?? 0);
+            unset($it['supplier_price']);
+
+            return $it;
+        }, (array)$order['items']);
+        $order['subtotal'] = self::supplierSubtotal($order);
+        $order['total'] = max(0.0, round($order['subtotal'] - (float)$order['discount_amount'], 2));
+
+        return $order;
+    }
+
+    /**
+     * Заказ из кабинета партнёра (цены — поставщика) → как хранится: у
+     * позиций supplier_price = присланная цена, price — цена для
+     * покупателя. Позиция с той же ценой поставщика, что была, сохраняет
+     * прежнюю цену покупателя (в ней могла быть скидка); новая или
+     * изменённая — цена поставщика с наценкой (MarkupService::retail()).
+     */
+    public static function fromPartnerView(array $row, ?array $before): array
+    {
+        $old = [];
+        foreach ((array)($before['items'] ?? []) as $it) {
+            $key = (int)($it['product_id'] ?? 0) . '|' . (float)($it['supplier_price'] ?? $it['price'] ?? 0);
+            $old[$key] = (float)($it['price'] ?? 0);
+        }
+        $row['items'] = array_map(static function (array $it) use ($old) {
+            $supplier = round((float)($it['price'] ?? 0), 2);
+            $key = (int)($it['product_id'] ?? 0) . '|' . $supplier;
+            $it['supplier_price'] = $supplier;
+            $it['price'] = $old[$key] ?? \Formaro\Cabinet\Service\MarkupService::retail($supplier);
+
+            return $it;
+        }, array_values((array)($row['items'] ?? [])));
+        $row['subtotal'] = round(array_sum(array_map(static fn($it) => $it['price'] * (int)$it['qty'], $row['items'])), 2);
+        $row['total'] = max(0.0, round($row['subtotal'] - (float)($row['discount_amount'] ?? 0), 2));
+
+        return $row;
     }
 
     private static function dateIso($value): ?string

@@ -54,7 +54,7 @@ function render(o) {
     $('#itemsEditBar').toggleClass('d-none', !editable);
     $('#saveItemsBtn').prop('disabled', true);
     var $b = $('#itemsBody').empty();
-    if (!(o.items || []).length) $b.html(emptyRow(7, 'В заказе нет товаров.'));
+    if (!(o.items || []).length) $b.html(emptyRow(8, 'В заказе нет товаров.'));
     (o.items || []).forEach(function (it, i) {
         $b.append('<tr>' +
             '<td>' + esc(it.name) + '</td>' +
@@ -63,8 +63,9 @@ function render(o) {
             '<td class="small">' + esc(it.size || '—') + '</td>' +
             (editable
                 ? '<td class="text-end"><input type="number" min="0" step="1" class="form-control form-control-sm text-end js-item-qty" data-index="' + i + '" value="' + it.qty + '" style="width:80px;margin-left:auto;"></td>' +
-                  '<td class="text-end"><input type="number" min="0" step="0.01" class="form-control form-control-sm text-end js-item-price" data-index="' + i + '" value="' + it.price + '" style="width:110px;margin-left:auto;"></td>'
-                : '<td class="text-end">' + it.qty + '</td><td class="text-end text-nowrap">' + fmtMoney(it.price) + '</td>') +
+                  '<td class="text-end"><input type="number" min="0" step="0.01" class="form-control form-control-sm text-end js-item-price" data-index="' + i + '" value="' + supplierPrice(it) + '" style="width:110px;margin-left:auto;"></td>'
+                : '<td class="text-end">' + it.qty + '</td><td class="text-end text-nowrap text-muted-2">' + fmtMoney(supplierPrice(it)) + '</td>') +
+            '<td class="text-end text-nowrap">' + fmtMoney(it.price) + '</td>' +
             '<td class="text-end text-nowrap">' + fmtMoney(it.qty * it.price) + '</td>' +
             '</tr>');
     });
@@ -74,6 +75,8 @@ function render(o) {
     $('#discountRowLabel').text('Скидка' + (o.discount_name ? ' «' + o.discount_name + '»' : '') + (o.coupon_code ? ' (купон ' + o.coupon_code + ')' : '') + ':');
     $('#orderDiscountAmount').text('−' + fmtMoney(o.discount_amount));
     $('#orderTotal').text(fmtMoney(o.total));
+    var supplierTotal = o.supplier_total !== undefined ? o.supplier_total : o.total;
+    $('#orderSplit').text(fmtMoney(supplierTotal) + ' / ' + fmtMoney(o.total - supplierTotal));
 
     var $h = $('#historyList').empty();
     var history = (o.history || []).slice().sort(function (a, b) { return new Date(b.date) - new Date(a.date); });
@@ -104,6 +107,11 @@ function addComment() {
         $('#historyComment').val('');
         render(saved);
     });
+}
+
+/** Цена поставщика позиции (у старых заказов её нет — равна цене покупателя). */
+function supplierPrice(it) {
+    return it.supplier_price !== undefined ? it.supplier_price : it.price;
 }
 
 /** Менеджер может менять состав и выставлять счёт: заказ не закрыт, не оплачен, счёт не действует. */
@@ -150,7 +158,7 @@ function saveItems() {
     $('#itemsBody tr').each(function () {
         var $q = $(this).find('.js-item-qty');
         if (!$q.length) return;
-        items.push({index: Number($q.data('index')), qty: Number($q.val()), price: Number($(this).find('.js-item-price').val())});
+        items.push({index: Number($q.data('index')), qty: Number($q.val()), supplier_price: Number($(this).find('.js-item-price').val())});
     });
     showConfirm('Сохранить изменения состава заказа? Делайте это только по согласованию с покупателем. Поставщик получит уведомление.', function () {
         cabinetAjax({ajax_action: 'update_order_items', id: order.id, items: JSON.stringify(items)}).done(function (saved) {

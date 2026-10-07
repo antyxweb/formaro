@@ -14,6 +14,12 @@ namespace Formaro\Cabinet\Service;
  * min_amount<=цена) — иначе показывать сниженную цену для покупки одной
  * штуки было бы нечестно. В корзине условия проверяются для реального
  * количества ($qty): min_qty<=qty, min_amount<=цена×qty.
+ *
+ * Наценка площадки (MarkupService): база витрины — цена сайта
+ * (retail_price). Скидка поставщика считается от его цены (price) и её
+ * условия (min_amount) — тоже по его цене; сумма скидки вычитается из цены
+ * сайта — поставщик теряет ровно столько же, комиссия площадки не
+ * меняется. supplier_price — цена поставщика после скидки (выплата).
  */
 class ProductPricingService
 {
@@ -21,7 +27,7 @@ class ProductPricingService
      * @param array $product строка ProductRepository::toArray()
      * @param array $activeDiscounts список DiscountRepository::listActive()
      * @param int $qty количество (корзина); цена — всё равно за штуку
-     * @return array{badges: string[], price: float, old_price: ?float, discount_percent: ?int}
+     * @return array{badges: array, price: float, old_price: ?float, supplier_price: float}
      */
     public static function computeDisplay(array $product, array $activeDiscounts, int $qty = 1): array
     {
@@ -33,17 +39,19 @@ class ProductPricingService
             $badges[] = ['class' => 'bg-success', 'text' => 'Новинка'];
         }
 
-        $price = (float)($product['price'] ?? 0);
-        $best = self::findBestDiscount($product, $activeDiscounts, $price, max(1, $qty));
+        $supplierPrice = (float)($product['price'] ?? 0);
+        $retail = (float)($product['retail_price'] ?? 0) ?: MarkupService::retail($supplierPrice);
+        $price = $retail;
+        $best = self::findBestDiscount($product, $activeDiscounts, $supplierPrice, max(1, $qty));
 
         $oldPrice = null;
-        $discountPercent = null;
-        if ($best !== null && $price > 0) {
-            $discounted = self::applyDiscount($best, $price);
-            if ($discounted < $price) {
-                $oldPrice = $price;
-                $price = $discounted;
-                $discountPercent = (int)round((1 - $discounted / $oldPrice) * 100);
+        if ($best !== null && $supplierPrice > 0) {
+            $amount = $supplierPrice - self::applyDiscount($best, $supplierPrice);
+            if ($amount > 0) {
+                $oldPrice = $retail;
+                $price = max(0.0, $retail - $amount);
+                $supplierPrice -= $amount;
+                $discountPercent = (int)round($amount / $retail * 100);
                 if ($discountPercent > 0) {
                     $badges[] = ['class' => 'bg-danger', 'text' => '-' . $discountPercent . '%'];
                 }
@@ -54,6 +62,7 @@ class ProductPricingService
             'badges' => $badges,
             'price' => $price,
             'old_price' => $oldPrice,
+            'supplier_price' => $supplierPrice,
         ];
     }
 

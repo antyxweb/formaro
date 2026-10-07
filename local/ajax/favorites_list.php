@@ -67,7 +67,7 @@ $colors = [];
 $sizes = [];
 foreach ($all as $p) {
     $sectionIds = array_merge($sectionIds, $p['category_ids']);
-    $prices[] = $p['price'];
+    $prices[] = $p['retail_price']; // цена сайта (с наценкой площадки)
     if (trim($p['color']) !== '') {
         $colors[] = trim($p['color']);
     }

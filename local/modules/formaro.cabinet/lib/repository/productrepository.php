@@ -6,6 +6,7 @@ use Formaro\Cabinet\Catalog\CatalogUrl;
 use Bitrix\Main\Loader;
 use CIBlock;
 use CIBlockElement;
+use Formaro\Cabinet\Service\MarkupService;
 use Formaro\Cabinet\Upload\FileUploader;
 
 /**
@@ -27,7 +28,7 @@ class ProductRepository
      *  партнёру/показывали нулевую цену). Перечисляем коды явно. */
     private const SELECT_FIELDS = [
         '*', 'PREVIEW_TEXT', 'DETAIL_TEXT',
-        'PROPERTY_SKU', 'PROPERTY_COLOR', 'PROPERTY_SIZE', 'PROPERTY_PRICE', 'PROPERTY_STOCK',
+        'PROPERTY_SKU', 'PROPERTY_COLOR', 'PROPERTY_SIZE', 'PROPERTY_PRICE', 'PROPERTY_PRICE_RETAIL', 'PROPERTY_STOCK',
         'PROPERTY_GALLERY', 'PROPERTY_CUSTOM_PROPS_JSON', 'PROPERTY_IS_PREORDER', 'PROPERTY_TAGS',
         'PROPERTY_VARIANT_GROUP_ID', 'PROPERTY_PARTNER_ID',
     ];
@@ -113,9 +114,9 @@ class ProductRepository
             case 'new':
                 return ['DATE_CREATE' => 'DESC', 'ID' => 'DESC'];
             case 'cheap':
-                return ['PROPERTY_PRICE' => 'ASC', 'ID' => 'DESC'];
+                return ['PROPERTY_PRICE_RETAIL' => 'ASC', 'ID' => 'DESC'];
             case 'expensive':
-                return ['PROPERTY_PRICE' => 'DESC', 'ID' => 'DESC'];
+                return ['PROPERTY_PRICE_RETAIL' => 'DESC', 'ID' => 'DESC'];
             default:
                 return ['ID' => 'DESC'];
         }
@@ -141,8 +142,8 @@ class ProductRepository
      *  listPublic()/countPublic().
      *  $params: q, sections[], price_min, price_max, colors[], sizes[],
      *  partner_id (страница партнёра — только его товары).
-     *  Цена фильтруется по базовой цене товара (PROPERTY_PRICE), без учёта
-     *  скидок. */
+     *  Цена фильтруется по цене сайта (PROPERTY_PRICE_RETAIL — цена
+     *  поставщика с наценкой, MarkupService), без учёта скидок. */
     public static function buildPublicFilter(array $params): array
     {
         $filter = [];
@@ -163,10 +164,10 @@ class ProductRepository
         }
 
         if (($params['price_min'] ?? '') !== '' && is_numeric($params['price_min'])) {
-            $filter['>=PROPERTY_PRICE'] = (float)$params['price_min'];
+            $filter['>=PROPERTY_PRICE_RETAIL'] = (float)$params['price_min'];
         }
         if (($params['price_max'] ?? '') !== '' && is_numeric($params['price_max'])) {
-            $filter['<=PROPERTY_PRICE'] = (float)$params['price_max'];
+            $filter['<=PROPERTY_PRICE_RETAIL'] = (float)$params['price_max'];
         }
 
         $colors = array_values(array_filter(array_map('trim', (array)($params['colors'] ?? []))));
@@ -188,13 +189,13 @@ class ProductRepository
         $range = ['min' => 0.0, 'max' => 0.0];
         foreach (['min' => 'ASC', 'max' => 'DESC'] as $key => $dir) {
             $el = CIBlockElement::GetList(
-                ['PROPERTY_PRICE' => $dir],
-                array_merge($filter, ['IBLOCK_ID' => $this->iblockId, 'ACTIVE' => 'Y', 'CHECK_PERMISSIONS' => 'N', '!PROPERTY_PRICE' => false]),
+                ['PROPERTY_PRICE_RETAIL' => $dir],
+                array_merge($filter, ['IBLOCK_ID' => $this->iblockId, 'ACTIVE' => 'Y', 'CHECK_PERMISSIONS' => 'N', '!PROPERTY_PRICE_RETAIL' => false]),
                 false,
                 ['nTopCount' => 1],
-                ['ID', 'PROPERTY_PRICE']
+                ['ID', 'PROPERTY_PRICE_RETAIL']
             )->Fetch();
-            $range[$key] = (float)($el['PROPERTY_PRICE_VALUE'] ?? 0);
+            $range[$key] = (float)($el['PROPERTY_PRICE_RETAIL_VALUE'] ?? 0);
         }
 
         return $range;
@@ -312,6 +313,8 @@ class ProductRepository
             'COLOR' => (string)($payload['color'] ?? ''),
             'SIZE' => (string)($payload['size'] ?? ''),
             'PRICE' => (float)($payload['price'] ?? 0),
+            // Цена на сайте — с наценкой площадки (MarkupService).
+            'PRICE_RETAIL' => MarkupService::retail((float)($payload['price'] ?? 0)),
             'STOCK' => (int)($payload['stock'] ?? 0),
             'GALLERY' => $galleryFileIds,
             'CUSTOM_PROPS_JSON' => $customProps ? json_encode($customProps, JSON_UNESCAPED_UNICODE) : '',
@@ -393,7 +396,10 @@ class ProductRepository
             'sku' => $el['PROPERTY_SKU_VALUE'] ?? '',
             'color' => $el['PROPERTY_COLOR_VALUE'] ?? '',
             'size' => $el['PROPERTY_SIZE_VALUE'] ?? '',
+            // price — цена поставщика (её он видит и меняет в кабинете);
+            // retail_price — цена на сайте с наценкой площадки (MarkupService).
             'price' => (float)($el['PROPERTY_PRICE_VALUE'] ?? 0),
+            'retail_price' => (float)($el['PROPERTY_PRICE_RETAIL_VALUE'] ?? 0) ?: MarkupService::retail((float)($el['PROPERTY_PRICE_VALUE'] ?? 0)),
             'stock' => (int)($el['PROPERTY_STOCK_VALUE'] ?? 0),
             'custom_props' => is_array($customProps) ? $customProps : [],
             'is_preorder' => ($el['PROPERTY_IS_PREORDER_VALUE'] ?? 'N') === 'Y',

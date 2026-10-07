@@ -79,6 +79,12 @@ class CartCheckoutService
                 'max' => $p['is_preorder'] ? 0 : $p['stock'],
                 'sum' => $display['price'] * $item['qty'],
                 'old_sum' => ($display['old_price'] ?? $display['price']) * $item['qty'],
+                // Цена поставщика (без наценки) — база промокода и выплаты
+                // поставщику. В браузер (cart.php) уходит только coupon_base.
+                'supplier_price' => $display['supplier_price'],
+                'supplier_sum' => $display['supplier_price'] * $item['qty'],
+                'coupon_base' => $display['supplier_price'] * $item['qty'],
+                'partner_id' => (int)$p['partner_id'],
             ];
         }
 
@@ -107,6 +113,8 @@ class CartCheckoutService
             $result[] = [
                 'partner' => $partners[$partnerId] ?? ['id' => $partnerId, 'name' => 'Другие продавцы', 'url' => ''],
                 'items' => $groupItems,
+                // Минимальный заказ у поставщика — только предупреждение (MarkupService).
+                'min_order' => MarkupService::minOrder(),
             ];
         }
 
@@ -121,7 +129,23 @@ class CartCheckoutService
         return ['groups' => $result, 'coupons' => $coupons];
     }
 
-    /** Скидка купона на сумму товаров его поставщика — как на странице корзины. */
+    /** Расчёт корзины для браузера: без цен поставщика (только coupon_base). */
+    public static function forClient(array $calc): array
+    {
+        foreach ($calc['groups'] as &$group) {
+            foreach ($group['items'] as &$item) {
+                unset($item['supplier_price'], $item['supplier_sum']);
+            }
+            unset($item);
+        }
+        unset($group);
+
+        return $calc;
+    }
+
+    /** Скидка купона на сумму товаров его поставщика по ЦЕНАМ ПОСТАВЩИКА (без
+     *  наценки) — как на странице корзины; та же сумма вычитается из итога
+     *  покупателя, комиссия площадки не меняется. */
     public static function couponDiscount(array $coupon, float $base): float
     {
         if ($base <= 0) {
@@ -205,10 +229,12 @@ class CartCheckoutService
                 'size' => $item['size'],
                 'qty' => $item['qty'],
                 'price' => $item['price'],
+                'supplier_price' => $item['supplier_price'],
             ], $group['items']);
             $subtotal = array_sum(array_column($group['items'], 'sum'));
+            $supplierSubtotal = array_sum(array_column($group['items'], 'supplier_sum'));
             $coupon = $couponByPartner[$partnerId] ?? null;
-            $discount = $coupon ? self::couponDiscount($coupon, $subtotal) : 0;
+            $discount = $coupon ? self::couponDiscount($coupon, $supplierSubtotal) : 0;
 
             $order = $orderRepo->save($partnerId, [
                 'status' => 'new',
@@ -233,7 +259,7 @@ class CartCheckoutService
                 $partnerId,
                 'order',
                 'Новый заказ ' . $order['order_number'],
-                'Покупатель ' . $customer['name'] . ' оформил заказ на сумму ' . number_format($order['total'], 0, ',', ' ') . ' руб.',
+                'Покупатель ' . $customer['name'] . ' оформил заказ на сумму ' . number_format(OrderRepository::supplierTotal($order), 0, ',', ' ') . ' руб.',
                 self::orderLink($order['id'])
             );
             BuyerNotificationService::orderCreated($order, $group['partner']['name']);

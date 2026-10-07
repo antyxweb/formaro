@@ -74,8 +74,10 @@ final class OrderInvoiceFlowService
 
     /**
      * Менеджер: количество и цены позиций (согласовано с клиентом) до
-     * выставления счёта. $items — [{index, qty, price}] по позициям заказа;
-     * позиция с qty = 0 удаляется. Скидка заказа не больше нового подытога.
+     * выставления счёта. $items — [{index, qty, supplier_price}] по позициям
+     * заказа: меняется цена поставщика, цена для покупателя — она же с
+     * наценкой (MarkupService); позиция с qty = 0 удаляется. Скидка заказа
+     * не больше нового подытога поставщика.
      */
     public static function updateItems(int $orderId, array $changes): array
     {
@@ -89,13 +91,17 @@ final class OrderInvoiceFlowService
                 continue;
             }
             $qty = max(0, (int)($change['qty'] ?? $items[$i]['qty']));
-            $price = round(max(0, (float)($change['price'] ?? $items[$i]['price'])), 2);
+            $oldSupplier = (float)($items[$i]['supplier_price'] ?? $items[$i]['price']);
+            $supplier = round(max(0, (float)($change['supplier_price'] ?? $oldSupplier)), 2);
             if ($qty === 0) {
                 unset($items[$i]);
                 continue;
             }
             $items[$i]['qty'] = $qty;
-            $items[$i]['price'] = $price;
+            if (abs($supplier - $oldSupplier) > 0.001 || !isset($items[$i]['supplier_price'])) {
+                $items[$i]['supplier_price'] = $supplier;
+                $items[$i]['price'] = MarkupService::retail($supplier);
+            }
         }
         $items = array_values($items);
         if (!$items) {
@@ -103,7 +109,7 @@ final class OrderInvoiceFlowService
         }
 
         $subtotal = round(array_sum(array_map(static fn($it) => $it['qty'] * $it['price'], $items)), 2);
-        $discount = min((float)$order['discount_amount'], $subtotal);
+        $discount = min((float)$order['discount_amount'], OrderRepository::supplierSubtotal(['items' => $items]));
         $total = round($subtotal - $discount, 2);
         if ($items == $order['items']) {
             return $order;
@@ -125,7 +131,7 @@ final class OrderInvoiceFlowService
             $order['partner_id'],
             'order',
             'Заказ ' . $order['order_number'] . ' изменён площадкой',
-            'Состав заказа изменён по согласованию с покупателем. Новая сумма: ' . self::money($total) . ' руб.',
+            'Состав заказа изменён по согласованию с покупателем. Новая сумма: ' . self::money($order['supplier_total']) . ' руб.',
             'orders/edit/' . $orderId . '/'
         );
 
@@ -167,7 +173,7 @@ final class OrderInvoiceFlowService
             $order['partner_id'],
             'order',
             'Покупателю выставлен счёт по заказу ' . $order['order_number'],
-            'Площадка выставила счёт на ' . self::money($order['total']) . ' руб., действителен до ' . $dueText . '. Отгрузка — после оплаты.',
+            'Площадка выставила покупателю счёт по заказу на ' . self::money($order['supplier_total']) . ' руб., действителен до ' . $dueText . '. Отгрузка — после оплаты.',
             'orders/edit/' . $orderId . '/'
         );
 

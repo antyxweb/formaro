@@ -22,12 +22,13 @@ require __DIR__ . '/inc/layout_app_top.php';
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table order-items-table mb-0">
-                        <thead><tr><th>Товар</th><th>Артикул</th><th>Цвет</th><th>Размер</th><th class="text-end">Кол-во</th><th class="text-end">Цена</th><th class="text-end">Сумма</th></tr></thead>
-                        <tbody id="itemsBody"><tr><td colspan="7" class="text-center text-muted-2 py-4">Загрузка…</td></tr></tbody>
+                        <thead><tr><th>Товар</th><th>Артикул</th><th>Цвет</th><th>Размер</th><th class="text-end">Кол-во</th><th class="text-end" title="Цена поставщика — без наценки площадки">Цена поставщика</th><th class="text-end">Цена</th><th class="text-end">Сумма</th></tr></thead>
+                        <tbody id="itemsBody"><tr><td colspan="8" class="text-center text-muted-2 py-4">Загрузка…</td></tr></tbody>
                         <tfoot>
-                            <tr><th colspan="6" class="text-end text-muted-2">Подытог:</th><th id="orderSubtotal" class="text-end text-muted-2 text-nowrap">—</th></tr>
-                            <tr id="discountRow" class="d-none"><th colspan="6" class="text-end text-red" id="discountRowLabel">Скидка:</th><th id="orderDiscountAmount" class="text-end text-red text-nowrap">—</th></tr>
-                            <tr><th colspan="6" class="text-end">Итого:</th><th id="orderTotal" class="text-end text-nowrap">—</th></tr>
+                            <tr><th colspan="7" class="text-end text-muted-2">Подытог:</th><th id="orderSubtotal" class="text-end text-muted-2 text-nowrap">—</th></tr>
+                            <tr id="discountRow" class="d-none"><th colspan="7" class="text-end text-red" id="discountRowLabel">Скидка:</th><th id="orderDiscountAmount" class="text-end text-red text-nowrap">—</th></tr>
+                            <tr><th colspan="7" class="text-end">Итого:</th><th id="orderTotal" class="text-end text-nowrap">—</th></tr>
+                            <tr><td colspan="7" class="text-end text-muted-2 small">Поставщику / комиссия площадки:</td><td id="orderSplit" class="text-end text-muted-2 small text-nowrap">—</td></tr>
                         </tfoot>
                     </table>
                 </div>
@@ -36,7 +37,7 @@ require __DIR__ . '/inc/layout_app_top.php';
             <div class="card-body border-top d-none" id="itemsEditBar">
                 <div class="d-flex flex-wrap gap-2 align-items-center">
                     <button type="button" class="btn btn-outline-primary" id="saveItemsBtn" disabled><i class="bi bi-save"></i> Сохранить изменения состава</button>
-                    <span class="text-muted-2 small">Количество 0 — убрать позицию. Меняйте состав и цены только по согласованию с покупателем, до выставления счёта.</span>
+                    <span class="text-muted-2 small">Количество 0 — убрать позицию. Меняется цена поставщика, цена для покупателя пересчитается с наценкой площадки. Меняйте состав и цены только по согласованию с покупателем и поставщиком, до выставления счёта.</span>
                 </div>
             </div>
         </div>
