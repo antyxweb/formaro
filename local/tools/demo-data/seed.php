@@ -203,20 +203,25 @@ $out('Новости: 2');
 $orderRepo = new R\OrderRepository();
 $ordersClass = R\HlblockEntityFactory::getDataClass('CabinetOrders');
 $customer = ['name' => 'Тестовый Тест Тестович', 'phone' => '+7 900 000-00-01', 'email' => $DEMO['buyer_email'], 'address' => 'г. Москва, ул. Тестовая, д. 5, склад 2'];
-$item = static fn(array $p, int $qty) => ['product_id' => $p['id'], 'name' => $p['name'], 'sku' => $p['sku'], 'color' => $p['color'], 'size' => $p['size'], 'qty' => $qty, 'price' => $p['price']];
+// price — цена покупателя (с наценкой площадки), supplier_price — цена поставщика.
+$item = static fn(array $p, int $qty) => ['product_id' => $p['id'], 'name' => $p['name'], 'sku' => $p['sku'], 'color' => $p['color'], 'size' => $p['size'], 'qty' => $qty,
+    'price' => \Formaro\Cabinet\Service\MarkupService::retail((float)$p['price']), 'supplier_price' => (float)$p['price']];
 $orderDefs = [
     // [items, status, payment, days ago, history [[days, hours, text, author]], comment]
     [[$item($products['winter'], 2), $item($products['gloves-winter'], 10)], 'completed', 'paid', 21, [
-        [21, 0, 'Заказ оформлен на сайте', 'Покупатель'], [20, 5, 'Статус изменён на «Подтверждён»', 'Менеджер'],
+        [21, 0, 'Заказ оформлен на сайте', 'Покупатель'], [20, 6, 'Поставщик подтвердил наличие товара. Срок отгрузки: 2 рабочих дня', 'Менеджер'],
+        [20, 5, 'Статус изменён на «Подтверждён»', 'Менеджер'], [20, 4, 'Площадка выставила счёт на оплату', 'Площадка'],
         [19, 2, 'Оплата подтверждена площадкой', 'Площадка'], [18, 0, 'Статус изменён на «Отправлен». Заказ передан в транспортную компанию: СДЭК, трек-номер 9876543210', 'Менеджер'],
         [14, 0, 'Статус изменён на «Выполнен»', 'Менеджер'],
     ], 'Доставка до склада, разгрузка нашими силами'],
     [[$item($products['rain'], 5)], 'shipped', 'paid', 9, [
-        [9, 0, 'Заказ оформлен на сайте', 'Покупатель'], [8, 3, 'Статус изменён на «Подтверждён»', 'Менеджер'],
+        [9, 0, 'Заказ оформлен на сайте', 'Покупатель'], [8, 5, 'Поставщик подтвердил наличие товара. Срок отгрузки: 3 рабочих дня', 'Менеджер'],
+        [8, 4, 'Статус изменён на «Подтверждён»', 'Менеджер'], [8, 3, 'Площадка выставила счёт на оплату', 'Площадка'],
         [8, 1, 'Оплата подтверждена площадкой', 'Площадка'], [0, 3, 'Статус изменён на «Отправлен». Заказ передан в транспортную компанию: СДЭК, трек-номер 1234567890', 'Менеджер'],
     ], ''],
     [[$item($products['mask'], 1), $item($products['gloves-chem'], 20)], 'processing', 'awaiting', 3, [
-        [3, 0, 'Заказ оформлен на сайте', 'Покупатель'], [2, 4, 'Статус изменён на «В обработке»', 'Менеджер'],
+        [3, 0, 'Заказ оформлен на сайте', 'Покупатель'], [2, 4, 'Поставщик подтвердил наличие товара. Срок отгрузки: 1 рабочий день', 'Менеджер'],
+        [2, 2, 'Площадка выставила счёт на оплату', 'Площадка'],
         [1, 2, 'Покупатель сообщил об оплате', 'Покупатель'],
     ], 'Нужны закрывающие документы'],
     [[$item($products['polo'], 6), $item($products['blouse'], 4)], 'new', 'awaiting', 0, [
@@ -235,7 +240,17 @@ foreach ($orderDefs as [$items, $status, $payment, $days, $history, $comment]) {
         'customer_comment' => $comment, 'user_id' => $buyerId,
         'history' => array_map(static fn($h) => ['date' => $agoIso($h[0], $h[1]), 'text' => $h[2], 'author' => $h[3]], $history),
     ]);
-    $ordersClass::update($o['id'], ['UF_CREATED_AT' => $ago($days, 3)]);
+    $fields = ['UF_CREATED_AT' => $ago($days, 3)];
+    // Подтверждён поставщиком и счёт выставлен (OrderInvoiceFlowService) — все, кроме нового и отменённого.
+    if (!in_array($status, ['new', 'cancelled'], true)) {
+        $confirmed = $days === 3 ? 2 : $days - 1;
+        $fields += [
+            'UF_SUPPLIER_CONFIRMED_AT' => $ago($confirmed, 5), 'UF_SUPPLIER_LEAD_TIME' => '2 рабочих дня',
+            'UF_INVOICE_STATUS' => 'issued', 'UF_INVOICE_DATE' => $ago($confirmed, 3),
+            'UF_INVOICE_DUE' => \Formaro\Cabinet\Service\OrderInvoiceFlowService::dueDate(time() - $confirmed * 86400),
+        ];
+    }
+    $ordersClass::update($o['id'], $fields);
     $orders[] = $orderRepo->get($o['id']);
 }
 $out('Заказы: ' . implode(', ', array_column($orders, 'order_number')));
