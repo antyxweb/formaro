@@ -34,7 +34,7 @@ class BuyerNotificationService
             (int)$order['user_id'],
             'order',
             'Заказ ' . $order['order_number'] . ' оформлен',
-            'Продавец ' . $partnerName . ' получил заказ на сумму ' . self::money($order['total']) . ' руб. и свяжется с вами для подтверждения.',
+            'Продавец ' . $partnerName . ' получил заказ на сумму ' . self::money($order['total']) . ' руб. Мы согласуем наличие и срок отгрузки и выставим счёт на оплату.',
             self::orderLink($order)
         );
     }

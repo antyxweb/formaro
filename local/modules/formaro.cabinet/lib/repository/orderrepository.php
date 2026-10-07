@@ -248,6 +248,56 @@ class OrderRepository
             'discount_amount' => (float)$row['UF_DISCOUNT_AMOUNT'],
             'partner_id' => (int)$row['UF_PARTNER_ID'],
             'user_id' => (int)($row['UF_USER_ID'] ?? 0),
+            // Согласование и счёт (OrderInvoiceFlowService, миграция Version20261007100001).
+            'supplier_confirmed_at' => self::dateIso($row['UF_SUPPLIER_CONFIRMED_AT'] ?? null),
+            'supplier_lead_time' => (string)($row['UF_SUPPLIER_LEAD_TIME'] ?? ''),
+            'invoice_status' => (string)($row['UF_INVOICE_STATUS'] ?? ''),
+            'invoice_date' => self::dateIso($row['UF_INVOICE_DATE'] ?? null),
+            'invoice_due' => self::dateIso($row['UF_INVOICE_DUE'] ?? null),
         ];
+    }
+
+    private static function dateIso($value): ?string
+    {
+        return $value instanceof DateTime ? $value->format('c') : null;
+    }
+
+    /**
+     * Точечная запись полей заказа (UF_*) — согласование и счёт
+     * (OrderInvoiceFlowService); история — массивом, как в toArray().
+     */
+    public function updateFields(int $id, array $fields): array
+    {
+        if (isset($fields['UF_HISTORY']) && is_array($fields['UF_HISTORY'])) {
+            $fields['UF_HISTORY'] = json_encode(array_values($fields['UF_HISTORY']), JSON_UNESCAPED_UNICODE);
+        }
+        foreach (['UF_ITEMS', 'UF_CUSTOMER'] as $json) {
+            if (isset($fields[$json]) && is_array($fields[$json])) {
+                $fields[$json] = json_encode($fields[$json], JSON_UNESCAPED_UNICODE);
+            }
+        }
+        $dataClass = HlblockEntityFactory::getDataClass(self::HLBLOCK_NAME);
+        $result = $dataClass::update($id, $fields);
+        if (!$result->isSuccess()) {
+            throw new \RuntimeException(implode('; ', $result->getErrorMessages()));
+        }
+
+        return $this->get($id);
+    }
+
+    /** Выставленные и неоплаченные счета со сроком раньше $before — для аннулирования. */
+    public function listOverdueInvoices(DateTime $before): array
+    {
+        $dataClass = HlblockEntityFactory::getDataClass(self::HLBLOCK_NAME);
+        $rows = $dataClass::getList([
+            'filter' => [
+                '=UF_INVOICE_STATUS' => 'issued',
+                '<UF_INVOICE_DUE' => $before,
+                '!=UF_PAYMENT_STATUS' => 'paid',
+                '!=UF_STATUS' => 'cancelled',
+            ],
+        ])->fetchAll();
+
+        return array_map([$this, 'toArray'], $rows);
     }
 }

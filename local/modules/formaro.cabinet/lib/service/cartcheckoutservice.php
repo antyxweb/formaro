@@ -324,6 +324,9 @@ class CartCheckoutService
         if ($order['payment_status'] === 'paid') {
             throw new \RuntimeException('Оплата заказа уже подтверждена');
         }
+        if ($order['invoice_status'] !== 'issued') {
+            throw new \RuntimeException('Счёт по заказу ещё не выставлен или аннулирован');
+        }
         if (self::paymentNoticeDate($order) !== null) {
             throw new \RuntimeException('Вы уже сообщили об оплате — продавец проверит поступление');
         }
@@ -335,6 +338,12 @@ class CartCheckoutService
         $sum = number_format($order['total'], 0, ',', ' ');
         $buyer = (string)($order['customer']['name'] ?? '');
         $partner = self::partners([$order['partner_id']])[$order['partner_id']]['name'] ?? '';
+        NotificationRepository::notifyAdmin(
+            'finance',
+            'Покупатель сообщил об оплате ' . $order['order_number'],
+            $buyer . ' — заказ ' . $order['order_number'] . ' (поставщик ' . $partner . ') на ' . $sum . ' руб. Проверьте поступление и отметьте оплату.',
+            'orders/edit/' . $order['id'] . '/'
+        );
         \CAdminNotify::Add([
             'MESSAGE' => 'Покупатель ' . $buyer . ' сообщил об оплате заказа ' . $order['order_number']
                 . ' (продавец ' . $partner . ') на сумму ' . $sum . ' руб. по счёту маркетплейса. Проверьте поступление.',

@@ -50,7 +50,7 @@ $choices = static function (string $name, array $options): void {
                 <div class="col-12 col-xl-8" id="cart-content">
                     <div class="cart-success bg-white py-4 px-3 px-lg-4 mb-5 d-none" id="cart-success" role="status" tabindex="-1">
                         <h4 class="cart-success-title mb-3">Заказ оформлен</h4>
-                        <p class="mb-2">Спасибо! Продавцы получили заказ и свяжутся с вами для подтверждения.</p>
+                        <p class="mb-2">Спасибо! Мы согласуем заказ с поставщиком — наличие и срок отгрузки — и выставим счёт на оплату. Вы получите уведомление и письмо.</p>
                         <ul class="mb-4" id="cart-success-list"></ul>
                         <div class="d-flex flex-wrap cart-success-actions">
                             <a href="<?= htmlspecialcharsbx($arParams['ORDERS_URL']) ?>" class="f-button c-success">Перейти в заказы</a>
@@ -144,7 +144,7 @@ $choices = static function (string $name, array $options): void {
 
                             <div id="cart-summary-delivery-wrap">
                                 <h6 class="mb-1" id="cart-summary-delivery-title">Доставка:</h6>
-                                <div class="text-secondary mb-4" id="cart-summary-delivery">Стоимость сообщит продавец после оформления</div>
+                                <div class="text-secondary mb-4" id="cart-summary-delivery">Оплачивается транспортной компании при получении</div>
                             </div>
 
                             <h6>Итого</h6>

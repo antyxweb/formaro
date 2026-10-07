@@ -35,10 +35,13 @@ var appliedCoupon = null;
 // где цены уже со скидкой партнёра) скидку при открытии не пересчитываем.
 var autoDiscount = true;
 
+/** Счёт выставлен площадкой — данные заказа не меняются, пока он действует. */
+var invoiceIssued = false;
+
 /** Заблокирован: сохранённый статус не «Новый»/«В обработке» — или такой
-    статус только что выбран (до сохранения). */
+    статус только что выбран (до сохранения), или площадка выставила счёт. */
 function isOrderLocked() {
-    return EDITABLE_STATUSES.indexOf(savedStatus) === -1 || EDITABLE_STATUSES.indexOf($('#statusSelect').val()) === -1;
+    return invoiceIssued || EDITABLE_STATUSES.indexOf(savedStatus) === -1 || EDITABLE_STATUSES.indexOf($('#statusSelect').val()) === -1;
 }
 
 function applyLockState() {
@@ -49,7 +52,9 @@ function applyLockState() {
     $('#orderLockedBanner').toggleClass('d-none', !locked).html(
         '<i class="bi bi-lock"></i> ' + (final
             ? 'Заказ ' + statusRu[savedStatus] + ' — его нельзя изменить. Можно только добавить комментарий в историю.'
-            : 'Данные заказа можно менять только в статусах «Новый» и «В обработке». ' + (savedLocked ? 'Доступны статус и история.' : 'После сохранения в этом статусе они станут недоступны.'))
+            : (invoiceIssued
+                ? 'Площадка выставила покупателю счёт — состав, цены и данные заказа не меняются, пока счёт действует. Доступны статус и история.'
+                : 'Данные заказа можно менять только в статусах «Новый» и «В обработке». ' + (savedLocked ? 'Доступны статус и история.' : 'После сохранения в этом статусе они станут недоступны.')))
     );
     $('#custName, #custPhone, #custEmail, #custAddress, #custComment, #deliverySelect, #paymentMethodSelect').prop('disabled', locked);
     $('#addProductSearch').prop('disabled', locked).attr('placeholder', locked ? 'Товары можно менять только в статусах «Новый» и «В обработке»' : 'Начните вводить название или артикул (от 3 символов)…');
@@ -159,6 +164,7 @@ $(function () {
 
     $('#saveOrderBtn').on('click', doSaveOrder);
     $('#repeatOrderBtn').on('click', repeatOrder);
+    $('#confirmOrderBtn').on('click', confirmOrder);
 });
 
 function findProductLive(productId) {
@@ -375,7 +381,51 @@ function selectMethod(selector, value) {
     $select.val(value);
 }
 
+/** Карточка «Согласование и счёт»: подтверждение наличия и состояние счёта. */
+function renderInvoiceFlow(o) {
+    invoiceIssued = o.invoice_status === 'issued';
+    var closed = ['completed', 'cancelled'].indexOf(o.status) !== -1 || o.payment_status === 'paid';
+    var lines = [];
+    if (o.supplier_confirmed_at) {
+        lines.push('<i class="bi bi-check-circle text-success"></i> Наличие подтверждено ' + fmtDate(o.supplier_confirmed_at) + '. Срок отгрузки: <b>' + esc(o.supplier_lead_time) + '</b>');
+    } else if (!closed) {
+        lines.push('<i class="bi bi-hourglass-split"></i> Подтвердите наличие товара и срок отгрузки — после этого площадка выставит покупателю счёт.');
+    }
+    if (o.payment_status === 'paid') {
+        lines.push('<i class="bi bi-cash-coin text-success"></i> Заказ оплачен — можно отгружать.');
+    } else if (o.invoice_status === 'issued') {
+        lines.push('<i class="bi bi-receipt"></i> Счёт выставлен ' + fmtDate(o.invoice_date) + ', действителен до ' + fmtDate(o.invoice_due, false) + '. Ждём оплату.');
+    } else if (o.invoice_status === 'expired') {
+        lines.push('<i class="bi bi-x-circle text-danger"></i> Счёт аннулирован: покупатель не оплатил его в срок.');
+    } else if (o.supplier_confirmed_at && !closed) {
+        lines.push('<i class="bi bi-receipt"></i> Площадка согласует заказ с покупателем и выставит счёт.');
+    }
+    $('#invoiceFlowState').html(lines.join('<br>'));
+    $('#leadTimeInput').val(o.supplier_lead_time || '');
+    $('#supplierConfirmForm').toggleClass('d-none', closed || invoiceIssued);
+    $('#confirmOrderBtn').html(o.supplier_confirmed_at ? '<i class="bi bi-arrow-repeat"></i> Обновить срок' : '<i class="bi bi-check2-circle"></i> Подтвердить наличие');
+    $('#invoiceFlowCard').removeClass('d-none');
+}
+
+function confirmOrder() {
+    var lead = $('#leadTimeInput').val().trim();
+    if (!lead) { $('#leadTimeInput').addClass('is-invalid').focus(); return; }
+    $('#leadTimeInput').removeClass('is-invalid');
+    cabinetAjax({ajax_action: 'confirm_order', id: orderId, lead_time: lead}).done(function (o) {
+        allOrders = allOrders.map(function (x) { return x.id === o.id ? o : x; });
+        savedStatus = o.status;
+        $('#statusSelect').val(o.status);
+        $('#orderStatusPill').html(statusPill(o.status));
+        currentHistory = (o.history || []).slice();
+        renderHistory();
+        renderInvoiceFlow(o);
+        applyLockState();
+        showResult(true, 'Наличие подтверждено — площадка получила уведомление');
+    });
+}
+
 function renderOrder(o) {
+    renderInvoiceFlow(o);
     savedStatus = o.status;
     $('#custLinkedBadge').toggleClass('d-none', !o.user_id);
     $('#orderNumber').text(o.order_number);

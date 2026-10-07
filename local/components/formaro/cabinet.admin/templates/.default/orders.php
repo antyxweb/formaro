@@ -32,6 +32,13 @@ require __DIR__ . '/inc/layout_app_top.php';
             <option value="paid">Оплачен</option>
             <option value="refunded">Возврат</option>
         </select></div>
+    <div><label class="form-label small mb-1">Счёт</label>
+        <select class="form-select" id="invoiceFilter">
+            <option value="">Все</option>
+            <option value="none">Не выставлен</option>
+            <option value="issued">Выставлен</option>
+            <option value="expired">Аннулирован</option>
+        </select></div>
     <button class="btn btn-outline-secondary filter-clear-btn" id="clearBtn" title="Сбросить фильтры"><i class="bi bi-x-lg"></i></button>
 </div>
 
@@ -39,8 +46,8 @@ require __DIR__ . '/inc/layout_app_top.php';
     <div class="card-body p-0">
         <div class="table-responsive">
             <table class="table mb-0 align-middle" id="ordersTable">
-                <thead><tr><th>№</th><th>Дата</th><th>Партнёр</th><th>Клиент</th><th>Сумма</th><th>Оплата</th><th>Статус</th></tr></thead>
-                <tbody id="ordersBody"><tr><td colspan="7" class="text-center text-muted-2 py-4">Загрузка…</td></tr></tbody>
+                <thead><tr><th>№</th><th>Дата</th><th>Партнёр</th><th>Клиент</th><th>Сумма</th><th>Счёт</th><th>Оплата</th><th>Статус</th></tr></thead>
+                <tbody id="ordersBody"><tr><td colspan="8" class="text-center text-muted-2 py-4">Загрузка…</td></tr></tbody>
             </table>
         </div>
         <div class="table-footer-bar">

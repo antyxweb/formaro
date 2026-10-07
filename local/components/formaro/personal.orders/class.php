@@ -109,10 +109,20 @@ class FormaroPersonalOrdersComponent extends CBitrixComponent
                 'CAN_CANCEL' => $order['status'] === 'new',
                 // Повторить (товары — снова в корзину) — выполненный или отменённый.
                 'CAN_REPEAT' => in_array($order['status'], OrderRepeatService::STATUSES, true),
-                // Счёт — пока заказ не оплачен (и не отменён).
-                'INVOICE_URL' => $order['status'] !== 'cancelled' && $order['payment_status'] !== 'paid'
+                // Счёт — когда площадка его выставила (согласовав заказ с
+                // поставщиком), пока не оплачен и не отменён; иначе — пояснение.
+                'INVOICE_URL' => ($invoiceOpen = $order['status'] !== 'cancelled' && $order['payment_status'] !== 'paid')
+                    && $order['invoice_status'] === 'issued'
                     ? '/local/ajax/order_invoice.php?id=' . $order['id']
                     : '',
+                'INVOICE_DUE' => $order['invoice_status'] === 'issued' && $order['invoice_due']
+                    ? date('d.m.Y', strtotime($order['invoice_due']))
+                    : '',
+                'INVOICE_NOTE' => !$invoiceOpen ? '' : match ($order['invoice_status']) {
+                    'issued' => '',
+                    'expired' => 'Счёт аннулирован в связи с неоплатой. Напишите нам, если заказ актуален.',
+                    default => 'Счёт будет выставлен после согласования заказа с поставщиком.',
+                },
                 // «Сообщить об оплате» — рядом со счётом; если уже сообщал — когда.
                 'PAYMENT_NOTICE_DATE' => ($noticeDate = CartCheckoutService::paymentNoticeDate($order)) !== null
                     ? FormatDate('j F, H:i', strtotime($noticeDate) ?: time())

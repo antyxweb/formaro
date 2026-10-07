@@ -17,6 +17,12 @@ use Formaro\Cabinet\Settings\MarketplaceRequisites;
  * модуля (MarketplaceRequisites: Настройки модулей → «Реквизиты
  * площадки»); незаполненные поля остаются пустыми. НДС не указывается.
  *
+ * Дата счёта — когда площадка его выставила (invoice_date; у ещё не
+ * выставленного — сегодня, предпросмотр для администратора). Под суммой —
+ * оговорки ТЗ «Финансы»: срок действия (OrderInvoiceFlowService::
+ * INVOICE_DAYS рабочих дня) и что доставку заказчик оплачивает
+ * транспортной компании.
+ *
  * PDF — генератором модуля «Интернет-магазин» (tFPDF, sale/general/pdf.php)
  * со шрифтом PT Sans из /bitrix/fonts/ (кириллица).
  */
@@ -55,7 +61,8 @@ class OrderInvoiceService
 
         $this->bankTable($sellerName, $legal);
 
-        $date = strtotime((string)$order['created_at']) ?: time();
+        $date = strtotime((string)($order['invoice_date'] ?? '')) ?: time();
+        $due = strtotime((string)($order['invoice_due'] ?? '')) ?: OrderInvoiceFlowService::dueDate($date)->getTimestamp();
         $pdf->Ln(8);
         $pdf->SetFont('Font', 'B', 15);
         $pdf->MultiCell(self::WIDTH, 7, 'Счёт на оплату № ' . $order['order_number'] . ' от ' . FormatDate('j F Y', $date) . ' г.');
@@ -91,6 +98,10 @@ class OrderInvoiceService
         $pdf->MultiCell(self::WIDTH, 5, 'Всего наименований ' . $count . ', на сумму ' . $this->money($order['total']) . ' руб.');
         $pdf->SetFont('Font', 'B', 10);
         $pdf->MultiCell(self::WIDTH, 5, Number2Word_Rus((float)$order['total']));
+        $pdf->Ln(2);
+        $pdf->SetFont('Font', '', 9);
+        $pdf->MultiCell(self::WIDTH, 4.5, 'Счёт действителен в течение ' . OrderInvoiceFlowService::INVOICE_DAYS . '-х рабочих дней — до ' . date('d.m.Y', $due) . ' г. В случае неоплаты счёт аннулируется.');
+        $pdf->MultiCell(self::WIDTH, 4.5, 'Стоимость доставки в счёт не входит: её оплачивает заказчик транспортной компании при получении товара.');
         $pdf->Ln(2);
         $pdf->SetLineWidth(0.6);
         $pdf->Line(self::MARGIN, $pdf->GetY(), self::MARGIN + self::WIDTH, $pdf->GetY());

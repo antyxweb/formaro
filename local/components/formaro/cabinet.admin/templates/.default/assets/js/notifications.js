@@ -1,7 +1,7 @@
 /* Уведомления администратора — дополнение notifications.js кабинета
    партнёра: свой тип «Модерация» и разделы по типу (клик без своей
    ссылки ведёт в раздел). */
-NOTIF_SECTIONS = {moderation: 'moderation/', finance: 'finance/', support: 'support/', chat: 'chat/?alerts=1'};
+NOTIF_SECTIONS = {moderation: 'moderation/', finance: 'finance/', support: 'support/', chat: 'chat/?alerts=1', order: 'orders/'};
 NOTIF_TYPES.chat.label = 'Чаты с клиентами';
 NOTIF_TYPES.chat.color = 'red';
 NOTIF_TYPES.moderation = {

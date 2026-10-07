@@ -17,6 +17,7 @@ require __DIR__ . '/inc/layout_app_top.php';
             <option value="moderation">Модерация</option>
             <option value="finance">Финансы</option>
             <option value="support">Техподдержка</option>
+            <option value="order">Заказы</option>
             <option value="chat">Чаты с клиентами</option>
         </select>
         <div class="form-check form-switch mb-0">

@@ -19,6 +19,7 @@ use Formaro\Cabinet\Repository\TicketRepository;
 use Formaro\Cabinet\Repository\TransactionRepository;
 use Formaro\Cabinet\Security\AdminContext;
 use Formaro\Cabinet\Service\BuyerNotificationService;
+use Formaro\Cabinet\Service\OrderInvoiceFlowService;
 
 /**
  * Кабинет администратора площадки (/admin/) — по образцу кабинета партнёра
@@ -164,6 +165,9 @@ class CabinetAdminComponent extends CBitrixComponent
                     (int)($_REQUEST['message_id'] ?? 0)
                 ),
                 'add_order_comment' => (new OrderRepository())->addHistory($id, $text, 'Площадка'),
+                // Согласование и счёт: состав по согласованию с покупателем, выставление счёта.
+                'update_order_items' => OrderInvoiceFlowService::updateItems($id, json_decode((string)($_REQUEST['items'] ?? '[]'), true) ?: []),
+                'issue_invoice' => OrderInvoiceFlowService::issueInvoice($id),
                 'set_payment_status' => $this->setPaymentStatus($id, (string)($_REQUEST['status'] ?? '')),
                 'process_withdrawal' => (new TransactionRepository())->processWithdrawal(
                     $id,

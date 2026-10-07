@@ -32,6 +32,13 @@ require __DIR__ . '/inc/layout_app_top.php';
                     </table>
                 </div>
             </div>
+            <?php // Правка до выставления счёта — по согласованию с покупателем (order-detail.js). ?>
+            <div class="card-body border-top d-none" id="itemsEditBar">
+                <div class="d-flex flex-wrap gap-2 align-items-center">
+                    <button type="button" class="btn btn-outline-primary" id="saveItemsBtn" disabled><i class="bi bi-save"></i> Сохранить изменения состава</button>
+                    <span class="text-muted-2 small">Количество 0 — убрать позицию. Меняйте состав и цены только по согласованию с покупателем, до выставления счёта.</span>
+                </div>
+            </div>
         </div>
 
         <div class="card mb-3">
@@ -64,6 +71,14 @@ require __DIR__ . '/inc/layout_app_top.php';
     </div>
 
     <div class="col-lg-4 sticky-side">
+        <div class="card mb-3">
+            <div class="card-header">Согласование и счёт</div>
+            <div class="card-body">
+                <div class="small mb-3" id="invoiceFlowState">—</div>
+                <button type="button" class="btn btn-success w-100 d-none" id="issueInvoiceBtn"><i class="bi bi-receipt"></i> Выставить счёт</button>
+                <a href="#" class="btn btn-outline-secondary w-100 mt-2 d-none" id="invoicePdfLink" target="_blank"><i class="bi bi-file-earmark-pdf"></i> Открыть счёт (PDF)</a>
+            </div>
+        </div>
         <div class="card mb-3">
             <div class="card-header">Статус и оплата</div>
             <div class="card-body">

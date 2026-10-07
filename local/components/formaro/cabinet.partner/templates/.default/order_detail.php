@@ -84,6 +84,19 @@ require __DIR__ . '/inc/layout_app_top.php';
     </div>
 
     <div class="col-lg-4 sticky-side">
+        <?php // Согласование и счёт (ТЗ «Финансы»): поставщик подтверждает наличие и срок, площадка выставляет счёт — order-detail.js renderInvoiceFlow(). ?>
+        <div class="card mb-3 d-none" id="invoiceFlowCard">
+            <div class="card-header">Согласование и счёт</div>
+            <div class="card-body">
+                <div class="small mb-3" id="invoiceFlowState"></div>
+                <div id="supplierConfirmForm">
+                    <label class="form-label" for="leadTimeInput">Срок отгрузки</label>
+                    <input type="text" class="form-control mb-2" id="leadTimeInput" maxlength="100" placeholder="Например: 2 рабочих дня или до 15.10">
+                    <button type="button" class="btn btn-success w-100" id="confirmOrderBtn"><i class="bi bi-check2-circle"></i> Подтвердить наличие</button>
+                    <div class="text-muted-2 small mt-2">После подтверждения площадка согласует заказ с покупателем и выставит счёт. Отгрузка — после оплаты.</div>
+                </div>
+            </div>
+        </div>
         <div class="card mb-3">
             <div class="card-header">Статус и оплата</div>
             <div class="card-body">

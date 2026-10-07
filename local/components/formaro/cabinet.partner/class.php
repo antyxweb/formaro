@@ -25,6 +25,7 @@ use Formaro\Cabinet\Repository\UserProfileRepository;
 use Formaro\Cabinet\Security\PartnerContext;
 use Formaro\Cabinet\Service\BuyerLookupService;
 use Formaro\Cabinet\Service\BuyerNotificationService;
+use Formaro\Cabinet\Service\OrderInvoiceFlowService;
 use Formaro\Cabinet\Service\OrderRepeatService;
 
 /**
@@ -237,6 +238,12 @@ class CabinetPartnerComponent extends CBitrixComponent
                 // «Повторить заказ» (выполненный/отменённый) — новый заказ с теми же товарами.
                 'repeat_order_check' => OrderRepeatService::checkForPartner($partnerId, (int)($_REQUEST['id'] ?? 0)),
                 'repeat_order' => OrderRepeatService::repeatForPartner($partnerId, (int)($_REQUEST['id'] ?? 0)),
+                // Наличие и срок отгрузки — до выставления счёта площадкой.
+                'confirm_order' => OrderInvoiceFlowService::confirmBySupplier(
+                    $partnerId,
+                    (int)($_REQUEST['id'] ?? 0),
+                    (string)($_REQUEST['lead_time'] ?? '')
+                ),
                 default => throw new \RuntimeException('Неизвестное действие: ' . $action),
             };
 
@@ -288,15 +295,15 @@ class CabinetPartnerComponent extends CBitrixComponent
 
     /**
      * Данные заказа (товары, покупатель, доставка, оплата, скидка) меняются
-     * только в статусах «Новый» и «В обработке» (как и в форме,
-     * order-detail.js). Дальше из присланного берём лишь статус (не назад в
+     * только в статусах «Новый» и «В обработке» и пока площадка не выставила
+     * счёт (как и в форме, order-detail.js). Дальше из присланного берём лишь статус (не назад в
      * «Новый»/«В обработке»; у выполненного и отменённого — без смены) и
      * новые записи истории — всё остальное из сохранённого заказа.
      */
     private function lockOrderData(array $before, array $row): array
     {
         $editable = ['new', 'processing'];
-        if (in_array($before['status'], $editable, true)) {
+        if (in_array($before['status'], $editable, true) && $before['invoice_status'] !== 'issued') {
             return $row;
         }
         $status = (string)($row['status'] ?? $before['status']);

@@ -3,7 +3,10 @@
  * «Скачать счёт» в «Ваших заказах» (formaro:personal.orders): PDF «Счёт на
  * оплату» заказа (OrderInvoiceService).
  *
- * GET id — только свой заказ, не оплаченный и не отменённый; иначе 404.
+ * GET id — покупателю: только свой заказ, по которому площадка выставила
+ * действующий счёт (OrderInvoiceFlowService), не оплаченный и не
+ * отменённый; иначе 404. Администратору — счёт любого заказа, в том числе
+ * ещё не выставленный (предпросмотр); inline=1 — открыть в браузере.
  */
 define('NO_KEEP_STATISTIC', true);
 define('NOT_CHECK_PERMISSIONS', true);
@@ -31,7 +34,12 @@ if (!$userId) {
 }
 
 $order = (new OrderRepository())->get((int)($_GET['id'] ?? 0));
-if (!$order || $order['user_id'] !== $userId || $order['status'] === 'cancelled' || $order['payment_status'] === 'paid') {
+$isAdmin = $USER->IsAdmin();
+if (!$order) {
+    $fail(404, 'Счёт не найден');
+}
+if (!$isAdmin && ($order['user_id'] !== $userId || $order['status'] === 'cancelled'
+    || $order['payment_status'] === 'paid' || $order['invoice_status'] !== 'issued')) {
     $fail(404, 'Счёт не найден');
 }
 
@@ -43,7 +51,7 @@ try {
 
 $file = 'schet-' . preg_replace('/[^A-Za-z0-9-]/', '', $order['order_number']) . '.pdf';
 header('Content-Type: application/pdf');
-header('Content-Disposition: attachment; filename="' . $file . '"');
+header('Content-Disposition: ' . ($isAdmin && !empty($_GET['inline']) ? 'inline' : 'attachment') . '; filename="' . $file . '"');
 header('Content-Length: ' . strlen($pdf));
 header('Cache-Control: private, no-store');
 echo $pdf;
