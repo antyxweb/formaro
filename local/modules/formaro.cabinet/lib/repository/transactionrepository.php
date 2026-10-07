@@ -5,59 +5,80 @@ namespace Formaro\Cabinet\Repository;
 use Bitrix\Main\Type\DateTime;
 
 /**
- * Финансовые операции — HL-блок CabinetTransactions. Баланс считается на
- * лету суммой транзакций (см. getSummary()), не хранится отдельно — у
- * демо-данных прототипа (data/finance.json) верхнеуровневые числа и список
- * транзакций арифметически не сходились (обычная для ручного демо-датасета
- * история), с реальной БД такого расхождения быть не должно.
+ * Финансовые операции поставщика — HL-блок CabinetTransactions. Баланс
+ * считается на лету суммой операций (getSummary()), не хранится отдельно.
+ *
+ * Типы (ТЗ «Финансы», этап 4 — PayoutService): income — оплата заказа
+ * клиентом (сумма поставщика, UF_ORDER_ID), refund — оплата снята или
+ * возвращена покупателю, payout — выплата площадкой по трек-номеру.
+ * commission и withdrawal — из прежней схемы (комиссия списанием, заявки
+ * на вывод): остаются в истории и в расчёте баланса.
  */
 class TransactionRepository
 {
     private const HLBLOCK_NAME = 'CabinetTransactions';
 
-    /** @return array {available_balance, pending_balance, total_earned, transactions:[]} */
+    /** @return array {balance, total_earned, total_paid_out, transactions:[]} */
     public function getSummary(int $partnerId): array
     {
         $rows = $this->listOwn($partnerId);
 
-        $totalEarned = 0.0;
-        $totalCommission = 0.0;
-        $totalRefunded = 0.0;
-        $totalWithdrawnCompleted = 0.0;
-        $totalWithdrawalPending = 0.0;
+        return self::totals($rows) + ['transactions' => $rows];
+    }
 
+    /** Итоги по операциям (только проведённые). */
+    public static function totals(array $rows): array
+    {
+        $earned = $minus = $paidOut = 0.0;
         foreach ($rows as $t) {
-            if ($t['status'] !== 'completed' && !($t['type'] === 'withdrawal' && $t['status'] === 'pending')) {
+            if ($t['status'] !== 'completed') {
                 continue;
             }
-            switch ($t['type']) {
-                case 'income':
-                    $totalEarned += $t['amount'];
-                    break;
-                case 'commission':
-                    $totalCommission += $t['amount'];
-                    break;
-                case 'refund':
-                    $totalRefunded += $t['amount'];
-                    break;
-                case 'withdrawal':
-                    if ($t['status'] === 'pending') {
-                        $totalWithdrawalPending += $t['amount'];
-                    } else {
-                        $totalWithdrawnCompleted += $t['amount'];
-                    }
-                    break;
-            }
+            match ($t['type']) {
+                'income' => $earned += $t['amount'],
+                'commission', 'refund' => $minus += $t['amount'],
+                'payout', 'withdrawal' => $paidOut += $t['amount'],
+                default => null,
+            };
         }
 
-        $available = $totalEarned - $totalCommission - $totalRefunded - $totalWithdrawnCompleted - $totalWithdrawalPending;
-
         return [
-            'available_balance' => round($available, 2),
-            'pending_balance' => round($totalWithdrawalPending, 2),
-            'total_earned' => round($totalEarned, 2),
-            'transactions' => $rows,
+            'balance' => round($earned - $minus - $paidOut, 2),
+            'total_earned' => round($earned, 2),
+            'total_paid_out' => round($paidOut, 2),
         ];
+    }
+
+    public function add(int $partnerId, string $type, float $amount, string $description, int $orderId = 0): array
+    {
+        $dataClass = HlblockEntityFactory::getDataClass(self::HLBLOCK_NAME);
+        $result = $dataClass::add([
+            'UF_TYPE' => $type,
+            'UF_AMOUNT' => round($amount, 2),
+            'UF_STATUS' => 'completed',
+            'UF_DESCRIPTION' => $description,
+            'UF_PARTNER_ID' => $partnerId,
+            'UF_ORDER_ID' => $orderId,
+            'UF_CREATED_AT' => new DateTime(),
+        ]);
+        if (!$result->isSuccess()) {
+            throw new \RuntimeException(implode('; ', $result->getErrorMessages()));
+        }
+
+        return $this->toArray($dataClass::getById($result->getId())->fetch());
+    }
+
+    /** Сколько по заказу зачислено поставщику сейчас: поступления − возвраты. */
+    public function orderCredit(int $orderId): float
+    {
+        $dataClass = HlblockEntityFactory::getDataClass(self::HLBLOCK_NAME);
+        $sum = 0.0;
+        $res = $dataClass::getList(['filter' => ['=UF_ORDER_ID' => $orderId, '=UF_STATUS' => 'completed', '@UF_TYPE' => ['income', 'refund']]]);
+        while ($row = $res->fetch()) {
+            $sum += ($row['UF_TYPE'] === 'income' ? 1 : -1) * (float)$row['UF_AMOUNT'];
+        }
+
+        return round($sum, 2);
     }
 
     public function listOwn(int $partnerId): array
@@ -80,74 +101,6 @@ class TransactionRepository
         return array_map([$this, 'toArray'], $rows);
     }
 
-    /**
-     * Обработка заявки на вывод администратором: completed — деньги
-     * перечислены, rejected — отклонена (сумма возвращается в доступный
-     * баланс, см. getSummary()). Партнёру — уведомление.
-     */
-    public function processWithdrawal(int $id, bool $approve, string $comment = ''): array
-    {
-        $dataClass = HlblockEntityFactory::getDataClass(self::HLBLOCK_NAME);
-        $row = $dataClass::getById($id)->fetch();
-        if (!$row || $row['UF_TYPE'] !== 'withdrawal' || $row['UF_STATUS'] !== 'pending') {
-            throw new \RuntimeException('Заявка не найдена или уже обработана');
-        }
-        $comment = trim($comment);
-        if (!$approve && $comment === '') {
-            throw new \RuntimeException('Укажите причину отклонения');
-        }
-        $amount = number_format((float)$row['UF_AMOUNT'], 2, ',', ' ') . ' ₽';
-        $description = $approve
-            ? 'Вывод средств' . ($comment !== '' ? ': ' . $comment : '')
-            : 'Заявка на вывод отклонена: ' . $comment;
-        $dataClass::update($id, ['UF_STATUS' => $approve ? 'completed' : 'rejected', 'UF_DESCRIPTION' => $description]);
-
-        (new NotificationRepository())->add(
-            (int)$row['UF_PARTNER_ID'],
-            'finance',
-            $approve ? 'Вывод средств выполнен' : 'Заявка на вывод отклонена',
-            $approve ? 'Средства ' . $amount . ' перечислены на ваш расчётный счёт.' : 'Заявка на ' . $amount . ' отклонена. Причина: ' . $comment,
-            'finance/'
-        );
-
-        return $this->toArray($dataClass::getById($id)->fetch());
-    }
-
-    /** Заявка на вывод средств — партнёр не может выбирать статус/сумму задним
-     *  числом, только создать pending-заявку в пределах доступного баланса. */
-    public function requestWithdrawal(int $partnerId, float $amount): array
-    {
-        if ($amount <= 0) {
-            throw new \RuntimeException('Укажите сумму вывода');
-        }
-        $summary = $this->getSummary($partnerId);
-        if ($amount > $summary['available_balance']) {
-            throw new \RuntimeException('Сумма превышает доступный к выводу баланс');
-        }
-
-        $dataClass = HlblockEntityFactory::getDataClass(self::HLBLOCK_NAME);
-        $result = $dataClass::add([
-            'UF_TYPE' => 'withdrawal',
-            'UF_AMOUNT' => $amount,
-            'UF_STATUS' => 'pending',
-            'UF_DESCRIPTION' => 'Заявка на вывод средств (в обработке)',
-            'UF_PARTNER_ID' => $partnerId,
-            'UF_CREATED_AT' => new DateTime(),
-        ]);
-
-        if (!$result->isSuccess()) {
-            throw new \RuntimeException(implode('; ', $result->getErrorMessages()));
-        }
-        NotificationRepository::notifyAdmin(
-            'finance',
-            'Заявка на вывод средств',
-            'Партнёр «' . PartnerRepository::nameOf($partnerId) . '» запросил вывод ' . number_format($amount, 2, ',', ' ') . ' ₽.',
-            'finance/?id=' . $result->getId()
-        );
-
-        return $this->getSummary($partnerId);
-    }
-
     private function toArray(array $row): array
     {
         return [
@@ -157,6 +110,7 @@ class TransactionRepository
             'status' => $row['UF_STATUS'] ?: 'completed',
             'description' => $row['UF_DESCRIPTION'],
             'partner_id' => (int)$row['UF_PARTNER_ID'],
+            'order_id' => (int)($row['UF_ORDER_ID'] ?? 0),
             'date' => $row['UF_CREATED_AT'] instanceof DateTime ? $row['UF_CREATED_AT']->format('c') : null,
         ];
     }

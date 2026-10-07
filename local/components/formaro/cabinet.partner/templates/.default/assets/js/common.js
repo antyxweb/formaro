@@ -299,8 +299,8 @@ function statusPill(status) {
         cancelled: ['Отменён', 'pill-red'], pending: ['На проверке', 'pill-yellow'],
         verified: ['Подтверждён', 'pill-green'], rejected: ['Отклонён', 'pill-red'],
         open: ['Открыт', 'pill-blue'], answered: ['Отвечен', 'pill-yellow'], closed: ['Закрыт', 'pill-gray'],
-        income: ['Поступление', 'pill-green'], commission: ['Списание', 'pill-red'],
-        refund: ['Возврат', 'pill-yellow'], withdrawal: ['Вывод', 'pill-blue']
+        income: ['Оплата', 'pill-green'], commission: ['Списание', 'pill-red'],
+        refund: ['Возврат', 'pill-yellow'], withdrawal: ['Вывод', 'pill-blue'], payout: ['Выплата', 'pill-blue']
     };
     var m = map[status] || [status, 'pill-gray'];
     return '<span class="pill ' + m[1] + '">' + m[0] + '</span>';
@@ -1048,7 +1048,7 @@ function refreshSidebarCounts() {
         $('.side-count[data-count="support"]').text(n).toggleClass('attention', n > 0).toggle(n > 0);
     });
     dsLoadSilent('finance').done(function (data) {
-        $('#sidebarBalanceValue').html(fmtMoneyHtml(data && data.available_balance));
+        $('#sidebarBalanceValue').html(fmtMoneyHtml(data && data.balance));
     });
 }
 

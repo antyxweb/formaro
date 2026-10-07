@@ -30,7 +30,7 @@ $partnerJsPath = '/local/components/formaro/cabinet.partner/templates/.default/a
   <div class="modal-footer"><button type="button" class="btn btn-primary" data-bs-dismiss="modal">Ок</button></div>
 </div></div></div>
 
-<?php // Причина отклонения (модерация, вывод средств) — adminAskReason() в admin.js. ?>
+<?php // Причина отклонения (модерация, выплаты) — adminAskReason() в admin.js. ?>
 <div class="modal fade" id="reasonModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content">
   <div class="modal-header"><h5 class="modal-title reason-title">Причина отклонения</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
   <div class="modal-body">

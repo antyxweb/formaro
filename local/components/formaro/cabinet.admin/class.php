@@ -21,6 +21,7 @@ use Formaro\Cabinet\Security\AdminContext;
 use Formaro\Cabinet\Service\BuyerNotificationService;
 use Formaro\Cabinet\Service\MarkupService;
 use Formaro\Cabinet\Service\OrderInvoiceFlowService;
+use Formaro\Cabinet\Service\PayoutService;
 
 /**
  * Кабинет администратора площадки (/admin/) — по образцу кабинета партнёра
@@ -28,7 +29,7 @@ use Formaro\Cabinet\Service\OrderInvoiceFlowService;
  * JSON API (ajax_action), те же стили и common.js. Отличие — данные всех
  * партнёров сразу (в каждой строке partner_id, во всех фильтрах — партнёр)
  * и «другая сторона» процессов партнёра: модерация категорий и данных
- * партнёров, ответы в техподдержке, обработка заявок на вывод средств.
+ * партнёров, ответы в техподдержке, выплаты поставщикам по трек-номеру.
  *
  * Доступ — только роль «Администратор» (AdminContext).
  */
@@ -171,11 +172,7 @@ class CabinetAdminComponent extends CBitrixComponent
                 'issue_invoice' => OrderInvoiceFlowService::issueInvoice($id),
                 'save_markup' => MarkupService::save((float)str_replace(',', '.', (string)($_REQUEST['rate'] ?? '')), (float)($_REQUEST['min_order'] ?? 0)),
                 'set_payment_status' => $this->setPaymentStatus($id, (string)($_REQUEST['status'] ?? '')),
-                'process_withdrawal' => (new TransactionRepository())->processWithdrawal(
-                    $id,
-                    ($_REQUEST['decision'] ?? '') === 'approve',
-                    (string)($_REQUEST['comment'] ?? '')
-                ),
+                'mark_payout' => PayoutService::markPaid($id, (string)($_REQUEST['comment'] ?? '')),
                 'mark_notification_read' => $notifications->markRead($owner, $id),
                 'mark_all_notifications_read' => $notifications->markAllRead($owner),
                 'mark_notifications_read' => $notifications->markReadMany($owner, (array)($_REQUEST['ids'] ?? [])),
@@ -200,6 +197,8 @@ class CabinetAdminComponent extends CBitrixComponent
     {
         [$before, $after] = (new OrderRepository())->setPaymentStatus($id, $status);
         if ($before['payment_status'] !== $after['payment_status']) {
+            PayoutService::onPaymentChanged($before, $after);
+            $after = (new OrderRepository())->get($id);
             BuyerNotificationService::orderUpdated($before, $after);
             $label = OrderRepository::PAYMENT_STATUSES[$status];
             (new NotificationRepository())->add(
@@ -207,9 +206,9 @@ class CabinetAdminComponent extends CBitrixComponent
                 'order',
                 'Заказ ' . $after['order_number'] . ': ' . mb_strtolower($label),
                 match ($status) {
-                    'paid' => 'Площадка подтвердила оплату заказа — можно собирать и отправлять.',
-                    'refunded' => 'Площадка оформила возврат оплаты покупателю.',
-                    default => 'Площадка сняла отметку об оплате заказа.',
+                    'paid' => 'Площадка подтвердила оплату: ' . number_format($after['supplier_total'], 2, ',', ' ') . ' руб. зачислено на ваш текущий баланс. Соберите заказ, передайте в транспортную компанию и укажите трек-номер — выплатим в тот же день.',
+                    'refunded' => 'Площадка оформила возврат оплаты покупателю — сумма заказа списана с вашего баланса.',
+                    default => 'Площадка сняла отметку об оплате заказа — сумма заказа списана с вашего баланса.',
                 },
                 'orders/edit/' . $after['id'] . '/'
             );
@@ -230,6 +229,7 @@ class CabinetAdminComponent extends CBitrixComponent
             'tickets' => (new TicketRepository())->listAll(),
             'chat' => (new ChatRepository())->listAll(),
             'transactions' => (new TransactionRepository())->listAll(),
+            'payouts' => PayoutService::rows((new OrderRepository())->listAll(), false),
             'notifications' => NotificationRepository::forAdmin()->listOwn(NotificationRepository::ADMIN_OWNER),
             'markup' => ['rate' => MarkupService::rate(), 'min_rate' => MarkupService::MIN_RATE, 'min_order' => MarkupService::minOrder()],
             default => [],

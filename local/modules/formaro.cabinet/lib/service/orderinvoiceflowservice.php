@@ -116,10 +116,8 @@ final class OrderInvoiceFlowService
         }
 
         $history = $order['history'];
-        $history[] = self::entry(
-            'Площадка изменила состав заказа по согласованию с покупателем. Сумма: ' . self::money($order['total']) . ' → ' . self::money($total) . ' руб.',
-            'Площадка'
-        );
+        // Без сумм: историю видят и покупатель, и поставщик — у каждого свои цены.
+        $history[] = self::entry('Площадка изменила состав заказа по согласованию с покупателем', 'Площадка');
         $order = $repo->updateFields($orderId, [
             'UF_ITEMS' => $items,
             'UF_SUBTOTAL' => $subtotal,

@@ -150,7 +150,7 @@ class FormaroPersonalOrdersComponent extends CBitrixComponent
 
     /**
      * «История заказа» для покупателя: записи от покупателя («Вы») и смены
-     * статуса продавцом («Продавец»). Свободные комментарии менеджера из
+     * статуса и трек-номер от продавца («Продавец»). Свободные комментарии менеджера из
      * кабинета партнёра («Комментарий менеджера») — его внутренние заметки,
      * покупателю не показываются.
      */
@@ -160,7 +160,11 @@ class FormaroPersonalOrdersComponent extends CBitrixComponent
         foreach ($history as $entry) {
             $text = (string)($entry['text'] ?? '');
             $author = (string)($entry['author'] ?? '');
-            if ($author === 'Менеджер' && strpos($text, 'Статус изменён') !== 0 && strpos($text, 'Заказ создан') !== 0) {
+            // internal — служебные записи площадки (выплата поставщику).
+            if (!empty($entry['internal'])) {
+                continue;
+            }
+            if ($author === 'Менеджер' && strpos($text, 'Статус изменён') !== 0 && strpos($text, 'Заказ создан') !== 0 && strpos($text, 'Трек-номер') !== 0) {
                 continue;
             }
             if ($text === CartCheckoutService::PAYMENT_NOTICE_TEXT) {

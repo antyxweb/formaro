@@ -1,7 +1,7 @@
 <?php
 /**
- * Финансы — сторона площадки: заявки партнёров на вывод средств (выплатить
- * / отклонить с причиной), все операции и балансы партнёров.
+ * Финансы — сторона площадки: выплаты поставщикам по трек-номеру
+ * (PayoutService), все операции и балансы партнёров, наценка.
  *
  * @var array $arResult
  */
@@ -14,27 +14,26 @@ $pager = static fn(string $key) => '<div class="table-footer-bar"><div class="tf
     <div><label class="form-label small mb-1">Партнёр</label>
         <select class="form-select" id="partnerFilter" style="min-width:240px;"></select></div>
     <?php // Фильтры вкладок — видны только на своей вкладке (finance.js, data-tab). ?>
-    <div data-tab="tabRequests"><label class="form-label small mb-1" for="requestStatusFilter">Статус заявки</label>
-        <select class="form-select" id="requestStatusFilter" style="min-width:200px;">
-            <option value="pending">Ждут выплаты</option>
-            <option value="completed">Выплачены</option>
-            <option value="rejected">Отклонены</option>
-            <option value="">Все заявки</option>
+    <div data-tab="tabPayouts"><label class="form-label small mb-1" for="payoutStateFilter">Выплата</label>
+        <select class="form-select" id="payoutStateFilter" style="min-width:200px;">
+            <option value="due">К выплате сегодня</option>
+            <option value="awaiting_track">Ждут трек-номер</option>
+            <option value="paid">Выплачено</option>
+            <option value="">Все оплаченные заказы</option>
         </select></div>
     <div data-tab="tabTransactions" class="d-none"><label class="form-label small mb-1" for="typeFilter">Операции</label>
         <select class="form-select" id="typeFilter" style="min-width:200px;">
             <option value="">Все операции</option>
-            <option value="income">Поступления</option>
-            <option value="commission">Списания</option>
+            <option value="income">Оплаты заказов</option>
             <option value="refund">Возвраты</option>
-            <option value="withdrawal">Выводы</option>
+            <option value="payout">Выплаты</option>
         </select></div>
 </div>
 
 <div class="row g-3 mb-3">
-    <div class="col-6 col-lg-3"><div class="admin-tile"><span class="admin-tile__value" id="tilePending">—</span><span class="admin-tile__label">Заявок ждут выплаты</span></div></div>
-    <div class="col-6 col-lg-3"><div class="admin-tile"><span class="admin-tile__value" id="tilePendingSum">—</span><span class="admin-tile__label">Сумма заявок</span></div></div>
-    <div class="col-6 col-lg-3"><div class="admin-tile"><span class="admin-tile__value" id="tileBalance">—</span><span class="admin-tile__label">Доступно партнёрам</span></div></div>
+    <div class="col-6 col-lg-3"><div class="admin-tile"><span class="admin-tile__value" id="tileDueSum">—</span><span class="admin-tile__label">К выплате сегодня (<span id="tileDue">0</span>)</span></div></div>
+    <div class="col-6 col-lg-3"><div class="admin-tile"><span class="admin-tile__value" id="tileAwaitingSum">—</span><span class="admin-tile__label">Ждут отгрузки (<span id="tileAwaiting">0</span>)</span></div></div>
+    <div class="col-6 col-lg-3"><div class="admin-tile"><span class="admin-tile__value" id="tileBalance">—</span><span class="admin-tile__label">Текущий баланс поставщиков</span></div></div>
     <div class="col-6 col-lg-3"><div class="admin-tile"><span class="admin-tile__value" id="tileWithdrawn">—</span><span class="admin-tile__label">Выплачено всего</span></div></div>
 </div>
 
@@ -54,19 +53,19 @@ $pager = static fn(string $key) => '<div class="table-footer-bar"><div class="tf
 </div>
 
 <ul class="nav nav-tabs product-tabs mb-0">
-    <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tabRequests" type="button">Заявки на вывод <span class="side-count" id="countRequests" style="display:none;">0</span></button></li>
+    <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tabPayouts" type="button">Выплаты <span class="side-count" id="countDue" style="display:none;">0</span></button></li>
     <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabTransactions" type="button">Операции</button></li>
     <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabBalances" type="button">Балансы партнёров</button></li>
 </ul>
 <div class="card" style="border-top-left-radius:0;">
     <div class="tab-content">
-        <div class="tab-pane fade show active" id="tabRequests">
-            <div class="card border-0 rounded-0 shadow-none" id="requestsTable"><div class="table-responsive">
+        <div class="tab-pane fade show active" id="tabPayouts">
+            <div class="card border-0 rounded-0 shadow-none" id="payoutsTable"><div class="table-responsive">
                 <table class="table mb-0 align-middle">
-                    <thead><tr><th>Дата</th><th>Партнёр</th><th>Сумма</th><th>Реквизиты</th><th>Статус</th><th class="text-end">Решение</th></tr></thead>
-                    <tbody id="requestsBody"><tr><td colspan="6" class="text-center text-muted-2 py-4">Загрузка…</td></tr></tbody>
+                    <thead><tr><th>Заказ</th><th>Партнёр</th><th>Поставщику</th><th>Отгрузка</th><th>Реквизиты</th><th>Выплата</th><th class="text-end"></th></tr></thead>
+                    <tbody id="payoutsBody"><tr><td colspan="7" class="text-center text-muted-2 py-4">Загрузка…</td></tr></tbody>
                 </table></div>
-                <?= $pager('requests') ?>
+                <?= $pager('payouts') ?>
             </div>
         </div>
         <div class="tab-pane fade" id="tabTransactions">
@@ -81,7 +80,7 @@ $pager = static fn(string $key) => '<div class="table-footer-bar"><div class="tf
         <div class="tab-pane fade" id="tabBalances">
             <div class="table-responsive">
                 <table class="table mb-0 align-middle">
-                    <thead><tr><th>Партнёр</th><th>Заработано</th><th>Комиссия и возвраты</th><th>Выплачено</th><th>В заявках</th><th>Доступно</th></tr></thead>
+                    <thead><tr><th>Партнёр</th><th>Оплачено клиентами</th><th>Возвраты</th><th>Выплачено</th><th>К выплате сегодня</th><th>Текущий баланс</th></tr></thead>
                     <tbody id="balancesBody"></tbody>
                 </table>
             </div>

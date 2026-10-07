@@ -1,6 +1,6 @@
 /* Главная кабинета администратора — дашборд кабинета партнёра
    (cabinet.partner/…/dashboard.js) по заказам всей площадки с фильтром по
-   партнёру; сверху — очереди администратора (модерация, вывод, обращения). */
+   партнёру; сверху — очереди администратора (модерация, выплаты, обращения). */
 var ordersAll = [];
 var allOrders = [];
 var referenceNow = new Date();
@@ -45,9 +45,9 @@ function applyPartner() {
 }
 
 function loadQueues() {
-    $.when(dsLoad('partners'), dsLoad('categories'), dsLoad('transactions'), dsLoad('tickets')).done(function (partners, categories, transactions, tickets) {
+    $.when(dsLoad('partners'), dsLoad('categories'), dsLoad('payouts'), dsLoad('tickets')).done(function (partners, categories, payouts, tickets) {
         $('#tileModeration').text(partners.filter(partnerNeedsModeration).length + categories.filter(categoryNeedsModeration).length);
-        $('#tileWithdrawals').text(transactions.filter(function (t) { return t.type === 'withdrawal' && t.status === 'pending'; }).length);
+        $('#tilePayouts').text(payouts.filter(function (p) { return p.state === 'due'; }).length);
         $('#tileTickets').text(tickets.filter(function (t) { return t.status === 'open'; }).length);
         $('#tilePartners').text(partners.filter(function (p) { return p.active; }).length);
     });

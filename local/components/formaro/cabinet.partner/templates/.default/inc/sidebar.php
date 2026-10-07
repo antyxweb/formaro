@@ -38,9 +38,9 @@ $link = static function (string $key, string $href, string $icon, string $label,
 </nav>
 <div class="sidebar-balance" id="sidebarBalance">
     <a href="<?= $cabinetUrl ?>finance/" class="sidebar-balance__top">
-        <span>Доступный баланс</span>
+        <span>Текущий баланс</span>
         <i class="bi bi-arrow-up-right"></i>
     </a>
     <div class="sidebar-balance__value" id="sidebarBalanceValue">—</div>
-    <a href="<?= $cabinetUrl ?>finance/?action=withdraw" class="btn btn-primary btn-sm w-100">Запросить вывод</a>
+    <div class="small text-muted-2">Выплата — в день отгрузки по трек-номеру</div>
 </div>

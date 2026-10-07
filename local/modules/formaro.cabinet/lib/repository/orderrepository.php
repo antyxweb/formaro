@@ -254,6 +254,14 @@ class OrderRepository
             'invoice_status' => (string)($row['UF_INVOICE_STATUS'] ?? ''),
             'invoice_date' => self::dateIso($row['UF_INVOICE_DATE'] ?? null),
             'invoice_due' => self::dateIso($row['UF_INVOICE_DUE'] ?? null),
+            // Отгрузка и выплата поставщику (PayoutService, миграция Version20261008100001).
+            'track_number' => (string)($row['UF_TRACK_NUMBER'] ?? ''),
+            'track_carrier' => (string)($row['UF_TRACK_CARRIER'] ?? ''),
+            'shipped_at' => self::dateIso($row['UF_SHIPPED_AT'] ?? null),
+            'payout_status' => (string)($row['UF_PAYOUT_STATUS'] ?? ''),
+            'payout_at' => self::dateIso($row['UF_PAYOUT_AT'] ?? null),
+            'payout_amount' => (float)($row['UF_PAYOUT_AMOUNT'] ?? 0),
+            'payout_comment' => (string)($row['UF_PAYOUT_COMMENT'] ?? ''),
         ];
         $order['supplier_total'] = self::supplierTotal($order);
 

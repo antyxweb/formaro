@@ -97,6 +97,21 @@ require __DIR__ . '/inc/layout_app_top.php';
                 </div>
             </div>
         </div>
+        <?php // Отгрузка и выплата (ТЗ «Финансы», этап 4): трек-номер после оплаты — выплата в тот же день; order-detail.js renderPayout(). ?>
+        <div class="card mb-3 d-none" id="payoutCard">
+            <div class="card-header">Отгрузка и выплата</div>
+            <div class="card-body">
+                <div class="small mb-3" id="payoutState"></div>
+                <div id="trackForm">
+                    <label class="form-label" for="trackCarrier">Транспортная компания</label>
+                    <input type="text" class="form-control mb-2" id="trackCarrier" maxlength="60" placeholder="Например: СДЭК, Деловые Линии">
+                    <label class="form-label" for="trackNumber">Трек-номер</label>
+                    <input type="text" class="form-control mb-2" id="trackNumber" maxlength="60" placeholder="Номер накладной транспортной компании">
+                    <button type="button" class="btn btn-success w-100" id="setTrackBtn"><i class="bi bi-truck"></i> Заказ отгружен</button>
+                    <div class="text-muted-2 small mt-2">Отправитель в накладной — площадка Formaro. Доставку покупатель оплачивает транспортной компании при получении.</div>
+                </div>
+            </div>
+        </div>
         <div class="card mb-3">
             <div class="card-header">Статус и оплата</div>
             <div class="card-body">

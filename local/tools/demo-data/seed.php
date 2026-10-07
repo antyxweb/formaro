@@ -208,12 +208,12 @@ $orderDefs = [
     // [items, status, payment, days ago, history [[days, hours, text, author]], comment]
     [[$item($products['winter'], 2), $item($products['gloves-winter'], 10)], 'completed', 'paid', 21, [
         [21, 0, 'Заказ оформлен на сайте', 'Покупатель'], [20, 5, 'Статус изменён на «Подтверждён»', 'Менеджер'],
-        [19, 2, 'Оплата подтверждена площадкой', 'Площадка'], [18, 0, 'Статус изменён на «Отправлен»', 'Менеджер'],
+        [19, 2, 'Оплата подтверждена площадкой', 'Площадка'], [18, 0, 'Статус изменён на «Отправлен». Заказ передан в транспортную компанию: СДЭК, трек-номер 9876543210', 'Менеджер'],
         [14, 0, 'Статус изменён на «Выполнен»', 'Менеджер'],
     ], 'Доставка до склада, разгрузка нашими силами'],
     [[$item($products['rain'], 5)], 'shipped', 'paid', 9, [
         [9, 0, 'Заказ оформлен на сайте', 'Покупатель'], [8, 3, 'Статус изменён на «Подтверждён»', 'Менеджер'],
-        [8, 1, 'Оплата подтверждена площадкой', 'Площадка'], [6, 0, 'Статус изменён на «Отправлен». Трек-номер СДЭК 1234567890', 'Менеджер'],
+        [8, 1, 'Оплата подтверждена площадкой', 'Площадка'], [0, 3, 'Статус изменён на «Отправлен». Заказ передан в транспортную компанию: СДЭК, трек-номер 1234567890', 'Менеджер'],
     ], ''],
     [[$item($products['mask'], 1), $item($products['gloves-chem'], 20)], 'processing', 'awaiting', 3, [
         [3, 0, 'Заказ оформлен на сайте', 'Покупатель'], [2, 4, 'Статус изменён на «В обработке»', 'Менеджер'],
@@ -285,18 +285,25 @@ $t2 = $tickets->create($partnerId, 'Планируется ли оплата к�
 $ticketsClass::update($t2['id'], ['UF_CREATED_AT' => $ago(1)]);
 $out('Обращения: 2');
 
-// ---------- Финансы ----------
+// ---------- Финансы: выплаты по трек-номеру (PayoutService) ----------
+// Заказ 1 — оплачен, отгружен, выплачен; заказ 2 — оплачен, трек указан
+// сегодня, «к выплате» у администратора.
 $tx = R\HlblockEntityFactory::getDataClass('CabinetTransactions');
-$addTx = static function (string $type, float $amount, string $status, string $desc, int $days) use ($tx, $partnerId, $ago) {
-    $tx::add(['UF_TYPE' => $type, 'UF_AMOUNT' => $amount, 'UF_STATUS' => $status, 'UF_DESCRIPTION' => $desc, 'UF_PARTNER_ID' => $partnerId, 'UF_CREATED_AT' => $ago($days)]);
+$addTx = static function (string $type, float $amount, string $desc, int $days, int $orderId) use ($tx, $partnerId, $ago) {
+    $tx::add(['UF_TYPE' => $type, 'UF_AMOUNT' => $amount, 'UF_STATUS' => 'completed', 'UF_DESCRIPTION' => $desc, 'UF_PARTNER_ID' => $partnerId, 'UF_ORDER_ID' => $orderId, 'UF_CREATED_AT' => $ago($days)]);
 };
-$addTx('income', $orders[0]['total'], 'completed', 'Оплата заказа ' . $orders[0]['order_number'], 19);
-$addTx('commission', round($orders[0]['total'] * 0.1, 2), 'completed', 'Комиссия площадки 10% по заказу ' . $orders[0]['order_number'], 19);
-$addTx('income', $orders[1]['total'], 'completed', 'Оплата заказа ' . $orders[1]['order_number'], 8);
-$addTx('commission', round($orders[1]['total'] * 0.1, 2), 'completed', 'Комиссия площадки 10% по заказу ' . $orders[1]['order_number'], 8);
-$addTx('withdrawal', 10000, 'completed', 'Вывод средств: п/п № 101', 12);
-(new R\TransactionRepository())->requestWithdrawal($partnerId, 5000);
-$out('Финансы: операции и заявка на вывод');
+[$o1, $o2] = $orders;
+$addTx('income', $o1['supplier_total'], 'Оплата заказа ' . $o1['order_number'], 19, $o1['id']);
+$addTx('payout', $o1['supplier_total'], 'Выплата по заказу ' . $o1['order_number'] . ': п/п № 101', 18, $o1['id']);
+$ordersClass::update($o1['id'], [
+    'UF_TRACK_NUMBER' => '9876543210', 'UF_TRACK_CARRIER' => 'СДЭК', 'UF_SHIPPED_AT' => $ago(18, 2),
+    'UF_PAYOUT_STATUS' => 'paid', 'UF_PAYOUT_AT' => $ago(18), 'UF_PAYOUT_AMOUNT' => $o1['supplier_total'], 'UF_PAYOUT_COMMENT' => 'п/п № 101',
+]);
+$addTx('income', $o2['supplier_total'], 'Оплата заказа ' . $o2['order_number'], 8, $o2['id']);
+$ordersClass::update($o2['id'], [
+    'UF_TRACK_NUMBER' => '1234567890', 'UF_TRACK_CARRIER' => 'СДЭК', 'UF_SHIPPED_AT' => $ago(0, 3), 'UF_PAYOUT_STATUS' => 'due',
+]);
+$out('Финансы: заказ ' . $o1['order_number'] . ' выплачен, ' . $o2['order_number'] . ' — к выплате');
 
 // ---------- Уведомления ----------
 $partnerNotes = new R\NotificationRepository();

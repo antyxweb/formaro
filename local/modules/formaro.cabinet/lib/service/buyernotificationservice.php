@@ -114,7 +114,8 @@ class BuyerNotificationService
             $status = self::STATUSES[$after['status']] ?? $after['status'];
             $message = match ($after['status']) {
                 'cancelled' => 'Продавец отменил заказ.',
-                'shipped' => 'Заказ передан в доставку' . ($after['delivery_method'] ? ': ' . $after['delivery_method'] : '') . '.',
+                'shipped' => 'Заказ передан в доставку' . ($after['delivery_method'] ? ': ' . $after['delivery_method'] : '') . '.'
+                    . (!empty($after['track_number']) ? ' Трек-номер' . (!empty($after['track_carrier']) ? ' ' . $after['track_carrier'] : '') . ': ' . $after['track_number'] . '.' : ''),
                 'completed' => 'Заказ выполнен. Спасибо за покупку!',
                 default => 'Статус заказа изменён на «' . $status . '».',
             };

@@ -196,8 +196,8 @@ function refreshSidebarCounts() {
         setSideCount('moderation', n);
         $('#moderationDot').text(n).toggle(n > 0);
     });
-    dsLoadSilent('transactions').done(function (rows) {
-        setSideCount('withdrawals', (rows || []).filter(function (t) { return t.type === 'withdrawal' && t.status === 'pending'; }).length);
+    dsLoadSilent('payouts').done(function (rows) {
+        setSideCount('payouts', (rows || []).filter(function (p) { return p.state === 'due'; }).length);
     });
     dsLoadSilent('notifications').done(function (rows) {
         var n = (rows || []).filter(function (r) { return !r.is_read; }).length;

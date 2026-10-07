@@ -17,7 +17,7 @@ require __DIR__ . '/inc/layout_app_top.php';
 
 <div class="row g-3 mb-3" id="moderationTiles">
     <div class="col-6 col-lg-3"><a class="admin-tile" href="<?= $arResult['SEF_FOLDER'] ?>moderation/"><span class="admin-tile__value" id="tileModeration">—</span><span class="admin-tile__label">На модерации</span></a></div>
-    <div class="col-6 col-lg-3"><a class="admin-tile" href="<?= $arResult['SEF_FOLDER'] ?>finance/"><span class="admin-tile__value" id="tileWithdrawals">—</span><span class="admin-tile__label">Заявок на вывод</span></a></div>
+    <div class="col-6 col-lg-3"><a class="admin-tile" href="<?= $arResult['SEF_FOLDER'] ?>finance/"><span class="admin-tile__value" id="tilePayouts">—</span><span class="admin-tile__label">К выплате сегодня</span></a></div>
     <div class="col-6 col-lg-3"><a class="admin-tile" href="<?= $arResult['SEF_FOLDER'] ?>support/"><span class="admin-tile__value" id="tileTickets">—</span><span class="admin-tile__label">Открытых обращений</span></a></div>
     <div class="col-6 col-lg-3"><a class="admin-tile" href="<?= $arResult['SEF_FOLDER'] ?>partners/"><span class="admin-tile__value" id="tilePartners">—</span><span class="admin-tile__label">Активных партнёров</span></a></div>
 </div>

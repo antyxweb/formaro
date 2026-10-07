@@ -20,13 +20,13 @@ use Formaro\Cabinet\Repository\PartnerRepository;
 use Formaro\Cabinet\Repository\ProductColorRepository;
 use Formaro\Cabinet\Repository\ProductRepository;
 use Formaro\Cabinet\Repository\TicketRepository;
-use Formaro\Cabinet\Repository\TransactionRepository;
 use Formaro\Cabinet\Repository\UserProfileRepository;
 use Formaro\Cabinet\Security\PartnerContext;
 use Formaro\Cabinet\Service\BuyerLookupService;
 use Formaro\Cabinet\Service\BuyerNotificationService;
 use Formaro\Cabinet\Service\OrderInvoiceFlowService;
 use Formaro\Cabinet\Service\OrderRepeatService;
+use Formaro\Cabinet\Service\PayoutService;
 
 /**
  * Комплексный компонент кабинета партнёра — один компонент, один физический
@@ -194,10 +194,13 @@ class CabinetPartnerComponent extends CBitrixComponent
                     (string)($_REQUEST['file'] ?? '')
                 ),
                 'delete_document' => (new PartnerDocumentRepository())->delete($partnerId, (int)($_REQUEST['id'] ?? 0)),
-                'request_withdrawal' => (new TransactionRepository())->requestWithdrawal(
+                // Выплата по факту отгрузки: трек-номер — заказ «к выплате сегодня» (PayoutService).
+                'set_track' => OrderRepository::partnerView(PayoutService::setTrack(
                     $partnerId,
-                    (float)($_REQUEST['amount'] ?? 0)
-                ),
+                    (int)($_REQUEST['id'] ?? 0),
+                    (string)($_REQUEST['track'] ?? ''),
+                    (string)($_REQUEST['carrier'] ?? '')
+                )),
                 'create_ticket' => (new TicketRepository())->create(
                     $partnerId,
                     (string)($_REQUEST['subject'] ?? ''),
@@ -264,7 +267,7 @@ class CabinetPartnerComponent extends CBitrixComponent
             'orders' => array_map([OrderRepository::class, 'partnerView'], (new OrderRepository())->listOwn($partnerId)),
             'discounts' => (new DiscountRepository())->listOwn($partnerId),
             'coupons' => (new CouponRepository())->listOwn($partnerId),
-            'finance' => (new TransactionRepository())->getSummary($partnerId),
+            'finance' => PayoutService::partnerSummary($partnerId),
             'news' => (new NewsRepository())->listOwn($partnerId),
             'tickets' => (new TicketRepository())->listOwn($partnerId),
             'marketplace_contacts' => (new TicketRepository())->getMarketplaceContacts(),

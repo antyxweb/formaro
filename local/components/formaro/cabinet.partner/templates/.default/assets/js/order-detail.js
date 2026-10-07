@@ -165,6 +165,7 @@ $(function () {
     $('#saveOrderBtn').on('click', doSaveOrder);
     $('#repeatOrderBtn').on('click', repeatOrder);
     $('#confirmOrderBtn').on('click', confirmOrder);
+    $('#setTrackBtn').on('click', setTrack);
 });
 
 function findProductLive(productId) {
@@ -424,8 +425,57 @@ function confirmOrder() {
     });
 }
 
+/* Отгрузка и выплата (PayoutService): после оплаты поставщик указывает
+   трек-номер — заказ «к выплате сегодня»; после выплаты трек не меняется. */
+function renderPayout(o) {
+    var paid = o.payment_status === 'paid' && o.status !== 'cancelled';
+    if (!paid && o.payout_status !== 'paid') { $('#payoutCard').addClass('d-none'); return; }
+    var amount = '<b>' + fmtMoney(o.total) + '</b>';
+    var line;
+    if (o.payout_status === 'paid') {
+        line = '<i class="bi bi-check-circle text-success"></i> Выплачено ' + fmtMoney(o.payout_amount) + ' — ' + fmtDate(o.payout_at) + (o.payout_comment ? ' (' + esc(o.payout_comment) + ')' : '') + '.';
+    } else if (o.payout_status === 'due') {
+        line = '<i class="bi bi-cash-coin text-success"></i> Трек-номер указан ' + fmtDate(o.shipped_at) + '. Площадка выплатит ' + amount + ' сегодня.';
+    } else {
+        line = '<i class="bi bi-box-seam"></i> Заказ оплачен, ' + amount + ' на вашем балансе. Соберите заказ, передайте в транспортную компанию и укажите трек-номер — выплата в тот же день.';
+    }
+    if (o.track_number) {
+        line += '<div class="mt-2">' + (o.track_carrier ? esc(o.track_carrier) + ': ' : 'Трек-номер: ') + '<b>' + esc(o.track_number) + '</b></div>';
+    }
+    $('#payoutState').html(line);
+    $('#trackCarrier').val(o.track_carrier || '');
+    $('#trackNumber').val(o.track_number || '');
+    $('#setTrackBtn').html(o.payout_status === 'due' ? '<i class="bi bi-pencil"></i> Исправить трек-номер' : '<i class="bi bi-truck"></i> Заказ отгружен');
+    $('#trackForm').toggleClass('d-none', o.payout_status === 'paid' || !paid);
+    $('#payoutCard').removeClass('d-none');
+    // Переход из «Финансов» по «Указать трек-номер» (#payoutCard).
+    if (location.hash === '#payoutCard' && !renderPayout.scrolled) {
+        renderPayout.scrolled = true;
+        document.getElementById('payoutCard').scrollIntoView({block: 'center'});
+        $('#trackNumber').focus();
+    }
+}
+
+function setTrack() {
+    var track = $('#trackNumber').val().trim();
+    if (!track) { $('#trackNumber').addClass('is-invalid').focus(); return; }
+    $('#trackNumber').removeClass('is-invalid');
+    cabinetAjax({ajax_action: 'set_track', id: orderId, track: track, carrier: $('#trackCarrier').val().trim()}).done(function (o) {
+        allOrders = allOrders.map(function (x) { return x.id === o.id ? o : x; });
+        savedStatus = o.status;
+        $('#statusSelect').val(o.status);
+        $('#orderStatusPill').html(statusPill(o.status));
+        currentHistory = (o.history || []).slice();
+        renderHistory();
+        renderPayout(o);
+        applyLockState();
+        showResult(true, 'Трек-номер сохранён — площадка выплатит сумму заказа сегодня');
+    });
+}
+
 function renderOrder(o) {
     renderInvoiceFlow(o);
+    renderPayout(o);
     savedStatus = o.status;
     $('#custLinkedBadge').toggleClass('d-none', !o.user_id);
     $('#orderNumber').text(o.order_number);

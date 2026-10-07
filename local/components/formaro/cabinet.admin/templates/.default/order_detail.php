@@ -80,6 +80,14 @@ require __DIR__ . '/inc/layout_app_top.php';
                 <a href="#" class="btn btn-outline-secondary w-100 mt-2 d-none" id="invoicePdfLink" target="_blank"><i class="bi bi-file-earmark-pdf"></i> Открыть счёт (PDF)</a>
             </div>
         </div>
+        <?php // Отгрузка и выплата поставщику (PayoutService) — order-detail.js renderPayout(). ?>
+        <div class="card mb-3 d-none" id="payoutCard">
+            <div class="card-header">Отгрузка и выплата</div>
+            <div class="card-body">
+                <div class="small" id="payoutState">—</div>
+                <button type="button" class="btn btn-success w-100 mt-3 d-none" id="markPayoutBtn"><i class="bi bi-check-lg"></i> Выплачено</button>
+            </div>
+        </div>
         <div class="card mb-3">
             <div class="card-header">Статус и оплата</div>
             <div class="card-body">

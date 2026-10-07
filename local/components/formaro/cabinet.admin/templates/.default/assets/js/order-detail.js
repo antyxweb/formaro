@@ -4,7 +4,8 @@
    историю — add_order_comment.
    Согласование и счёт (ТЗ «Финансы»): до выставления счёта — правка
    количества и цен по согласованию с покупателем (update_order_items),
-   «Выставить счёт» (issue_invoice) — счёт действителен 3 рабочих дня. */
+   «Выставить счёт» (issue_invoice) — счёт действителен 3 рабочих дня.
+   Отгрузка и выплата: трек-номер от поставщика — «Выплачено» (mark_payout). */
 var order = null;
 var PAYMENT_LABELS = {awaiting: 'Ожидает оплаты', paid: 'Оплачен', refunded: 'Возврат'};
 
@@ -20,6 +21,7 @@ $(function () {
     });
     $('#savePaymentBtn').on('click', savePayment);
     $('#issueInvoiceBtn').on('click', issueInvoice);
+    $('#markPayoutBtn').on('click', markPayout);
     $('#saveItemsBtn').on('click', saveItems);
     $('#itemsBody').on('input', '.js-item-qty, .js-item-price', function () { $('#saveItemsBtn').prop('disabled', false); });
     $('#addHistoryBtn').on('click', addComment);
@@ -70,6 +72,7 @@ function render(o) {
             '</tr>');
     });
     renderInvoiceFlow(o);
+    renderPayout(o);
     $('#orderSubtotal').text(fmtMoney(o.subtotal || (o.items || []).reduce(function (s, it) { return s + it.qty * it.price; }, 0)));
     $('#discountRow').toggleClass('d-none', !o.discount_amount);
     $('#discountRowLabel').text('Скидка' + (o.discount_name ? ' «' + o.discount_name + '»' : '') + (o.coupon_code ? ' (купон ' + o.coupon_code + ')' : '') + ':');
@@ -90,8 +93,10 @@ function render(o) {
 function savePayment() {
     var status = $('#paymentStatusSelect').val();
     var msg = status === 'paid'
-        ? 'Отметить заказ ' + order.order_number + ' оплаченным?'
-        : (status === 'refunded' ? 'Отметить возврат оплаты по заказу ' + order.order_number + '?' : 'Снять отметку об оплате заказа ' + order.order_number + '?');
+        ? 'Отметить заказ ' + order.order_number + ' оплаченным? ' + fmtMoney(order.supplier_total) + ' зачислится на баланс поставщика.'
+        : (status === 'refunded' ? 'Отметить возврат оплаты по заказу ' + order.order_number + '?' : 'Снять отметку об оплате заказа ' + order.order_number + '?')
+            + (order.payment_status === 'paid' ? ' Сумма заказа спишется с баланса поставщика.' : '')
+            + (order.payout_status === 'paid' ? ' Внимание: поставщику уже выплачено — его баланс уйдёт в минус, вернуть деньги нужно отдельно.' : '');
     showConfirm(msg + ' Покупатель и партнёр получат уведомление.', function () {
         cabinetAjax({ajax_action: 'set_payment_status', id: order.id, status: status}).done(function (saved) {
             render(saved);
@@ -117,6 +122,41 @@ function supplierPrice(it) {
 /** Менеджер может менять состав и выставлять счёт: заказ не закрыт, не оплачен, счёт не действует. */
 function canEditOrder(o) {
     return ['completed', 'cancelled'].indexOf(o.status) === -1 && o.payment_status !== 'paid' && o.invoice_status !== 'issued';
+}
+
+/** Карточка «Отгрузка и выплата»: после оплаты — трек-номер поставщика и выплата ему. */
+function renderPayout(o) {
+    var paid = o.payment_status === 'paid' && o.status !== 'cancelled';
+    $('#payoutCard').toggleClass('d-none', !paid && o.payout_status !== 'paid');
+    var lines = ['Поставщику: <b>' + fmtMoney(o.payout_status === 'paid' ? o.payout_amount : o.supplier_total) + '</b>'];
+    if (o.track_number) {
+        lines.push('<i class="bi bi-truck"></i> ' + (o.track_carrier ? esc(o.track_carrier) + ', ' : '') + 'трек-номер <b>' + esc(o.track_number) + '</b> — ' + fmtDate(o.shipped_at));
+    }
+    if (o.payout_status === 'paid') {
+        lines.push('<i class="bi bi-check-circle text-success"></i> Выплачено ' + fmtDate(o.payout_at) + (o.payout_comment ? ' (' + esc(o.payout_comment) + ')' : '') + '.');
+    } else if (o.payout_status === 'due') {
+        lines.push('<i class="bi bi-cash-coin text-warning"></i> К выплате сегодня — переведите сумму на расчётный счёт поставщика (<a href="' + CABINET_URL + 'partners/edit/' + o.partner_id + '/">реквизиты</a>).');
+    } else {
+        lines.push('<i class="bi bi-hourglass-split"></i> Ждём трек-номер: выплата — в день отгрузки.');
+    }
+    $('#payoutState').html(lines.join('<br>'));
+    $('#markPayoutBtn').toggleClass('d-none', o.payout_status !== 'due' || !paid);
+}
+
+function markPayout() {
+    adminAskReason({
+        title: 'Выплата ' + fmtMoney(order.supplier_total) + ' — ' + partnerName(order.partner_id) + ', заказ ' + order.order_number,
+        label: 'Комментарий для поставщика (необязательно), например номер платёжного поручения',
+        okText: 'Подтвердить выплату',
+        primary: true,
+        optional: true
+    }, function (comment) {
+        cabinetAjax({ajax_action: 'mark_payout', id: order.id, comment: comment}).done(function (saved) {
+            render(saved);
+            refreshSidebarCounts();
+            showResult(true, 'Выплата отмечена, поставщик получил уведомление');
+        });
+    });
 }
 
 /** Карточка «Согласование и счёт»: подтверждение поставщика и состояние счёта. */
