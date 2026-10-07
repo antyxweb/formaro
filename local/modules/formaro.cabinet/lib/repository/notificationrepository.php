@@ -3,6 +3,7 @@
 namespace Formaro\Cabinet\Repository;
 
 use Bitrix\Main\Type\DateTime;
+use Formaro\Cabinet\Mail\Mailer;
 
 /**
  * Уведомления партнёра — HL-блок CabinetNotifications (см. миграцию
@@ -19,6 +20,10 @@ use Bitrix\Main\Type\DateTime;
  * (миграция Version20261001150001): владелец — UF_USER_ID, UF_PARTNER_ID = 0.
  * Экземпляр forBuyer() читает/помечает/удаляет по UF_USER_ID, создаёт —
  * addForBuyer(); методы те же, вместо id партнёра — id пользователя.
+ *
+ * Каждая новая запись дублируется письмом (Mailer::notification(),
+ * события FORMARO_BUYER_*, FORMARO_PARTNER_*, FORMARO_ADMIN_*);
+ * $mail = false — когда у случая своё письмо (счёт, заказ оформлен).
  */
 class NotificationRepository
 {
@@ -55,7 +60,7 @@ class NotificationRepository
      * $link — путь от корня кабинета администратора (partners/edit/5/).
      * Ошибка записи не мешает действию, из-за которого уведомляем.
      */
-    public static function notifyAdmin(string $type, string $title, string $message, string $link = ''): void
+    public static function notifyAdmin(string $type, string $title, string $message, string $link = '', bool $mail = true): void
     {
         try {
             $dataClass = HlblockEntityFactory::getDataClass(self::HLBLOCK_NAME);
@@ -71,6 +76,9 @@ class NotificationRepository
             ]);
         } catch (\Throwable $e) {
         }
+        if ($mail) {
+            Mailer::notification('admin', $type, self::ADMIN_OWNER, $title, $message, $link);
+        }
     }
 
     /**
@@ -78,7 +86,7 @@ class NotificationRepository
      * $link — куда ведёт клик в кабинете: путь от корня кабинета
      * (orders/edit/14/); пусто — в раздел по типу (notifications.js).
      */
-    public function add(int $partnerId, string $type, string $title, string $message, string $link = ''): void
+    public function add(int $partnerId, string $type, string $title, string $message, string $link = '', bool $mail = true): void
     {
         $dataClass = HlblockEntityFactory::getDataClass(self::HLBLOCK_NAME);
         $dataClass::add([
@@ -90,13 +98,16 @@ class NotificationRepository
             'UF_CREATED_AT' => new DateTime(),
             'UF_LINK' => $link,
         ]);
+        if ($mail) {
+            Mailer::notification('partner', $type, $partnerId, $title, $message, $link);
+        }
     }
 
     /**
      * Уведомление покупателю; $type — order/system. $link — адрес на сайте
      * (/personal/orders/#order-14), пусто — без перехода.
      */
-    public function addForBuyer(int $userId, string $type, string $title, string $message, string $link = ''): void
+    public function addForBuyer(int $userId, string $type, string $title, string $message, string $link = '', bool $mail = true): void
     {
         $dataClass = HlblockEntityFactory::getDataClass(self::HLBLOCK_NAME);
         $dataClass::add([
@@ -109,6 +120,9 @@ class NotificationRepository
             'UF_CREATED_AT' => new DateTime(),
             'UF_LINK' => $link,
         ]);
+        if ($mail) {
+            Mailer::notification('buyer', $type, $userId, $title, $message, $link);
+        }
     }
 
     public function countUnread(int $ownerId): int

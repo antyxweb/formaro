@@ -3,6 +3,7 @@
 namespace Formaro\Cabinet\Service;
 
 use CUser;
+use Formaro\Cabinet\Mail\Mailer;
 use Formaro\Cabinet\Repository\UserProfileRepository;
 
 /**
@@ -10,10 +11,10 @@ use Formaro\Cabinet\Repository\UserProfileRepository;
  * (formaro:auth.form, /local/ajax/auth.php). Логин — e-mail (обработчик
  * в init.php держит LOGIN = EMAIL).
  *
- * Восстановление — стандартный CUser::SendPassword(): письмо
- * USER_PASS_REQUEST со ссылкой /auth/index.php?change_password=yes…,
- * а /auth/index.php переадресует на форму смены пароля в профиле
- * (/personal/profile/?change_password=yes…).
+ * Письма — свои события (Mailer): регистрация — FORMARO_USER_REGISTER,
+ * восстановление — FORMARO_USER_PASS_REQUEST со ссылкой на форму смены
+ * пароля в профиле (/personal/profile/?change_password=yes…). Старые
+ * ссылки /auth/index.php?change_password=… переадресуются туда же.
  */
 class BuyerAuthService
 {
@@ -90,11 +91,10 @@ class BuyerAuthService
         if (!$id) {
             throw new \RuntimeException(strip_tags((string)$user->LAST_ERROR) ?: 'Не удалось зарегистрироваться');
         }
-        // Письмо о регистрации (NEW_USER) — как при стандартной регистрации.
-        \CEvent::Send('NEW_USER', SITE_ID, [
-            'USER_ID' => $id, 'LOGIN' => $email, 'EMAIL' => $email,
-            'NAME' => $field('name'), 'LAST_NAME' => $field('last_name'),
-            'USER_IP' => $_SERVER['REMOTE_ADDR'] ?? '', 'USER_HOST' => '',
+        Mailer::send('FORMARO_USER_REGISTER', $email, [
+            'NAME' => $field('name'),
+            'LOGIN' => $email,
+            'PROFILE_URL' => Mailer::url('/personal/'),
         ]);
         $USER->Authorize($id);
     }
@@ -102,18 +102,17 @@ class BuyerAuthService
     /** Ответ одинаковый, найден e-mail или нет — не раскрываем, кто зарегистрирован. */
     public static function forgot(string $email): void
     {
-        global $USER;
         $email = trim($email);
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             throw new \RuntimeException('Проверьте e-mail');
         }
         $row = \Bitrix\Main\UserTable::getList([
-            'select' => ['LOGIN'],
+            'select' => ['ID'],
             'filter' => ['LOGIC' => 'OR', '=LOGIN' => $email, '=EMAIL' => $email],
             'limit' => 1,
         ])->fetch();
         if ($row) {
-            $USER->SendPassword((string)$row['LOGIN'], $email, SITE_ID);
+            Mailer::passwordRequest((int)$row['ID']);
         }
     }
 

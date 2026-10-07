@@ -3,6 +3,7 @@
 namespace Formaro\Cabinet\Service;
 
 use Bitrix\Main\Type\DateTime;
+use Formaro\Cabinet\Mail\Mailer;
 use Formaro\Cabinet\Repository\NotificationRepository;
 use Formaro\Cabinet\Repository\OrderRepository;
 use Formaro\Cabinet\Repository\PartnerRepository;
@@ -163,7 +164,8 @@ final class OrderInvoiceFlowService
                 'order',
                 'Счёт на оплату заказа ' . $order['order_number'],
                 'Заказ согласован с поставщиком. Счёт на ' . self::money($order['total']) . ' руб. действителен до ' . $dueText . ' — скачайте его в «Ваших заказах».',
-                '/personal/orders/#order-' . $orderId
+                '/personal/orders/#order-' . $orderId,
+                false // своё письмо — FORMARO_ORDER_INVOICE
             );
         }
         self::mail('FORMARO_ORDER_INVOICE', $order, $dueText);
@@ -206,7 +208,8 @@ final class OrderInvoiceFlowService
                     'order',
                     'Счёт № ' . $order['order_number'] . ' не действителен',
                     $text . ' Если заказ актуален, напишите нам — менеджер выставит новый счёт.',
-                    '/personal/orders/#order-' . $order['id']
+                    '/personal/orders/#order-' . $order['id'],
+                    false // своё письмо — FORMARO_ORDER_INVOICE_EXPIRED
                 );
             }
             self::mail('FORMARO_ORDER_INVOICE_EXPIRED', $order, '');
@@ -263,16 +266,13 @@ final class OrderInvoiceFlowService
         if ($email === '') {
             return;
         }
-        $server = \Bitrix\Main\Context::getCurrent()->getServer();
-        $host = (string)($server->getHttpHost() ?: \COption::GetOptionString('main', 'server_name', ''));
-        \CEvent::Send($event, 's1', [
-            'EMAIL' => $email,
+        Mailer::send($event, $email, [
             'NAME' => (string)($order['customer']['name'] ?? ''),
             'ORDER_NUMBER' => $order['order_number'],
             'TOTAL' => self::money($order['total']),
             'DUE_DATE' => $dueText,
             'PARTNER' => PartnerRepository::nameOf($order['partner_id']),
-            'ORDERS_URL' => ($host !== '' ? 'https://' . $host : '') . '/personal/orders/',
+            'ORDERS_URL' => Mailer::url('/personal/orders/#order-' . $order['id']),
         ]);
     }
 

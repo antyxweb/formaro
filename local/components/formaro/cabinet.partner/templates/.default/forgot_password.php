@@ -1,16 +1,18 @@
 <?php
 
 /** @var array $arResult */
-global $USER;
 
 $sent = false;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['email'])) {
-    $email = trim((string)$_POST['email']);
     // Намеренно не показываем, найден ли такой e-mail в системе — тот же
     // приватность-ориентированный UX, что был в прототипе (forgot-password.html):
     // экран "проверьте почту" показываем в любом случае, независимо от результата.
-    $USER->SendPassword($email, $email);
+    // Письмо — FORMARO_USER_PASS_REQUEST, как у покупателя (одна учётная запись сайта).
+    try {
+        \Formaro\Cabinet\Service\BuyerAuthService::forgot((string)$_POST['email']);
+    } catch (\RuntimeException $e) {
+    }
     $sent = true;
 }
 

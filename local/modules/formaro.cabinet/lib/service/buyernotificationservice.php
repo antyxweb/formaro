@@ -2,6 +2,7 @@
 
 namespace Formaro\Cabinet\Service;
 
+use Formaro\Cabinet\Mail\Mailer;
 use Formaro\Cabinet\Repository\NotificationRepository;
 
 /**
@@ -12,6 +13,9 @@ use Formaro\Cabinet\Repository\NotificationRepository;
  * сам отменил заказ (orderCancelledByBuyer() — CartCheckoutService::cancel())
  * или сообщил об оплате (paymentReported() — CartCheckoutService::reportPayment()).
  * Заказы без покупателя (созданные продавцом вручную) — без уведомлений.
+ *
+ * Уведомления дублируются письмом (NotificationRepository); «Заказ
+ * оформлен» — своё письмо с составом заказа (FORMARO_ORDER_CREATED).
  */
 class BuyerNotificationService
 {
@@ -35,8 +39,46 @@ class BuyerNotificationService
             'order',
             'Заказ ' . $order['order_number'] . ' оформлен',
             'Продавец ' . $partnerName . ' получил заказ на сумму ' . self::money($order['total']) . ' руб. Мы согласуем наличие и срок отгрузки и выставим счёт на оплату.',
-            self::orderLink($order)
+            self::orderLink($order),
+            false
         );
+        Mailer::sendToUser('FORMARO_ORDER_CREATED', (int)$order['user_id'], [
+            'ORDER_NUMBER' => $order['order_number'],
+            'PARTNER' => $partnerName,
+            'TOTAL' => self::money($order['total']),
+            'ITEMS' => self::itemsTable($order),
+            'DELIVERY' => (string)$order['delivery_method'] ?: 'по согласованию',
+            'ORDERS_URL' => Mailer::url(self::orderLink($order)),
+        ]);
+    }
+
+    /** Состав заказа для письма — таблица с инлайн-стилями (почтовые клиенты). */
+    private static function itemsTable(array $order): string
+    {
+        $cell = 'padding:10px 0;border-bottom:1px solid #e5e7eb;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:20px;vertical-align:top;';
+        $rows = '';
+        foreach ($order['items'] as $item) {
+            $qty = max(1, (int)($item['qty'] ?? 1));
+            $price = (float)($item['price'] ?? 0);
+            $props = implode(', ', array_filter([
+                ($item['sku'] ?? '') !== '' ? 'арт. ' . $item['sku'] : '',
+                (string)($item['color'] ?? ''),
+                ($item['size'] ?? '') !== '' ? 'размер ' . $item['size'] : '',
+            ]));
+            $rows .= '<tr><td style="' . $cell . 'color:#111111;">' . htmlspecialcharsbx((string)($item['name'] ?? ''))
+                . ($props !== '' ? '<br><span style="font-size:12px;color:#6b7280;">' . htmlspecialcharsbx($props) . '</span>' : '')
+                . '</td><td style="' . $cell . 'padding-left:12px;white-space:nowrap;color:#6b7280;" align="right">' . $qty . ' × ' . self::money($price) . ' ₽</td>'
+                . '<td style="' . $cell . 'padding-left:12px;white-space:nowrap;color:#111111;" align="right">' . self::money($price * $qty) . ' ₽</td></tr>';
+        }
+        $total = 'padding:12px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:20px;';
+        if ((float)$order['discount_amount'] > 0) {
+            $rows .= '<tr><td colspan="2" style="' . $total . 'color:#6b7280;">Скидка' . ((string)$order['coupon_code'] !== '' ? ' по купону ' . htmlspecialcharsbx((string)$order['coupon_code']) : '') . '</td>'
+                . '<td style="' . $total . 'white-space:nowrap;color:#6b7280;" align="right">−' . self::money($order['discount_amount']) . ' ₽</td></tr>';
+        }
+        $rows .= '<tr><td colspan="2" style="' . $total . 'font-weight:bold;color:#111111;">Итого</td>'
+            . '<td style="' . $total . 'white-space:nowrap;font-weight:bold;color:#111111;" align="right">' . self::money($order['total']) . ' ₽</td></tr>';
+
+        return '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">' . $rows . '</table>';
     }
 
     /** Покупатель отменил заказ в «Ваших заказах» — запись в ленту, что отмена прошла. */

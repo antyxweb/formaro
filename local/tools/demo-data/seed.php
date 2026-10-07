@@ -23,6 +23,8 @@ use Formaro\Cabinet\Repository as R;
 
 Loader::includeModule('iblock');
 Loader::includeModule('formaro.cabinet');
+// Уведомления демо-данных — без писем (Mailer дублирует ленту письмами).
+\Formaro\Cabinet\Mail\Mailer::mute();
 
 require __DIR__ . '/config.php';
 

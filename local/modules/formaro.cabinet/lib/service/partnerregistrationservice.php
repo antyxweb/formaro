@@ -6,6 +6,7 @@ use Bitrix\Main\Loader;
 use CIBlock;
 use CIBlockElement;
 use CUser;
+use Formaro\Cabinet\Mail\Mailer;
 use Formaro\Cabinet\Repository\UserProfileRepository;
 use Formaro\Cabinet\Security\PartnerContext;
 
@@ -97,7 +98,8 @@ class PartnerRegistrationService
         ]);
 
         try {
-            $USER->Authorize(self::createUser($data, $partnerId, $groupId));
+            $userId = self::createUser($data, $partnerId, $groupId);
+            $USER->Authorize($userId);
         } catch (\Throwable $e) {
             CIBlockElement::Delete($partnerId);
             throw $e;
@@ -105,6 +107,7 @@ class PartnerRegistrationService
         PartnerContext::reset();
 
         self::notifyMarketplace($iblockId, $partnerId, $company, 'ИНН ' . $inn . ', ' . $contactPerson . ', ' . $phone . ', ' . $email);
+        self::mailPartner($userId, $company, $email);
 
         return $partnerId;
     }
@@ -165,6 +168,7 @@ class PartnerRegistrationService
         PartnerContext::reset();
 
         self::notifyMarketplace($iblockId, $partnerId, $company, 'создан из профиля покупателя ' . $profile['email'] . ($profile['inn'] !== '' ? ', ИНН ' . $profile['inn'] : ''));
+        self::mailPartner($userId, $company, (string)$USER->GetLogin());
 
         return $partnerId;
     }
@@ -231,6 +235,16 @@ class PartnerRegistrationService
             'Партнёр «' . $name . '» (' . $details . ') зарегистрировался — проверьте данные и включите показ на сайте.',
             'partners/edit/' . $partnerId . '/'
         );
+    }
+
+    /** Письмо партнёру «Кабинет партнёра создан» (FORMARO_PARTNER_REGISTER). */
+    private static function mailPartner(int $userId, string $company, string $login): void
+    {
+        Mailer::sendToUser('FORMARO_PARTNER_REGISTER', $userId, [
+            'COMPANY' => $company,
+            'LOGIN' => $login,
+            'CABINET_URL' => Mailer::url('/cabinet/profile/'),
+        ]);
     }
 
     private static function createUser(array $data, int $partnerId, int $groupId): int
