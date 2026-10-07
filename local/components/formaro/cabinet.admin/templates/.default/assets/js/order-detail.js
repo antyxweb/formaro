@@ -95,8 +95,9 @@ function savePayment() {
     var msg = status === 'paid'
         ? 'Отметить заказ ' + order.order_number + ' оплаченным? ' + fmtMoney(order.supplier_total) + ' зачислится на баланс поставщика.'
         : (status === 'refunded' ? 'Отметить возврат оплаты по заказу ' + order.order_number + '?' : 'Снять отметку об оплате заказа ' + order.order_number + '?')
-            + (order.payment_status === 'paid' ? ' Сумма заказа спишется с баланса поставщика.' : '')
-            + (order.payout_status === 'paid' ? ' Внимание: поставщику уже выплачено — его баланс уйдёт в минус, вернуть деньги нужно отдельно.' : '');
+            + (order.payout_status === 'paid'
+                ? ' Поставщику уже выплачено — его баланс не изменится, возврат денег от поставщика решается вне системы.'
+                : (order.payment_status === 'paid' ? ' Сумма заказа спишется с баланса поставщика.' : ''));
     showConfirm(msg + ' Покупатель и партнёр получат уведомление.', function () {
         cabinetAjax({ajax_action: 'set_payment_status', id: order.id, status: status}).done(function (saved) {
             render(saved);
