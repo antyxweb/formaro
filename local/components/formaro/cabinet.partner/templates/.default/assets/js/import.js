@@ -66,6 +66,15 @@ function parseFile() {
     });
 }
 
+// Свойства из файла, которых нет в карточке товара, — уйдут в «Дополнительные свойства».
+function renderPropsSummary(props) {
+    var names = Object.keys(props);
+    if (!names.length) return '';
+    names.sort(function (a, b) { return props[b] - props[a]; });
+    return '<div class="small text-muted-2 mt-1">В «Дополнительные свойства» товаров попадут: ' +
+        names.map(function (n) { return esc(n); }).join(', ') + '</div>';
+}
+
 function renderMapping(categories) {
     var d = importData;
     var saved = d.saved || {};
@@ -75,6 +84,7 @@ function renderMapping(categories) {
         '<div><b>' + esc(d.file) + '</b> · ' + formats[d.format] + '</div>' +
         '<div>Товаров в файле: <b>' + d.total + '</b>' +
         (d.existing ? ', из них уже есть у вас (по артикулу): <b>' + d.existing + '</b>' : '') + '</div>' +
+        renderPropsSummary(d.props || {}) +
         (d.limited ? '<div class="text-warning small">Прочитаны первые ' + d.total + ' товаров — остальные разделите на отдельный файл.</div>' : '')
     );
 
@@ -277,6 +287,9 @@ function downloadXmlTemplate() {
         '        <param name="Цвет">Белый</param>',
         '        <param name="Размер">48</param>',
         '        <param name="Материал">Хлопок</param>',
+        '        <weight>0.2</weight>',
+        '        <barcode>4600000010015</barcode>',
+        '        <country_of_origin>Россия</country_of_origin>',
         '        <count>120</count>',
         '      </offer>',
         '      <offer id="1002" available="true" group_id="10">',

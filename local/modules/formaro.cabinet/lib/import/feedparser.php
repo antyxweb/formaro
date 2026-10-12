@@ -18,6 +18,40 @@ class FeedParser
     private const COLOR_NAMES = ['цвет', 'color', 'colour'];
     private const SIZE_NAMES = ['размер', 'size'];
 
+    /** Теги <offer>, которые уже разобраны в поля товара или служебные для Маркета. */
+    private const YML_SKIP_TAGS = [
+        'name', 'typePrefix', 'vendor', 'vendorCode', 'price', 'oldprice', 'purchase_price', 'currencyId',
+        'categoryId', 'picture', 'description', 'param', 'count', 'quantity', 'stock_quantity', 'stock',
+        'outlets', 'url', 'delivery', 'pickup', 'store', 'delivery-options', 'pickup-options',
+        'enable_auto_discounts', 'cpa', 'bid', 'cbid', 'fee', 'available', 'downloadable', 'group_id',
+        'shop-sku', 'market-sku', 'disabled',
+    ];
+
+    /** Понятные названия для стандартных тегов YML, которые идут в дополнительные свойства. */
+    private const YML_TAG_LABELS = [
+        'model' => 'Модель',
+        'barcode' => 'Штрихкод',
+        'weight' => 'Вес (кг)',
+        'dimensions' => 'Габариты Д/Ш/В (см)',
+        'country_of_origin' => 'Страна производства',
+        'manufacturer' => 'Изготовитель',
+        'manufacturer_warranty' => 'Гарантия производителя',
+        'warranty-days' => 'Гарантия',
+        'period-of-validity-days' => 'Срок годности',
+        'service-life-days' => 'Срок службы',
+        'comment-validity-days' => 'Условия хранения',
+        'comment-warranty' => 'Условия гарантии',
+        'sales_notes' => 'Условия продажи',
+        'min-quantity' => 'Минимальная партия',
+        'step-quantity' => 'Кратность заказа',
+        'age' => 'Возраст',
+        'adult' => 'Для взрослых',
+        'expiry' => 'Срок годности',
+        'tn-ved-code' => 'Код ТН ВЭД',
+        'material' => 'Материал',
+        'composition' => 'Состав',
+    ];
+
     /** Колонки CSV: ключ товара => варианты заголовка (без регистра). */
     private const CSV_COLUMNS = [
         'sku' => ['артикул', 'sku', 'vendorcode', 'код товара', 'код'],
@@ -141,6 +175,29 @@ class FeedParser
                 $size = $value;
             } else {
                 $params[] = ['name' => $pName, 'value' => $value];
+            }
+        }
+
+        // Остальные теги предложения (вес, штрихкод, страна, гарантия, свои теги
+        // выгрузки) — в дополнительные свойства, если такого <param> ещё нет.
+        $known = array_flip(array_map('mb_strtolower', array_column($params, 'name')));
+        $yesNo = ['true' => 'да', 'false' => 'нет'];
+        foreach ($o->children() as $tag => $child) {
+            if (in_array($tag, self::YML_SKIP_TAGS, true) || $child->count() > 0) {
+                continue;
+            }
+            $value = trim(preg_replace('/\s+/u', ' ', (string)$child));
+            if ($value === '') {
+                continue;
+            }
+            $value = $yesNo[strtolower($value)] ?? $value;
+            if ($tag === 'age' && (string)$child['unit'] !== '') {
+                $value .= (string)$child['unit'] === 'month' ? ' мес.' : '+';
+            }
+            $pName = self::YML_TAG_LABELS[$tag] ?? $tag;
+            if (!isset($known[mb_strtolower($pName)])) {
+                $known[mb_strtolower($pName)] = true;
+                $params[] = ['name' => $pName, 'value' => mb_substr($value, 0, 255)];
             }
         }
 

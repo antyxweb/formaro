@@ -89,7 +89,14 @@ class ProductImportService
         $names = array_column($categories, 'name', 'id');
         $existing = 0;
         $preview = [];
+        $props = [];
         foreach ($feed['items'] as $item) {
+            foreach ($item['params'] as $param) {
+                $props[$param['name']] = ($props[$param['name']] ?? 0) + 1;
+            }
+            if ($item['vendor'] !== '') {
+                $props['Бренд'] = ($props['Бренд'] ?? 0) + 1;
+            }
             $exists = $item['sku'] !== '' && isset($index[mb_strtolower($item['sku'])]);
             $existing += (int)$exists;
             $preview[] = [
@@ -113,6 +120,7 @@ class ProductImportService
             'limited' => count($feed['items']) >= FeedParser::MAX_ITEMS,
             'categories' => $categories,
             'items' => $preview,
+            'props' => $props,
             'saved' => self::savedSettings($partnerId),
             'max_batch' => self::MAX_BATCH,
         ];
@@ -183,7 +191,7 @@ class ProductImportService
                         }
                     }
                     if ($props) {
-                        $payload['custom_props'] = $props;
+                        $payload['custom_props'] = self::mergeProps((array)($existing['custom_props'] ?? []), $props);
                     }
                     $needImages = $withImages && empty($existing['preview_image']);
                 } else {
@@ -199,7 +207,7 @@ class ProductImportService
                         'category_ids' => $categoryId ? [$categoryId] : [],
                         'color' => $item['color'],
                         'size' => $item['size'],
-                        'custom_props' => $props,
+                        'custom_props' => self::mergeProps([], $props),
                         'gallery' => [],
                         'tags' => [],
                     ];
@@ -289,6 +297,23 @@ class ProductImportService
         }
 
         return $result;
+    }
+
+    /**
+     * Дополнительные свойства товара + свойства из файла: совпадающие по названию
+     * (без регистра) обновляются, новые добавляются, остальные у товара остаются.
+     */
+    private static function mergeProps(array $current, array $fromFile): array
+    {
+        $result = [];
+        foreach (array_merge($current, $fromFile) as $prop) {
+            $name = trim((string)($prop['name'] ?? ''));
+            if ($name !== '') {
+                $result[mb_strtolower($name)] = ['name' => $name, 'value' => (string)($prop['value'] ?? '')];
+            }
+        }
+
+        return array_values($result);
     }
 
     /** Описание из чужого файла: только простая разметка, без атрибутов и скриптов. */

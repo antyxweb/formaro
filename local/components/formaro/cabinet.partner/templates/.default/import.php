@@ -30,10 +30,11 @@ require __DIR__ . '/inc/layout_app_top.php';
         <div class="small text-muted-2 mb-3">
             <b>YML</b> (Яндекс.Маркет) — XML-выгрузка из 1С, CMS интернет-магазина или другой площадки: берём название,
             артикул (<code>vendorCode</code>, иначе id предложения), цену, остаток (<code>count</code>), категорию,
-            описание, картинки, параметры (<code>param</code>) и варианты (<code>group_id</code>). <a href="#" id="xmlTemplateBtn">Скачать шаблон YML</a>.<br>
+            описание, картинки и варианты (<code>group_id</code>); параметры (<code>param</code>) и остальные теги
+            (вес, штрихкод, страна производства и т. п.) станут дополнительными свойствами товара. <a href="#" id="xmlTemplateBtn">Скачать шаблон YML</a>.<br>
             <b>CSV</b> из Excel (разделитель «;» или «,», UTF-8 или Windows-1251): первая строка — названия колонок
             «Название», «Артикул», «Цена», «Остаток», «Категория», «Описание», «Картинки», «Цвет», «Размер», «Бренд»;
-            остальные колонки станут характеристиками товара. <a href="#" id="csvTemplateBtn">Скачать шаблон CSV</a>.<br>
+            остальные колонки станут дополнительными свойствами товара. <a href="#" id="csvTemplateBtn">Скачать шаблон CSV</a>.<br>
             Товары сопоставляются с уже добавленными по артикулу: найденные обновятся, остальные будут созданы. До 10 000 товаров, файл до 50 МБ.
         </div>
     </div>
@@ -89,7 +90,7 @@ require __DIR__ . '/inc/layout_app_top.php';
                 <div class="col-md-6">
                     <div class="form-check form-switch mb-2">
                         <input class="form-check-input" type="checkbox" id="optUpdate" checked>
-                        <label class="form-check-label" for="optUpdate">Обновлять найденные по артикулу товары <span class="text-muted-2">(название, цена, остаток, описание)</span></label>
+                        <label class="form-check-label" for="optUpdate">Обновлять найденные по артикулу товары <span class="text-muted-2">(название, цена, остаток, описание, свойства)</span></label>
                     </div>
                     <div class="form-check form-switch">
                         <input class="form-check-input" type="checkbox" id="optImages" checked>
