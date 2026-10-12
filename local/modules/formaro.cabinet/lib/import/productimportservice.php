@@ -83,12 +83,19 @@ class ProductImportService
             ];
         }
 
+        // Полный список для просмотра на клиенте (с постраничным выводом) —
+        // только то, что показывается в таблице, без описаний и параметров.
         $index = (new ProductRepository())->skuIndex($partnerId);
+        $names = array_column($categories, 'name', 'id');
         $existing = 0;
+        $preview = [];
         foreach ($feed['items'] as $item) {
-            if ($item['sku'] !== '' && isset($index[mb_strtolower($item['sku'])])) {
-                $existing++;
-            }
+            $exists = $item['sku'] !== '' && isset($index[mb_strtolower($item['sku'])]);
+            $existing += (int)$exists;
+            $preview[] = [
+                'sku' => $item['sku'], 'name' => $item['name'], 'price' => $item['price'], 'stock' => $item['stock'],
+                'picture' => $item['pictures'][0] ?? '', 'category' => $names[$item['category']] ?? '', 'exists' => $exists,
+            ];
         }
 
         self::write($token, [
@@ -105,10 +112,7 @@ class ProductImportService
             'existing' => $existing,
             'limited' => count($feed['items']) >= FeedParser::MAX_ITEMS,
             'categories' => $categories,
-            'sample' => array_map(static fn($i) => [
-                'sku' => $i['sku'], 'name' => $i['name'], 'price' => $i['price'], 'stock' => $i['stock'],
-                'picture' => $i['pictures'][0] ?? '', 'category' => $i['category'],
-            ], array_slice($feed['items'], 0, 5)),
+            'items' => $preview,
             'saved' => self::savedSettings($partnerId),
             'max_batch' => self::MAX_BATCH,
         ];

@@ -40,18 +40,41 @@ require __DIR__ . '/inc/layout_app_top.php';
 </div>
 
 <div id="importStepMap" class="d-none">
-    <div class="card mb-3">
-        <div class="card-header">2. Проверка и настройки</div>
-        <div class="card-body">
-            <div class="mb-3" id="importSummary"></div>
-            <div class="table-responsive mb-4">
-                <table class="table table-sm align-middle mb-0">
-                    <thead><tr><th style="width:56px;"></th><th>Название</th><th>Артикул</th><th class="text-end">Цена</th><th class="text-end">Остаток</th></tr></thead>
-                    <tbody id="sampleBody"></tbody>
-                </table>
-                <div class="small text-muted-2 mt-1">Первые товары из файла</div>
+    <div class="card mb-3" id="itemsCard">
+        <div class="card-header d-flex flex-wrap gap-2 align-items-center justify-content-between">
+            <span>2. Товары в файле</span>
+            <div class="d-flex flex-wrap gap-2">
+                <input type="text" class="form-control form-control-sm" id="itemsSearch" placeholder="Название или артикул" style="width:220px;">
+                <select class="form-select form-select-sm" id="itemsFilter" style="width:auto;">
+                    <option value="">Все</option><option value="new">Новые</option><option value="exists">Уже есть</option>
+                </select>
             </div>
+        </div>
+        <div class="card-body p-0">
+            <div class="px-3 pt-3" id="importSummary"></div>
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead><tr><th style="width:56px;"></th><th>Название</th><th>Артикул</th><th>Категория в файле</th><th class="text-end">Цена</th><th class="text-end">Остаток</th><th>Импорт</th></tr></thead>
+                    <tbody id="itemsBody"></tbody>
+                </table>
+            </div>
+            <div class="table-footer-bar">
+                <div class="tf-left"><span class="tf-count"></span></div>
+                <div class="tf-right">
+                    <div class="tf-pagesize">Показывать
+                        <select class="form-select tf-pagesize-select">
+                            <option value="20">20</option><option value="50">50</option><option value="100">100</option>
+                        </select>
+                    </div>
+                    <div class="tf-pager"></div>
+                </div>
+            </div>
+        </div>
+    </div>
 
+    <div class="card mb-3">
+        <div class="card-header">3. Категории и настройки</div>
+        <div class="card-body">
             <h6 class="mb-2">Категории</h6>
             <div class="small text-muted-2 mb-2">Укажите, в какую категорию Reppa попадут товары из каждой категории файла. Нет подходящей — <a href="<?= $arResult['SEF_FOLDER'] ?>categories/edit/new/" target="_blank">создайте свою</a> и обновите список.</div>
             <div class="table-responsive mb-4">
@@ -91,7 +114,7 @@ require __DIR__ . '/inc/layout_app_top.php';
 </div>
 
 <div id="importStepRun" class="card mb-3 d-none">
-    <div class="card-header">3. Импорт</div>
+    <div class="card-header">4. Импорт</div>
     <div class="card-body">
         <div class="d-flex justify-content-between small mb-1"><span id="runStatus">Импортируем…</span><span id="runCounter"></span></div>
         <div class="progress mb-3" style="height:10px;"><div class="progress-bar bg-success" id="runBar" style="width:0%"></div></div>

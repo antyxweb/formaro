@@ -7,9 +7,14 @@ var importSource = 'file';
 var importData = null;   // ответ import_prepare
 var importStopped = false;
 var importRunning = false;
+var itemsPager = null;
 
 $(function () {
     $('[data-src]').on('shown.bs.tab', function () { importSource = $(this).data('src'); });
+    itemsPager = initTablePager({root: '#itemsCard', renderFn: renderItemsPage, storageKey: 'pagesize_import'});
+    $('#itemsSearch').on('input', debounce(renderItems, 200));
+    $('#itemsFilter').on('change', renderItems);
+    $('#optUpdate').on('change', function () { if (importData) itemsPager.refresh(); });
     $('#parseBtn').on('click', parseFile);
     $('#importUrl').on('keydown', function (e) { if (e.key === 'Enter') parseFile(); });
     $('#importFile').on('change', function () { if (this.files.length) parseFile(); });
@@ -73,13 +78,9 @@ function renderMapping(categories) {
         (d.limited ? '<div class="text-warning small">Прочитаны первые ' + d.total + ' товаров — остальные разделите на отдельный файл.</div>' : '')
     );
 
-    $('#sampleBody').html(d.sample.map(function (s) {
-        // Заглушка с иконкой; картинка по ссылке из файла ложится поверх, не загрузилась — убираем.
-        var thumb = '<div class="import-thumb"><i class="bi bi-image"></i>' +
-            (s.picture ? '<img src="' + esc(s.picture) + '" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">' : '') + '</div>';
-        return '<tr><td>' + thumb + '</td><td>' + esc(s.name) + '</td><td>' + esc(s.sku || '—') + '</td>' +
-            '<td class="text-end text-nowrap">' + fmtMoney(s.price) + '</td><td class="text-end">' + (s.stock === null ? '—' : s.stock) + '</td></tr>';
-    }).join(''));
+    $('#itemsSearch').val('');
+    $('#itemsFilter').val('');
+    renderItems();
 
     var options = buildCategoryTreeOptions(categories);
     var byName = {};
@@ -112,6 +113,33 @@ function renderMapping(categories) {
     $('#runBtn').text('Импортировать ' + d.total + ' ' + plural(d.total, 'товар', 'товара', 'товаров'));
     $('#importStepFile').addClass('d-none');
     $('#importStepMap').removeClass('d-none');
+}
+
+/** Все товары файла — с поиском, фильтром «новые / обновятся» и постраничным выводом. */
+function renderItems() {
+    var q = $('#itemsSearch').val().trim().toLowerCase();
+    var filter = $('#itemsFilter').val();
+    itemsPager.setRows(importData.items.filter(function (it) {
+        if (filter === 'new' && it.exists) return false;
+        if (filter === 'exists' && !it.exists) return false;
+        return !q || it.name.toLowerCase().indexOf(q) !== -1 || (it.sku || '').toLowerCase().indexOf(q) !== -1;
+    }));
+}
+
+function renderItemsPage(rows) {
+    var update = $('#optUpdate').prop('checked');
+    $('#itemsBody').html(rows.map(function (s) {
+        // Заглушка с иконкой; картинка по ссылке из файла ложится поверх, не загрузилась — убираем.
+        var thumb = '<div class="import-thumb"><i class="bi bi-image"></i>' +
+            (s.picture ? '<img src="' + esc(s.picture) + '" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">' : '') + '</div>';
+        var mark = s.exists
+            ? (update ? '<span class="badge bg-warning-subtle text-warning">Обновится</span>' : '<span class="badge bg-secondary-subtle text-secondary">Пропустится</span>')
+            : '<span class="badge bg-success-subtle text-success">Новый</span>';
+        return '<tr><td>' + thumb + '</td><td>' + esc(s.name) + '</td><td class="text-nowrap">' + esc(s.sku || '—') + '</td>' +
+            '<td class="text-muted-2">' + esc(s.category || '—') + '</td>' +
+            '<td class="text-end text-nowrap">' + fmtMoney(s.price) + '</td><td class="text-end">' + (s.stock === null ? '—' : s.stock) + '</td>' +
+            '<td>' + mark + '</td></tr>';
+    }).join('') || '<tr><td colspan="7" class="text-center text-muted-2 py-4">Ничего не найдено</td></tr>');
 }
 
 function collectOptions() {
