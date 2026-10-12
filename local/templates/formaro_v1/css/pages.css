@@ -452,8 +452,7 @@
     display: flex;
     padding: 0;
 }
-#header .header .logo .name--tagline .name__tagline,
-#header.bg-menu-active .header .logo .name--tagline .name__tagline {
+#header .header .logo .name--tagline .name__tagline {
     padding: 0 1px;
     margin-top: 4px;
     font-size: .68rem;
@@ -464,4 +463,11 @@
 }
 #header .header .logo .name--tagline .name__tagline:hover {
     color: #1976d2;
+}
+
+/* Открыто глобальное меню — шапка синяя, синяя расшифровка на ней не
+   видна: белым, как и само название. */
+#header.bg-menu-active .header .logo .name--tagline .name__tagline,
+#header.bg-menu-active .header .logo .name--tagline .name__tagline:hover {
+    color: rgba(255, 255, 255, .85);
 }
