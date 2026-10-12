@@ -22,11 +22,10 @@ require __DIR__ . '/inc/layout_app_top.php';
         <div class="small text-muted-2 mb-3">
             <b>YML</b> (Яндекс.Маркет) — XML-выгрузка из 1С, CMS интернет-магазина или другой площадки: берём название,
             артикул (<code>vendorCode</code>, иначе id предложения), цену, остаток (<code>count</code>), категорию,
-            описание, картинки, параметры (<code>param</code>) и варианты (<code>group_id</code>).<br>
+            описание, картинки, параметры (<code>param</code>) и варианты (<code>group_id</code>). <a href="#" id="xmlTemplateBtn">Скачать шаблон YML</a>.<br>
             <b>CSV</b> из Excel (разделитель «;» или «,», UTF-8 или Windows-1251): первая строка — названия колонок
             «Название», «Артикул», «Цена», «Остаток», «Категория», «Описание», «Картинки», «Цвет», «Размер», «Бренд»;
-            остальные колонки станут характеристиками товара.
-            <a href="#" id="csvTemplateBtn">Скачать шаблон CSV</a>.<br>
+            остальные колонки станут характеристиками товара. <a href="#" id="csvTemplateBtn">Скачать шаблон CSV</a>.<br>
             Товары сопоставляются с уже добавленными по артикулу: найденные обновятся, остальные будут созданы. До 10 000 товаров, файл до 50 МБ.
         </div>
         <button class="btn btn-primary" id="parseBtn"><svg class="ic-inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"></path><path d="m17 8-5-5-5 5"></path><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path></svg> Загрузить и проверить</button>

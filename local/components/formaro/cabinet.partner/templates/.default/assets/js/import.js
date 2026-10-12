@@ -15,6 +15,7 @@ $(function () {
     $('#runBtn').on('click', startImport);
     $('#stopBtn').on('click', function () { importStopped = true; $(this).prop('disabled', true).text('Останавливаем…'); });
     $('#csvTemplateBtn').on('click', function (e) { e.preventDefault(); downloadCsvTemplate(); });
+    $('#xmlTemplateBtn').on('click', function (e) { e.preventDefault(); downloadXmlTemplate(); });
     $(window).on('beforeunload', function () { if (importRunning) return 'Импорт ещё идёт'; });
 });
 
@@ -207,9 +208,61 @@ function downloadCsvTemplate() {
     var csv = '﻿' + rows.map(function (r) {
         return r.map(function (v) { return '"' + String(v).replace(/"/g, '""') + '"'; }).join(';');
     }).join('\r\n');
+    downloadTemplate(csv, 'reppa-import-template.csv', 'text/csv;charset=utf-8');
+}
+
+/** Шаблон YML: две категории, товар с картинками и характеристиками и два
+ *  варианта одного товара (group_id). */
+function downloadXmlTemplate() {
+    var xml = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<yml_catalog date="' + new Date().toISOString().slice(0, 16).replace('T', ' ') + '">',
+        '  <shop>',
+        '    <name>Мой магазин</name>',
+        '    <currencies><currency id="RUR" rate="1"/></currencies>',
+        '    <categories>',
+        '      <category id="1">Спецодежда</category>',
+        '      <category id="2" parentId="1">Футболки</category>',
+        '    </categories>',
+        '    <offers>',
+        '      <offer id="1001" available="true" group_id="10">',
+        '        <name>Футболка базовая белая</name>',
+        '        <vendorCode>SP-1001</vendorCode>',
+        '        <vendor>Reppa</vendor>',
+        '        <price>450</price>',
+        '        <currencyId>RUR</currencyId>',
+        '        <categoryId>2</categoryId>',
+        '        <picture>https://example.ru/img/sp-1001.jpg</picture>',
+        '        <picture>https://example.ru/img/sp-1001-back.jpg</picture>',
+        '        <description><![CDATA[<p>Хлопок 100%, плотность 160 г/м²</p>]]></description>',
+        '        <param name="Цвет">Белый</param>',
+        '        <param name="Размер">48</param>',
+        '        <param name="Материал">Хлопок</param>',
+        '        <count>120</count>',
+        '      </offer>',
+        '      <offer id="1002" available="true" group_id="10">',
+        '        <name>Футболка базовая чёрная</name>',
+        '        <vendorCode>SP-1002</vendorCode>',
+        '        <vendor>Reppa</vendor>',
+        '        <price>450</price>',
+        '        <currencyId>RUR</currencyId>',
+        '        <categoryId>2</categoryId>',
+        '        <picture>https://example.ru/img/sp-1002.jpg</picture>',
+        '        <param name="Цвет">Чёрный</param>',
+        '        <param name="Размер">48</param>',
+        '        <count>80</count>',
+        '      </offer>',
+        '    </offers>',
+        '  </shop>',
+        '</yml_catalog>'
+    ].join('\r\n');
+    downloadTemplate(xml, 'reppa-import-template.xml', 'application/xml;charset=utf-8');
+}
+
+function downloadTemplate(content, fileName, type) {
     var a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob([csv], {type: 'text/csv;charset=utf-8'}));
-    a.download = 'reppa-import-template.csv';
+    a.href = URL.createObjectURL(new Blob([content], {type: type}));
+    a.download = fileName;
     document.body.appendChild(a);
     a.click();
     a.remove();
