@@ -33,7 +33,7 @@
 }
 
 /* Заголовок над поиском: мельче обычного h2, в жёлтой рамке в цвет кнопки
-   «Начать продавать» (.f-button.c-warning). Рамка тянется до кнопки. */
+   «Начать продавать» (.f-button.c-warning). Рамка тянется вплотную до кнопки. */
 #hero-search .hero-search-title {
     display: block;
     margin-right: 1rem;
@@ -45,6 +45,8 @@
 @media (min-width: 768px) {
     #hero-search .hero-search-title {
         flex: 1 1 auto;
+        align-self: stretch;
+        margin-right: 0;
         padding-top: .6rem;
         padding-bottom: .6rem;
     }
