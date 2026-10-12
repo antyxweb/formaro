@@ -213,7 +213,7 @@ class TicketRepository
             'phone_note' => 'бесплатно по РФ',
             'support_email' => 'partner@formaro.ru',
             'email_note' => 'ответ в течение 2 часов',
-            'help_url' => 'help.formaro.ru',
+            'help_url' => 'help.reppaopt.ru',
             'help_note' => 'инструкции и регламенты',
             'work_hours' => 'Поддержка партнёров: пн–пт, 9:00–19:00 МСК',
             // Реквизиты — из настроек модуля (MarketplaceRequisites).

@@ -21,7 +21,7 @@ HTML;
     /**
      * Пункт-ссылка «Заказы» (/personal/orders/) раздела «Покупателям»
      * становится страницей «Оптовикам» (/for-buyers/wholesale/, текст —
-     * formaro.ru/partners/pokupat-tovary/) на том же месте в сортировке.
+     * reppaopt.ru/partners/pokupat-tovary/) на том же месте в сортировке.
      *
      * @throws HelperException
      */

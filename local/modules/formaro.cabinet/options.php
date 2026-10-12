@@ -120,7 +120,7 @@ if ($testResult === true) {
     <tr>
         <td width="40%"><label for="mail_site_url">Адрес сайта для ссылок в письмах:</label></td>
         <td width="60%">
-            <input type="text" id="mail_site_url" name="mail[site_url]" size="50" value="<?= htmlspecialcharsbx($mail['site_url']) ?>" placeholder="https://formaro.ru">
+            <input type="text" id="mail_site_url" name="mail[site_url]" size="50" value="<?= htmlspecialcharsbx($mail['site_url']) ?>" placeholder="https://reppaopt.ru">
             <br><small>Пусто — «Адрес сервера» из настроек главного модуля. Сейчас: <?= htmlspecialcharsbx(MailSettings::siteUrl() ?: 'не определён') ?></small>
         </td>
     </tr>
