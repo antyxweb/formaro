@@ -402,6 +402,21 @@
         visibility: visible;
     }
 }
+/* Лупа поиска в шапке: при открытой панели превращается в крестик
+   (.is-open ставит js/scripts.js) — так же, как бургер меню. */
+#header .header .header__actions .header__action-link-search svg {
+    transition: opacity .3s;
+}
+#header .header .header__actions .header__action-link-search svg:nth-child(2) {
+    opacity: 0;
+    margin-left: -20px;
+}
+#header .header .header__actions .header__action-link-search.is-open svg:first-child {
+    opacity: 0;
+}
+#header .header .header__actions .header__action-link-search.is-open svg:nth-child(2) {
+    opacity: 1;
+}
 .header-search__group + .header-search__group {
     margin-top: 1rem;
 }

@@ -4659,14 +4659,74 @@ $(function () {
         $(this).closest('.product-card__actions').find('input').val($min);
     });
 
-    $('body').on('click', '.header__action-link-search', function (e) {
-        var $search = $('#header-search').closest('.header__search').toggleClass('header-search-visible');
-        // Курсор сразу в строку. Панель становится видимой с задержкой
-        // перехода .header__search (0.3s) — до этого фокус не ставится.
-        if ($search.hasClass('header-search-visible')) {
+    // Поиск в шапке: лупа открывает панель со строкой и превращается в
+    // крестик; повторный клик, Esc или уход мыши с панели — закрывают.
+    var headerSearchLeaveTimer = null;
+    var setHeaderSearch = function (open) {
+        clearTimeout(headerSearchLeaveTimer);
+        headerSearchLeaveTimer = null;
+        $('#header-search').closest('.header__search').toggleClass('header-search-visible', open);
+        $('.header__action-link-search').toggleClass('is-open', open).attr('aria-expanded', open ? 'true' : 'false');
+        if (open) {
+            // Курсор сразу в строку. Панель становится видимой с задержкой
+            // перехода .header__search (0.3s) — до этого фокус не ставится.
             setTimeout(function () { $('#header-search').trigger('focus'); }, 350);
+        } else {
+            $('#header-search').trigger('blur');
+        }
+    };
+    var headerSearchOpen = function () {
+        return $('#header-search').closest('.header__search').hasClass('header-search-visible');
+    };
+
+    $('body').on('click', '.header__action-link-search', function (e) {
+        setHeaderSearch(!headerSearchOpen());
+    });
+
+    $(document).on('keydown', function (e) {
+        if (e.key === 'Escape' && headerSearchOpen()) {
+            setHeaderSearch(false);
         }
     });
+
+    // Пока строка в фокусе, затемнение .search-result-bg (в той же панели,
+    // на весь экран) перекрывает шапку, в том числе крестик. Клик по нему —
+    // закрыть панель.
+    $('body').on('click', '.header__search .search-result-bg', function () {
+        setHeaderSearch(false);
+    });
+
+    // Уход мыши: «внутри» — лупа, панель со строкой и выпадающие подсказки.
+    // Проверяем по координатам курсора, а не по элементу под ним: затемнение
+    // лежит поверх всего и было бы «элементом под курсором» везде.
+    // Небольшая задержка — чтобы панель не закрылась, пока мышь идёт от
+    // лупы к строке. Только для устройств с мышью.
+    if (window.matchMedia && window.matchMedia('(hover: hover)').matches) {
+        var pointIn = function (el, x, y, pad) {
+            if (!el) {
+                return false;
+            }
+            var r = el.getBoundingClientRect();
+            pad = pad || 0;
+            return x >= r.left - pad && x <= r.right + pad && y >= r.top - pad && y <= r.bottom + pad;
+        };
+        $(document).on('mousemove', function (e) {
+            if (!headerSearchOpen()) {
+                return;
+            }
+            var $panel = $('#header-search').closest('.header__search');
+            var results = $panel.find('.search-result-block').get(0);
+            var inside = pointIn($('.header__action-link-search').get(0), e.clientX, e.clientY, 8)
+                || pointIn($panel.get(0), e.clientX, e.clientY)
+                || (results && getComputedStyle(results).visibility === 'visible' && pointIn(results, e.clientX, e.clientY));
+            if (inside) {
+                clearTimeout(headerSearchLeaveTimer);
+                headerSearchLeaveTimer = null;
+            } else if (!headerSearchLeaveTimer) {
+                headerSearchLeaveTimer = setTimeout(function () { setHeaderSearch(false); }, 400);
+            }
+        });
+    }
 
     // Поиск по категориям (блок "Каталог товаров"): без учёта регистра и
     // е/ё. Раньше был jQuery :contains() — он чувствителен к регистру и

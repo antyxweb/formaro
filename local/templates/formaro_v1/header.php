@@ -117,9 +117,12 @@ if($GLOBALS["APPLICATION"]->GetCurPage(false) == '/'
             </div>
 
             <div class="header__actions ml-auto">
-                <button class="header__action-link header__action-link-search" type="button" aria-label="Поиск" data-search-menu-toggle="">
+                <button class="header__action-link header__action-link-search" type="button" aria-label="Поиск" aria-expanded="false" data-search-menu-toggle="">
                     <svg class="header__action-icon" width="20" height="20">
                         <use xlink:href="#icon-search"></use>
+                    </svg>
+                    <svg class="header__action-icon" width="20" height="20">
+                        <use xlink:href="#icon-close"></use>
                     </svg>
                 </button>
 
