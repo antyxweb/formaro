@@ -74,6 +74,9 @@
 /* Плоский дизайн везде, КРОМЕ явных пилюль/кружков ниже (.pill, .side-count,
    индикатор нового) — для них radius переопределён с !important точечно. */
 * , *::before, *::after { border-radius: 0 !important; }
+/* Спиннер Bootstrap — кольцо с одной прозрачной стороной: квадратным он
+   превращается в крутящуюся рамку с «дыркой». */
+.spinner-border { border-radius: 50% !important; flex-shrink: 0; }
 
 * { box-sizing: border-box; }
 strong, b { color: var(--ink-strong); }
