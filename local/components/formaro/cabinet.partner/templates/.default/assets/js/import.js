@@ -65,7 +65,9 @@ function renderMapping(categories) {
     );
 
     $('#sampleBody').html(d.sample.map(function (s) {
-        var thumb = s.picture ? '<img src="' + esc(s.picture) + '" alt="" style="width:44px;height:44px;object-fit:cover;border-radius:6px;" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.visibility=\'hidden\'">' : '';
+        // Заглушка с иконкой; картинка по ссылке из файла ложится поверх, не загрузилась — убираем.
+        var thumb = '<div class="import-thumb"><i class="bi bi-image"></i>' +
+            (s.picture ? '<img src="' + esc(s.picture) + '" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">' : '') + '</div>';
         return '<tr><td>' + thumb + '</td><td>' + esc(s.name) + '</td><td>' + esc(s.sku || '—') + '</td>' +
             '<td class="text-end text-nowrap">' + fmtMoney(s.price) + '</td><td class="text-end">' + (s.stock === null ? '—' : s.stock) + '</td></tr>';
     }).join(''));
