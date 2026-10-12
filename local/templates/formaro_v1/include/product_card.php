@@ -35,26 +35,29 @@ $name = htmlspecialcharsbx($item['NAME']);
     </div>
     <div class="product-card__info">
         <a href="<?= $url ?>"><h3 title="<?= $name ?>"><?= $name ?></h3></a>
-        <div class="price mb-2">
-            <?php if ($item['OLD_PRICE']): ?>
-            <s><?= $fmt($item['OLD_PRICE']) ?></s> <b class="text-danger" data-price="<?= (float)$item['PRICE'] ?>"><?= $fmt($item['PRICE']) ?></b> <small>руб/шт.</small>
-            <?php else: ?>
-            <b class="text-danger" data-price="<?= (float)$item['PRICE'] ?>"><?= $fmt($item['PRICE']) ?></b> <small>руб/шт.</small>
-            <?php endif; ?>
-        </div>
-        <?php // Артикул и остаток в карточке не показываем (они на странице товара) — только «Под заказ» / «Нет в наличии». ?>
-        <?php if ($item['STOCK'] <= 0): ?>
-        <div class="text-secondary">
-            <small><?= $item['IS_PREORDER'] ? 'Под заказ' : 'Нет в наличии' ?></small>
-        </div>
-        <?php endif; ?>
     </div>
     <?php
     // Корзина (js/cart.js): под заказ — без ограничения количества (max 0),
     // нет в наличии и не под заказ — купить нельзя.
     $canBuy = $item['STOCK'] > 0 || $item['IS_PREORDER'];
     ?>
+    <?php
+    // Нижняя полоса: слева цена, справа кнопка-иконка — корзина (добавить)
+    // или корзина-удаление (товар уже в корзине). Поле количества .cart-cnt
+    // скрыто (css/pages.css), но остаётся — js/cart.js берёт из него
+    // количество при добавлении.
+    ?>
     <div class="product-card__actions" data-product-id="<?= (int)$item['ID'] ?>">
+        <div class="price product-card__price">
+            <?php // Артикул и остаток в карточке не показываем (они на странице товара) — только «Под заказ» / «Нет в наличии». ?>
+            <?php if ($item['STOCK'] <= 0): ?>
+            <small class="product-card__stock"><?= $item['IS_PREORDER'] ? 'Под заказ' : 'Нет в наличии' ?></small>
+            <?php endif; ?>
+            <?php if ($item['OLD_PRICE']): ?>
+            <s><?= $fmt($item['OLD_PRICE']) ?></s>
+            <?php endif; ?>
+            <span><b class="text-danger" data-price="<?= (float)$item['PRICE'] ?>"><?= $fmt($item['PRICE']) ?></b> <small>руб/шт.</small></span>
+        </div>
         <div class="cart-cnt">
             <div class="buttons">
                 <button class="cart-cnt-plus">
@@ -66,10 +69,11 @@ $name = htmlspecialcharsbx($item['NAME']);
             </div>
             <input type="text" data-min="1" data-max="<?= $item['IS_PREORDER'] ? 0 : (int)$item['STOCK'] ?>" value="1">
         </div>
-        <button class="cart-add f-button c-primary"<?= $canBuy ? '' : ' disabled' ?>>В корзину</button>
-        <button class="cart-remove f-button c-gray text-secondary d-none">
-            <svg width="16" height="16"><use xlink:href="#icon-delete"></use></svg>
-            <span class="pl-2">Удалить</span>
+        <button class="cart-add f-button c-primary" title="В корзину" aria-label="В корзину"<?= $canBuy ? '' : ' disabled' ?>>
+            <svg width="20" height="20"><use xlink:href="#icon-shopping"></use></svg>
+        </button>
+        <button class="cart-remove f-button c-gray text-secondary d-none" title="Убрать из корзины" aria-label="Убрать из корзины">
+            <svg width="20" height="20"><use xlink:href="#icon-delete"></use></svg>
         </button>
     </div>
     <a href="#" class="stretched-link"></a>

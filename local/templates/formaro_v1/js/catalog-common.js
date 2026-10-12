@@ -39,7 +39,7 @@
     // только «Под заказ» / «Нет в наличии».
     function stockHtml(item) {
         if (item.stock > 0) return '';
-        return '<div class="text-secondary"><small>' + (item.is_preorder ? 'Под заказ' : 'Нет в наличии') + '</small></div>';
+        return '<small class="product-card__stock">' + (item.is_preorder ? 'Под заказ' : 'Нет в наличии') + '</small>';
     }
 
     /** Сама карточка (.product-card) — обёртку (.product-item в сетке,
@@ -58,10 +58,15 @@
                 '</div>' +
                 '<div class="product-card__info">' +
                     '<a href="' + escHtml(url) + '"><h3 title="' + escHtml(item.name) + '">' + escHtml(item.name) + '</h3></a>' +
-                    '<div class="price mb-2">' + priceHtml(item) + '</div>' +
-                    stockHtml(item) +
                 '</div>' +
+                // Нижняя полоса как в include/product_card.php: цена и
+                // кнопка-иконка; .cart-cnt скрыт, но нужен js/cart.js.
                 '<div class="product-card__actions" data-product-id="' + Number(item.id) + '">' +
+                    '<div class="price product-card__price">' +
+                        stockHtml(item) +
+                        (item.old_price ? '<s>' + fmtPrice(item.old_price) + '</s>' : '') +
+                        '<span><b class="text-danger" data-price="' + item.price + '">' + fmtPrice(item.price) + '</b> <small>руб/шт.</small></span>' +
+                    '</div>' +
                     '<div class="cart-cnt">' +
                         '<div class="buttons">' +
                             '<button class="cart-cnt-plus"><svg width="20" height="20"><use xlink:href="#icon-arrow-up"></use></svg></button>' +
@@ -69,9 +74,11 @@
                         '</div>' +
                         '<input type="text" data-min="1" data-max="' + (item.is_preorder ? 0 : (item.stock || 0)) + '" value="1">' +
                     '</div>' +
-                    '<button class="cart-add f-button c-primary"' + (item.stock > 0 || item.is_preorder ? '' : ' disabled') + '>В корзину</button>' +
-                    '<button class="cart-remove f-button c-gray text-secondary d-none">' +
-                        '<svg width="16" height="16"><use xlink:href="#icon-delete"></use></svg><span class="pl-2">Удалить</span>' +
+                    '<button class="cart-add f-button c-primary" title="В корзину" aria-label="В корзину"' + (item.stock > 0 || item.is_preorder ? '' : ' disabled') + '>' +
+                        '<svg width="20" height="20"><use xlink:href="#icon-shopping"></use></svg>' +
+                    '</button>' +
+                    '<button class="cart-remove f-button c-gray text-secondary d-none" title="Убрать из корзины" aria-label="Убрать из корзины">' +
+                        '<svg width="20" height="20"><use xlink:href="#icon-delete"></use></svg>' +
                     '</button>' +
                 '</div>' +
                 '<a href="#" class="stretched-link"></a>' +
