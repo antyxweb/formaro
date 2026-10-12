@@ -44,7 +44,7 @@ $priceMax = max($priceMin + 1, (int)$arResult['PRICE_MAX']);
     <div class="section-header mb-4">
         <div class="container-fluid pt-5 d-md-flex align-items-center">
             <?php if ($arParams['TITLE_HTML'] !== ''): ?>
-            <h1 class="h2 mb-4"><?= $arParams['~TITLE_HTML'] ?></h1>
+            <h1 class="hero-search-title mb-3"><?= $arParams['~TITLE_HTML'] ?></h1>
             <?php endif; ?>
             <?php if ($arParams['BUTTON_TEXT'] !== ''): ?>
             <a href="<?= htmlspecialcharsbx($arParams['~BUTTON_URL']) ?>" class="f-button c-warning text-uppercase ml-auto mb-3"><?= htmlspecialcharsbx($arParams['~BUTTON_TEXT']) ?></a>
