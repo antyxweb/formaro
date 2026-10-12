@@ -6,11 +6,12 @@ require __DIR__ . '/inc/layout_app_top.php';
 ?>
 <div id="importStepFile" class="card mb-3">
     <div class="card-header">1. Файл с товарами</div>
+    <?php // Вкладки — как в «Скидках» и «Данных партнёра» (nav-tabs product-tabs под заголовком карточки). ?>
+    <ul class="nav nav-tabs product-tabs" role="tablist">
+        <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#srcFile" type="button" data-src="file">Файл</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#srcUrl" type="button" data-src="url">Ссылка на фид</button></li>
+    </ul>
     <div class="card-body">
-        <ul class="nav nav-pills mb-3" role="tablist">
-            <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#srcFile" type="button" data-src="file">Файл</button></li>
-            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#srcUrl" type="button" data-src="url">Ссылка на фид</button></li>
-        </ul>
         <div class="tab-content mb-3">
             <div class="tab-pane fade show active" id="srcFile">
                 <?php // Как «Загрузить файлы» в «Документах» профиля: кнопка-label со скрытым input, выбор файла сразу запускает проверку. ?>
