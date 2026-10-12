@@ -88,6 +88,7 @@ $APPLICATION->SetPageProperty("title", "Интернет-магазин спец
                 1 => "",
             ],
             "FILTER_NAME" => "sectionsFilter",
+            "SECTION_CLASS" => "N", // без серой полосы light-gray-stripe
             "VIEW_MODE" => "LIST",
             "SHOW_PARENT_NAME" => "Y",
             "SECTION_URL" => "",

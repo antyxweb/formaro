@@ -19,10 +19,14 @@ if (empty($arResult['SECTIONS_LIST'])) {
 ?>
 
 <?
-// SECTION_CLASS — класс секции (по умолчанию серая полоса, как на главной);
+// SECTION_CLASS — класс секции (по умолчанию серая полоса light-gray-stripe,
+// N — без класса, как на главной);
 // HIDE_HEADER = Y — без заголовка блока (корень /catalog/: заголовок уже
 // в шапке страницы).
 $sectionClass = (string)($arParams['SECTION_CLASS'] ?? '') !== '' ? $arParams['SECTION_CLASS'] : 'light-gray-stripe';
+if ($sectionClass === 'N') {
+    $sectionClass = '';
+}
 ?>
 <section class="section <?=htmlspecialcharsbx($sectionClass)?>">
     <?if(($arParams['HIDE_HEADER'] ?? 'N') !== 'Y'):?>
