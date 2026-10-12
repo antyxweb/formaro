@@ -8,6 +8,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
 
 Loader::includeModule('formaro.cabinet');
 
+use Formaro\Cabinet\Import\ProductImportService;
 use Formaro\Cabinet\Repository\CategoryRepository;
 use Formaro\Cabinet\Repository\ChatRepository;
 use Formaro\Cabinet\Repository\CouponRepository;
@@ -49,6 +50,7 @@ class CabinetPartnerComponent extends CBitrixComponent
         'category_edit' => 'categories/edit/#ID#/',
         'products' => 'products/',
         'product_edit' => 'products/edit/#ID#/',
+        'import' => 'import/',
         'orders' => 'orders/',
         'order_detail' => 'orders/edit/#ID#/',
         'discounts' => 'discounts/',
@@ -247,6 +249,20 @@ class CabinetPartnerComponent extends CBitrixComponent
                     (int)($_REQUEST['id'] ?? 0),
                     (string)($_REQUEST['lead_time'] ?? '')
                 )),
+                // Импорт товаров из файла (YML/CSV): разбор → порции → завершение.
+                'import_prepare' => ProductImportService::prepare($partnerId, $_FILES['file'] ?? null, (string)($_REQUEST['url'] ?? '')),
+                'import_run' => ProductImportService::run(
+                    $partnerId,
+                    (string)($_REQUEST['token'] ?? ''),
+                    (int)($_REQUEST['offset'] ?? 0),
+                    (int)($_REQUEST['limit'] ?? 10),
+                    json_decode((string)($_REQUEST['options'] ?? '{}'), true) ?: []
+                ),
+                'import_finish' => ProductImportService::finish(
+                    $partnerId,
+                    (string)($_REQUEST['token'] ?? ''),
+                    json_decode((string)($_REQUEST['options'] ?? '{}'), true) ?: []
+                ),
                 default => throw new \RuntimeException('Неизвестное действие: ' . $action),
             };
 

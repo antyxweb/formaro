@@ -329,6 +329,56 @@ class ProductRepository
         return $this->get($id);
     }
 
+    /** @return array<string, int> артикул (в нижнем регистре) => ID товара партнёра — для импорта */
+    public function skuIndex(int $partnerId): array
+    {
+        $index = [];
+        $res = CIBlockElement::GetList(
+            ['ID' => 'ASC'],
+            ['IBLOCK_ID' => $this->iblockId, 'PROPERTY_PARTNER_ID' => $partnerId, 'CHECK_PERMISSIONS' => 'N'],
+            false,
+            false,
+            ['ID', 'PROPERTY_SKU']
+        );
+        while ($el = $res->Fetch()) {
+            $sku = mb_strtolower(trim((string)$el['PROPERTY_SKU_VALUE']));
+            if ($sku !== '' && !isset($index[$sku])) {
+                $index[$sku] = (int)$el['ID'];
+            }
+        }
+
+        return $index;
+    }
+
+    /** Символьный код из названия, свободный в инфоблоке (у CODE стоит UNIQUE). */
+    public function uniqueSlug(string $name, string $suffix = ''): string
+    {
+        $translit = static fn(string $s) => \CUtil::translit($s, 'ru', [
+            'max_len' => 80, 'change_case' => 'L', 'replace_space' => '-', 'replace_other' => '-', 'delete_repeat_replace' => true,
+        ]);
+        $base = trim($translit($name), '-') ?: 'tovar';
+        $candidates = [$base];
+        if ($suffix !== '') {
+            $candidates[] = $base . '-' . trim($translit($suffix), '-');
+        }
+        for ($i = 2; $i < 50; $i++) {
+            $candidates[] = $base . '-' . $i;
+        }
+        foreach ($candidates as $code) {
+            $taken = CIBlockElement::GetList([], ['IBLOCK_ID' => $this->iblockId, '=CODE' => $code, 'CHECK_PERMISSIONS' => 'N'], false, ['nTopCount' => 1], ['ID'])->Fetch();
+            if (!$taken) {
+                return $code;
+            }
+        }
+
+        return $base . '-' . bin2hex(random_bytes(3));
+    }
+
+    public function setVariantGroup(int $id, int $groupId): void
+    {
+        CIBlockElement::SetPropertyValuesEx($id, $this->iblockId, ['VARIANT_GROUP_ID' => $groupId]);
+    }
+
     /** @throws \Exception если товар чужой/не найден */
     public function delete(int $partnerId, int $id): bool
     {
