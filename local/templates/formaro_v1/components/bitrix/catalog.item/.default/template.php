@@ -51,10 +51,6 @@ if (isset($arResult['ITEM']))
             <div class="price mb-2">
                 <s>3 200</s> <b class="text-danger" data-price="2000">2 800</b> <small>руб/шт.</small>
             </div>
-            <div class="text-secondary">
-                <small>Артикул: 1233445</small>
-                <small>В наличии: 120 шт.</small>
-            </div>
         </div>
         <div class="product-card__actions">
             <div class="cart-cnt">

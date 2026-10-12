@@ -42,16 +42,12 @@ $name = htmlspecialcharsbx($item['NAME']);
             <b class="text-danger" data-price="<?= (float)$item['PRICE'] ?>"><?= $fmt($item['PRICE']) ?></b> <small>руб/шт.</small>
             <?php endif; ?>
         </div>
+        <?php // Артикул и остаток в карточке не показываем (они на странице товара) — только «Под заказ» / «Нет в наличии». ?>
+        <?php if ($item['STOCK'] <= 0): ?>
         <div class="text-secondary">
-            <small>Артикул: <?= htmlspecialcharsbx($item['SKU']) ?></small>
-            <?php if ($item['STOCK'] > 0): ?>
-            <small>В наличии: <?= (int)$item['STOCK'] ?> шт.</small>
-            <?php elseif ($item['IS_PREORDER']): ?>
-            <small>Под заказ</small>
-            <?php else: ?>
-            <small>Нет в наличии</small>
-            <?php endif; ?>
+            <small><?= $item['IS_PREORDER'] ? 'Под заказ' : 'Нет в наличии' ?></small>
         </div>
+        <?php endif; ?>
     </div>
     <?php
     // Корзина (js/cart.js): под заказ — без ограничения количества (max 0),

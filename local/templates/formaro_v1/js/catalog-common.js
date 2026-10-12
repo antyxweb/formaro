@@ -35,10 +35,11 @@
         return item.old_price ? '<s>' + fmtPrice(item.old_price) + '</s> ' + current : current;
     }
 
+    // Артикул и остаток в карточке не показываем (они на странице товара) —
+    // только «Под заказ» / «Нет в наличии».
     function stockHtml(item) {
-        if (item.stock > 0) return '<small>В наличии: ' + item.stock + ' шт.</small>';
-        if (item.is_preorder) return '<small>Под заказ</small>';
-        return '<small>Нет в наличии</small>';
+        if (item.stock > 0) return '';
+        return '<div class="text-secondary"><small>' + (item.is_preorder ? 'Под заказ' : 'Нет в наличии') + '</small></div>';
     }
 
     /** Сама карточка (.product-card) — обёртку (.product-item в сетке,
@@ -58,10 +59,7 @@
                 '<div class="product-card__info">' +
                     '<a href="' + escHtml(url) + '"><h3 title="' + escHtml(item.name) + '">' + escHtml(item.name) + '</h3></a>' +
                     '<div class="price mb-2">' + priceHtml(item) + '</div>' +
-                    '<div class="text-secondary">' +
-                        '<small>Артикул: ' + escHtml(item.sku) + '</small>' +
-                        stockHtml(item) +
-                    '</div>' +
+                    stockHtml(item) +
                 '</div>' +
                 '<div class="product-card__actions" data-product-id="' + Number(item.id) + '">' +
                     '<div class="cart-cnt">' +
@@ -93,8 +91,6 @@
                         '<div class="skeleton-line" style="width: 70%"></div>' +
                     '</div>' +
                     '<div class="skeleton-line skeleton-price"></div>' +
-                    '<div class="skeleton-line skeleton-meta"></div>' +
-                    '<div class="skeleton-line skeleton-meta" style="width: 45%"></div>' +
                 '</div>' +
                 '<div class="product-card__actions"><div class="skeleton-action"></div></div>' +
             '</div>'
