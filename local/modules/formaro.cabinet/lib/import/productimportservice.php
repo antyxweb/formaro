@@ -268,6 +268,24 @@ class ProductImportService
         return true;
     }
 
+    /**
+     * Шаблон XLSX из тех же строк, что и CSV-шаблон на странице (сам XLSX без
+     * библиотек в браузере не собрать) — base64 для скачивания.
+     */
+    public static function templateXlsx(array $rows): array
+    {
+        $rows = array_slice(array_values(array_filter($rows, 'is_array')), 0, 20);
+        $rows = array_map(static fn($row) => array_map(
+            static fn($v) => mb_substr(is_scalar($v) ? (string)$v : '', 0, 500),
+            array_slice(array_values($row), 0, 50)
+        ), $rows);
+        if (!$rows) {
+            throw new \RuntimeException('Пустой шаблон');
+        }
+
+        return ['base64' => base64_encode(XlsxWriter::build($rows))];
+    }
+
     public static function savedSettings(int $partnerId): array
     {
         return json_decode((string)Option::get(self::MODULE_ID, 'import_settings_' . $partnerId, ''), true) ?: [];

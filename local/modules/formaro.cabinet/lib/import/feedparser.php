@@ -4,7 +4,7 @@ namespace Formaro\Cabinet\Import;
 
 /**
  * Разбор файла товаров партнёра в общий вид — YML (Яндекс.Маркет и всё, что
- * выгружает в этом формате: 1С, CMS, Ozon/WB-выгрузки) и CSV из Excel.
+ * выгружает в этом формате: 1С, CMS, Ozon/WB-выгрузки), таблицы Excel (XLSX) и CSV.
  *
  * Товар: ext_id, sku, name, price, stock (null — не указан), available,
  * category (id категории файла), description (HTML), pictures[], color, size,
@@ -81,6 +81,13 @@ class FeedParser
             }
 
             return $result;
+        }
+
+        if (str_starts_with($head, "\xD0\xCF\x11\xE0")) {
+            throw new \RuntimeException('Старый формат Excel (.xls) не поддерживается — сохраните файл как .xlsx или .csv');
+        }
+        if (str_starts_with($head, "PK\x03\x04")) {
+            return self::parseTable(XlsxReader::rows($path), 'xlsx');
         }
 
         return self::parseCsv($path);
@@ -266,34 +273,39 @@ class FeedParser
         $stream = fopen('php://temp', 'r+');
         fwrite($stream, $content);
         rewind($stream);
+        $rows = (static function () use ($stream, $delimiter) {
+            while (($row = fgetcsv($stream, 0, $delimiter, '"', '')) !== false) {
+                yield $row;
+            }
+            fclose($stream);
+        })();
 
-        $header = fgetcsv($stream, 0, $delimiter, '"', '');
-        if (!$header || count($header) < 2) {
-            throw new \RuntimeException('Не удалось прочитать CSV: в первой строке должны быть названия колонок');
-        }
+        return self::parseTable($rows, 'csv');
+    }
 
+    /**
+     * Таблица (CSV, лист XLSX): первая строка — заголовки колонок, остальные — товары.
+     *
+     * @param iterable<array> $rows
+     */
+    private static function parseTable(iterable $rows, string $format): array
+    {
+        $header = null;
         $map = [];
-        foreach ($header as $i => $title) {
-            $title = mb_strtolower(trim((string)$title));
-            foreach (self::CSV_COLUMNS as $key => $variants) {
-                if (!isset($map[$key]) && in_array($title, $variants, true)) {
-                    $map[$key] = $i;
-                    continue 2;
-                }
-            }
-            if ($title !== '') {
-                $map['param:' . trim((string)$header[$i])] = $i;
-            }
-        }
-        if (!isset($map['name'])) {
-            throw new \RuntimeException('В CSV нет колонки «Название»');
-        }
-
         $categories = [];
         $items = [];
-        $line = 1;
-        while (($row = fgetcsv($stream, 0, $delimiter, '"', '')) !== false) {
+        $line = 0;
+        foreach ($rows as $row) {
             $line++;
+            if ($header === null) {
+                // Пустые строки над заголовком (бывают в выгрузках из Excel) пропускаем.
+                if (!array_filter($row, static fn($v) => trim((string)$v) !== '')) {
+                    continue;
+                }
+                $header = $row;
+                $map = self::mapColumns($header);
+                continue;
+            }
             if (count($items) >= self::MAX_ITEMS) {
                 break;
             }
@@ -333,9 +345,36 @@ class FeedParser
                 'group_id' => $get('group_id'),
             ];
         }
-        fclose($stream);
+        if ($header === null) {
+            throw new \RuntimeException('Файл пустой: в первой строке должны быть названия колонок');
+        }
 
-        return ['format' => 'csv', 'categories' => array_values($categories), 'items' => $items];
+        return ['format' => $format, 'categories' => array_values($categories), 'items' => $items];
+    }
+
+    private static function mapColumns(array $header): array
+    {
+        if (count(array_filter($header, static fn($v) => trim((string)$v) !== '')) < 2) {
+            throw new \RuntimeException('Не удалось прочитать таблицу: в первой строке должны быть названия колонок');
+        }
+        $map = [];
+        foreach ($header as $i => $title) {
+            $title = mb_strtolower(trim((string)$title));
+            foreach (self::CSV_COLUMNS as $key => $variants) {
+                if (!isset($map[$key]) && in_array($title, $variants, true)) {
+                    $map[$key] = $i;
+                    continue 2;
+                }
+            }
+            if ($title !== '') {
+                $map['param:' . trim((string)$header[$i])] = $i;
+            }
+        }
+        if (!isset($map['name'])) {
+            throw new \RuntimeException('В таблице нет колонки «Название»');
+        }
+
+        return $map;
     }
 
     /** «1 299,90», «1299.9 руб.» → 1299.9 */

@@ -1,4 +1,4 @@
-/* Импорт товаров из файла (YML/CSV): загрузка → сопоставление категорий →
+/* Импорт товаров из файла (YML/XLSX/CSV): загрузка → сопоставление категорий →
    запись порциями (ProductImportService на сервере). */
 var CABINET_URL = window.CABINET_BOOTSTRAP.cabinetUrl;
 var SKIP_CATEGORY = -1;
@@ -22,6 +22,7 @@ $(function () {
     $('#runBtn').on('click', startImport);
     $('#stopBtn').on('click', function () { importStopped = true; $(this).prop('disabled', true).text('Останавливаем…'); });
     $('#csvTemplateBtn').on('click', function (e) { e.preventDefault(); downloadCsvTemplate(); });
+    $('#xlsxTemplateBtn').on('click', function (e) { e.preventDefault(); downloadXlsxTemplate(); });
     $('#xmlTemplateBtn').on('click', function (e) { e.preventDefault(); downloadXmlTemplate(); });
     $(window).on('beforeunload', function () { if (importRunning) return 'Импорт ещё идёт'; });
 });
@@ -78,7 +79,7 @@ function renderPropsSummary(props) {
 function renderMapping(categories) {
     var d = importData;
     var saved = d.saved || {};
-    var formats = {yml: 'YML', csv: 'CSV'};
+    var formats = {yml: 'YML', csv: 'CSV', xlsx: 'Excel (XLSX)'};
 
     $('#importSummary').html(
         '<div><b>' + esc(d.file) + '</b> · ' + formats[d.format] + '</div>' +
@@ -249,11 +250,22 @@ function plural(n, one, few, many) {
     return many;
 }
 
+// Одни и те же строки для шаблонов CSV и XLSX.
+var TEMPLATE_ROWS = [
+    ['Артикул', 'Название', 'Цена', 'Остаток', 'Категория', 'Описание', 'Картинки', 'Цвет', 'Размер', 'Бренд', 'Материал'],
+    ['SP-1001', 'Футболка базовая', '450', '120', 'Футболки', 'Хлопок 100%, плотность 160 г/м²', 'https://example.ru/img/sp-1001.jpg', 'Белый', '48', 'Reppa', 'Хлопок']
+];
+
+function downloadXlsxTemplate() {
+    cabinetAjax({ajax_action: 'import_template_xlsx', rows: JSON.stringify(TEMPLATE_ROWS)}).then(function (data) {
+        var bin = atob(data.base64), bytes = new Uint8Array(bin.length);
+        for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+        downloadTemplate(bytes, 'reppa-import-template.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    });
+}
+
 function downloadCsvTemplate() {
-    var rows = [
-        ['Артикул', 'Название', 'Цена', 'Остаток', 'Категория', 'Описание', 'Картинки', 'Цвет', 'Размер', 'Бренд', 'Материал'],
-        ['SP-1001', 'Футболка базовая', '450', '120', 'Футболки', 'Хлопок 100%, плотность 160 г/м²', 'https://example.ru/img/sp-1001.jpg', 'Белый', '48', 'Reppa', 'Хлопок']
-    ];
+    var rows = TEMPLATE_ROWS;
     var csv = '﻿' + rows.map(function (r) {
         return r.map(function (v) { return '"' + String(v).replace(/"/g, '""') + '"'; }).join(';');
     }).join('\r\n');

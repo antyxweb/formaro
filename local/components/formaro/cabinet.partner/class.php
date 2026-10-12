@@ -263,6 +263,9 @@ class CabinetPartnerComponent extends CBitrixComponent
                     (string)($_REQUEST['token'] ?? ''),
                     json_decode((string)($_REQUEST['options'] ?? '{}'), true) ?: []
                 ),
+                'import_template_xlsx' => ProductImportService::templateXlsx(
+                    json_decode((string)($_REQUEST['rows'] ?? '[]'), true) ?: []
+                ),
                 default => throw new \RuntimeException('Неизвестное действие: ' . $action),
             };
 

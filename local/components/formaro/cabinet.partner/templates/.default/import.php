@@ -17,7 +17,7 @@ require __DIR__ . '/inc/layout_app_top.php';
                 <?php // Как «Загрузить файлы» в «Документах» профиля: кнопка-label со скрытым input, выбор файла сразу запускает проверку. ?>
                 <label class="btn btn-outline-primary mb-0" id="importFileBtn">
                     <svg class="ic-inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"></path><path d="m17 8-5-5-5 5"></path><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path></svg> Загрузить файл
-                    <input type="file" id="importFile" class="d-none" accept=".xml,.yml,.csv,.txt">
+                    <input type="file" id="importFile" class="d-none" accept=".xml,.yml,.xlsx,.csv,.txt">
                 </label>
             </div>
             <div class="tab-pane fade" id="srcUrl">
@@ -32,9 +32,9 @@ require __DIR__ . '/inc/layout_app_top.php';
             артикул (<code>vendorCode</code>, иначе id предложения), цену, остаток (<code>count</code>), категорию,
             описание, картинки и варианты (<code>group_id</code>); параметры (<code>param</code>) и остальные теги
             (вес, штрихкод, страна производства и т. п.) станут дополнительными свойствами товара. <a href="#" id="xmlTemplateBtn">Скачать шаблон YML</a>.<br>
-            <b>CSV</b> из Excel (разделитель «;» или «,», UTF-8 или Windows-1251): первая строка — названия колонок
+            <b>Excel (XLSX)</b> или <b>CSV</b> (разделитель «;» или «,», UTF-8 или Windows-1251): берётся первый лист, первая строка — названия колонок
             «Название», «Артикул», «Цена», «Остаток», «Категория», «Описание», «Картинки», «Цвет», «Размер», «Бренд»;
-            остальные колонки станут дополнительными свойствами товара. <a href="#" id="csvTemplateBtn">Скачать шаблон CSV</a>.<br>
+            остальные колонки станут дополнительными свойствами товара. Скачать шаблон <a href="#" id="xlsxTemplateBtn">XLSX</a> или <a href="#" id="csvTemplateBtn">CSV</a>.<br>
             Товары сопоставляются с уже добавленными по артикулу: найденные обновятся, остальные будут созданы. До 10 000 товаров, файл до 50 МБ.
         </div>
     </div>
