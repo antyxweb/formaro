@@ -31,7 +31,7 @@ $siteHost = htmlspecialcharsbx((string)parse_url((string)($arParams['SITE_URL'] 
 </tr>
 <tr>
 <td style="padding:24px 32px;background:#f8f9fb;border-top:1px solid #e5e7eb;border-radius:0 0 8px 8px;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:18px;color:#6b7280;">
-<p style="margin:0 0 12px;">Маркетплейс Formaro — товары из России от проверенных поставщиков.<?php if ($siteHost !== ''): ?> <a href="<?= $siteUrl ?>/" target="_blank" style="color:#1976d2;text-decoration:none;"><?= $siteHost ?></a><?php endif; ?></p>
+<p style="margin:0 0 12px;">Маркетплейс Reppa — товары из России от проверенных поставщиков.<?php if ($siteHost !== ''): ?> <a href="<?= $siteUrl ?>/" target="_blank" style="color:#1976d2;text-decoration:none;"><?= $siteHost ?></a><?php endif; ?></p>
 <?php if ($contacts): ?><p style="margin:0 0 12px;"><?= implode(' &nbsp;·&nbsp; ', $contacts) ?></p><?php endif; ?>
 <?php if ($name !== ''): ?><p style="margin:0;"><?= $name ?><?php if ($ids): ?><br><?= implode(', ', $ids) ?><?php endif; ?><?php if ($address !== ''): ?><br><?= $address ?><?php endif; ?></p><?php endif; ?>
 <p style="margin:12px 0 0;color:#9ca3af;">Письмо отправлено автоматически, отвечать на него не нужно.</p>

@@ -108,7 +108,7 @@ require __DIR__ . '/inc/layout_app_top.php';
                     <label class="form-label" for="trackNumber">Трек-номер</label>
                     <input type="text" class="form-control mb-2" id="trackNumber" maxlength="60" placeholder="Номер накладной транспортной компании">
                     <button type="button" class="btn btn-success w-100" id="setTrackBtn"><i class="bi bi-truck"></i> Заказ отгружен</button>
-                    <div class="text-muted-2 small mt-2">Отправитель в накладной — площадка Formaro. Доставку покупатель оплачивает транспортной компании при получении.</div>
+                    <div class="text-muted-2 small mt-2">Отправитель в накладной — площадка Reppa. Доставку покупатель оплачивает транспортной компании при получении.</div>
                 </div>
             </div>
         </div>

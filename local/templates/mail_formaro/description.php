@@ -4,7 +4,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
 }
 
 $arTemplate = [
-    'NAME' => 'Письма Formaro',
+    'NAME' => 'Письма Reppa',
     'DESCRIPTION' => 'Оформление писем сайта: шапка с логотипом, подвал с реквизитами площадки '
         . '(настройки модуля formaro.cabinet). Выбирается в почтовых шаблонах событий FORMARO_*.',
     'TYPE' => 'mail',

@@ -22,7 +22,7 @@ use Bitrix\Main\Context;
  */
 final class OpenGraph
 {
-    public const SITE_NAME = 'Formaro';
+    public const SITE_NAME = 'Reppa';
     private const DEFAULT_IMAGE = '/web-app-manifest-512x512.png';
     private const DESCRIPTION_LENGTH = 200;
 

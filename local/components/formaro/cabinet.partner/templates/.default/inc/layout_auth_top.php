@@ -12,4 +12,4 @@ $APPLICATION->AddHeadString($themeInitScript, true);
 ?>
 <div class="auth-wrap">
   <div class="auth-card">
-    <div class="brand-logo"><div class="f-mark"><span></span><span></span><span></span></div>formaro</div>
+    <div class="brand-logo"><div class="f-mark"><span></span><span></span><span></span></div>Reppa</div>

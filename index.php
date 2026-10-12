@@ -1,7 +1,7 @@
 <?
 require($_SERVER['DOCUMENT_ROOT'].'/bitrix/header.php');
-$APPLICATION->SetTitle('Интернет-магазин специализированной одежды и аксессуаров Формаро');
-$APPLICATION->SetPageProperty("title", "Интернет-магазин специализированной одежды и аксессуаров Формаро");
+$APPLICATION->SetTitle('Интернет-магазин специализированной одежды и аксессуаров Reppa');
+$APPLICATION->SetPageProperty("title", "Интернет-магазин специализированной одежды и аксессуаров Reppa");
 ?>
 
     <?$APPLICATION->IncludeComponent(

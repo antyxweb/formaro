@@ -9,7 +9,7 @@ require __DIR__ . '/inc/layout_app_top.php';
 <a href="<?= $arResult['SEF_FOLDER'] ?>categories/" class="btn btn-link px-0 mb-2"><i class="bi bi-arrow-left"></i> К списку категорий</a>
 
 <div class="alert alert-info d-none" id="systemBanner">
-    <i class="bi bi-lock"></i> Это общая категория площадки Formaro — доступна для просмотра всем партнёрам, но редактировать или удалять её нельзя.
+    <i class="bi bi-lock"></i> Это общая категория площадки Reppa — доступна для просмотра всем партнёрам, но редактировать или удалять её нельзя.
 </div>
 <div class="alert alert-warning d-none" id="pendingReviewBanner">
     <i class="bi bi-hourglass-split"></i> Категория на проверке — станет видна на сайте после проверки администратором площадки.

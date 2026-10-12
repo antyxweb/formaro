@@ -439,3 +439,29 @@
     margin-top: .5rem;
     color: #1976d2;
 }
+
+/* Шапка: название Reppa и под ним синим расшифровка «Ресурс Портала
+   Поставщиков» (header.php). Буквы — как раньше отдельные span с
+   подсветкой при наведении (styles.css #header .logo .name span). */
+#header .header .logo .name--tagline {
+    flex-direction: column;
+    justify-content: center;
+    line-height: 1;
+}
+#header .header .logo .name--tagline .name__word {
+    display: flex;
+    padding: 0;
+}
+#header .header .logo .name--tagline .name__tagline,
+#header.bg-menu-active .header .logo .name--tagline .name__tagline {
+    padding: 0 1px;
+    margin-top: 4px;
+    font-size: .68rem;
+    font-weight: 500;
+    letter-spacing: .02em;
+    white-space: nowrap;
+    color: #1976d2;
+}
+#header .header .logo .name--tagline .name__tagline:hover {
+    color: #1976d2;
+}

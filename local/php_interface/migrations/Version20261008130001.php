@@ -34,7 +34,7 @@ class Version20261008130001 extends Version
             foreach ($types as $type => $label) {
                 $this->save(
                     \Formaro\Cabinet\Mail\Mailer::notificationEvent($audience, $type),
-                    'Formaro: уведомление ' . $whom . ' — ' . mb_strtolower($label),
+                    'Reppa: уведомление ' . $whom . ' — ' . mb_strtolower($label),
                     self::NOTIFICATION_FIELDS,
                     '#TITLE#',
                     self::body('#HTML_TITLE#', '<p style="margin:0 0 12px;">#HTML_GREETING#</p><p style="margin:0;">#HTML_MESSAGE#</p>', '#LINK_URL#', '#HTML_LINK_TEXT#')
@@ -87,13 +87,13 @@ class Version20261008130001 extends Version
 
         return [
             'FORMARO_USER_REGISTER' => [
-                'Formaro: регистрация покупателя на сайте',
+                'Reppa: регистрация покупателя на сайте',
                 "#LOGIN# — логин (e-mail)\n#PROFILE_URL# — личный кабинет",
-                'Добро пожаловать в Formaro',
+                'Добро пожаловать в Reppa',
                 self::body(
-                    'Вы зарегистрировались на Formaro',
+                    'Вы зарегистрировались на Reppa',
                     '<p style="margin:0 0 12px;">#HTML_GREETING#</p>'
-                    . '<p style="margin:0 0 12px;">Спасибо за регистрацию на маркетплейсе Formaro. Для входа на сайт используйте e-mail <strong>#HTML_LOGIN#</strong> и пароль, указанный при регистрации.</p>'
+                    . '<p style="margin:0 0 12px;">Спасибо за регистрацию на маркетплейсе Reppa. Для входа на сайт используйте e-mail <strong>#HTML_LOGIN#</strong> и пароль, указанный при регистрации.</p>'
                     . '<p style="margin:0;">В личном кабинете — ваши заказы, счета на оплату, переписка с продавцами и уведомления.</p>',
                     '#PROFILE_URL#',
                     'Открыть личный кабинет',
@@ -101,9 +101,9 @@ class Version20261008130001 extends Version
                 ),
             ],
             'FORMARO_USER_PASS_REQUEST' => [
-                'Formaro: восстановление пароля',
+                'Reppa: восстановление пароля',
                 "#LOGIN# — логин\n#CHANGE_URL# — ссылка на смену пароля",
-                'Восстановление пароля на Formaro',
+                'Восстановление пароля на Reppa',
                 self::body(
                     'Восстановление пароля',
                     '<p style="margin:0 0 12px;">#HTML_GREETING#</p>'
@@ -114,20 +114,20 @@ class Version20261008130001 extends Version
                 ),
             ],
             'FORMARO_PARTNER_REGISTER' => [
-                'Formaro: создан кабинет партнёра',
+                'Reppa: создан кабинет партнёра',
                 "#COMPANY# — название организации\n#LOGIN# — логин (e-mail)\n#CABINET_URL# — кабинет партнёра",
-                'Кабинет партнёра Formaro создан',
+                'Кабинет партнёра Reppa создан',
                 self::body(
                     'Кабинет партнёра создан',
                     '<p style="margin:0 0 12px;">#HTML_GREETING#</p>'
-                    . '<p style="margin:0 0 12px;">Кабинет партнёра для #HTML_COMPANY# на маркетплейсе Formaro создан. Вход — по e-mail <strong>#HTML_LOGIN#</strong> и вашему паролю.</p>'
+                    . '<p style="margin:0 0 12px;">Кабинет партнёра для #HTML_COMPANY# на маркетплейсе Reppa создан. Вход — по e-mail <strong>#HTML_LOGIN#</strong> и вашему паролю.</p>'
                     . '<p style="margin:0;">Заполните профиль компании и реквизиты, загрузите документы и отправьте профиль на проверку. Магазин появится на витрине после проверки маркетплейсом — о результате мы сообщим письмом.</p>',
                     '#CABINET_URL#',
                     'Перейти в кабинет партнёра'
                 ),
             ],
             'FORMARO_ORDER_CREATED' => [
-                'Formaro: заказ оформлен (покупателю)',
+                'Reppa: заказ оформлен (покупателю)',
                 "#ORDER_NUMBER# — номер заказа\n#PARTNER# — продавец\n#TOTAL# — сумма заказа\n#ITEMS# — состав заказа (HTML-таблица)\n#DELIVERY# — способ доставки\n#ORDERS_URL# — «Ваши заказы»",
                 'Заказ #ORDER_NUMBER# оформлен',
                 self::body(
@@ -141,7 +141,7 @@ class Version20261008130001 extends Version
                 ),
             ],
             'FORMARO_ORDER_INVOICE' => [
-                'Formaro: выставлен счёт на оплату заказа',
+                'Reppa: выставлен счёт на оплату заказа',
                 "#ORDER_NUMBER# — номер заказа (и счёта)\n#TOTAL# — сумма к оплате\n#DUE_DATE# — счёт действителен до\n#PARTNER# — поставщик\n#ORDERS_URL# — «Ваши заказы»",
                 'Счёт на оплату заказа #ORDER_NUMBER#',
                 self::body(
@@ -155,7 +155,7 @@ class Version20261008130001 extends Version
                 ),
             ],
             'FORMARO_ORDER_INVOICE_EXPIRED' => [
-                'Formaro: счёт на оплату аннулирован (не оплачен в срок)',
+                'Reppa: счёт на оплату аннулирован (не оплачен в срок)',
                 "#ORDER_NUMBER# — номер заказа (и счёта)\n#TOTAL# — сумма счёта\n#PARTNER# — поставщик\n#ORDERS_URL# — «Ваши заказы»",
                 'Счёт № #ORDER_NUMBER# не действителен',
                 self::body(

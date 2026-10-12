@@ -6,6 +6,6 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
 $arComponentDescription = [
     'NAME' => 'Избранные товары',
     'DESCRIPTION' => 'Список избранного с фильтром, сортировкой и подгрузкой',
-    'PATH' => ['ID' => 'formaro', 'NAME' => 'Formaro'],
+    'PATH' => ['ID' => 'formaro', 'NAME' => 'Reppa'],
     'CACHE_PATH' => 'Y',
 ];

@@ -1,5 +1,5 @@
 <div class="app-footer__inner">
-    <span>&copy; <?= date('Y') ?> ООО «Формаро». Все права защищены.</span>
+    <span>&copy; <?= date('Y') ?> Reppa. Все права защищены.</span>
     <nav class="app-footer__links">
         <a href="/about/legal/#terms">Пользовательское соглашение</a>
         <a href="/about/legal/#privacy">Политика конфиденциальности</a>

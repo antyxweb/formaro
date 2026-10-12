@@ -18,7 +18,7 @@ class formaro_cabinet extends CModule
     public $MODULE_VERSION_DATE;
     public $MODULE_NAME;
     public $MODULE_DESCRIPTION;
-    public $PARTNER_NAME = 'Formaro';
+    public $PARTNER_NAME = 'Reppa';
 
     public function __construct()
     {
@@ -26,7 +26,7 @@ class formaro_cabinet extends CModule
         include __DIR__ . '/version.php';
         $this->MODULE_VERSION = $arModuleVersion['VERSION'];
         $this->MODULE_VERSION_DATE = $arModuleVersion['VERSION_DATE'];
-        $this->MODULE_NAME = 'Кабинет партнёра Formaro';
+        $this->MODULE_NAME = 'Кабинет партнёра Reppa';
         $this->MODULE_DESCRIPTION = 'Публичный раздел /cabinet/ — личный кабинет партнёра маркетплейса '
             . '(каталог, новости, профиль); схема данных заводится миграциями модуля sprint.migration '
             . '(local/php_interface/migrations/), этот install только регистрирует модуль и группу/UF-поле партнёра.';

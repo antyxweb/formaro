@@ -134,7 +134,7 @@ if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
                     <div class="line-middle"></div>
                     <div class="line-bottom"></div>
                 </div>
-                <div class="bg-name">formaro</div>
+                <div class="bg-name">Reppa</div>
             </div>
 
             <div class="container-fluid py-5">

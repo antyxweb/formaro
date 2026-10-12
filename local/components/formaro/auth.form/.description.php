@@ -6,5 +6,5 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
 $arComponentDescription = [
     'NAME' => 'Вход и регистрация покупателя',
     'DESCRIPTION' => 'Вход, регистрация, восстановление и смена пароля',
-    'PATH' => ['ID' => 'formaro', 'NAME' => 'Formaro'],
+    'PATH' => ['ID' => 'formaro', 'NAME' => 'Reppa'],
 ];

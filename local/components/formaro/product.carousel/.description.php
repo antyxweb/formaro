@@ -6,6 +6,6 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
 $arComponentDescription = [
     'NAME' => 'Карусель товаров (витрина)',
     'DESCRIPTION' => 'Выгодные предложения / новые поступления из cabinet_catalog',
-    'PATH' => ['ID' => 'formaro', 'NAME' => 'Formaro'],
+    'PATH' => ['ID' => 'formaro', 'NAME' => 'Reppa'],
     'CACHE_PATH' => 'Y',
 ];

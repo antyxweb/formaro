@@ -22,7 +22,7 @@ $siteUrl = htmlspecialcharsbx($siteUrl);
 <meta charset="<?= SITE_CHARSET ?>">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="x-apple-disable-message-reformatting">
-<title>Formaro</title>
+<title>Reppa</title>
 </head>
 <body style="margin:0;padding:0;background:#f1f3f6;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f1f3f6;">
@@ -31,7 +31,7 @@ $siteUrl = htmlspecialcharsbx($siteUrl);
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;background:#ffffff;border-radius:8px;">
 <tr>
 <td style="padding:24px 32px;border-bottom:3px solid #1976d2;">
-<a href="<?= $siteUrl ?>/" target="_blank" style="text-decoration:none;"><img src="<?= $siteUrl ?>/local/templates/mail_formaro/images/logo.png" width="178" height="45" alt="formaro" style="display:block;border:0;width:178px;height:45px;"></a>
+<a href="<?= $siteUrl ?>/" target="_blank" style="text-decoration:none;"><img src="<?= $siteUrl ?>/local/templates/mail_formaro/images/logo.png" width="204" height="45" alt="Reppa" style="display:block;border:0;width:204px;height:45px;"></a>
 </td>
 </tr>
 <tr>

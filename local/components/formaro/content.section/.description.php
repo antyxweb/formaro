@@ -7,5 +7,5 @@ $arComponentDescription = [
     'NAME' => 'Раздел контентных страниц',
     'DESCRIPTION' => 'Комплексный: главная раздела (плитки или страница) и страницы раздела из инфоблока «Контентные страницы»',
     'COMPLEX' => 'Y',
-    'PATH' => ['ID' => 'formaro', 'NAME' => 'Formaro'],
+    'PATH' => ['ID' => 'formaro', 'NAME' => 'Reppa'],
 ];

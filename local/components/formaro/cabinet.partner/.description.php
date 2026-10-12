@@ -5,11 +5,11 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
 }
 
 $arComponentDescription = [
-    'NAME' => 'Кабинет партнёра Formaro',
+    'NAME' => 'Кабинет партнёра Reppa',
     'DESCRIPTION' => 'Публичный раздел /cabinet/ — комплексный компонент личного кабинета партнёра',
     'ICON' => '',
     'PATH' => [
         'ID' => 'formaro',
-        'NAME' => 'Formaro',
+        'NAME' => 'Reppa',
     ],
 ];

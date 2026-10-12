@@ -10,7 +10,7 @@ $link = static function (string $key, string $href, string $icon, string $label,
 ?>
 <div class="sidebar-brand">
     <div class="f-mark"><span></span><span></span><span></span></div>
-    <div class="brand-text">formaro <small>Кабинет партнёра</small></div>
+    <div class="brand-text">Reppa <small>Кабинет партнёра</small></div>
     <button class="sidebar-close-btn" id="sidebarCloseBtn" title="Закрыть меню"><i class="bi bi-x-lg"></i></button>
 </div>
 <nav class="sidebar-nav">

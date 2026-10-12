@@ -60,14 +60,9 @@ if($GLOBALS["APPLICATION"]->GetCurPage(false) == '/'
                     <div class="line-middle"></div>
                     <div class="line-bottom"></div>
                 </div>
-                <a href="/" class="name" id="logo">
-                    <span>f</span>
-                    <span>o</span>
-                    <span>r</span>
-                    <span>m</span>
-                    <span>a</span>
-                    <span>r</span>
-                    <span>o</span>
+                <a href="/" class="name name--tagline" id="logo">
+                    <span class="name__word"><span>R</span><span>e</span><span>p</span><span>p</span><span>a</span></span>
+                    <span class="name__tagline">Ресурс Портала Поставщиков</span>
                 </a>
             </div>
 
