@@ -138,6 +138,7 @@ if ($partnerHasProducts):
         "",
         [
             "MODE" => "NEW",
+            "NEW_ARRIVALS" => "Y",
             "PARTNER_ID" => $partnerId,
             "COUNT" => "12",
             "TITLE_ACCENT" => "Новые",

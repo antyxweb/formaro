@@ -45,6 +45,7 @@ $APPLICATION->SetPageProperty("title", "Интернет-магазин спец
         "",
         [
             "MODE" => "NEW",
+            "NEW_ARRIVALS" => "Y",
             "COUNT" => "12",
             "TITLE_ACCENT" => "Новые",
             "TITLE" => "поступления",

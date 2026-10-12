@@ -45,6 +45,10 @@ class FormaroProductCarouselComponent extends CBitrixComponent
 
     public function executeComponent()
     {
+        if (($this->arParams['NEW_ARRIVALS'] ?? '') === 'Y' && !ProductCarouselService::NEW_ARRIVALS_ENABLED) {
+            return;
+        }
+
         // Скидки действуют по датам — день входит в ключ кэша, чтобы
         // закончившаяся/начавшаяся акция не висела в кэше до его истечения.
         if ($this->startResultCache(false, [date('Y-m-d'), CatalogUrl::root()])) {

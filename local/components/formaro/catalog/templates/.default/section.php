@@ -50,6 +50,7 @@ $partnerId = (int)$arResult['PARTNER_ID'];
     '',
     [
         'MODE' => 'NEW',
+        'NEW_ARRIVALS' => 'Y',
         'COUNT' => '12',
         'PARTNER_ID' => $partnerId,
         'SECTION_ID' => $sectionId,

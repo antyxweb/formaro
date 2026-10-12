@@ -68,6 +68,7 @@ $GLOBALS['catalogCountFilter'] = $partnerId ? ['PROPERTY_PARTNER_ID' => $partner
     '',
     [
         'MODE' => 'NEW',
+        'NEW_ARRIVALS' => 'Y',
         'COUNT' => '12',
         'PARTNER_ID' => $partnerId,
         'TITLE_ACCENT' => 'Новые',

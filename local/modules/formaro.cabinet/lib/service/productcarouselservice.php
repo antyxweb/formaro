@@ -31,6 +31,14 @@ class ProductCarouselService
     public const MODE_NEW = 'NEW';
     public const MODE_VIEWED = 'VIEWED';
 
+    /**
+     * Блок «Новые поступления» (вызовы карусели с NEW_ARRIVALS=Y: главная,
+     * корень каталога, категория, страница партнёра). Пока скрыт по просьбе
+     * клиента — вернуть: true. «Товары продавца»/«Похожие товары» (тоже
+     * MODE=NEW) не затрагивает.
+     */
+    public const NEW_ARRIVALS_ENABLED = false;
+
     private const MAX_DISCOUNT_CANDIDATES = 300;
 
     public static function normalizeMode($mode): string
