@@ -11,6 +11,8 @@ var importRunning = false;
 $(function () {
     $('[data-src]').on('shown.bs.tab', function () { importSource = $(this).data('src'); });
     $('#parseBtn').on('click', parseFile);
+    $('#importUrl').on('keydown', function (e) { if (e.key === 'Enter') parseFile(); });
+    $('#importFile').on('change', function () { if (this.files.length) parseFile(); });
     $('#cancelBtn, #againBtn').on('click', resetImport);
     $('#runBtn').on('click', startImport);
     $('#stopBtn').on('click', function () { importStopped = true; $(this).prop('disabled', true).text('Останавливаем…'); });
@@ -33,9 +35,13 @@ function parseFile() {
         fd.append('url', url);
     }
 
-    var $btn = $('#parseBtn').prop('disabled', true);
-    var label = $btn.html();
-    $btn.html('<span class="spinner-border spinner-border-sm"></span> Читаем файл…');
+    // У файла кнопка — <label> с input внутри: меняем только текст, input не трогаем.
+    var $btn = importSource === 'file' ? $('#importFileBtn') : $('#parseBtn');
+    var $text = $btn.contents().filter(function () { return this.nodeType === 3 && this.nodeValue.trim(); }).first();
+    var label = $text.length ? $text[0].nodeValue : '';
+    var $svg = $btn.children('svg').addClass('d-none');
+    $btn.addClass('disabled').prop('disabled', true).prepend('<span class="spinner-border spinner-border-sm import-spinner"></span>');
+    if ($text.length) $text[0].nodeValue = ' Читаем файл…';
 
     $.when(
         $.ajax({url: CABINET_URL, method: 'POST', data: fd, processData: false, contentType: false, dataType: 'json'}),
@@ -48,7 +54,10 @@ function parseFile() {
     }, function (xhr) {
         if (xhr && xhr.status !== undefined) showResult(false, 'Не удалось загрузить файл' + (xhr.status ? ' (код ' + xhr.status + ')' : ''));
     }).always(function () {
-        $btn.prop('disabled', false).html(label);
+        $btn.removeClass('disabled').prop('disabled', false).find('.import-spinner').remove();
+        $svg.removeClass('d-none');
+        if ($text.length) $text[0].nodeValue = label;
+        $('#importFile').val('');
     });
 }
 

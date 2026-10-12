@@ -8,15 +8,22 @@ require __DIR__ . '/inc/layout_app_top.php';
     <div class="card-header">1. Файл с товарами</div>
     <div class="card-body">
         <ul class="nav nav-pills mb-3" role="tablist">
-            <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#srcFile" type="button" data-src="file">Загрузить файл</button></li>
+            <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#srcFile" type="button" data-src="file">Файл</button></li>
             <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#srcUrl" type="button" data-src="url">Ссылка на фид</button></li>
         </ul>
         <div class="tab-content mb-3">
             <div class="tab-pane fade show active" id="srcFile">
-                <input type="file" class="form-control" id="importFile" accept=".xml,.yml,.csv,.txt">
+                <?php // Как «Загрузить файлы» в «Документах» профиля: кнопка-label со скрытым input, выбор файла сразу запускает проверку. ?>
+                <label class="btn btn-outline-primary mb-0" id="importFileBtn">
+                    <svg class="ic-inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"></path><path d="m17 8-5-5-5 5"></path><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path></svg> Загрузить файл
+                    <input type="file" id="importFile" class="d-none" accept=".xml,.yml,.csv,.txt">
+                </label>
             </div>
             <div class="tab-pane fade" id="srcUrl">
-                <input type="url" class="form-control" id="importUrl" placeholder="https://example.ru/yandex-market.xml">
+                <div class="input-group" style="max-width:640px;">
+                    <input type="url" class="form-control" id="importUrl" placeholder="https://example.ru/yandex-market.xml">
+                    <button class="btn btn-outline-primary" id="parseBtn"><svg class="ic-inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"></path><path d="m17 8-5-5-5 5"></path><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path></svg> Загрузить</button>
+                </div>
             </div>
         </div>
         <div class="small text-muted-2 mb-3">
@@ -28,7 +35,6 @@ require __DIR__ . '/inc/layout_app_top.php';
             остальные колонки станут характеристиками товара. <a href="#" id="csvTemplateBtn">Скачать шаблон CSV</a>.<br>
             Товары сопоставляются с уже добавленными по артикулу: найденные обновятся, остальные будут созданы. До 10 000 товаров, файл до 50 МБ.
         </div>
-        <button class="btn btn-primary" id="parseBtn"><svg class="ic-inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"></path><path d="m17 8-5-5-5 5"></path><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path></svg> Загрузить и проверить</button>
     </div>
 </div>
 
