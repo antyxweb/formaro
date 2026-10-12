@@ -33,14 +33,21 @@
 }
 
 /* Заголовок над поиском: мельче обычного h2, в жёлтой рамке в цвет кнопки
-   «Начать продавать» (.f-button.c-warning). */
+   «Начать продавать» (.f-button.c-warning). Рамка тянется до кнопки. */
 #hero-search .hero-search-title {
-    display: inline-block;
+    display: block;
     margin-right: 1rem;
     padding: .55rem 1.1rem;
     border: 2px solid #ffc107;
     font-size: 1.375rem;
     line-height: 1.3;
+}
+@media (min-width: 768px) {
+    #hero-search .hero-search-title {
+        flex: 1 1 auto;
+        padding-top: .6rem;
+        padding-bottom: .6rem;
+    }
 }
 @media (max-width: 575.98px) {
     #hero-search .hero-search-title {
