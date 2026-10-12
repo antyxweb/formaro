@@ -505,3 +505,20 @@
 #header.bg-menu-active .header .logo .name--tagline .name__tagline:hover {
     color: rgba(255, 255, 255, .85);
 }
+
+/* Карточка товара в списках: название обычным начертанием, цена ближе
+   к названию и к кнопке «В корзину» (артикул и остаток из карточки убраны,
+   include/product_card.php, js/catalog-common.js). */
+.product-card .product-card__info {
+    padding-bottom: 10px;
+}
+.product-card .product-card__info h3 {
+    font-weight: 400;
+    margin-bottom: 4px;
+}
+.product-card .product-card__info .price {
+    margin-bottom: 0 !important;
+}
+.product-card .product-card__info .text-secondary {
+    margin-top: 4px;
+}
