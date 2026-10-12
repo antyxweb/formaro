@@ -159,7 +159,7 @@
                         '<button type="button" class="button-icon js-cart-delete" title="Удалить выбранные"><svg width="16" height="16"><use xlink:href="#icon-delete"></use></svg></button>' +
                     '</div>' +
                 '</div>' +
-                // Минимальный заказ у поставщика — только предупреждение (updateGroupActions).
+                // Минимальный заказ у поставщика не набран — оформить нельзя (updateGroupActions).
                 '<div class="alert alert-warning small py-2 mb-3 d-none js-cart-min-order" role="status"></div>' +
                 '<div class="cart-grid row product-list d-flex flex-wrap">' +
                     group.items.map(itemHtml).join('') +
@@ -207,13 +207,29 @@
         el.total.textContent = fmt(total);
         el.discount.textContent = '-' + fmt(sum - total - couponDiscount);
         el.discountWrap.classList.toggle('d-none', sum - total - couponDiscount <= 0);
-        el.checkout.disabled = n === 0;
-        el.checkout.classList.toggle('c-gray', n === 0);
-        el.checkout.classList.toggle('text-secondary', n === 0); // как «Удалить» в карточке
-        el.checkout.classList.toggle('c-success', n > 0);
-        el.checkout.textContent = n ? 'Оформить заказ' : 'Выберите товары';
-        if (!n) el.checkoutNote.classList.add('d-none');
+        var short = groups.some(belowMinOrder);
+        var blocked = n === 0 || short;
+        el.checkout.disabled = blocked;
+        el.checkout.classList.toggle('c-gray', blocked);
+        el.checkout.classList.toggle('text-secondary', blocked); // как «Удалить» в карточке
+        el.checkout.classList.toggle('c-success', !blocked);
+        el.checkout.textContent = !n ? 'Выберите товары' : (short ? 'Не набран минимальный заказ' : 'Оформить заказ');
+        if (blocked) el.checkoutNote.classList.add('d-none');
         updateGroupActions();
+    }
+
+    /** Сумма отмеченных товаров поставщика (цены покупателя до промокода). */
+    function selectedSum(group) {
+        return group.items.filter(function (item) { return !unchecked[item.id]; })
+            .reduce(function (s, item) { return s + item.sum; }, 0);
+    }
+
+    /** У поставщика что-то отмечено, но на сумму меньше минимального
+     *  заказа — оформить нельзя (сервер проверяет то же самое). */
+    function belowMinOrder(group) {
+        var min = Number(group.min_order) || 0;
+        var any = group.items.some(function (item) { return !unchecked[item.id]; });
+        return any && min > 0 && selectedSum(group) < min;
     }
 
     /** «Удалить выбранные» у группы — только если в ней что-то отмечено. */
@@ -226,15 +242,14 @@
             var any = group.items.some(function (item) { return !unchecked[item.id]; });
             button.classList.toggle('d-none', !any);
 
-            // Сумма выбранных товаров поставщика меньше минимального заказа — предупреждение (оформить можно).
+            // Сумма выбранных товаров поставщика меньше минимального заказа — оформить нельзя.
             var note = box.querySelector('.js-cart-min-order');
-            var sum = group.items.filter(function (item) { return !unchecked[item.id]; })
-                .reduce(function (s, item) { return s + item.sum; }, 0);
-            var min = Number(group.min_order) || 0;
-            var short = any && min > 0 && sum < min;
+            var short = belowMinOrder(group);
             note.classList.toggle('d-none', !short);
             if (short) {
-                note.textContent = 'Минимальный заказ у поставщика — ' + fmt(min) + ' руб. Добавьте товаров ещё на ' + fmt(min - sum) + ' руб.';
+                var min = Number(group.min_order) || 0;
+                note.textContent = 'Минимальный заказ у поставщика — ' + fmt(min) + ' руб. Добавьте товаров ещё на ' +
+                    fmt(min - selectedSum(group)) + ' руб., чтобы оформить заказ, или снимите отметку с его товаров.';
             }
         });
     }

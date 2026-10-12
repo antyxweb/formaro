@@ -113,7 +113,7 @@ class CartCheckoutService
             $result[] = [
                 'partner' => $partners[$partnerId] ?? ['id' => $partnerId, 'name' => 'Другие продавцы', 'url' => ''],
                 'items' => $groupItems,
-                // Минимальный заказ у поставщика — только предупреждение (MarkupService).
+                // Минимальный заказ у поставщика (MarkupService) — меньше оформить нельзя (checkout()).
                 'min_order' => MarkupService::minOrder(),
             ];
         }
@@ -205,6 +205,19 @@ class CartCheckoutService
         }
 
         $calc = self::calculate($items, $codes);
+        // Минимальный заказ — по каждому поставщику, по ценам покупателя до
+        // промокода (как в корзине, script.js belowMinOrder()).
+        foreach ($calc['groups'] as $group) {
+            $sum = array_sum(array_column($group['items'], 'sum'));
+            if ($group['min_order'] > 0 && $sum < $group['min_order']) {
+                throw new \RuntimeException(sprintf(
+                    'Минимальный заказ у поставщика «%s» — %s руб. Добавьте товаров ещё на %s руб.',
+                    $group['partner']['name'],
+                    number_format($group['min_order'], 0, ',', ' '),
+                    number_format(ceil($group['min_order'] - $sum), 0, ',', ' ')
+                ));
+            }
+        }
         // По одному действующему купону на поставщика (последний введённый).
         $couponByPartner = [];
         foreach ($calc['coupons'] as $coupon) {
