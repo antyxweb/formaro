@@ -4660,7 +4660,12 @@ $(function () {
     });
 
     $('body').on('click', '.header__action-link-search', function (e) {
-        $('#header-search').closest('.header__search').toggleClass('header-search-visible');
+        var $search = $('#header-search').closest('.header__search').toggleClass('header-search-visible');
+        // Курсор сразу в строку. Панель становится видимой с задержкой
+        // перехода .header__search (0.3s) — до этого фокус не ставится.
+        if ($search.hasClass('header-search-visible')) {
+            setTimeout(function () { $('#header-search').trigger('focus'); }, 350);
+        }
     });
 
     // Поиск по категориям (блок "Каталог товаров"): без учёта регистра и

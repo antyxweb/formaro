@@ -383,6 +383,25 @@
         min-width: 460px;
     }
 }
+/* На широком экране поиск в шапке — как в мобильной версии: в строке
+   только иконка (.header__action-link-search), по клику строка поиска
+   выезжает панелью под шапкой (js/scripts.js — .header-search-visible).
+   Правила повторяют мобильные из styles.min.css (max-width: 991.98px). */
+@media (min-width: 992px) {
+    #header .header .header__search {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        opacity: 0;
+        visibility: hidden;
+        border-bottom: 1px solid #e1e1e1;
+    }
+    #header .header .header__search.header-search-visible {
+        background: #fff;
+        opacity: 1;
+        visibility: visible;
+    }
+}
 .header-search__group + .header-search__group {
     margin-top: 1rem;
 }
