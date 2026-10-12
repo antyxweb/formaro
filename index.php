@@ -195,7 +195,7 @@ $APPLICATION->SetPageProperty("title", "Интернет-магазин спец
         "PAGER_SHOW_ALL" => "N",	// Показывать ссылку "Все"
         "PAGER_SHOW_ALWAYS" => "N",	// Выводить всегда
         "PAGER_TEMPLATE" => ".default",	// Шаблон постраничной навигации
-        "PAGER_TITLE" => "Новые партнеры",	// Название категорий
+        "PAGER_TITLE" => "Наши партнёры",	// Название категорий
         "PARENT_SECTION" => "",	// ID раздела
         "PARENT_SECTION_CODE" => "",	// Код раздела
         "PREVIEW_TRUNCATE_LEN" => "",	// Максимальная длина анонса для вывода (только для типа текст)
