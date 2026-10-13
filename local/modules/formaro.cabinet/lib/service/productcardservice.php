@@ -39,6 +39,7 @@ class ProductCardService
             'PRICE' => $display['price'],
             'OLD_PRICE' => $display['old_price'],
             'BADGES' => $display['badges'],
+            'VARIANT_GROUP_ID' => (int)($p['variant_group_id'] ?? 0),
         ];
     }
 }

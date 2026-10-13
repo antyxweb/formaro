@@ -37,6 +37,8 @@ final class TopicDigestService
     private const MAX_PERIOD_DAYS = 14;
     /** Товаров в блоке «Новинки» / «Скидки» одной темы. */
     private const LIMIT = 4;
+    /** Сколько новинок выбирать, чтобы после склейки вариантов хватило на LIMIT. */
+    private const CANDIDATES = 200;
 
     /** Агент Bitrix: возвращает себя — запускается снова. */
     public static function agent(): string
@@ -169,15 +171,16 @@ final class TopicDigestService
     {
         $scope = ['SECTION_ID' => $sectionId, 'INCLUDE_SUBSECTIONS' => 'Y'];
 
+        // С запасом: варианты одной группы склеиваются в одну строку.
         $products = (new ProductRepository())->findPublic(
             $scope + ['>=DATE_CREATE' => $since->toString()],
             ['DATE_CREATE' => 'DESC', 'ID' => 'DESC'],
-            self::LIMIT
+            self::CANDIDATES
         );
-        $new = array_map(
+        $new = self::collapse(array_map(
             static fn(array $p) => ProductCardService::toItem($p, ProductPricingService::computeDisplay($p, $active)),
             $products
-        );
+        ));
 
         $fresh = array_values(array_filter($active, static function (array $d) use ($since): bool {
             $started = max(
@@ -187,12 +190,13 @@ final class TopicDigestService
 
             return $started >= $since->getTimestamp();
         }));
-        $newIds = array_column($new, 'ID');
+        // Товар (или его группа) уже в «Новинках» — в «Скидках» не повторяем.
+        $shown = array_flip(array_map([self::class, 'groupKey'], $new));
         $discounted = $fresh
-            ? array_slice(array_values(array_filter(
+            ? self::collapse(array_values(array_filter(
                 ProductCarouselService::loadDiscounted($active, $scope, $fresh),
-                static fn(array $item) => !in_array($item['ID'], $newIds, true)
-            )), 0, self::LIMIT)
+                static fn(array $item) => !isset($shown[self::groupKey($item)])
+            )))
             : [];
 
         if (!$new && !$discounted) {
@@ -210,6 +214,33 @@ final class TopicDigestService
         $html .= '<p style="margin:12px 0 0;"><a href="' . $e($topic['url']) . '" target="_blank" style="color:#1976d2;">Все товары раздела →</a></p>';
 
         return $html;
+    }
+
+    /**
+     * Варианты одной группы (VARIANT_GROUP_ID — цвета и размеры одной модели)
+     * — одна строка: первый по порядку списка, VARIANTS — сколько всего
+     * вариантов группы попало в список. Не больше LIMIT строк.
+     */
+    private static function collapse(array $items): array
+    {
+        $rows = [];
+        foreach ($items as $item) {
+            $key = self::groupKey($item);
+            if (isset($rows[$key])) {
+                $rows[$key]['VARIANTS']++;
+                continue;
+            }
+            if (count($rows) < self::LIMIT) {
+                $rows[$key] = $item + ['VARIANTS' => 1];
+            }
+        }
+
+        return array_values($rows);
+    }
+
+    private static function groupKey(array $item): string
+    {
+        return $item['VARIANT_GROUP_ID'] ? 'g' . $item['VARIANT_GROUP_ID'] : 'p' . $item['ID'];
     }
 
     /** Список товаров: картинка, название, цена (старая — зачёркнута). */
@@ -231,9 +262,21 @@ final class TopicDigestService
                 . '<td valign="top" style="padding:0 0 12px;">'
                 . '<a href="' . $url . '" target="_blank" style="color:#111111;text-decoration:none;">' . $e($item['NAME']) . '</a>'
                 . '<div style="margin-top:4px;">' . $price . '</div>'
+                . ($item['VARIANTS'] > 1 ? '<div style="margin-top:2px;font-size:13px;color:#6b7280;">' . $e(self::variantsLabel($item['VARIANTS'])) . '</div>' : '')
                 . '</td></tr>';
         }
 
         return $html . '</table>';
+    }
+
+    /** «3 варианта», «5 вариантов» — цвета и размеры одной модели. */
+    private static function variantsLabel(int $n): string
+    {
+        $mod10 = $n % 10;
+        $mod100 = $n % 100;
+        $word = $mod10 === 1 && $mod100 !== 11 ? 'вариант'
+            : ($mod10 >= 2 && $mod10 <= 4 && ($mod100 < 12 || $mod100 > 14) ? 'варианта' : 'вариантов');
+
+        return $n . ' ' . $word . ' цвета и размера';
     }
 }
