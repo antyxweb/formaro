@@ -263,6 +263,10 @@
 .text-page .guide-shot--phone {
     max-width: 280px;
 }
+/* Письмо — шириной с почтовую программу. */
+.text-page .guide-shot--mail {
+    max-width: 440px;
+}
 .text-page code {
     padding: .1rem .3rem;
     background: #ffffff;
