@@ -18,9 +18,10 @@ use Formaro\Cabinet\Repository\ProductRepository;
  *   новинки — товары темы, добавленные с прошлого дайджеста;
  *   скидки  — товары темы под акциями, которые начались с прошлого дайджеста
  *             (действующие давно каждую неделю не повторяем).
- * Подписчик «все темы» получает все темы, у которых есть что показать.
- * Каждый адрес — одно письмо со всеми своими темами; нечего показать — не
- * пишем. Подписки на партнёров и в подвале сюда не входят (им —
+ * Каждый адрес — одно письмо со всеми своими темами: до MAX_TOPICS тем —
+ * блоками по темам, больше или «все темы» — общим списком без разбивки
+ * (FLAT_LIMIT строк), чтобы письмо не растягивалось. Варианты одной модели
+ * — одна строка. Нечего показать — не пишем. Подписки на партнёров и в подвале сюда не входят (им —
  * NewsMailingService).
  *
  * Агент раз в неделю, по понедельникам в 10:00 (миграция Version20261013170001).
@@ -31,13 +32,16 @@ final class TopicDigestService
     private const OPTION = 'topic_digest_sent_at';
     private const MODULE = 'formaro.cabinet';
     private const HLBLOCK = 'FormaroSubscriptions';
-    private const CATALOG_IBLOCK = 'cabinet_catalog';
     private const PERIOD_DAYS = 7;
     /** Если агент долго не запускался — не тащим в письмо больше двух недель. */
     private const MAX_PERIOD_DAYS = 14;
-    /** Товаров в блоке «Новинки» / «Скидки» одной темы. */
+    /** Строк в «Новинках» / «Скидках» одной темы. */
     private const LIMIT = 4;
-    /** Сколько новинок выбирать, чтобы после склейки вариантов хватило на LIMIT. */
+    /** Больше тем с новым — письмо одним списком без разбивки по темам. */
+    private const MAX_TOPICS = 3;
+    /** Строк в «Новинках» / «Скидках» общего списка. */
+    private const FLAT_LIMIT = 8;
+    /** Сколько новинок выбирать, чтобы после склейки вариантов хватило строк. */
     private const CANDIDATES = 200;
 
     /** Агент Bitrix: возвращает себя — запускается снова. */
@@ -81,7 +85,7 @@ final class TopicDigestService
         $active = (new DiscountRepository())->listActive();
         $blocks = [];
         foreach ($topics as $id => $topic) {
-            $html = self::topicHtml($id, $topic, $since, $active);
+            $html = self::blockHtml([$id], $since, $active, self::LIMIT, $topic);
             if ($html !== '') {
                 $blocks[$id] = $html;
             }
@@ -91,16 +95,24 @@ final class TopicDigestService
         }
 
         $count = 0;
+        $flat = [];
         foreach ($subscribers as $email => $topicIds) {
             $ids = isset($topicIds[0]) ? array_keys($blocks) : array_keys(array_intersect_key($blocks, $topicIds));
             if (!$ids) {
                 continue;
             }
+            if (count($ids) > self::MAX_TOPICS) {
+                // Общий список по темам подписчика — один на одинаковый набор тем.
+                $key = implode(',', $ids);
+                $items = $flat[$key] ??= self::blockHtml($ids, $since, $active, self::FLAT_LIMIT);
+            } else {
+                $items = implode("\n", array_map(static fn(int $id) => $blocks[$id], $ids));
+            }
             $count += (int)Mailer::send(self::EVENT, $email, [
                 'SUBJECT' => count($ids) === 1
                     ? 'Новинки и скидки недели: ' . $topics[$ids[0]]['name']
                     : 'Новинки и скидки недели в Reppa',
-                'ITEMS' => implode("\n", array_map(static fn(int $id) => $blocks[$id], $ids)),
+                'ITEMS' => $items,
                 'CATALOG_URL' => Mailer::url('/catalog/'),
                 'UNSUBSCRIBE_URL' => MailingService::manageUrl($email),
             ]);
@@ -166,10 +178,14 @@ final class TopicDigestService
         return $topics;
     }
 
-    /** Блок темы в письме; '' — за период в теме ничего нового. */
-    private static function topicHtml(int $sectionId, array $topic, DateTime $since, array $active): string
+    /**
+     * Новинки и скидки разделов $sectionIds; $topic — блок одной темы (с
+     * заголовком и ссылкой на раздел), без него — общий список.
+     * '' — за период ничего нового.
+     */
+    private static function blockHtml(array $sectionIds, DateTime $since, array $active, int $limit, ?array $topic = null): string
     {
-        $scope = ['SECTION_ID' => $sectionId, 'INCLUDE_SUBSECTIONS' => 'Y'];
+        $scope = ['SECTION_ID' => $sectionIds, 'INCLUDE_SUBSECTIONS' => 'Y'];
 
         // С запасом: варианты одной группы склеиваются в одну строку.
         $products = (new ProductRepository())->findPublic(
@@ -180,7 +196,7 @@ final class TopicDigestService
         $new = self::collapse(array_map(
             static fn(array $p) => ProductCardService::toItem($p, ProductPricingService::computeDisplay($p, $active)),
             $products
-        ));
+        ), $limit);
 
         $fresh = array_values(array_filter($active, static function (array $d) use ($since): bool {
             $started = max(
@@ -196,7 +212,7 @@ final class TopicDigestService
             ? self::collapse(array_values(array_filter(
                 ProductCarouselService::loadDiscounted($active, $scope, $fresh),
                 static fn(array $item) => !isset($shown[self::groupKey($item)])
-            )))
+            )), $limit)
             : [];
 
         if (!$new && !$discounted) {
@@ -204,14 +220,18 @@ final class TopicDigestService
         }
 
         $e = static fn($s) => htmlspecialcharsbx((string)$s);
-        $html = '<h2 style="margin:28px 0 4px;font-size:20px;line-height:26px;font-weight:bold;color:#111111;">' . $e($topic['name']) . '</h2>';
+        $html = $topic
+            ? '<h2 style="margin:28px 0 4px;font-size:20px;line-height:26px;font-weight:bold;color:#111111;">' . $e($topic['name']) . '</h2>'
+            : '<div style="height:12px;"></div>';
         if ($new) {
             $html .= self::listHtml('Новинки', $new);
         }
         if ($discounted) {
             $html .= self::listHtml('Скидки', $discounted);
         }
-        $html .= '<p style="margin:12px 0 0;"><a href="' . $e($topic['url']) . '" target="_blank" style="color:#1976d2;">Все товары раздела →</a></p>';
+        if ($topic) {
+            $html .= '<p style="margin:12px 0 0;"><a href="' . $e($topic['url']) . '" target="_blank" style="color:#1976d2;">Все товары раздела →</a></p>';
+        }
 
         return $html;
     }
@@ -219,9 +239,9 @@ final class TopicDigestService
     /**
      * Варианты одной группы (VARIANT_GROUP_ID — цвета и размеры одной модели)
      * — одна строка: первый по порядку списка, VARIANTS — сколько всего
-     * вариантов группы попало в список. Не больше LIMIT строк.
+     * вариантов группы попало в список. Не больше $limit строк.
      */
-    private static function collapse(array $items): array
+    private static function collapse(array $items, int $limit): array
     {
         $rows = [];
         foreach ($items as $item) {
@@ -230,7 +250,7 @@ final class TopicDigestService
                 $rows[$key]['VARIANTS']++;
                 continue;
             }
-            if (count($rows) < self::LIMIT) {
+            if (count($rows) < $limit) {
                 $rows[$key] = $item + ['VARIANTS' => 1];
             }
         }
