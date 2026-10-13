@@ -122,14 +122,19 @@ class ProductCarouselService
         );
     }
 
-    /** Все товары со скидкой, отсортированные — страницу режет load(). */
-    private static function loadDiscounted(array $activeDiscounts, array $scopeFilter): array
+    /**
+     * Все товары со скидкой, отсортированные — страницу режет load().
+     * $targetDiscounts — брать только товары этих скидок (дайджест по теме —
+     * TopicDigestService: только новые акции); цену всё равно считаем по всем
+     * действующим.
+     */
+    public static function loadDiscounted(array $activeDiscounts, array $scopeFilter, ?array $targetDiscounts = null): array
     {
         // Сужаем выборку до товаров, которых касается хоть одна активная
         // скидка (по её таргету); окончательно применимость (min_qty,
         // min_amount, партнёр) проверяет ProductPricingService.
         $or = ['LOGIC' => 'OR'];
-        foreach ($activeDiscounts as $d) {
+        foreach ($targetDiscounts ?? $activeDiscounts as $d) {
             $ids = array_values(array_filter(array_map('intval', $d['target_ids'])));
             switch ($d['target_type']) {
                 case 'all':
