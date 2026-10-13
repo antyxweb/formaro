@@ -43,7 +43,7 @@ $this->setFrameMode(true);
                     <?if($arResult['PARTNER_ID']):?>
                         <input type="hidden" name="partner" value="<?=(int)$arResult['PARTNER_ID']?>">
                     <?else:?>
-                    <div class="form-group">
+                    <div class="form-group js-subscribe-only">
                         <label for="subscribe-news-topic">Какая тема вас интересует</label>
                         <select class="custom-select form-control-lg mr-sm-2" name="topic" id="subscribe-news-topic">
                             <option value="0">Все темы</option>
@@ -57,11 +57,15 @@ $this->setFrameMode(true);
                         <label for="subscribe-news-website">Сайт</label>
                         <input type="text" name="website" id="subscribe-news-website" tabindex="-1" autocomplete="off">
                     </div>
-                    <div class="form-group form-check mb-4">
+                    <div class="form-group form-check mb-4 js-subscribe-only">
                         <input type="checkbox" name="consent" value="1" class="form-check-input" id="subscribe-news-consent" required>
                         <label class="form-check-label" for="subscribe-news-consent">Я согласен с <a href="/support/policy/" target="_blank">политикой обработки персональных данных</a></label>
                     </div>
-                    <button type="submit" class="f-button c-primary js-subscribe-submit">Подписаться</button>
+                    <div class="d-flex flex-wrap align-items-center">
+                        <button type="submit" class="f-button c-primary js-subscribe-submit" data-unsubscribe-text="Отписаться">Подписаться</button>
+                        <?/* Отписка — на странице партнёра от его обновлений, иначе от общих подписок этой формы (js/subscribe.js). */?>
+                        <button type="button" class="subscribe-mode-toggle js-subscribe-mode" data-unsubscribe-text="Вернуться к подписке">Отписаться от рассылки</button>
+                    </div>
                     <div class="subscribe-status mt-3 js-subscribe-status" role="status"></div>
                 </form>
             </div>

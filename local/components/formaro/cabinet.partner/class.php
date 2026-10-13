@@ -25,9 +25,11 @@ use Formaro\Cabinet\Repository\UserProfileRepository;
 use Formaro\Cabinet\Security\PartnerContext;
 use Formaro\Cabinet\Service\BuyerLookupService;
 use Formaro\Cabinet\Service\BuyerNotificationService;
+use Formaro\Cabinet\Service\MailingService;
 use Formaro\Cabinet\Service\OrderInvoiceFlowService;
 use Formaro\Cabinet\Service\OrderRepeatService;
 use Formaro\Cabinet\Service\PayoutService;
+use Formaro\Cabinet\Service\SubscriptionService;
 
 /**
  * Комплексный компонент кабинета партнёра — один компонент, один физический
@@ -239,6 +241,10 @@ class CabinetPartnerComponent extends CBitrixComponent
                 'mark_all_notifications_read' => (new NotificationRepository())->markAllRead($partnerId),
                 'mark_notifications_read' => (new NotificationRepository())->markReadMany($partnerId, (array)($_REQUEST['ids'] ?? [])),
                 'delete_notifications' => (new NotificationRepository())->deleteMany($partnerId, (array)($_REQUEST['ids'] ?? [])),
+                // Вкладка «Рассылки» в уведомлениях — письма на e-mail текущего пользователя.
+                'save_mailing' => $this->ajaxMailing(static fn(string $email) => MailingService::setChannels($email, 'partner', (array)($_REQUEST['channels'] ?? []))),
+                'unsubscribe_newsletter' => $this->ajaxMailing(static fn(string $email) => SubscriptionService::unsubscribe($email, (int)($_REQUEST['id'] ?? 0))),
+                'unsubscribe_all_mailing' => $this->ajaxMailing(static fn(string $email) => MailingService::unsubscribeAll($email)),
                 'save_user_profile' => $this->ajaxSaveUserProfile(),
                 // «Повторить заказ» (выполненный/отменённый) — новый заказ с теми же товарами.
                 'repeat_order_check' => OrderRepeatService::checkForPartner($partnerId, (int)($_REQUEST['id'] ?? 0)),
@@ -292,11 +298,31 @@ class CabinetPartnerComponent extends CBitrixComponent
             'marketplace_contacts' => (new TicketRepository())->getMarketplaceContacts(),
             'chat' => (new ChatRepository())->listOwn($partnerId),
             'notifications' => (new NotificationRepository())->listOwn($partnerId),
+            'mailing' => $this->ajaxMailing(),
             'partner' => (new PartnerRepository())->get($partnerId),
             'partner_documents' => (new PartnerDocumentRepository())->listByPartner($partnerId),
             'product_colors' => (new ProductColorRepository())->listAll(),
             default => [],
         };
+    }
+
+    /**
+     * «Рассылки» (MailingService) для e-mail текущего пользователя кабинета:
+     * $change — что сделать с настройками; ответ — состояние для вкладки
+     * (уведомления кабинета партнёра и подписки на новости).
+     */
+    private function ajaxMailing(?callable $change = null): array
+    {
+        global $USER;
+        $email = MailingService::normalize((string)$USER->GetEmail());
+        if ($email === '') {
+            throw new \RuntimeException('У пользователя не указан e-mail — заполните его во вкладке «Авторизация» профиля');
+        }
+        if ($change) {
+            $change($email);
+        }
+
+        return MailingService::state($email, ['partner']);
     }
 
     /** @return array [{name, type, data}] — общий разбор для create_ticket/reply_ticket/send_chat_message */

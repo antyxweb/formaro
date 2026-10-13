@@ -6,6 +6,7 @@ use Bitrix\Main\Loader;
 use Bitrix\Main\Type\DateTime;
 use CIBlock;
 use CIBlockSection;
+use Formaro\Cabinet\Mail\Mailer;
 use Formaro\Cabinet\Repository\HlblockEntityFactory;
 
 /**
@@ -17,6 +18,9 @@ use Formaro\Cabinet\Repository\HlblockEntityFactory;
  *   footer — «Будь всегда в форме!» в подвале (только e-mail).
  * Рассылки пока нет — подписки копятся в HL-блоке. Повторная подписка того
  * же e-mail на ту же тему в той же форме новую запись не создаёт.
+ * Отписка — «Управление рассылками» (MailingService, /subscriptions/,
+ * блок в профиле и вкладка в кабинете партнёра) и кнопка «Отписаться» в
+ * форме «Будьте в курсе» (unsubscribeFromForm()).
  */
 class SubscriptionService
 {
@@ -144,5 +148,145 @@ class SubscriptionService
         }
 
         return true;
+    }
+
+    /**
+     * Подписки адреса для «Управления рассылками».
+     *
+     * @return array<array{id: int, title: string, created: string}>
+     */
+    public static function listFor(string $email): array
+    {
+        $email = mb_strtolower(trim($email));
+        if ($email === '') {
+            return [];
+        }
+        $dataClass = HlblockEntityFactory::getDataClass(self::HLBLOCK);
+        $rows = $dataClass::getList([
+            'select' => ['ID', 'UF_FORM', 'UF_TOPIC_ID', 'UF_TOPIC_NAME', 'UF_PARTNER_ID', 'UF_CREATED_AT'],
+            'filter' => ['=UF_EMAIL' => $email],
+            'order' => ['ID' => 'ASC'],
+        ]);
+        $list = [];
+        while ($row = $rows->fetch()) {
+            $list[] = [
+                'id' => (int)$row['ID'],
+                'title' => self::title($row),
+                'created' => $row['UF_CREATED_AT'] instanceof DateTime ? $row['UF_CREATED_AT']->format('d.m.Y') : '',
+            ];
+        }
+
+        return $list;
+    }
+
+    /** Отписка от одной подписки адреса; false — такой подписки нет. */
+    public static function unsubscribe(string $email, int $id): bool
+    {
+        $dataClass = HlblockEntityFactory::getDataClass(self::HLBLOCK);
+        $row = $dataClass::getList([
+            'select' => ['ID'],
+            'filter' => ['=ID' => $id, '=UF_EMAIL' => mb_strtolower(trim($email))],
+            'limit' => 1,
+        ])->fetch();
+        if (!$row) {
+            return false;
+        }
+
+        return $dataClass::delete($row['ID'])->isSuccess();
+    }
+
+    /** @return int сколько подписок удалено */
+    public static function unsubscribeAll(string $email): int
+    {
+        $count = 0;
+        foreach (self::listFor($email) as $item) {
+            $count += (int)self::unsubscribe($email, $item['id']);
+        }
+
+        return $count;
+    }
+
+    /**
+     * «Отписаться» в форме «Будьте в курсе»: на странице партнёра — от его
+     * обновлений, на общих страницах — от общих подписок этой формы (все
+     * темы). Вошедшего с этим же e-mail отписываем сразу. Иначе шлём на
+     * адрес ссылку на «Управление рассылками», чтобы нельзя было отписать
+     * чужой адрес. Ответ не выдаёт, подписан ли адрес.
+     *
+     * @return string сообщение для пользователя
+     * @throws \RuntimeException понятная пользователю ошибка
+     */
+    public static function unsubscribeFromForm(string $form, string $email, int $partnerId = 0): string
+    {
+        global $USER;
+        $email = mb_strtolower(trim($email));
+        if (!in_array($form, self::FORMS, true)) {
+            throw new \RuntimeException('Неизвестная форма');
+        }
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            throw new \RuntimeException('Проверьте e-mail');
+        }
+
+        $dataClass = HlblockEntityFactory::getDataClass(self::HLBLOCK);
+        $rows = $dataClass::getList([
+            'select' => ['ID'],
+            'filter' => [
+                '=UF_EMAIL' => $email,
+                '=UF_FORM' => $form,
+                $partnerId > 0 ? ['=UF_PARTNER_ID' => $partnerId] : ['LOGIC' => 'OR', ['=UF_PARTNER_ID' => 0], ['=UF_PARTNER_ID' => null]],
+            ],
+        ]);
+        $ids = [];
+        while ($row = $rows->fetch()) {
+            $ids[] = (int)$row['ID'];
+        }
+
+        $userEmail = (is_object($USER) && $USER->IsAuthorized()) ? mb_strtolower(trim((string)$USER->GetEmail())) : '';
+        if ($userEmail !== '' && $userEmail === $email) {
+            foreach ($ids as $id) {
+                $dataClass::delete($id);
+            }
+
+            return $ids ? 'Вы отписались от рассылки.' : 'Этот адрес не подписан на рассылку.';
+        }
+
+        if ($ids && self::canSendManageLink($email)) {
+            Mailer::send('FORMARO_SUBSCRIPTION_MANAGE', $email, [
+                'MANAGE_URL' => MailingService::manageUrl($email),
+            ]);
+        }
+
+        return 'Если адрес подписан, мы отправили на него письмо со ссылкой для отписки.';
+    }
+
+    /** Не чаще раза в 10 минут на адрес — чтобы формой не засыпать чужой ящик. */
+    private static function canSendManageLink(string $email): bool
+    {
+        $cache = \Bitrix\Main\Data\Cache::createInstance();
+        if ($cache->initCache(600, 'manage_link_' . md5($email), '/formaro/subscription_manage')) {
+            return false;
+        }
+        $cache->startDataCache();
+        $cache->endDataCache(['sent' => time()]);
+
+        return true;
+    }
+
+    /** Название подписки в списке. */
+    private static function title(array $row): string
+    {
+        if ((string)$row['UF_FORM'] === 'footer') {
+            return 'Новости и акции Reppa';
+        }
+        $partnerId = (int)$row['UF_PARTNER_ID'];
+        if ($partnerId > 0) {
+            $name = self::partnerName($partnerId)
+                ?: preg_replace('/^Партнёр:\s*/u', '', (string)$row['UF_TOPIC_NAME']);
+
+            return 'Новые предложения, акции и скидки поставщика ' . ($name !== '' ? '«' . $name . '»' : '#' . $partnerId);
+        }
+        $topic = trim((string)$row['UF_TOPIC_NAME']);
+
+        return 'Будьте в курсе: ' . ($topic !== '' ? $topic : 'все темы');
     }
 }

@@ -208,6 +208,20 @@
 .subscribe-status.is-error {
     color: #dc3545;
 }
+/* «Отписаться от рассылки» — ссылкой рядом с кнопкой. */
+.subscribe-mode-toggle {
+    margin: .5rem 0 .5rem 1.5rem;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: #6c757d;
+    text-decoration: underline;
+    cursor: pointer;
+}
+.subscribe-mode-toggle:hover,
+.subscribe-mode-toggle:focus {
+    color: #1976d2;
+}
 #footer .subscribe-status.is-success {
     color: #8fdc9f;
 }

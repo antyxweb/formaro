@@ -6,6 +6,8 @@
  * POST sessid, form, email, topic (id раздела каталога, необязательно),
  * partner (раздел партнёра — подписка на его обновления, без темы),
  * consent, page, website (ловушка для ботов) → {message} или {error}.
+ * mode=unsubscribe — «Отписаться от рассылки» в той же форме
+ * (SubscriptionService::unsubscribeFromForm, тема и согласие не нужны).
  */
 define('NO_KEEP_STATISTIC', true);
 define('NOT_CHECK_PERMISSIONS', true);
@@ -36,6 +38,13 @@ if (trim((string)($_POST['website'] ?? '')) !== '') {
 }
 
 try {
+    if (($_POST['mode'] ?? '') === 'unsubscribe') {
+        $respond(200, ['message' => SubscriptionService::unsubscribeFromForm(
+            (string)($_POST['form'] ?? ''),
+            (string)($_POST['email'] ?? ''),
+            (int)($_POST['partner'] ?? 0)
+        )]);
+    }
     $isNew = SubscriptionService::subscribe(
         (string)($_POST['form'] ?? ''),
         (string)($_POST['email'] ?? ''),

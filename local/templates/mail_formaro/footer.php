@@ -26,6 +26,9 @@ $contacts = array_filter([
 ]);
 $siteUrl = htmlspecialcharsbx((string)($arParams['SITE_URL'] ?? ''));
 $siteHost = htmlspecialcharsbx((string)parse_url((string)($arParams['SITE_URL'] ?? ''), PHP_URL_HOST));
+// Уведомления покупателю и поставщику — со ссылкой «Управление рассылками»
+// (Formaro\Cabinet\Service\MailingService); служебные письма — без неё.
+$unsubscribeUrl = htmlspecialcharsbx((string)($arParams['UNSUBSCRIBE_URL'] ?? ''));
 ?>
 </td>
 </tr>
@@ -35,6 +38,7 @@ $siteHost = htmlspecialcharsbx((string)parse_url((string)($arParams['SITE_URL'] 
 <?php if ($contacts): ?><p style="margin:0 0 12px;"><?= implode(' &nbsp;·&nbsp; ', $contacts) ?></p><?php endif; ?>
 <?php if ($name !== ''): ?><p style="margin:0;"><?= $name ?><?php if ($ids): ?><br><?= implode(', ', $ids) ?><?php endif; ?><?php if ($address !== ''): ?><br><?= $address ?><?php endif; ?></p><?php endif; ?>
 <p style="margin:12px 0 0;color:#9ca3af;">Письмо отправлено автоматически, отвечать на него не нужно.</p>
+<?php if ($unsubscribeUrl !== ''): ?><p style="margin:8px 0 0;color:#9ca3af;">Не хотите получать такие письма? <a href="<?= $unsubscribeUrl ?>" target="_blank" style="color:#6b7280;text-decoration:underline;">Отписаться или настроить рассылки</a></p><?php endif; ?>
 </td>
 </tr>
 </table>

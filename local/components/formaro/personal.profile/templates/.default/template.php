@@ -7,6 +7,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
 
 // «Ваш профиль»: слева — контактные данные, юридические реквизиты, смена
 // пароля (каждый блок сохраняется отдельно, script.js → /local/ajax/profile.php),
+// внизу — «Рассылки» (formaro:mailing.settings),
 // справа — меню личного кабинета (как на «Ваших заказах»). У партнёра
 // кабинета реквизиты — его компании, только просмотр.
 $e = static fn($s) => htmlspecialcharsbx((string)$s);
@@ -106,6 +107,9 @@ $field = static function (string $form, string $name, string $label, string $val
                                 <small class="profile-status js-profile-status" role="status"></small>
                             </div>
                         </form>
+
+                        <?php // Рассылки: категории уведомлений покупателя и подписки на новости. ?>
+                        <?php $APPLICATION->IncludeComponent('formaro:mailing.settings', '', ['EMBED' => 'Y'], false, ['HIDE_ICONS' => 'Y']); ?>
                         <?php endif; ?>
                     </div>
                 </div>

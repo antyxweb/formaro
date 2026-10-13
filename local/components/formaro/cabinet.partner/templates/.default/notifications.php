@@ -4,6 +4,14 @@ $activeKey = 'notifications';
 $pageTitle = 'Уведомления';
 require __DIR__ . '/inc/layout_app_top.php';
 ?>
+<?php // Вкладки — как в «Скидках»: лента уведомлений и «Рассылки» (какие из них приходят письмом, подписки на новости). ?>
+<ul class="nav nav-tabs product-tabs mb-3" id="mainTabs">
+    <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tabFeed" type="button">Уведомления</button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabMailing" type="button">Рассылки</button></li>
+</ul>
+
+<div class="tab-content">
+<div class="tab-pane fade show active" id="tabFeed">
 <div class="filter-bar d-flex justify-content-between align-items-center gap-3">
     <div class="d-flex align-items-center gap-3">
         <select class="form-select" id="typeFilter" style="min-width:160px;">
@@ -51,6 +59,28 @@ require __DIR__ . '/inc/layout_app_top.php';
         </div>
     </div>
 </div>
+</div>
+
+<div class="tab-pane fade" id="tabMailing">
+    <div class="card mb-3" id="mailingCard">
+        <div class="card-header">Письма на e-mail</div>
+        <div class="card-body">
+            <p class="small text-muted-2 mb-3">Письма приходят на <b id="mailingEmail"></b> — e-mail из вкладки «Авторизация» профиля. Выберите, о каких событиях сообщать письмом; в ленте «Уведомления» они появляются в любом случае. Служебные письма (восстановление пароля, счета по заказам) приходят всегда.</p>
+            <div id="mailingChannels"><div class="text-muted-2">Загрузка…</div></div>
+        </div>
+    </div>
+    <div class="card mb-3">
+        <div class="card-header">Новости и акции</div>
+        <div class="card-body p-0">
+            <div id="mailingNewsletters"></div>
+        </div>
+    </div>
+    <div class="d-flex flex-wrap gap-2 align-items-center">
+        <button type="button" class="btn btn-outline-danger" id="mailingUnsubscribeAllBtn">Отписаться от всех рассылок</button>
+        <span class="small text-muted-2">Уведомления покупателя (о ваших покупках) — в <a href="/personal/profile/" target="_blank">профиле на сайте</a>.</span>
+    </div>
+</div>
+</div>
 <?php
-$pageScripts = ['notifications.js'];
+$pageScripts = ['notifications.js', 'mailing.js'];
 require __DIR__ . '/inc/layout_app_bottom.php';

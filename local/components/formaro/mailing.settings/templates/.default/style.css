@@ -1,0 +1,38 @@
+/* «Управление рассылками»: переключатели категорий с пояснением, список
+   подписок на новости с кнопкой «Отписаться». */
+.mailing-settings--page {
+    max-width: 760px;
+}
+.mailing-settings--page > .mailing-settings {
+    background: #fff;
+    padding: 1.5rem;
+}
+.mailing-settings .mailing-item {
+    margin-bottom: .75rem;
+}
+.mailing-settings .mailing-item.is-highlighted {
+    margin-left: -.5rem;
+    padding: .5rem .5rem .5rem 2.75rem;
+    background: #fff8e1;
+}
+.mailing-settings .mailing-item .custom-control-label {
+    cursor: pointer;
+}
+.mailing-settings .mailing-status {
+    display: inline-block;
+    margin-left: 1rem;
+}
+.mailing-settings .mailing-group > .mailing-status {
+    margin-left: 0;
+}
+.mailing-settings .mailing-newsletters li {
+    padding: .75rem 0;
+    border-bottom: 1px solid #efefef;
+}
+.mailing-settings .mailing-newsletters li:first-child {
+    padding-top: 0;
+}
+.mailing-settings .mailing-newsletters .f-button {
+    padding: .375rem 1rem;
+    margin: .25rem 0;
+}

@@ -2,6 +2,7 @@
 
 namespace Formaro\Cabinet\Mail;
 
+use Formaro\Cabinet\Service\MailingService;
 use Formaro\Cabinet\Settings\MailSettings;
 
 /**
@@ -20,6 +21,10 @@ use Formaro\Cabinet\Settings\MailSettings;
  * Во всех письмах есть поля #EMAIL#, #NAME#, #GREETING# («Здравствуйте,
  * Анна!») и #SITE_URL#; в HTML-шаблоне текст — через #HTML_ПОЛЕ#
  * (экранированный, переносы строк — <br>).
+ *
+ * Уведомления покупателю и поставщику — с #UNSUBSCRIBE_URL# («Управление
+ * рассылками», MailingService): ссылка в подвале письма и заголовок
+ * List-Unsubscribe. Отключённые получателем категории не отправляются.
  */
 final class Mailer
 {
@@ -108,8 +113,17 @@ final class Mailer
                 'LINK_TEXT' => self::BUTTONS[$type] ?? 'Подробнее',
             ];
             $event = self::notificationEvent($audience, $type);
+            // Покупатель и поставщик могут отказаться от категории писем
+            // (MailingService). Каждое такое письмо — со ссылкой на настройки.
+            $optional = in_array($audience, MailingService::AUDIENCES, true);
+            $channel = MailingService::channel($audience, isset(self::NOTIFICATIONS[$audience][$type]) ? $type : 'system');
+            $disabled = $optional ? MailingService::disabledFor(array_keys($recipients)) : [];
             foreach ($recipients as $email => $name) {
-                self::send($event, $email, $fields + ['NAME' => $name]);
+                if (in_array($channel, $disabled[MailingService::normalize($email)] ?? [], true)) {
+                    continue;
+                }
+                $extra = $optional ? ['UNSUBSCRIBE_URL' => MailingService::manageUrl($email, $channel)] : [];
+                self::send($event, $email, $fields + $extra + ['NAME' => $name]);
             }
         } catch (\Throwable $e) {
             // Письмо не должно мешать действию, из-за которого уведомляем.
