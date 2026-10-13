@@ -241,7 +241,7 @@ final class TopicDigestService
      * — одна строка: первый по порядку списка, VARIANTS — сколько всего
      * вариантов группы попало в список. Не больше $limit строк.
      */
-    private static function collapse(array $items, int $limit): array
+    public static function collapse(array $items, int $limit): array
     {
         $rows = [];
         foreach ($items as $item) {
@@ -258,13 +258,13 @@ final class TopicDigestService
         return array_values($rows);
     }
 
-    private static function groupKey(array $item): string
+    public static function groupKey(array $item): string
     {
         return $item['VARIANT_GROUP_ID'] ? 'g' . $item['VARIANT_GROUP_ID'] : 'p' . $item['ID'];
     }
 
-    /** Список товаров: картинка, название, цена (старая — зачёркнута). */
-    private static function listHtml(string $title, array $items): string
+    /** Список товаров для письма (и NewPartnerMailingService): картинка, название, цена (старая — зачёркнута). */
+    public static function listHtml(string $title, array $items): string
     {
         $e = static fn($s) => htmlspecialcharsbx((string)$s);
         $fmt = static fn($n) => number_format((float)$n, 0, '', ' ') . ' ₽';

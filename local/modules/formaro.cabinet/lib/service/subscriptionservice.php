@@ -17,7 +17,8 @@ use Formaro\Cabinet\Repository\HlblockEntityFactory;
  *            (UF_PARTNER_ID, миграция Version20261002120001);
  *   footer — «Будь всегда в форме!» в подвале (только e-mail).
  * Письма о новых новостях подписчикам — NewsMailingService, еженедельные
- * «Новинки и скидки» подписчикам тем — TopicDigestService. Повторная подписка того
+ * «Новинки и скидки» подписчикам тем — TopicDigestService, «Новый поставщик» —
+ * NewPartnerMailingService. Повторная подписка того
  * же e-mail на ту же тему в той же форме новую запись не создаёт.
  * Отписка — «Управление рассылками» (MailingService, /subscriptions/,
  * блок в профиле и вкладка в кабинете партнёра) и кнопка «Отписаться» в
