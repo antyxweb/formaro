@@ -1,6 +1,9 @@
 Options -Indexes 
 ErrorDocument 404 /404.php
 
+# Скрытые файлы и каталоги (.git, .envrc и т.п.) не отдаём, кроме .well-known
+RedirectMatch 404 /\.(?!well-known/)
+
 <IfModule mod_rewrite.c>
 	Options +FollowSymLinks
 	RewriteEngine On
