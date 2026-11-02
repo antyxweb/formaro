@@ -4,6 +4,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
 }
 /** @var array $arParams */
 /** @var array $arResult */
+/** @global CUser $USER */
 
 // Вёрстка — /html/product-detail.html. Блок #product-detail целиком
 // заменяет script.js при переходе на вариант (цвет/размер) без
@@ -191,7 +192,19 @@ $propsTable = static function (array $props): string {
 
                 <div class="product-sidebar-wrap col-12 col-xl-4 pt-5">
                     <div id="product-sidebar">
-                        <?php if ($arResult['PARTNER']): $partner = $arResult['PARTNER']; ?>
+                        <?php
+                        // «О продавце» видит только администратор площадки: покупатель не
+                        // должен знать поставщика (просьба клиента). Покупателю — только
+                        // вопрос по товару в чат. У администратора своя копия кэша
+                        // (ключ — class.php).
+                        $showPartner = $arResult['PARTNER'] && $USER->IsAdmin();
+                        ?>
+                        <?php if ($arResult['PARTNER'] && !$showPartner): ?>
+                        <div class="mb-5">
+                            <a href="/personal/messages/?partner=<?= (int)$arResult['PARTNER']['ID'] ?>&amp;product=<?= (int)$arResult['ID'] ?>" class="f-button">Задать вопрос о товаре</a>
+                        </div>
+                        <?php endif; ?>
+                        <?php if ($showPartner): $partner = $arResult['PARTNER']; ?>
                         <h5 class="mb-0" style="height: 60px">О продавце</h5>
                         <div class="partners-card">
                             <div class="row mx-0">
@@ -213,7 +226,7 @@ $propsTable = static function (array $props): string {
                         <?php endif; ?>
 
                         <?php if ($arResult['SHORT_PROPS']): ?>
-                        <h5 class="mb-0<?= $arResult['PARTNER'] ? ' mt-5' : '' ?>" style="height: 60px">Краткие характеристики</h5>
+                        <h5 class="mb-0<?= $showPartner ? ' mt-5' : '' ?>" style="height: 60px">Краткие характеристики</h5>
                         <table class="mb-4">
                             <?= $propsTable($arResult['SHORT_PROPS']) ?>
                         </table>

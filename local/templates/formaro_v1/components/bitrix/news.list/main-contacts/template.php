@@ -32,8 +32,7 @@ $this->setFrameMode(true);
         <?endforeach;?>
     </div>
 
-    <h5 class="mb-3 mt-auto">Будь всегда в форме!</h5>
-    <p class="mb-4">Подписаться на рассылку</p>
+    <h5 class="mb-4 mt-auto">Подписаться на рассылку</h5>
 
     <?/* Отправка — js/subscribe.js → /local/ajax/subscribe.php (HL-блок «Подписки на рассылку»).
          Шаблон выводится дважды (подвал и меню) — id поля свой у каждого. */?>

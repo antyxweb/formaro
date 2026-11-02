@@ -71,6 +71,7 @@ class ChatRepository
         if (!$thread || !$this->canEdit($partnerId, $thread)) {
             throw new \RuntimeException('Диалог не найден или недоступен');
         }
+        ChatModerationService::assertNoContacts($text);
 
         $this->addMessage($threadId, 'partner', $text, $attachments);
 

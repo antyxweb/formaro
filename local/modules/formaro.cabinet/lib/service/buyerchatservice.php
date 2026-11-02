@@ -130,6 +130,7 @@ class BuyerChatService
             throw new \RuntimeException('Сообщение длиннее ' . self::MAX_TEXT . ' символов');
         }
         self::checkAttachments($attachments);
+        ChatModerationService::assertNoContacts($text);
 
         $repo = new ChatRepository();
         if ($threadId) {

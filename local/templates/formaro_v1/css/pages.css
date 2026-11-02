@@ -401,7 +401,7 @@
         min-width: 460px;
     }
 }
-/* На широком экране поиск в шапке — как в мобильной версии: в строке
+/* На 992–1199px поиск в шапке — как в мобильной версии: в строке
    только иконка (.header__action-link-search), по клику строка поиска
    выезжает панелью под шапкой (js/scripts.js — .header-search-visible).
    Правила повторяют мобильные из styles.min.css (max-width: 991.98px). */
@@ -420,6 +420,54 @@
         visibility: visible;
     }
 }
+/* С 1200px (когда в шапке видно верхнее меню) строка поиска стоит прямо
+   в шапке между меню и иконками — заметным полем с синей рамкой, без
+   лупы-переключателя (правило выше с панелью — для 992–1199px). */
+@media (min-width: 1200px) {
+    #header .header .header__search {
+        position: relative;
+        top: auto;
+        flex: 1 1 auto;
+        min-width: 170px;
+        max-width: 560px;
+        margin: 0 auto;
+        opacity: 1;
+        visibility: visible;
+        border-bottom: 0;
+        transition: none;
+    }
+    #header .header .header__search .header__search-input input {
+        background: #fff;
+        border: 2px solid #1976d2;
+    }
+    #header .header .header__search .header__search-input .header-search-icon {
+        color: #1976d2;
+    }
+    #header .header .header__actions .header__action-link-search {
+        display: none;
+    }
+}
+/* До 1500px строке поиска не хватает места рядом с подписями «Заказы»,
+   «Избранное», «Корзина» — у иконок остаются счётчики и title. */
+@media (min-width: 1200px) and (max-width: 1499.98px) {
+    #header .header .header__actions .header__action-link span.d-xl-inline {
+        display: none !important;
+    }
+}
+
+/* Синяя полоса по верху шапки — шапка заметнее на белом фоне. */
+#header .header::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: #1976d2;
+    z-index: 2;
+    pointer-events: none;
+}
+
 /* Лупа поиска в шапке: при открытой панели превращается в крестик
    (.is-open ставит js/scripts.js) — так же, как бургер меню. */
 #header .header .header__actions .header__action-link-search svg {
@@ -507,7 +555,7 @@
 #header .header .logo .name--tagline .name__tagline {
     padding: 0 1px;
     margin-top: 4px;
-    font-size: .68rem;
+    font-size: .8rem;
     font-weight: 500;
     letter-spacing: .02em;
     white-space: nowrap;

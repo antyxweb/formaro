@@ -146,35 +146,8 @@ if($GLOBALS["APPLICATION"]->GetCurPage(false) == '/'
             <div class="bg-menu-background-inner">
                 <div class="container-fluid py-4 py-md-5">
                     <div class="row full-menu pb-5">
-                        <div class="col-12 col-xl-4">
-                            <div class="row">
-                                <?$APPLICATION->IncludeComponent(
-                                    "bitrix:menu",
-                                    "catalog",
-                                    array(
-                                        "COMPONENT_TEMPLATE" => "left",
-                                        "ROOT_MENU_TYPE" => "catalog",
-                                        "MENU_CACHE_TYPE" => "N",
-                                        "MENU_CACHE_TIME" => "3600",
-                                        "MENU_CACHE_USE_GROUPS" => "Y",
-                                        "MENU_CACHE_GET_VARS" => array(
-                                        ),
-                                        "MAX_LEVEL" => "2",
-                                        "CHILD_MENU_TYPE" => "left",
-                                        "USE_EXT" => "Y",
-                                        "DELAY" => "Y",
-                                        "ALLOW_MULTI_SELECT" => "N"
-                                    ),
-                                    false
-                                );?>
-                            </div>
-                        </div>
-
-                        <div class="col-12 d-xl-none my-4">
-                            <div class="border-bottom border-white mb-4" style="opacity: 0.3"></div>
-                        </div>
-
-                        <div class="col-12 col-xl-4">
+                        <?php // Колонку «Каталог» убрали по просьбе клиента — дублирует меню каталога и занимает много места. ?>
+                        <div class="col-12 col-xl-8">
                             <div class="row">
                                 <?$APPLICATION->IncludeComponent(
                                     "bitrix:menu",

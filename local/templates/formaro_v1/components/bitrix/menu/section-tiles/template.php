@@ -12,13 +12,16 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
 if (empty($arResult)) {
     return;
 }
+// Четыре плитки (Поддержка) — по две в строке, растянутыми: при трёх в
+// строке одна оставалась бы в пустом ряду.
+$tileCol = count($arResult) === 4 ? 'col-xl-6' : 'col-xl-4';
 ?>
 <section class="section pt-4">
     <div class="section-body">
         <div class="container-fluid">
             <div class="support-list section-tiles row">
                 <?php foreach ($arResult as $item): ?>
-                <div class="col-12 col-md-6 col-xl-4 mb-4">
+                <div class="col-12 col-md-6 <?= $tileCol ?> mb-4">
                     <a href="<?= htmlspecialcharsbx($item['LINK']) ?>" class="support__link">
                         <span class="support__icon-wrapper bg-primary">
                             <svg class="support__link-icon" width="30" height="30" aria-hidden="true">

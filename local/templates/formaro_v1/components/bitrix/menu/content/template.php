@@ -1,7 +1,7 @@
 <?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
 
 <?if (!empty($arResult)):?>
-    <div class="col-12 col-md-6 col-xl-12">
+    <div class="col-12 col-md-6">
         <?
         $previousLevel = 0;
         $divider = true;
@@ -13,7 +13,7 @@
 
                 <?if($level == 2):?>
                     </div>
-                    <div class="col-12 col-md-6 col-xl-12">
+                    <div class="col-12 col-md-6">
                 <?endif;?>
                 <?$level++;?>
             <?endif?>

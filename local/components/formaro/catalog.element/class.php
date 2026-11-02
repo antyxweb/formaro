@@ -40,7 +40,7 @@ class FormaroCatalogElementComponent extends CBitrixComponent
 
     public function executeComponent()
     {
-        global $APPLICATION;
+        global $APPLICATION, $USER;
 
         if (is_array($this->arParams['~PREVIEW'] ?? null)) {
             return $this->executePreview($this->arParams['~PREVIEW']);
@@ -48,7 +48,8 @@ class FormaroCatalogElementComponent extends CBitrixComponent
 
         // Скидки действуют по датам — день входит в ключ кэша.
         // Ссылки — от корня каталога (в каталоге партнёра — его).
-        if ($this->startResultCache(false, [date('Y-m-d'), \Formaro\Cabinet\Catalog\CatalogUrl::root()])) {
+        // Блок «О продавце» — только администратору (шаблон): своя копия кэша.
+        if ($this->startResultCache(false, [date('Y-m-d'), \Formaro\Cabinet\Catalog\CatalogUrl::root(), $USER->IsAdmin()])) {
             if (!Loader::includeModule('iblock') || !Loader::includeModule('formaro.cabinet')) {
                 $this->abortResultCache();
                 ShowError('formaro.cabinet module not found');
