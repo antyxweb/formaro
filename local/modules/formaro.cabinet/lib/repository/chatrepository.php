@@ -21,6 +21,12 @@ use Formaro\Cabinet\Upload\FileUploader;
  * общий вопрос — на каждую тему отдельный диалог. Партнёр отвечает в существующих, помечает прочитанными, удаляет
  * свои сообщения — 1:1 с cabinet-html/assets/js/chat-clients.js.
  *
+ * Чат покупателя с площадкой — диалог с UF_PARTNER_ID = 0 (BuyerChatService::
+ * PLATFORM_ID): один на покупателя, отвечает администратор в «Чатах с
+ * клиентами» (replyAsPlatform), сообщения площадки — sender = partner.
+ * Партнёрам такие диалоги не видны (listOwn по своему id), контакты в них
+ * не проверяются.
+ *
  * UF_IS_READ сообщения — прочитано ли оно получателем: сообщения клиента —
  * партнёром, сообщения партнёра — покупателем. UF_NOTIFIED — получателю
  * отправлено уведомление (через час непрочитанности, ChatNotificationService).
@@ -83,9 +89,12 @@ class ChatRepository
      *
      * @param string $sender client|partner
      * @param array $attachments [{name, type, data}]
+     * @param bool $moderate проверять контакты/оплату (ChatModerationService);
+     *                       в чате с площадкой — нет
      */
-    public function addMessage(int $threadId, string $sender, string $text, array $attachments = []): void
+    public function addMessage(int $threadId, string $sender, string $text, array $attachments = [], bool $moderate = true): void
     {
+        $found = $moderate ? ChatModerationService::check($text) : [];
         $messagesClass = HlblockEntityFactory::getDataClass(self::MESSAGES_HLBLOCK);
         $result = $messagesClass::add([
             'UF_THREAD_ID' => $threadId,
@@ -95,7 +104,7 @@ class ChatRepository
             'UF_IS_READ' => false,
             'UF_NOTIFIED' => false,
             'UF_ATTACHMENTS' => $this->saveAttachments($attachments),
-            'UF_ALERT' => ChatModerationService::summary($found = ChatModerationService::check($text)),
+            'UF_ALERT' => ChatModerationService::summary($found),
         ]);
         if (!$result->isSuccess()) {
             throw new \RuntimeException(implode('; ', $result->getErrorMessages()));
@@ -132,6 +141,35 @@ class ChatRepository
                 . 'Сообщение: «' . mb_strimwidth(trim($text), 0, 500, '…') . '»',
             'chat/?thread=' . $threadId
         );
+    }
+
+    /**
+     * Ответ площадки покупателю (кабинет администратора) — только в диалоге
+     * с площадкой; сообщения покупателя в нём — прочитаны.
+     *
+     * @param array $attachments [{name, type, data}]
+     */
+    public function replyAsPlatform(int $threadId, string $text, array $attachments = []): array
+    {
+        $this->markReadByPlatform($threadId);
+        if (trim($text) === '' && !$attachments) {
+            throw new \RuntimeException('Введите сообщение');
+        }
+        $this->addMessage($threadId, 'partner', $text, $attachments, false);
+
+        return $this->get($threadId);
+    }
+
+    /** Администратор открыл диалог покупателя с площадкой. */
+    public function markReadByPlatform(int $threadId): array
+    {
+        $thread = $this->get($threadId);
+        if (!$thread || $thread['partner_id'] !== 0) {
+            throw new \RuntimeException('Диалог с площадкой не найден');
+        }
+        $this->markReadFrom($threadId, 'client');
+
+        return $this->get($threadId);
     }
 
     /**

@@ -1,6 +1,8 @@
 <?php
 /**
- * Заказы / Избранное / Корзина / профиль — ссылки шапки (header.php).
+ * Сообщения / Избранное / Корзина / профиль — ссылки шапки (header.php).
+ * «Сообщения» вместо «Заказов» (правки клиента 19.10: заказы есть в
+ * кабинете за «Войти») — чат с площадкой, счётчик — непрочитанные ответы.
  * Подключается дважды: в шапке и в копии для раздела партнёра
  * (.partner-actions — шапка там уезжает вверх). Счётчики считаются один
  * раз; дальше их обновляют cart.js / favorites.js / live-counters.js и
@@ -9,25 +11,25 @@
  * @global CUser $USER
  */
 if (!isset($headerActionsCounts)) {
-    // Авторизованному — сразу числа из аккаунта (без мигания 0): заказы
-    // покупателя с сайта, избранное, позиции корзины.
-    $headerActionsCounts = ['orders' => 0, 'favorites' => 0, 'cart' => 0];
+    // Авторизованному — сразу числа из аккаунта (без мигания 0): непрочитанные
+    // сообщения, избранное, позиции корзины.
+    $headerActionsCounts = ['messages' => 0, 'favorites' => 0, 'cart' => 0];
     if ($USER->IsAuthorized() && \Bitrix\Main\Loader::includeModule('formaro.cabinet')) {
         $headerActionsUserId = (int)$USER->GetID();
         $headerActionsCounts = [
-            'orders' => (new \Formaro\Cabinet\Repository\OrderRepository())->countByUser($headerActionsUserId),
+            'messages' => \Formaro\Cabinet\Service\BuyerChatService::countUnread($headerActionsUserId),
             'favorites' => (new \Formaro\Cabinet\Repository\FavoriteRepository())->count($headerActionsUserId),
             'cart' => count((new \Formaro\Cabinet\Repository\CartRepository())->listItems($headerActionsUserId)),
         ];
     }
 }
 ?>
-    <a class="header__action-link d-none d-sm-flex" href="/personal/orders/" aria-label="Заказы" title="Заказы">
-        <svg class="header__action-icon" width="26" height="28" viewBox="0 0 26 28">
-            <use xlink:href="#icon-order"></use>
+    <a class="header__action-link d-none d-sm-flex" href="/personal/messages/" aria-label="Сообщения" title="Сообщения и чат с площадкой">
+        <svg class="header__action-icon" width="22" height="22">
+            <use xlink:href="#icon-chat"></use>
         </svg>
-        <small class="header__action-count" data-orders-count><?= (int)$headerActionsCounts['orders'] ?></small>
-        <span class="d-none d-xl-inline">Заказы</span>
+        <small class="header__action-count" data-messages-count><?= (int)$headerActionsCounts['messages'] ?></small>
+        <span class="d-none d-xl-inline">Сообщения</span>
     </a>
     <a class="header__action-link d-none d-sm-flex" href="/personal/favorites/" aria-label="Избранное" title="Избранное">
         <svg class="header__action-icon" width="20" height="20">

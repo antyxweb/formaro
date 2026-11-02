@@ -467,6 +467,9 @@ if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
                 <symbol fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" id="icon-favorite">
                     <path fill-rule="evenodd" clip-rule="evenodd" d="M7.124 2.4A2.929 2.929 0 0 0 4.2 5.333V20.13c0 1.126 1.213 1.832 2.188 1.274l5.129-2.939a.972.972 0 0 1 .967 0l5.128 2.939c.976.558 2.188-.148 2.188-1.274V5.333A2.93 2.93 0 0 0 16.875 2.4h-9.75Z" fill="currentColor"></path>
                 </symbol>
+                <symbol fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" id="icon-chat">
+                    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </symbol>
                 <symbol fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 26 28" id="icon-order">
                     <path d="M18.625 10.7499L7.375 4.26238M2.0875 7.69988L13 14.0124L23.9125 7.69988M13 26.5999V13.9999M24.25 18.9999V8.99988C24.2496 8.56147 24.1338 8.13089 23.9144 7.75133C23.695 7.37177 23.3797 7.05658 23 6.83738L14.25 1.83738C13.87 1.61796 13.4388 1.50244 13 1.50244C12.5612 1.50244 12.13 1.61796 11.75 1.83738L3 6.83738C2.62033 7.05658 2.30498 7.37177 2.08558 7.75133C1.86618 8.13089 1.75045 8.56147 1.75 8.99988V18.9999C1.75045 19.4383 1.86618 19.8689 2.08558 20.2484C2.30498 20.628 2.62033 20.9432 3 21.1624L11.75 26.1624C12.13 26.3818 12.5612 26.4973 13 26.4973C13.4388 26.4973 13.87 26.3818 14.25 26.1624L23 21.1624C23.3797 20.9432 23.695 20.628 23.9144 20.2484C24.1338 19.8689 24.2496 19.4383 24.25 18.9999Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </symbol>
@@ -659,6 +662,14 @@ if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
           <path d="M19.2 4.4 2.9 10.7c-1.1.4-1.1 1.1-.2 1.3l4.1 1.3 1.6 4.8c.2.5.1.7.6.7.4 0 .6-.2.8-.4l2-2 4.2 3.1c.8.4 1.3.2 1.5-.7l2.8-13.1c.3-1.1-.4-1.7-1.1-1.3zm-2.1 3-7.8 7.1-.3 3.3L7.4 13l9.2-5.8c.4-.3.8-.1.5.2z"></path>
                 <path d="M0 0h24v24H0z" fill="none"></path>
         </symbol>
+                <symbol fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" id="icon-max">
+                    <path d="M12 2.5c-5.25 0-9.5 3.95-9.5 8.82 0 2.62 1.23 4.97 3.18 6.58L5 21.5l4.1-1.98c.93.25 1.9.38 2.9.38 5.25 0 9.5-3.95 9.5-8.83S17.25 2.5 12 2.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path>
+                    <path d="M7.8 14.2V8.6l4.2 3.6 4.2-3.6v5.6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+                </symbol>
+                <symbol fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" id="icon-max-white">
+                    <path d="M12 2.5c-5.25 0-9.5 3.95-9.5 8.82 0 2.62 1.23 4.97 3.18 6.58L5 21.5l4.1-1.98c.93.25 1.9.38 2.9.38 5.25 0 9.5-3.95 9.5-8.83S17.25 2.5 12 2.5Z" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"></path>
+                    <path d="M7.8 14.2V8.6l4.2 3.6 4.2-3.6v5.6" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+                </symbol>
                 <symbol fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" id="icon-tshirt">
                     <path d="M2 8V3c0-.552.398-1 .889-1h3.555c0 1 .712 3 3.556 3 2.844 0 3.556-2 3.556-3h3.555c.491 0 .889.448.889 1v5c0 .552-.398 1-.889 1h-.889c-.49 0-.889.448-.889 1v7c0 .552-.398 1-.889 1H5.556c-.491 0-.89-.448-.89-1v-7c0-.552-.397-1-.888-1h-.89C2.399 9 2 8.552 2 8Z" stroke="#000" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path>
                 </symbol>

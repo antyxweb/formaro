@@ -7,8 +7,9 @@ use Bitrix\Main\Loader;
 use Formaro\Cabinet\Service\BuyerChatService;
 
 /**
- * «Чаты и сообщения» покупателя (/personal/messages/): диалоги с продавцами
- * (BuyerChatService). Адрес:
+ * «Чаты и сообщения» покупателя (/personal/messages/): чат с площадкой и
+ * диалоги с продавцами (BuyerChatService). Адрес:
+ *   без параметров                — чат с площадкой («Сообщения» в шапке);
  *   ?thread=ID                    — открыть диалог (из уведомления);
  *   ?partner=ID[&order=F-…|&product=ID] — написать продавцу по теме
  *                                   (заказ, товар или общий вопрос): на каждую
@@ -61,9 +62,13 @@ class FormaroPersonalChatComponent extends CBitrixComponent
                 ];
             }
         }
+        if (!$active && !$draft) {
+            $active = $threads[0]['id'] ?? null; // чат с площадкой — первый
+        }
 
         return [
             'threads' => $threads,
+            'platformNotice' => BuyerChatService::platformNotice(),
             'active' => $active,
             'draft' => $draft,
             'maxFiles' => BuyerChatService::MAX_FILES,

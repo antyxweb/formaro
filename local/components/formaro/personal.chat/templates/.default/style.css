@@ -146,6 +146,14 @@
     border: 1px solid #e1e1e1;
     background: #ffffff center / contain no-repeat;
 }
+.personal-chat .chat__avatar--platform {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    background: #1976d2;
+    color: #ffffff;
+}
 .personal-chat .chat__avatar--letter {
     display: flex;
     align-items: center;
@@ -266,6 +274,24 @@
    и квадратная кнопка отправки той же высоты (со скошенным углом). */
 .personal-chat .chat__compose {
     border-top: 1px solid #e1e1e1;
+}
+/* Чат с площадкой: уведомление над полем ввода (правки клиента 19.10). */
+.personal-chat .chat__notice {
+    padding: 12px 20px;
+    border-top: 1px solid #e1e1e1;
+    border-left: 3px solid #1976d2;
+    background: #f1f7fd;
+    font-size: .875rem;
+    line-height: 1.4;
+}
+.personal-chat .chat__notice p {
+    margin: 0;
+}
+.personal-chat .chat__notice p + p {
+    margin-top: 4px;
+}
+.personal-chat .chat__notice + .chat__compose {
+    border-top: 0;
 }
 .personal-chat .chat__attach-row {
     display: flex;

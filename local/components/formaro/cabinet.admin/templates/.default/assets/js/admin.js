@@ -204,6 +204,10 @@ function refreshSidebarCounts() {
         setSideCount('notifications', n);
         $('#notifDot').text(n).toggle(n > 0);
     });
+    // Непрочитанные сообщения покупателей площадке (чат с площадкой, partner_id = 0).
+    dsLoadSilent('chat').done(function (threads) {
+        setSideCount('chat', (threads || []).reduce(function (n, t) { return n + (t.partner_id ? 0 : platformUnread(t)); }, 0));
+    });
     dsLoadSilent('tickets').done(function (rows) {
         var n = (rows || []).filter(function (t) { return t.status === 'open'; }).length;
         setSideCount('support', n);
@@ -211,6 +215,9 @@ function refreshSidebarCounts() {
     });
 }
 function refreshTopbarCounts() {}
+function platformUnread(t) {
+    return t.messages.filter(function (m) { return m.sender === 'client' && !m.is_read; }).length;
+}
 
 /* ---------------- Глобальный поиск ---------------- */
 function runGlobalSearch(q, $results) {

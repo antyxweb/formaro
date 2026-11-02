@@ -166,6 +166,13 @@ class CabinetAdminComponent extends CBitrixComponent
                     (int)($_REQUEST['ticket_id'] ?? 0),
                     (int)($_REQUEST['message_id'] ?? 0)
                 ),
+                // Чат покупателя с площадкой (ChatRepository, partner_id = 0).
+                'reply_chat' => (new ChatRepository())->replyAsPlatform(
+                    (int)($_REQUEST['thread_id'] ?? 0),
+                    $text,
+                    json_decode((string)($_REQUEST['attachments'] ?? '[]'), true) ?: []
+                ),
+                'read_chat' => (new ChatRepository())->markReadByPlatform((int)($_REQUEST['thread_id'] ?? 0)),
                 'add_order_comment' => (new OrderRepository())->addHistory($id, $text, 'Площадка'),
                 // Согласование и счёт: состав по согласованию с покупателем, выставление счёта.
                 'update_order_items' => OrderInvoiceFlowService::updateItems($id, json_decode((string)($_REQUEST['items'] ?? '[]'), true) ?: []),

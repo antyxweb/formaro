@@ -15,6 +15,10 @@ use Formaro\Cabinet\Repository\NotificationRepository;
  * раз: все непрочитанные сообщения отправителя в диалоге помечаются
  * UF_NOTIFIED. Прочитал в течение часа — уведомления нет.
  *
+ * Чат с площадкой (partner_id = BuyerChatService::PLATFORM_ID): о сообщениях
+ * покупателя администратор узнаёт сразу (BuyerChatService), здесь — только
+ * об ответах площадки покупателю.
+ *
  * Проверяет агент раз в 5 минут (миграция Version20261001180001).
  */
 class ChatNotificationService
@@ -68,6 +72,10 @@ class ChatNotificationService
         }
         $about = self::about($thread);
 
+        $platform = $thread['partner_id'] === BuyerChatService::PLATFORM_ID;
+        if ($messages[0]['sender'] === 'client' && $platform) {
+            return false;
+        }
         if ($messages[0]['sender'] === 'client') {
             (new NotificationRepository())->add(
                 $thread['partner_id'],
@@ -81,11 +89,11 @@ class ChatNotificationService
         }
 
         if ($messages[0]['sender'] === 'partner' && !empty($thread['user_id'])) {
-            $partner = CartCheckoutService::partners([$thread['partner_id']])[$thread['partner_id']] ?? ['name' => 'Продавец'];
+            $from = $platform ? 'площадки Reppa' : 'продавца ' . (CartCheckoutService::partners([$thread['partner_id']])[$thread['partner_id']]['name'] ?? '');
             NotificationRepository::forBuyer()->addForBuyer(
                 $thread['user_id'],
                 'chat',
-                'Новое сообщение от продавца ' . $partner['name'] . $about,
+                'Новое сообщение от ' . $from . $about,
                 $text,
                 '/personal/messages/?thread=' . $thread['thread_id']
             );

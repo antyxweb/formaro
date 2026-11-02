@@ -1,5 +1,8 @@
 <?php
 /**
+ * Чаты покупателей с площадкой («Сообщения» на сайте) — здесь же отвечает
+ * администратор; фильтр «Партнёр» → «Площадка» — только они.
+ *
  * Чаты покупателей с партнёрами — только просмотр, фильтр по партнёру,
  * покупателю, заказу и товару. Сообщения с контактами, разговором об
  * оплате или сделке в обход площадки помечены (ChatModerationService),
@@ -33,6 +36,18 @@ require __DIR__ . '/inc/layout_app_top.php';
         <div class="chat-panel-head small text-muted-2 px-3 py-2 d-none" id="threadHead"></div>
         <div class="chat-scroll" id="messagesScroll"><div class="empty-state m-auto"><i class="bi bi-chat-dots"></i>Выберите диалог слева</div></div>
         <div class="px-3 py-2 small text-muted-2 border-top d-none" id="readOnlyNote"><i class="bi bi-eye"></i> Режим просмотра: отвечает покупателю партнёр в своём кабинете.</div>
+        <div class="d-none" id="replyBox">
+            <div class="attach-row">
+                <button type="button" class="attach-btn" id="attachBtn" title="Прикрепить файлы"><svg class="ic-inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 6-8.414 8.586a2 2 0 0 0 2.829 2.829l8.414-8.586a4 4 0 1 0-5.657-5.657l-8.379 8.551a6 6 0 1 0 8.485 8.485l8.379-8.551"></path></svg></button>
+                <input type="file" id="replyFile" class="d-none" multiple>
+                <span class="text-muted-2 small">Прикрепить файл</span>
+            </div>
+            <div id="attachPreviewWrap"></div>
+            <div class="chat-input-row align-stretch">
+                <textarea class="form-control autoheight-input" id="replyInput" rows="2" placeholder="Ответ покупателю от площадки…" style="flex:1;"></textarea>
+                <button class="btn btn-primary btn-send-tall btn-send-wide" id="replySendBtn"><svg class="ic-inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.714 3.048a.498.498 0 0 0-.683.627l2.843 7.627a2 2 0 0 1 0 1.396l-2.842 7.627a.498.498 0 0 0 .682.627l18-8.5a.5.5 0 0 0 0-.904z"></path><path d="M6 12h16"></path></svg></button>
+            </div>
+        </div>
     </div>
 </div>
 <?php

@@ -4,6 +4,7 @@ namespace Formaro\Cabinet\Service;
 
 use CUser;
 use Formaro\Cabinet\Repository\ChatRepository;
+use Formaro\Cabinet\Repository\NotificationRepository;
 use Formaro\Cabinet\Repository\OrderRepository;
 use Formaro\Cabinet\Repository\ProductRepository;
 
@@ -21,12 +22,21 @@ use Formaro\Cabinet\Repository\ProductRepository;
  *
  * Уведомления о сообщениях — ChatNotificationService: только если сообщение
  * не прочитали в течение часа.
+ *
+ * Чат с площадкой («Сообщения» в шапке) — диалог с продавцом PLATFORM_ID:
+ * один на покупателя, создаётся при первом открытии страницы и всегда
+ * первый в списке. Над полем ввода — PLATFORM_NOTICE (platformNotice()).
+ * Отвечает администратор («Чаты с клиентами»), о сообщении покупателя ему
+ * сразу уведомление; контакты здесь передавать можно.
  */
 class BuyerChatService
 {
     public const MAX_TEXT = 4000;
     public const MAX_FILES = 5;
     public const MAX_FILE_SIZE = 10 * 1024 * 1024;
+
+    public const PLATFORM_ID = 0;
+    public const PLATFORM_NAME = 'Площадка Reppa';
 
     /**
      * Диалоги покупателя для страницы: продавец (имя, ссылка, логотип), тема
@@ -35,12 +45,18 @@ class BuyerChatService
      */
     public static function threads(int $userId): array
     {
-        $threads = (new ChatRepository())->listByUser($userId);
-        $partners = CartCheckoutService::partners(array_column($threads, 'partner_id'));
+        $repo = new ChatRepository();
+        $threads = $repo->listByUser($userId);
+        if (!in_array(self::PLATFORM_ID, array_column($threads, 'partner_id'), true)) {
+            $repo->createThread($userId, self::PLATFORM_ID, self::clientName($userId));
+            $threads = $repo->listByUser($userId);
+        }
+        $partners = CartCheckoutService::partners(array_filter(array_column($threads, 'partner_id')));
         $links = self::subjectLinks($userId, $threads);
 
         $result = array_map(static fn(array $t) => self::present($t, $partners, $links), $threads);
-        usort($result, static fn(array $a, array $b) => strcmp($b['last_date'], $a['last_date']));
+        // Площадка — всегда первой, остальные — свежие сверху.
+        usort($result, static fn(array $a, array $b) => [$b['platform'], $b['last_date']] <=> [$a['platform'], $a['last_date']]);
 
         return $result;
     }
@@ -55,6 +71,18 @@ class BuyerChatService
         }
 
         return $count;
+    }
+
+    /** Текст над полем ввода в чате с площадкой (правки клиента 19.10): строки. */
+    public static function platformNotice(): array
+    {
+        $minOrder = MarkupService::minOrder();
+
+        return array_values(array_filter([
+            'Уважаемые покупатели, мы работаем только с юридическими лицами и ИП.',
+            $minOrder > 0 ? 'Минимальная сумма заказа ' . number_format($minOrder, 0, ',', ' ') . ' руб.' : '',
+            'По вопросам заказа, доставки и оформления документов пишите, пожалуйста, в чат — наш менеджер вам ответит.',
+        ]));
     }
 
     /**
@@ -130,7 +158,6 @@ class BuyerChatService
             throw new \RuntimeException('Сообщение длиннее ' . self::MAX_TEXT . ' символов');
         }
         self::checkAttachments($attachments);
-        ChatModerationService::assertNoContacts($text);
 
         $repo = new ChatRepository();
         if ($threadId) {
@@ -138,8 +165,12 @@ class BuyerChatService
             if (!$thread || $thread['user_id'] !== $userId) {
                 throw new \RuntimeException('Диалог не найден');
             }
+            if ($thread['partner_id'] === self::PLATFORM_ID) {
+                return self::sendToPlatform($userId, $thread, $text, $attachments);
+            }
             $partnerId = $thread['partner_id'];
         }
+        ChatModerationService::assertNoContacts($text);
         $partner = self::partner($partnerId);
         if (!$partner) {
             throw new \RuntimeException('Продавец не найден');
@@ -157,6 +188,21 @@ class BuyerChatService
         return self::present($thread, [$partnerId => $partner], self::subjectLinks($userId, [$thread]));
     }
 
+    /** Сообщение в чат с площадкой: без проверки контактов, администратору — сразу уведомление. */
+    private static function sendToPlatform(int $userId, array $thread, string $text, array $attachments): array
+    {
+        $repo = new ChatRepository();
+        $repo->addMessage($thread['thread_id'], 'client', $text, $attachments, false);
+        NotificationRepository::notifyAdmin(
+            'chat',
+            'Сообщение площадке от покупателя ' . self::clientName($userId),
+            mb_strimwidth($text !== '' ? $text : 'Файл: ' . ($attachments[0]['name'] ?? ''), 0, 300, '…'),
+            'chat/?thread=' . $thread['thread_id']
+        );
+
+        return self::present($repo->get($thread['thread_id']), [], []);
+    }
+
     /** Покупатель открыл диалог — ответы продавца прочитаны. */
     public static function markRead(int $userId, int $threadId): void
     {
@@ -170,13 +216,19 @@ class BuyerChatService
 
     private static function present(array $thread, array $partners, array $links): array
     {
-        $partner = $partners[$thread['partner_id']] ?? ['id' => $thread['partner_id'], 'name' => 'Продавец', 'url' => '', 'logo' => ''];
+        $platform = $thread['partner_id'] === self::PLATFORM_ID;
+        $partner = $platform
+            ? ['name' => self::PLATFORM_NAME, 'url' => '', 'logo' => '']
+            : ($partners[$thread['partner_id']] ?? ['id' => $thread['partner_id'], 'name' => 'Продавец', 'url' => '', 'logo' => '']);
         $last = end($thread['messages']) ?: null;
 
         return [
             'id' => $thread['thread_id'],
+            'platform' => $platform,
             'partner' => ['id' => $thread['partner_id'], 'name' => $partner['name'], 'url' => $partner['url'], 'logo' => $partner['logo'] ?? ''],
-            'subject' => self::subjectOf((string)$thread['order_id'], $thread['product_id'], (string)$thread['product_name'], $links),
+            'subject' => $platform
+                ? ['type' => 'platform', 'label' => 'Заказы, доставка, документы', 'url' => '']
+                : self::subjectOf((string)$thread['order_id'], $thread['product_id'], (string)$thread['product_name'], $links),
             'unread' => count(array_filter($thread['messages'], static fn($m) => $m['sender'] === 'partner' && !$m['is_read'])),
             'last_date' => (string)($last['date'] ?? $thread['created_at']),
             'messages' => array_map(static fn($m) => [

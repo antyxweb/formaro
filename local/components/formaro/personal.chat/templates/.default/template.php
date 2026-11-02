@@ -16,15 +16,17 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
                 <div class="col-12 col-xl-9">
                     <div class="personal-chat mr-xl-5 mb-4">
                         <?php if (!$arResult['AUTHORIZED']): ?>
-                        <?php $APPLICATION->IncludeComponent('formaro:auth.form', '', ['TITLE' => 'Войдите, чтобы переписываться с продавцами.'], false, ['HIDE_ICONS' => 'Y']); ?>
+                        <?php $APPLICATION->IncludeComponent('formaro:auth.form', '', ['TITLE' => 'Войдите, чтобы написать нам или продавцу.'], false, ['HIDE_ICONS' => 'Y']); ?>
                         <?php else: ?>
                         <div class="chat-block chat bg-white" id="personal-chat" data-sessid="<?= bitrix_sessid() ?>">
-                            <aside class="chat__threads" aria-label="Диалоги с продавцами">
+                            <aside class="chat__threads" aria-label="Диалоги">
                                 <div class="chat__threads-list js-chat-threads" role="list"></div>
                             </aside>
                             <div class="chat__dialog" aria-live="polite">
                                 <div class="chat__head js-chat-head"></div>
                                 <div class="chat__messages js-chat-messages"></div>
+                                <?php // Уведомление над полем ввода — только в чате с площадкой (script.js). ?>
+                                <div class="chat__notice js-chat-notice d-none" role="note"></div>
                                 <?php // Как в «Чате с клиентами» кабинета партнёра: сверху — «Прикрепить файл», ниже — поле и квадратная кнопка отправки (со скошенным углом, как кнопки сайта). ?>
                                 <form class="chat__compose js-chat-compose d-none" novalidate>
                                     <div class="chat__attach-row">

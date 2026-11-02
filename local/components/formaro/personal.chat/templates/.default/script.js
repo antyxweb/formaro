@@ -9,6 +9,8 @@
    пока вкладка видна). Ответы продавца в открытом диалоге отмечаются
    прочитанными; счётчик в меню кабинета — [data-messages-count].
    Файлы — data-URL (как в чате кабинета партнёра), до 5 по 10 МБ.
+   Чат с площадкой (thread.platform) — всегда первый; над полем ввода в нём —
+   уведомление data.platformNotice.
    Bitrix подключает скрипт в <head> — запуск после загрузки разметки. */
 document.addEventListener('DOMContentLoaded', function () {
     var root = document.getElementById('personal-chat');
@@ -30,6 +32,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var filesEl = root.querySelector('.js-chat-files');
     var errorEl = root.querySelector('.js-chat-error');
     var sendBtn = root.querySelector('.js-chat-send');
+    var noticeEl = root.querySelector('.js-chat-notice');
 
     function esc(s) {
         return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
@@ -73,6 +76,9 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function avatar(partner) {
+        if (partner.id === 0) {
+            return '<span class="chat__avatar chat__avatar--platform" aria-hidden="true"><svg width="20" height="20"><use xlink:href="#icon-chat"></use></svg></span>';
+        }
         return partner.logo
             ? '<span class="chat__avatar" style="background-image:url(\'' + esc(partner.logo) + '\')" aria-hidden="true"></span>'
             : '<span class="chat__avatar chat__avatar--letter" aria-hidden="true">' + esc((partner.name || '?').charAt(0).toUpperCase()) + '</span>';
@@ -149,6 +155,7 @@ document.addEventListener('DOMContentLoaded', function () {
             messagesEl.innerHTML = '<div class="chat__placeholder">' +
                 (threads.length ? 'Выберите диалог слева' : 'Здесь будет переписка с продавцами') + '</div>';
             form.classList.add('d-none');
+            noticeEl.classList.add('d-none');
             return;
         }
 
@@ -184,8 +191,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 '</span></div>';
         });
         if (!html) {
-            html = '<div class="chat__placeholder">Напишите продавцу — он ответит здесь. Если не прочитаете ответ в течение часа, придёт уведомление.</div>';
+            html = '<div class="chat__placeholder">' + (thread && thread.platform
+                ? 'Напишите нам — менеджер площадки ответит здесь. Если не прочитаете ответ в течение часа, придёт уведомление.'
+                : 'Напишите продавцу — он ответит здесь. Если не прочитаете ответ в течение часа, придёт уведомление.') + '</div>';
         }
+        var notice = thread && thread.platform ? (data.platformNotice || []) : [];
+        noticeEl.innerHTML = notice.map(function (line) { return '<p>' + esc(line) + '</p>'; }).join('');
+        noticeEl.classList.toggle('d-none', !notice.length);
         messagesEl.innerHTML = html;
         if (!keepScroll || wasAtBottom) messagesEl.scrollTop = messagesEl.scrollHeight;
 
