@@ -211,7 +211,7 @@ class TicketRepository
         return [
             'support_phone' => '8 800 550-38-40',
             'phone_note' => 'бесплатно по РФ',
-            'support_email' => 'partner@formaro.ru',
+            'support_email' => 'order@reppaopt.ru',
             'email_note' => 'ответ в течение 2 часов',
             'help_url' => 'help.reppaopt.ru',
             'help_note' => 'инструкции и регламенты',
