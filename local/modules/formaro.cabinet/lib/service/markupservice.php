@@ -26,7 +26,7 @@ final class MarkupService
 {
     public const MODULE_ID = 'formaro.cabinet';
     public const MIN_RATE = 7.0;
-    public const DEFAULT_MIN_ORDER = 10000.0;
+    public const DEFAULT_MIN_ORDER = 30000.0;
     private const RATE_OPTION = 'markup_percent';
     private const MIN_ORDER_OPTION = 'min_order_amount';
 
