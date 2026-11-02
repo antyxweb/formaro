@@ -258,21 +258,8 @@ if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 
                     <div class="col-12 my-5"></div>
 
-                    <div class="col-12 col-md-6 col-lg-9 text-center text-md-left">
+                    <div class="col-12 text-center text-md-left">
                         <a href="/" class="text-white"><?=$arSite['SITE_NAME']?></a> © <?=date('Y')?>. Все права защищены
-                    </div>
-                    <div class="col-12 col-md-6 col-lg-3 text-center text-md-left">
-                        <ul class="footer__payments">
-                            <li>
-                                <img class="footer__payments-img" src="/local/templates/formaro_v1/img/mastercard.svg" height="26" alt="MasterCard">
-                            </li>
-                            <li>
-                                <img class="footer__payments-img" src="/local/templates/formaro_v1/img/visa.svg" height="26" alt="VISA">
-                            </li>
-                            <li>
-                                <img class="footer__payments-img" src="/local/templates/formaro_v1/img/mir.svg" height="26" alt="MIR">
-                            </li>
-                        </ul>
                     </div>
                 </div>
             </div>
