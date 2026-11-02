@@ -192,7 +192,9 @@ if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
                                 false
                             );?>
 
-                            <?$APPLICATION->IncludeComponent("bitrix:news.list", "main-contacts", Array(
+                            <?// В подвале без ВКонтакте; в бургер-меню контакты выводятся полностью
+                            $arFooterContactsFilter = ['!CODE' => 'icon-vk'];
+                            $APPLICATION->IncludeComponent("bitrix:news.list", "main-contacts", Array(
                                 "ACTIVE_DATE_FORMAT" => "d F Y",	// Формат показа даты
                                 "ADD_SECTIONS_CHAIN" => "N",	// Включать раздел в цепочку навигации
                                 "AJAX_MODE" => "N",	// Включить режим AJAX
@@ -217,7 +219,7 @@ if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
                                     0 => "",
                                     1 => "",
                                 ),
-                                "FILTER_NAME" => "",	// Фильтр
+                                "FILTER_NAME" => "arFooterContactsFilter",	// Фильтр
                                 "HIDE_LINK_WHEN_NO_DETAIL" => "N",	// Скрывать ссылку, если нет детального описания
                                 "IBLOCK_ID" => "6",	// Код информационного блока
                                 "IBLOCK_TYPE" => "content",	// Тип информационного блока (используется только для проверки)
