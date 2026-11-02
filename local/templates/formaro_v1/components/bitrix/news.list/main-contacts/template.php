@@ -13,7 +13,7 @@
 $this->setFrameMode(true);
 ?>
 
-<div class="col-12 col-md-6 col-xl-12 d-flex flex-column">
+<div class="col-12 col-md-6 <?=($arParams['HALF_XL'] ?? 'N') === 'Y' ? 'col-xl-6' : 'col-xl-12'?> d-flex flex-column">
 
     <h5 class="mb-3"><?=$arResult['SECTION_NAME']?></h5>
 

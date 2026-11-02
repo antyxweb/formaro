@@ -1,7 +1,7 @@
 <?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
 
 <?if (!empty($arResult)):?>
-    <div class="col-12 col-md-6 col-xl-12">
+    <div class="col-12 col-md-6 <?=($arParams['HALF_XL'] ?? 'N') === 'Y' ? 'col-xl-6' : 'col-xl-12'?>">
         <?foreach($arResult as $arKey=>$arItem):?>
             <?if($arItem['DEPTH_LEVEL'] == 1):?>
                 <a href="<?=$arItem["LINK"]?>" class="h5 d-block text-white text-decoration-none mb-3"><?=$arItem["TEXT"]?></a>

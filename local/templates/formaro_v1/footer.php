@@ -140,8 +140,8 @@ if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
             <div class="container-fluid py-5">
                 <div class="row full-menu">
 
-                    <?php // Колонку «Каталог» убрали по просьбе клиента — дублирует меню каталога и занимает много места. ?>
-                    <div class="col-12 col-xl-8">
+                    <?php // «Каталога» в подвале нет (просьба клиента) — на xl четыре колонки: меню content (две группы) + кабинет + контакты. ?>
+                    <div class="col-12 col-xl-6">
                         <div class="row">
                             <?$APPLICATION->IncludeComponent(
                                 "bitrix:menu",
@@ -169,7 +169,7 @@ if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
                         <div class="border-bottom border-white mb-4" style="opacity: 0.3"></div>
                     </div>
 
-                    <div class="col-12 col-xl-4">
+                    <div class="col-12 col-xl-6">
                         <div class="row h-100">
                             <?$APPLICATION->IncludeComponent(
                                 "bitrix:menu",
@@ -177,6 +177,7 @@ if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
                                 array(
                                     "COMPONENT_TEMPLATE" => "left",
                                     "ROOT_MENU_TYPE" => "personal",
+                                    "HALF_XL" => "Y",
                                     "MENU_CACHE_TYPE" => "N",
                                     "MENU_CACHE_TIME" => "3600",
                                     "MENU_CACHE_USE_GROUPS" => "Y",
@@ -233,6 +234,7 @@ if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
                                 "PAGER_TITLE" => "",	// Название категорий
                                 "PARENT_SECTION" => "",	// ID раздела
                                 "PARENT_SECTION_CODE" => "main-contacts",	// Код раздела
+                                "HALF_XL" => "Y",	// На xl — половина колонки (подвал в 4 колонки)
                                 "PREVIEW_TRUNCATE_LEN" => "",	// Максимальная длина анонса для вывода (только для типа текст)
                                 "PROPERTY_CODE" => array(	// Свойства
                                     0 => "LINK",
