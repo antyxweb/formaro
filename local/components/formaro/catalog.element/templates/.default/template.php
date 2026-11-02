@@ -201,7 +201,7 @@ $propsTable = static function (array $props): string {
                         ?>
                         <?php if ($arResult['PARTNER'] && !$showPartner): ?>
                         <div class="mb-5">
-                            <a href="/personal/messages/?partner=<?= (int)$arResult['PARTNER']['ID'] ?>&amp;product=<?= (int)$arResult['ID'] ?>" class="f-button">Задать вопрос о товаре</a>
+                            <a href="/personal/messages/?partner=<?= (int)$arResult['PARTNER']['ID'] ?>&amp;product=<?= (int)$arResult['ID'] ?>" class="f-button c-success">Задать вопрос о товаре</a>
                         </div>
                         <?php endif; ?>
                         <?php if ($showPartner): $partner = $arResult['PARTNER']; ?>
