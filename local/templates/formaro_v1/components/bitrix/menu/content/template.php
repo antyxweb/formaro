@@ -1,7 +1,12 @@
 <?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
 
 <?if (!empty($arResult)):?>
-    <div class="col-12 col-md-6">
+    <?php
+    // STACK_XL=Y — на xl группы друг под другом (узкая колонка рядом с «Каталогом» в бургер-меню);
+    // в подвале «Каталога» нет — две колонки.
+    $colClass = ($arParams['STACK_XL'] ?? 'N') === 'Y' ? 'col-12 col-md-6 col-xl-12' : 'col-12 col-md-6';
+    ?>
+    <div class="<?=$colClass?>">
         <?
         $previousLevel = 0;
         $divider = true;
@@ -13,7 +18,7 @@
 
                 <?if($level == 2):?>
                     </div>
-                    <div class="col-12 col-md-6">
+                    <div class="<?=$colClass?>">
                 <?endif;?>
                 <?$level++;?>
             <?endif?>
