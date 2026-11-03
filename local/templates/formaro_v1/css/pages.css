@@ -438,7 +438,10 @@
     }
     #header .header .header__search .header__search-input input {
         background: #fff;
-        border: 2px solid #1976d2;
+        border: 1px solid rgba(25, 118, 210, .3);
+    }
+    #header .header .header__search .header__search-input input:focus {
+        border-color: #1976d2;
     }
     #header .header .header__search .header__search-input .header-search-icon {
         color: #1976d2;
@@ -455,15 +458,15 @@
     }
 }
 
-/* Синяя полоса по верху шапки — шапка заметнее на белом фоне. */
+/* Синяя полоса по верху шапки — едва заметная, только отделяет шапку. */
 #header .header::before {
     content: "";
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
-    height: 3px;
-    background: #1976d2;
+    height: 2px;
+    background: rgba(25, 118, 210, .25);
     z-index: 2;
     pointer-events: none;
 }
