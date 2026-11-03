@@ -46,6 +46,12 @@ $choices = static function (string $name, array $options): void {
 <section class="section pt-4" id="cart-page">
     <div class="section-body">
         <div class="container-fluid">
+            <div class="cart-notice bg-white py-4 px-3 px-lg-4 mb-5">
+                <p class="mb-2">Уважаемые покупатели,</p>
+                <p class="mb-2">мы работаем только с юридическими лицами и ИП.</p>
+                <p class="mb-2">Минимальная сумма заказа 30&nbsp;000&nbsp;руб.</p>
+                <p class="mb-0">По вопросам заказа, доставки и оформлению документов пишите, пожалуйста, в чат. Наш менеджер вам ответит.</p>
+            </div>
             <div class="row">
                 <div class="col-12 col-xl-8" id="cart-content">
                     <div class="cart-success bg-white py-4 px-3 px-lg-4 mb-5 d-none" id="cart-success" role="status" tabindex="-1">
