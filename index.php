@@ -8,7 +8,7 @@ $APPLICATION->SetPageProperty("title", "Интернет-магазин спец
         "formaro:catalog.search",
         "",
         [
-            "TITLE_HTML" => '<span class="text-primary">Товары из России</span> оптом от проверенных поставщиков',
+            "TITLE_HTML" => '<span class="text-primary">Товары из России</span> от проверенных поставщиков',
             "BUTTON_TEXT" => "Начать продавать",
             "BUTTON_URL" => "/for-partners/become-a-partner/",
             "POPULAR_QUERIES" => ["Жилет утепленный", "Маска сварщика", "Перчатки", "Костюм зимний", "Дождевик"],
