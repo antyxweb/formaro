@@ -12,9 +12,7 @@
    «Сообщить об оплате» → POST /local/ajax/order_payment_notice.php; после —
    «Вы сообщили об оплате …» вместо ссылок на счёт и сообщение.
 
-   «Показать / Скрыть товары» — карусель товаров заказа (по умолчанию
-   скрыта). Flickity запускается scripts.js на скрытой карусели и меряет
-   нули — после показа пересчитываем размеры (resize).
+   «Показать / Скрыть товары» — таблица товаров заказа (по умолчанию скрыта).
 
    «История заказа» — во всплывающем окне (FormaroModal, js/confirm.js);
    записи — из <template> заказа, отмена и сообщение об оплате дописывают
@@ -104,10 +102,6 @@
         items.hidden = !open;
         link.setAttribute('aria-expanded', open ? 'true' : 'false');
         link.querySelector('.js-order-items-toggle-text').textContent = open ? 'Скрыть товары' : 'Показать товары';
-        if (open && window.jQuery) {
-            var $carousel = window.jQuery(items).find('.product-carousel');
-            if ($carousel.data('flickity')) $carousel.flickity('resize');
-        }
     }
 
     function repeatPost(id, action, onDone, onFail) {

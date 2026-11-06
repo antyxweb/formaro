@@ -1,7 +1,5 @@
-/* «Ваши заказы». Карточки товаров заказа — стили .orders из styles.css
-   (в карусели 20% ширины, без меток и кнопок); здесь — шапка заказа и
-   строки под названием: в styles.css у .orders видна только первая
-   <small>, у заказа нужны все (артикул, цвет/размер, сумма). */
+/* «Ваши заказы»: шапка заказа и таблица товаров (общие стили таблицы —
+   .product-sizes в css/pages.css). */
 .orders .order-item__head {
     position: relative;
 }
@@ -61,8 +59,15 @@
 .orders .order-item__toggle[aria-expanded="true"] svg {
     transform: rotate(180deg);
 }
-.orders .order-item .product-carousel .carousel-cell .product-card .product-card__info .order-item__meta small {
-    display: block;
+.order-table__product {
+    display: flex;
+    align-items: center;
+}
+.order-table__img {
+    flex: 0 0 48px;
+    height: 48px;
+    margin-right: 12px;
+    background: #f5f5f5 center / contain no-repeat;
 }
 /* Кнопки заказа: отступы между ними, в строку и с переносом. */
 .orders .order-item__actions {
@@ -101,56 +106,14 @@
 .orders .order-item__head .order-status.bg-warning {
     color: #111111;
 }
-.orders .product-card__img .embed-responsive {
-    background-color: #f5f5f5;
-    background-size: cover;
-    background-position: center;
-}
-
-/* На узких экранах 20% — слишком мелко (селектор сильнее, чем в styles.css). */
-@media (max-width: 1199.98px) {
-    .orders .order-item .product-carousel .carousel-cell {
-        width: 33.333%;
-    }
-}
-@media (max-width: 767.98px) {
-    .orders .order-item .product-carousel .carousel-cell {
-        width: 50%;
-    }
-}
-@media (max-width: 575.98px) {
-    .orders .order-item .product-carousel .carousel-cell {
-        width: 75%;
-    }
-}
-
-/* Карточки товаров заказа — одной высоты. Flickity (2.2) ставит вьюпорту
-   высоту самой высокой ячейки; min-height: 100% при первом замере ещё
-   ничего не даёт (ячейки меряются по содержимому), а потом растягивает
-   ячейку до этой высоты. Карточка тянется на всю ячейку (flex). */
-.orders .order-item .product-carousel.flickity-enabled .carousel-cell {
-    min-height: 100%;
-    display: flex;
-}
-.orders .order-item .product-carousel .carousel-cell .product-card {
-    flex: 1 1 auto;
-    display: flex;
-    flex-direction: column;
-}
-.orders .order-item .product-carousel .carousel-cell .product-card .product-card__info {
-    flex-grow: 1;
-}
-
 /* Скошенный правый нижний угол, как у меню личного кабинета (.sidebar-menu
    в styles.css): уголок :after цвета фона страницы. */
 .orders .order-item__head,
-.orders .personal-block,
-.orders .order-item .product-card .product-card__info {
+.orders .personal-block {
     position: relative;
 }
 .orders .order-item__head:after,
-.orders .personal-block:after,
-.orders .order-item .product-card .product-card__info:after {
+.orders .personal-block:after {
     -webkit-box-sizing: border-box;
             box-sizing: border-box;
     border-style: solid;

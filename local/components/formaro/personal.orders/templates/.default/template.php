@@ -6,15 +6,15 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
 /** @var array $arResult */
 /** @global CMain $APPLICATION */
 
-// Вёрстка — /html/orders.html: слева заказы (товары — каруселью
-// .product-carousel, её запускает scripts.js), справа меню личного кабинета.
+// Вёрстка — /html/orders.html: слева заказы (товары — таблицей, стили
+// .product-sizes из css/pages.css), справа меню личного кабинета.
 // В колонке «Оплата», пока заказ не оплачен, — ссылки «Скачать счёт» (PDF)
 // и «Сообщить об оплате» (script.js → /local/ajax/order_payment_notice.php;
 // после — дата сообщения). Под данными заказа — «Написать в чат» (диалог
 // с площадкой в «Чатах и сообщениях») и
 // «Отменить заказ» (только новый; script.js → /local/ajax/order_cancel.php),
 // у выполненного и отменённого — «Повторить заказ» (товары — в корзину).
-// Товары заказа (карусель) по умолчанию скрыты — «Показать товары».
+// Товары заказа (таблица) по умолчанию скрыты — «Показать товары».
 $fmt = static fn($n) => number_format((float)$n, 0, '', ' ');
 $e = static fn($s) => htmlspecialcharsbx((string)$s);
 ?>
@@ -130,37 +130,40 @@ $e = static fn($s) => htmlspecialcharsbx((string)$s);
                             </div>
 
                             <div class="order-item__items" id="order-items-<?= (int)$order['ID'] ?>" hidden>
-                            <div class="main-carousel product-carousel">
-                                <?php foreach ($order['ITEMS'] as $item): ?>
-                                <div class="carousel-cell">
-                                    <div class="product-card">
-                                        <div class="product-card__img">
-                                            <?php if ($item['URL'] !== ''): ?>
-                                            <a href="<?= $e($item['URL']) ?>" class="embed-responsive embed-responsive-1by1" style="background-image: url('<?= $e($item['IMAGE']) ?>')"></a>
-                                            <?php else: ?>
-                                            <div class="embed-responsive embed-responsive-1by1"></div>
-                                            <?php endif; ?>
-                                        </div>
-                                        <div class="product-card__info">
-                                            <?php if ($item['URL'] !== ''): ?>
-                                            <a href="<?= $e($item['URL']) ?>"><h3 title="<?= $e($item['NAME']) ?>"><?= $e($item['NAME']) ?></h3></a>
-                                            <?php else: ?>
-                                            <h3 title="<?= $e($item['NAME']) ?>"><?= $e($item['NAME']) ?></h3>
-                                            <?php endif; ?>
-                                            <div class="price mb-2">
-                                                <b class="text-danger"><?= $fmt($item['PRICE']) ?></b> <small>руб/шт. × <?= (int)$item['QTY'] ?></small>
-                                            </div>
-                                            <div class="text-secondary order-item__meta">
-                                                <?php if ($item['SKU'] !== ''): ?><small>Артикул: <?= $e($item['SKU']) ?></small><?php endif; ?>
-                                                <?php if ($item['COLOR'] !== '' || $item['SIZE'] !== ''): ?>
-                                                <small><?= $e(implode(', ', array_filter([$item['COLOR'], $item['SIZE']]))) ?></small>
-                                                <?php endif; ?>
-                                                <small>Сумма: <?= $fmt($item['SUM']) ?> руб</small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <?php endforeach; ?>
+                            <div class="product-sizes order-table">
+                                <table>
+                                    <thead><tr>
+                                        <th>Товар</th>
+                                        <th>Цена</th>
+                                        <th>Количество</th>
+                                        <th>Сумма</th>
+                                    </tr></thead>
+                                    <tbody>
+                                        <?php foreach ($order['ITEMS'] as $item): ?>
+                                        <tr>
+                                            <td>
+                                                <div class="order-table__product">
+                                                    <?php if ($item['URL'] !== ''): ?>
+                                                    <a href="<?= $e($item['URL']) ?>" class="order-table__img" style="background-image: url('<?= $e($item['IMAGE']) ?>')" aria-hidden="true" tabindex="-1"></a>
+                                                    <div><a href="<?= $e($item['URL']) ?>"><?= $e($item['NAME']) ?></a>
+                                                    <?php else: ?>
+                                                    <span class="order-table__img"></span>
+                                                    <div><?= $e($item['NAME']) ?>
+                                                    <?php endif; ?>
+                                                        <?php if ($item['SKU'] !== ''): ?><small class="d-block text-muted">Артикул: <?= $e($item['SKU']) ?></small><?php endif; ?>
+                                                        <?php if ($item['COLOR'] !== '' || $item['SIZE'] !== ''): ?>
+                                                        <small class="d-block text-muted"><?= $e(implode(', ', array_filter([$item['COLOR'], $item['SIZE']]))) ?></small>
+                                                        <?php endif; ?>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="product-sizes__price"><?= $fmt($item['PRICE']) ?> руб/шт.</td>
+                                            <td class="text-nowrap"><?= (int)$item['QTY'] ?> шт.</td>
+                                            <td class="text-nowrap"><b><?= $fmt($item['SUM']) ?></b> руб</td>
+                                        </tr>
+                                        <?php endforeach; ?>
+                                    </tbody>
+                                </table>
                             </div>
                             </div>
                         </div>
