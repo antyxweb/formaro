@@ -59,12 +59,19 @@ function render() {
     pager.setRows(rows);
 }
 
+/** Номер заказа покупателя у частей, кроме первой (у неё он совпадает со своим). */
+function groupLabel(o) {
+    if (o.group_id === o.id) return '';
+    var first = allOrders.find(function (x) { return x.id === o.group_id; });
+    return first ? '<div class="small text-muted-2 fw-normal">часть ' + esc(first.order_number) + '</div>' : '';
+}
+
 function renderPage(rows) {
     var $t = $('#ordersBody').empty();
     if (!rows.length) { $t.html(emptyRow(8, 'Заказов не найдено.')); return; }
     rows.forEach(function (o) {
         $t.append('<tr class="cursor-pointer" onclick="location.href=\'' + CABINET_URL + 'orders/edit/' + o.id + '/\'">' +
-            '<td class="fw-semibold"><a href="' + CABINET_URL + 'orders/edit/' + o.id + '/">' + esc(o.order_number) + '</a></td>' +
+            '<td class="fw-semibold"><a href="' + CABINET_URL + 'orders/edit/' + o.id + '/">' + esc(o.order_number) + '</a>' + groupLabel(o) + '</td>' +
             '<td class="small text-muted-2">' + fmtDate(o.created_at, true) + '</td>' +
             '<td>' + partnerCell(o.partner_id) + '</td>' +
             '<td><span class="truncate-cell">' + esc(o.customer.name) + '</span></td>' +

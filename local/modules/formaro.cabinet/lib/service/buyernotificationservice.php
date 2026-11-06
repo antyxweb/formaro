@@ -4,6 +4,7 @@ namespace Formaro\Cabinet\Service;
 
 use Formaro\Cabinet\Mail\Mailer;
 use Formaro\Cabinet\Repository\NotificationRepository;
+use Formaro\Cabinet\Repository\OrderRepository;
 
 /**
  * Уведомления покупателю (/personal/notify/, formaro:personal.notifications)
@@ -29,7 +30,7 @@ class BuyerNotificationService
         'cancelled' => 'Отменён',
     ];
 
-    public static function orderCreated(array $order, string $partnerName): void
+    public static function orderCreated(array $order): void
     {
         if (empty($order['user_id'])) {
             return;
@@ -38,13 +39,12 @@ class BuyerNotificationService
             (int)$order['user_id'],
             'order',
             'Заказ ' . $order['order_number'] . ' оформлен',
-            'Продавец ' . $partnerName . ' получил заказ на сумму ' . self::money($order['total']) . ' руб. Мы согласуем наличие и срок отгрузки и выставим счёт на оплату.',
+            'Заказ на сумму ' . self::money($order['total']) . ' руб. принят. Мы согласуем наличие и срок отгрузки и выставим счёт на оплату.',
             self::orderLink($order),
             false
         );
         Mailer::sendToUser('FORMARO_ORDER_CREATED', (int)$order['user_id'], [
             'ORDER_NUMBER' => $order['order_number'],
-            'PARTNER' => $partnerName,
             'TOTAL' => self::money($order['total']),
             'ITEMS' => self::itemsTable($order),
             'DELIVERY' => (string)$order['delivery_method'] ?: 'по согласованию',
@@ -91,7 +91,7 @@ class BuyerNotificationService
             (int)$order['user_id'],
             'order',
             'Заказ ' . $order['order_number'] . ' отменён',
-            'Вы отменили заказ на сумму ' . self::money($order['total']) . ' руб. Продавец получил уведомление об отмене.',
+            'Вы отменили заказ на сумму ' . self::money($order['total']) . ' руб.',
             self::orderLink($order)
         );
     }
@@ -143,50 +143,59 @@ class BuyerNotificationService
         );
     }
 
-    /** $before — заказ до сохранения (null — новый), $after — после. */
+    /**
+     * Смена статуса части заказа. $before — до сохранения (null — новая),
+     * $after — после. Покупатель знает заказ под общим номером; если частей
+     * несколько — сообщаем только то, что ему важно (отгрузка, отмена,
+     * выполнение части), внутренние этапы поставщика не шлём.
+     */
     public static function orderUpdated(?array $before, array $after): void
     {
-        if (!$before || empty($after['user_id'])) {
+        if (!$before || empty($after['user_id']) || $before['status'] === $after['status']) {
             return;
         }
-        $repo = NotificationRepository::forBuyer();
-        $userId = (int)$after['user_id'];
+        $parts = (new OrderRepository())->groupOf($after['id']);
+        $order = OrderRepository::mergeForBuyer($parts);
+        $single = count($parts) === 1;
+        $subject = $single ? 'Заказ' : 'Часть заказа';
+        $status = self::STATUSES[$after['status']] ?? $after['status'];
+        $message = match ($after['status']) {
+            'cancelled' => $single ? 'Заказ отменён.' : 'Часть заказа отменена. Новая сумма заказа: ' . self::money($order['total']) . ' руб.',
+            'shipped' => $subject . ' передан' . ($single ? '' : 'а') . ' в доставку' . ($after['delivery_method'] ? ': ' . $after['delivery_method'] : '') . '.'
+                . (!empty($after['track_number']) ? ' Трек-номер' . (!empty($after['track_carrier']) ? ' ' . $after['track_carrier'] : '') . ': ' . $after['track_number'] . '.' : ''),
+            'completed' => $single ? 'Заказ выполнен. Спасибо за покупку!' : 'Часть заказа выполнена.',
+            default => $single ? 'Статус заказа изменён на «' . $status . '».' : '',
+        };
+        if ($message === '') {
+            return;
+        }
+        NotificationRepository::forBuyer()->addForBuyer(
+            (int)$after['user_id'],
+            'order',
+            'Заказ ' . $order['order_number'] . ': ' . ($single ? '' : 'часть заказа — ') . mb_strtolower($status),
+            $message,
+            self::orderLink($order)
+        );
+    }
 
-        if ($before['status'] !== $after['status']) {
-            $status = self::STATUSES[$after['status']] ?? $after['status'];
-            $message = match ($after['status']) {
-                'cancelled' => 'Продавец отменил заказ.',
-                'shipped' => 'Заказ передан в доставку' . ($after['delivery_method'] ? ': ' . $after['delivery_method'] : '') . '.'
-                    . (!empty($after['track_number']) ? ' Трек-номер' . (!empty($after['track_carrier']) ? ' ' . $after['track_carrier'] : '') . ': ' . $after['track_number'] . '.' : ''),
-                'completed' => 'Заказ выполнен. Спасибо за покупку!',
-                default => 'Статус заказа изменён на «' . $status . '».',
-            };
-            $repo->addForBuyer($userId, 'order', 'Заказ ' . $after['order_number'] . ': ' . mb_strtolower($status), $message, self::orderLink($after));
+    /** Площадка подтвердила оплату или оформила возврат $amount — одно уведомление на заказ покупателя. */
+    public static function paymentChanged(array $order, string $status, float $amount): void
+    {
+        if (empty($order['user_id']) || !in_array($status, ['paid', 'refunded'], true)) {
+            return;
         }
-
-        if ($before['payment_status'] !== 'paid' && $after['payment_status'] === 'paid') {
-            $repo->addForBuyer(
-                $userId,
-                'order',
-                'Оплата заказа ' . $after['order_number'] . ' подтверждена',
-                'Маркетплейс получил оплату ' . self::money($after['total']) . ' руб.',
-                self::orderLink($after)
-            );
-        }
-        if ($before['payment_status'] !== 'refunded' && $after['payment_status'] === 'refunded') {
-            $repo->addForBuyer(
-                $userId,
-                'order',
-                'Возврат оплаты по заказу ' . $after['order_number'],
-                'Маркетплейс оформил возврат ' . self::money($after['total']) . ' руб.',
-                self::orderLink($after)
-            );
-        }
+        NotificationRepository::forBuyer()->addForBuyer(
+            (int)$order['user_id'],
+            'order',
+            ($status === 'paid' ? 'Оплата заказа ' . $order['order_number'] . ' подтверждена' : 'Возврат оплаты по заказу ' . $order['order_number']),
+            ($status === 'paid' ? 'Маркетплейс получил оплату ' : 'Маркетплейс оформил возврат ') . self::money($amount) . ' руб.',
+            self::orderLink($order)
+        );
     }
 
     private static function orderLink(array $order): string
     {
-        return '/personal/orders/#order-' . (int)$order['id'];
+        return '/personal/orders/#order-' . (int)($order['group_id'] ?? $order['id']);
     }
 
     private static function money($value): string

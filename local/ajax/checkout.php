@@ -5,9 +5,8 @@
  * POST sessid, ids[] (отмеченные товары — количество берётся из корзины
  * на сервере), coupons (КОД,КОД), delivery (cdek|dellin|pek|other),
  * payment (invoice), buyer[name|phone|email|address|comment] →
- * {orders: [{id, order_number,
- * partner_name, total}]} — по заказу на поставщика, оформленные товары
- * убраны из корзины; ошибка → {error}.
+ * {orders: [{id, order_number, total}]} — один заказ покупателя, оформленные
+ * товары убраны из корзины; ошибка → {error}.
  *
  * Только для авторизованных: корзина — в аккаунте. См. CartCheckoutService::checkout().
  */

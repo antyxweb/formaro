@@ -18,7 +18,6 @@ use Formaro\Cabinet\Repository\ProductRepository;
 use Formaro\Cabinet\Repository\TicketRepository;
 use Formaro\Cabinet\Repository\TransactionRepository;
 use Formaro\Cabinet\Security\AdminContext;
-use Formaro\Cabinet\Service\BuyerNotificationService;
 use Formaro\Cabinet\Service\MarkupService;
 use Formaro\Cabinet\Service\OrderInvoiceFlowService;
 use Formaro\Cabinet\Service\PayoutService;
@@ -178,7 +177,7 @@ class CabinetAdminComponent extends CBitrixComponent
                 'update_order_items' => OrderInvoiceFlowService::updateItems($id, json_decode((string)($_REQUEST['items'] ?? '[]'), true) ?: []),
                 'issue_invoice' => OrderInvoiceFlowService::issueInvoice($id),
                 'save_markup' => MarkupService::save((float)str_replace(',', '.', (string)($_REQUEST['rate'] ?? '')), (float)($_REQUEST['min_order'] ?? 0)),
-                'set_payment_status' => $this->setPaymentStatus($id, (string)($_REQUEST['status'] ?? '')),
+                'set_payment_status' => OrderInvoiceFlowService::setPayment($id, (string)($_REQUEST['status'] ?? '')),
                 'mark_payout' => PayoutService::markPaid($id, (string)($_REQUEST['comment'] ?? '')),
                 'mark_notification_read' => $notifications->markRead($owner, $id),
                 'mark_all_notifications_read' => $notifications->markAllRead($owner),
@@ -193,38 +192,6 @@ class CabinetAdminComponent extends CBitrixComponent
         }
 
         die();
-    }
-
-    /**
-     * Отметка оплаты заказа: статус и запись в истории (OrderRepository),
-     * покупателю — уведомление (BuyerNotificationService), партнёру — в его
-     * кабинет со ссылкой на заказ.
-     */
-    private function setPaymentStatus(int $id, string $status): array
-    {
-        [$before, $after] = (new OrderRepository())->setPaymentStatus($id, $status);
-        if ($before['payment_status'] !== $after['payment_status']) {
-            PayoutService::onPaymentChanged($before, $after);
-            $after = (new OrderRepository())->get($id);
-            BuyerNotificationService::orderUpdated($before, $after);
-            $label = OrderRepository::PAYMENT_STATUSES[$status];
-            (new NotificationRepository())->add(
-                $after['partner_id'],
-                'order',
-                'Заказ ' . $after['order_number'] . ': ' . mb_strtolower($label),
-                $after['payout_status'] === PayoutService::PAID
-                    // Выплата проведена — баланс не меняется, остальное площадка решает вне системы.
-                    ? ($status === 'paid' ? 'Площадка подтвердила оплату заказа.' : 'Площадка оформила возврат оплаты покупателю. Выплата по заказу уже проведена — баланс не меняется.')
-                    : match ($status) {
-                        'paid' => 'Площадка подтвердила оплату: ' . number_format($after['supplier_total'], 2, ',', ' ') . ' руб. зачислено на ваш текущий баланс. Соберите заказ, передайте в транспортную компанию и укажите трек-номер — выплатим в тот же день.',
-                        'refunded' => 'Площадка оформила возврат оплаты покупателю — сумма заказа списана с вашего баланса.',
-                        default => 'Площадка сняла отметку об оплате заказа — сумма заказа списана с вашего баланса.',
-                    },
-                'orders/edit/' . $after['id'] . '/'
-            );
-        }
-
-        return $after;
     }
 
     private function ajaxList(string $entity)

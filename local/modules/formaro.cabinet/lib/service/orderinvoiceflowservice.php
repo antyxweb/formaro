@@ -25,6 +25,11 @@ use Formaro\Cabinet\Repository\PartnerRepository;
  *
  * Счёт выставлен (invoice_status = issued) — состав, цены и покупателя
  * заказа не меняет ни поставщик, ни менеджер.
+ *
+ * Заказ покупателя из нескольких частей (по поставщикам, OrderRepository::
+ * groupOf()) — счёт один: выставляется, аннулируется и оплачивается сразу
+ * у всех частей. Покупателю — одно уведомление на полную сумму, поставщику —
+ * о его части и в его ценах. Подтверждает и правит состав — каждая часть отдельно.
  */
 final class OrderInvoiceFlowService
 {
@@ -62,11 +67,15 @@ final class OrderInvoiceFlowService
         }
         $order = $repo->updateFields($orderId, $fields);
 
+        $group = $repo->groupOf($orderId);
+        $waiting = array_filter($group, static fn($p) => !$p['supplier_confirmed_at'] && !in_array($p['status'], self::CLOSED, true));
         NotificationRepository::notifyAdmin(
             'order',
             'Поставщик подтвердил заказ ' . $order['order_number'],
-            PartnerRepository::nameOf($partnerId) . ' — товар в наличии, срок отгрузки: ' . $leadTime
-                . '. Можно выставлять счёт (' . self::money($order['total']) . ' руб.).',
+            PartnerRepository::nameOf($partnerId) . ' — товар в наличии, срок отгрузки: ' . $leadTime . '. '
+                . ($waiting
+                    ? 'Ждём подтверждения остальных поставщиков заказа: ' . count($waiting) . '.'
+                    : 'Можно выставлять счёт (' . self::money(OrderRepository::mergeForBuyer($group)['total']) . ' руб.).'),
             'orders/edit/' . $orderId . '/'
         );
 
@@ -137,47 +146,101 @@ final class OrderInvoiceFlowService
         return $order;
     }
 
-    /** Менеджер: выставить счёт (или выставить заново после аннулирования). */
+    /** Менеджер: выставить общий счёт заказа покупателя (или выставить заново после аннулирования). */
     public static function issueInvoice(int $orderId): array
     {
         $repo = new OrderRepository();
-        $order = self::editableByManager($repo, $orderId);
-        if ($order['total'] <= 0) {
+        self::editableByManager($repo, $orderId);
+        $parts = array_filter($repo->groupOf($orderId), static fn($p) => !in_array($p['status'], self::CLOSED, true));
+        foreach ($parts as $part) {
+            self::editableByManager($repo, $part['id']);
+        }
+        if (OrderRepository::mergeForBuyer($repo->groupOf($orderId))['total'] <= 0) {
             throw new \RuntimeException('Сумма заказа — 0, счёт выставить нельзя');
         }
 
         $now = new DateTime();
         $due = self::dueDate(time());
-        $history = $order['history'];
-        $history[] = self::entry('Площадка выставила счёт на оплату. Действителен до ' . date('d.m.Y', $due->getTimestamp()), 'Площадка');
-        $order = $repo->updateFields($orderId, [
-            'UF_INVOICE_STATUS' => 'issued',
-            'UF_INVOICE_DATE' => $now,
-            'UF_INVOICE_DUE' => $due,
-            'UF_HISTORY' => $history,
-        ]);
-
         $dueText = date('d.m.Y', $due->getTimestamp());
+        foreach ($parts as $part) {
+            $history = $part['history'];
+            $history[] = self::entry('Площадка выставила счёт на оплату. Действителен до ' . $dueText, 'Площадка');
+            $part = $repo->updateFields($part['id'], [
+                'UF_INVOICE_STATUS' => 'issued',
+                'UF_INVOICE_DATE' => $now,
+                'UF_INVOICE_DUE' => $due,
+                'UF_HISTORY' => $history,
+            ]);
+            (new NotificationRepository())->add(
+                $part['partner_id'],
+                'order',
+                'Покупателю выставлен счёт по заказу ' . $part['order_number'],
+                'Площадка выставила покупателю счёт, ваша часть — ' . self::money($part['supplier_total']) . ' руб., действителен до ' . $dueText . '. Отгрузка — после оплаты.',
+                'orders/edit/' . $part['id'] . '/'
+            );
+        }
+
+        $order = OrderRepository::mergeForBuyer($repo->groupOf($orderId));
         if ($order['user_id']) {
             NotificationRepository::forBuyer()->addForBuyer(
                 $order['user_id'],
                 'order',
                 'Счёт на оплату заказа ' . $order['order_number'],
                 'Заказ согласован с поставщиком. Счёт на ' . self::money($order['total']) . ' руб. действителен до ' . $dueText . ' — скачайте его в «Ваших заказах».',
-                '/personal/orders/#order-' . $orderId,
+                '/personal/orders/#order-' . $order['id'],
                 false // своё письмо — FORMARO_ORDER_INVOICE
             );
         }
         self::mail('FORMARO_ORDER_INVOICE', $order, $dueText);
-        (new NotificationRepository())->add(
-            $order['partner_id'],
-            'order',
-            'Покупателю выставлен счёт по заказу ' . $order['order_number'],
-            'Площадка выставила покупателю счёт по заказу на ' . self::money($order['supplier_total']) . ' руб., действителен до ' . $dueText . '. Отгрузка — после оплаты.',
-            'orders/edit/' . $orderId . '/'
-        );
 
-        return $order;
+        return $repo->get($orderId);
+    }
+
+    /**
+     * Менеджер: статус оплаты. Оплата и её снятие — на весь заказ покупателя
+     * (счёт один), возврат — только на эту часть (например, поставщик не смог
+     * отгрузить). Поставщику — зачисление или списание по его части
+     * (PayoutService) и уведомление, покупателю — одно уведомление.
+     */
+    public static function setPayment(int $orderId, string $status): array
+    {
+        $repo = new OrderRepository();
+        $parts = $status === 'refunded' ? array_filter([$repo->get($orderId)]) : $repo->groupOf($orderId);
+        if (!$parts) {
+            throw new \RuntimeException('Заказ не найден');
+        }
+        $amount = 0.0;
+        foreach ($parts as $part) {
+            if ($part['status'] === 'cancelled' && $part['id'] !== $orderId) {
+                continue;
+            }
+            [$before, $after] = $repo->setPaymentStatus($part['id'], $status);
+            if ($before['payment_status'] === $after['payment_status']) {
+                continue;
+            }
+            PayoutService::onPaymentChanged($before, $after);
+            $after = $repo->get($part['id']);
+            $amount += $after['total'];
+            (new NotificationRepository())->add(
+                $after['partner_id'],
+                'order',
+                'Заказ ' . $after['order_number'] . ': ' . mb_strtolower(OrderRepository::PAYMENT_STATUSES[$status]),
+                $after['payout_status'] === PayoutService::PAID
+                    // Выплата проведена — баланс не меняется, остальное площадка решает вне системы.
+                    ? ($status === 'paid' ? 'Площадка подтвердила оплату заказа.' : 'Площадка оформила возврат оплаты покупателю. Выплата по заказу уже проведена — баланс не меняется.')
+                    : match ($status) {
+                        'paid' => 'Площадка подтвердила оплату: ' . number_format($after['supplier_total'], 2, ',', ' ') . ' руб. зачислено на ваш текущий баланс. Соберите заказ, передайте в транспортную компанию и укажите трек-номер — выплатим в тот же день.',
+                        'refunded' => 'Площадка оформила возврат оплаты покупателю — сумма заказа списана с вашего баланса.',
+                        default => 'Площадка сняла отметку об оплате заказа — сумма заказа списана с вашего баланса.',
+                    },
+                'orders/edit/' . $after['id'] . '/'
+            );
+        }
+        if ($amount > 0) {
+            BuyerNotificationService::paymentChanged(OrderRepository::mergeForBuyer($repo->groupOf($orderId)), $status, $amount);
+        }
+
+        return $repo->get($orderId);
     }
 
     /** Агент: раз в час аннулирует неоплаченные в срок счета. */
@@ -196,11 +259,24 @@ final class OrderInvoiceFlowService
     {
         $repo = new OrderRepository();
         $count = 0;
-        foreach ($repo->listOverdueInvoices($now ?? new DateTime()) as $order) {
-            $history = $order['history'];
-            $history[] = self::entry('Счёт № ' . $order['order_number'] . ' аннулирован: не оплачен в течение ' . self::INVOICE_DAYS . '-х рабочих дней', 'Площадка');
-            $order = $repo->updateFields($order['id'], ['UF_INVOICE_STATUS' => 'expired', 'UF_HISTORY' => $history]);
+        $done = [];
+        foreach ($repo->listOverdueInvoices($now ?? new DateTime()) as $overdue) {
+            if (isset($done[$overdue['group_id']])) {
+                continue; // все части заказа уже обработаны вместе с первой
+            }
+            $done[$overdue['group_id']] = true;
 
+            foreach ($repo->groupOf($overdue['id']) as $part) {
+                if ($part['invoice_status'] !== 'issued' || $part['payment_status'] === 'paid' || $part['status'] === 'cancelled') {
+                    continue;
+                }
+                $history = $part['history'];
+                $history[] = self::entry('Счёт аннулирован: не оплачен в течение ' . self::INVOICE_DAYS . '-х рабочих дней', 'Площадка');
+                $repo->updateFields($part['id'], ['UF_INVOICE_STATUS' => 'expired', 'UF_HISTORY' => $history]);
+                (new NotificationRepository())->add($part['partner_id'], 'order', 'Счёт по заказу ' . $part['order_number'] . ' аннулирован', 'В связи с неоплатой счёт покупателя не действителен.', 'orders/edit/' . $part['id'] . '/');
+            }
+
+            $order = OrderRepository::mergeForBuyer($repo->groupOf($overdue['id']));
             $text = 'В связи с неоплатой счёт № ' . $order['order_number'] . ' не действителен.';
             if ($order['user_id']) {
                 NotificationRepository::forBuyer()->addForBuyer(
@@ -213,8 +289,7 @@ final class OrderInvoiceFlowService
                 );
             }
             self::mail('FORMARO_ORDER_INVOICE_EXPIRED', $order, '');
-            (new NotificationRepository())->add($order['partner_id'], 'order', 'Счёт по заказу ' . $order['order_number'] . ' аннулирован', $text, 'orders/edit/' . $order['id'] . '/');
-            NotificationRepository::notifyAdmin('order', 'Счёт аннулирован: ' . $order['order_number'], $text . ' Покупатель уведомлён.', 'orders/edit/' . $order['id'] . '/');
+            NotificationRepository::notifyAdmin('order', 'Счёт аннулирован: ' . $order['order_number'], $text . ' Покупатель уведомлён.', 'orders/edit/' . $overdue['id'] . '/');
             $count++;
         }
 
@@ -271,7 +346,6 @@ final class OrderInvoiceFlowService
             'ORDER_NUMBER' => $order['order_number'],
             'TOTAL' => self::money($order['total']),
             'DUE_DATE' => $dueText,
-            'PARTNER' => PartnerRepository::nameOf($order['partner_id']),
             'ORDERS_URL' => Mailer::url('/personal/orders/#order-' . $order['id']),
         ]);
     }

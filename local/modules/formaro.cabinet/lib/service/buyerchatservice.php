@@ -112,7 +112,7 @@ class BuyerChatService
                 if ($row['order_number'] === $order && $row['partner_id'] === $partnerId) {
                     return [
                         'order' => $order, 'product_id' => 0, 'product_name' => '',
-                        'subject' => self::subjectOf($order, 0, '', ['orders' => [$order => $row['id']]]),
+                        'subject' => self::subjectOf($order, 0, '', ['orders' => [$order => $row['group_id']]]),
                     ];
                 }
             }
@@ -263,7 +263,7 @@ class BuyerChatService
         $links = ['orders' => [], 'products' => []];
         if (array_filter(array_column($threads, 'order_id'))) {
             foreach ((new OrderRepository())->listRecentByUser($userId, 500) as $order) {
-                $links['orders'][$order['order_number']] = $order['id'];
+                $links['orders'][$order['order_number']] = $order['group_id'];
             }
         }
         $productIds = array_values(array_unique(array_filter(array_column($threads, 'product_id'))));

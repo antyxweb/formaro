@@ -11,8 +11,9 @@ use Formaro\Cabinet\Service\OrderRepeatService;
 
 /**
  * «Ваши заказы» покупателя (/personal/orders/). Вёрстка — /html/orders.html:
- * заказы (HL-блок CabinetOrders, UF_USER_ID — оформленные с витрины) с
- * номером, датой, статусом, продавцом, доставкой, оплатой и суммой, товары
+ * заказы (HL-блок CabinetOrders, UF_USER_ID — оформленные с витрины; части
+ * по поставщикам собраны в один заказ — OrderRepository::mergeForBuyer()) с
+ * номером, датой, статусом, доставкой, оплатой и суммой, товары
  * заказа — каруселью карточек. Цены и количество — из заказа; картинка и
  * ссылка — у товара, если он ещё есть на сайте.
  *
@@ -31,6 +32,7 @@ class FormaroPersonalOrdersComponent extends CBitrixComponent
     private const PAYMENT_STATUSES = [
         'awaiting' => ['Ожидает оплаты', 'text-warning'],
         'paid' => ['Оплачен', 'text-success'],
+        'refunded' => ['Возврат', 'text-secondary'],
     ];
 
     public function onPrepareComponentParams($params)
@@ -48,7 +50,7 @@ class FormaroPersonalOrdersComponent extends CBitrixComponent
         $this->arResult = ['AUTHORIZED' => $userId > 0, 'ORDERS' => []];
 
         if ($userId && Loader::includeModule('iblock') && Loader::includeModule('formaro.cabinet')) {
-            $orders = (new OrderRepository())->listRecentByUser($userId, $this->arParams['LIMIT']);
+            $orders = (new OrderRepository())->listBuyerOrders($userId, $this->arParams['LIMIT']);
             $this->arResult['ORDERS'] = $this->build($orders);
         }
 
@@ -75,7 +77,6 @@ class FormaroPersonalOrdersComponent extends CBitrixComponent
                 $products[$p['id']] = $p;
             }
         }
-        $partners = CartCheckoutService::partners(array_column($orders, 'partner_id'));
 
         $result = [];
         foreach ($orders as $order) {
@@ -105,8 +106,8 @@ class FormaroPersonalOrdersComponent extends CBitrixComponent
                 'NUMBER' => $order['order_number'],
                 'DATE' => $created ? FormatDate('j F Y, H:i', $created) : '',
                 'STATUS' => $status[0],
-                // Отменить может сам покупатель, пока продавец не взял заказ в работу.
-                'CAN_CANCEL' => $order['status'] === 'new',
+                // Отменить может сам покупатель, пока ни один поставщик не взял заказ в работу.
+                'CAN_CANCEL' => !array_diff(array_column($order['parts'], 'status'), ['new', 'cancelled']) && $order['status'] === 'new',
                 // Повторить (товары — снова в корзину) — выполненный или отменённый.
                 'CAN_REPEAT' => in_array($order['status'], OrderRepeatService::STATUSES, true),
                 // Счёт — когда площадка его выставила (согласовав заказ с
@@ -130,7 +131,6 @@ class FormaroPersonalOrdersComponent extends CBitrixComponent
                 'STATUS_CLASS' => $status[1],
                 'PAYMENT_STATUS' => $payment[0],
                 'PAYMENT_STATUS_CLASS' => $payment[1],
-                'PARTNER' => $partners[$order['partner_id']] ?? ['name' => 'Продавец', 'url' => ''],
                 'DELIVERY' => $order['delivery_method'],
                 'PAYMENT' => $order['payment_method'],
                 'ADDRESS' => (string)($order['customer']['address'] ?? ''),
@@ -150,7 +150,7 @@ class FormaroPersonalOrdersComponent extends CBitrixComponent
 
     /**
      * «История заказа» для покупателя: записи от покупателя («Вы») и смены
-     * статуса и трек-номер от продавца («Продавец»). Свободные комментарии менеджера из
+     * статуса и трек-номер («Reppa»). Свободные комментарии менеджера из
      * кабинета партнёра («Комментарий менеджера») — его внутренние заметки,
      * покупателю не показываются.
      */
@@ -174,7 +174,7 @@ class FormaroPersonalOrdersComponent extends CBitrixComponent
             $result[] = [
                 'DATE' => $time ? FormatDate('j F Y, H:i', $time) : '',
                 'TEXT' => $text,
-                'AUTHOR' => $author === 'Покупатель' ? 'Вы' : 'Продавец',
+                'AUTHOR' => $author === 'Покупатель' ? 'Вы' : 'Reppa',
             ];
         }
 

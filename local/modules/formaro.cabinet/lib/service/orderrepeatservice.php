@@ -29,10 +29,11 @@ class OrderRepeatService
      */
     public static function check(int $userId, int $orderId): array
     {
-        $order = $orderId ? (new OrderRepository())->get($orderId) : null;
-        if (!$order || $order['user_id'] !== $userId) {
+        $parts = $orderId ? (new OrderRepository())->groupOf($orderId) : [];
+        if (!$parts || $parts[0]['user_id'] !== $userId) {
             throw new \RuntimeException('Заказ не найден');
         }
+        $order = OrderRepository::mergeForBuyer($parts);
         if (!in_array($order['status'], self::STATUSES, true)) {
             throw new \RuntimeException('Повторить можно выполненный или отменённый заказ');
         }

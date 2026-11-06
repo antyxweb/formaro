@@ -10,8 +10,8 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
 // .product-carousel, её запускает scripts.js), справа меню личного кабинета.
 // В колонке «Оплата», пока заказ не оплачен, — ссылки «Скачать счёт» (PDF)
 // и «Сообщить об оплате» (script.js → /local/ajax/order_payment_notice.php;
-// после — дата сообщения). Под данными заказа — «Чат с продавцом» (диалог
-// с продавцом в «Чатах и сообщениях», с вопросом по этому заказу) и
+// после — дата сообщения). Под данными заказа — «Написать в чат» (диалог
+// с площадкой в «Чатах и сообщениях») и
 // «Отменить заказ» (только новый; script.js → /local/ajax/order_cancel.php),
 // у выполненного и отменённого — «Повторить заказ» (товары — в корзину).
 // Товары заказа (карусель) по умолчанию скрыты — «Показать товары».
@@ -43,22 +43,14 @@ $e = static fn($s) => htmlspecialcharsbx((string)$s);
                                 </div>
 
                                 <div class="row">
-                                    <div class="col-12 col-md-6 col-lg-3 mb-3 mb-lg-0">
-                                        <h6 class="mb-1">Продавец</h6>
-                                        <?php if ($order['PARTNER']['url'] !== ''): ?>
-                                        <a href="<?= $e($order['PARTNER']['url']) ?>"><?= $e($order['PARTNER']['name']) ?></a>
-                                        <?php else: ?>
-                                        <?= $e($order['PARTNER']['name']) ?>
-                                        <?php endif; ?>
-                                    </div>
-                                    <div class="col-12 col-md-6 col-lg-3 mb-3 mb-lg-0">
+                                    <div class="col-12 col-md-6 col-lg-4 mb-3 mb-lg-0">
                                         <h6 class="mb-1">Доставка</h6>
                                         <div><?= $e($order['DELIVERY'] ?: '—') ?></div>
                                         <?php if ($order['ADDRESS'] !== ''): ?>
                                         <small class="text-muted"><?= $e($order['ADDRESS']) ?></small>
                                         <?php endif; ?>
                                     </div>
-                                    <div class="col-12 col-md-6 col-lg-3 mb-3 mb-md-0">
+                                    <div class="col-12 col-md-6 col-lg-4 mb-3 mb-md-0">
                                         <h6 class="mb-1">Оплата</h6>
                                         <div><?= $e($order['PAYMENT'] ?: '—') ?></div>
                                         <small class="<?= $e($order['PAYMENT_STATUS_CLASS']) ?>"><?= $e($order['PAYMENT_STATUS']) ?></small>
@@ -77,7 +69,7 @@ $e = static fn($s) => htmlspecialcharsbx((string)$s);
                                         <small class="text-muted d-block"><?= $e($order['INVOICE_NOTE']) ?></small>
                                         <?php endif; ?>
                                     </div>
-                                    <div class="col-12 col-md-6 col-lg-3">
+                                    <div class="col-12 col-md-6 col-lg-4">
                                         <h6 class="mb-1"><?= (int)$order['QTY'] ?> шт. на сумму</h6>
                                         <div class="price text-secondary">
                                             <b class="text-danger"><?= $fmt($order['TOTAL']) ?></b> <small>руб</small>
@@ -94,14 +86,11 @@ $e = static fn($s) => htmlspecialcharsbx((string)$s);
                                 <small class="d-block text-muted mt-3">Комментарий: <?= $e($order['COMMENT']) ?></small>
                                 <?php endif; ?>
 
-                                <?php if ($order['PARTNER']['url'] !== '' || $order['CAN_CANCEL'] || $order['CAN_REPEAT']): ?>
                                 <div class="order-item__actions d-flex flex-wrap align-items-center mt-4 js-order-actions">
-                                    <?php if ($order['PARTNER']['url'] !== ''): ?>
-                                    <a href="/personal/messages/?partner=<?= (int)$order['PARTNER']['id'] ?>&amp;order=<?= urlencode($order['NUMBER']) ?>" class="f-button c-success">
+                                    <a href="/personal/messages/" class="f-button c-success">
                                         <svg width="16" height="16"><use xlink:href="#icon-mail"></use></svg>
-                                        <span class="pl-2">Чат с продавцом</span>
+                                        <span class="pl-2">Написать в чат</span>
                                     </a>
-                                    <?php endif; ?>
                                     <?php if ($order['CAN_CANCEL']): ?>
                                     <?php // На телефоне — только иконка (подпись — для экранного диктора и в подсказке). ?>
                                     <button type="button" class="f-button c-gray text-secondary ml-auto js-order-cancel" data-order-id="<?= (int)$order['ID'] ?>" data-order-number="<?= $e($order['NUMBER']) ?>" aria-label="Отменить заказ" title="Отменить заказ">
@@ -119,7 +108,6 @@ $e = static fn($s) => htmlspecialcharsbx((string)$s);
                                     <?php endif; ?>
                                     <small class="text-danger js-order-cancel-error" role="alert"></small>
                                 </div>
-                                <?php endif; ?>
                             </div>
 
                             <?php // Под карточкой заказа; товары по умолчанию скрыты, история — во всплывающем окне (script.js). ?>

@@ -1,7 +1,7 @@
 <?php
 /**
  * «Скачать счёт» в «Ваших заказах» (formaro:personal.orders): PDF «Счёт на
- * оплату» заказа (OrderInvoiceService).
+ * оплату» заказа покупателя — все его части одним счётом (OrderInvoiceService).
  *
  * GET id — покупателю: только свой заказ, по которому площадка выставила
  * действующий счёт (OrderInvoiceFlowService), не оплаченный и не
@@ -33,11 +33,12 @@ if (!$userId) {
     $fail(401, 'Войдите, чтобы скачать счёт');
 }
 
-$order = (new OrderRepository())->get((int)($_GET['id'] ?? 0));
+$parts = (new OrderRepository())->groupOf((int)($_GET['id'] ?? 0));
 $isAdmin = $USER->IsAdmin();
-if (!$order) {
+if (!$parts) {
     $fail(404, 'Счёт не найден');
 }
+$order = OrderRepository::mergeForBuyer($parts);
 if (!$isAdmin && ($order['user_id'] !== $userId || $order['status'] === 'cancelled'
     || $order['payment_status'] === 'paid' || $order['invoice_status'] !== 'issued')) {
     $fail(404, 'Счёт не найден');

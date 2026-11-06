@@ -106,8 +106,9 @@ class OrderRepository
             return 0;
         }
         $dataClass = HlblockEntityFactory::getDataClass(self::HLBLOCK_NAME);
+        $rows = $dataClass::getList(['select' => ['ID', 'UF_GROUP_ID'], 'filter' => ['=UF_USER_ID' => $userId]])->fetchAll();
 
-        return (int)$dataClass::getCount(['=UF_USER_ID' => $userId]);
+        return count(array_unique(array_map(static fn($r) => (int)$r['UF_GROUP_ID'] ?: (int)$r['ID'], $rows)));
     }
 
     /** Последние заказы покупателя с витрины, новые первыми — для
@@ -125,6 +126,94 @@ class OrderRepository
         ])->fetchAll();
 
         return array_map([$this, 'toArray'], $rows);
+    }
+
+    /**
+     * Заказы покупателя как он их видит: части одного заказа собраны в один
+     * (mergeForBuyer), новые первыми.
+     */
+    public function listBuyerOrders(int $userId, int $limit): array
+    {
+        $groups = [];
+        foreach ($this->listRecentByUser($userId, 500) as $part) {
+            $groups[$part['group_id']][] = $part;
+        }
+        $orders = array_map(static fn(array $parts) => self::mergeForBuyer(array_reverse($parts)), array_values($groups));
+
+        return array_slice($orders, 0, $limit);
+    }
+
+    /**
+     * Все части заказа покупателя, первая — с его номером. $id — номер заказа
+     * покупателя (group_id) или любой его части. Пусто — заказа нет.
+     */
+    public function groupOf(int $id): array
+    {
+        $dataClass = HlblockEntityFactory::getDataClass(self::HLBLOCK_NAME);
+        $query = static fn(int $group) => $dataClass::getList(['filter' => ['=UF_GROUP_ID' => $group], 'order' => ['ID' => 'ASC']])->fetchAll();
+        $rows = $query($id);
+        if (!$rows) {
+            $order = $this->get($id);
+            if (!$order) {
+                return [];
+            }
+            $rows = $query($order['group_id']);
+            if (!$rows) {
+                return [$order]; // заказ не из корзины или оформлен до появления общих заказов
+            }
+        }
+
+        return array_map([$this, 'toArray'], $rows);
+    }
+
+    /**
+     * Части заказа → один заказ, как его видит покупатель. Суммы и товары —
+     * без отменённых частей (если отменено всё — по всем). Статус — самый
+     * ранний этап среди неотменённых частей. Счёт общий и выставляется всем
+     * частям сразу (OrderInvoiceFlowService), поэтому его поля — от первой.
+     *
+     * @param array $parts части по возрастанию id, как в groupOf()
+     */
+    public static function mergeForBuyer(array $parts): array
+    {
+        $active = array_values(array_filter($parts, static fn($p) => $p['status'] !== 'cancelled'));
+        $counted = $active ?: $parts;
+
+        $order = $counted[0];
+        $order['id'] = $parts[0]['group_id'];
+        $order['order_number'] = $parts[0]['order_number'];
+        $order['created_at'] = $parts[0]['created_at'];
+        $order['items'] = array_merge(...array_column($counted, 'items'));
+        foreach (['subtotal', 'total', 'discount_amount'] as $field) {
+            $order[$field] = round(array_sum(array_column($counted, $field)), 2);
+        }
+        $order['coupon_code'] = implode(', ', array_unique(array_filter(array_column($counted, 'coupon_code')))) ?: null;
+
+        $order['status'] = 'cancelled';
+        foreach (['new', 'processing', 'confirmed', 'shipped', 'completed'] as $stage) {
+            if (in_array($stage, array_column($active, 'status'), true)) {
+                $order['status'] = $stage;
+                break;
+            }
+        }
+
+        // Возврат по одной части не делает весь заказ неоплаченным.
+        $open = array_values(array_unique(array_diff(array_column($counted, 'payment_status'), ['refunded'])));
+        $order['payment_status'] = !$open ? 'refunded' : ($open === ['paid'] ? 'paid' : 'awaiting');
+
+        // Общие записи (оформление, счёт, сообщение об оплате) есть в каждой части — показываем один раз.
+        $history = [];
+        foreach ($parts as $part) {
+            foreach ($part['history'] as $entry) {
+                $minute = substr((string)($entry['date'] ?? ''), 0, 16);
+                $history[$minute . '|' . ($entry['author'] ?? '') . '|' . ($entry['text'] ?? '')] = $entry;
+            }
+        }
+        usort($history, static fn($a, $b) => strtotime((string)($a['date'] ?? '')) <=> strtotime((string)($b['date'] ?? '')));
+        $order['history'] = $history;
+        $order['parts'] = $parts;
+
+        return $order;
     }
 
     public function get(int $id): ?array
@@ -230,6 +319,8 @@ class OrderRepository
     {
         $order = [
             'id' => (int)$row['ID'],
+            // Заказ покупателя, в который входит эта часть (0 в базе — заказ сам по себе).
+            'group_id' => (int)($row['UF_GROUP_ID'] ?? 0) ?: (int)$row['ID'],
             'order_number' => $row['UF_ORDER_NUMBER'],
             'status' => $row['UF_STATUS'] ?: 'new',
             'created_at' => $row['UF_CREATED_AT'] instanceof DateTime ? $row['UF_CREATED_AT']->format('c') : (string)$row['UF_CREATED_AT'],

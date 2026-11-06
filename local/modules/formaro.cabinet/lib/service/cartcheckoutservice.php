@@ -19,8 +19,10 @@ use Formaro\Cabinet\Repository\ProductRepository;
  * «от N штук»/«от суммы» — ProductPricingService) и промокоды: купон
  * партнёра даёт скидку на его товары, по одному купону на поставщика.
  *
- * Оформление — по заказу (HL-блок CabinetOrders) на каждого поставщика
- * отмеченных товаров; в заказе — цены со скидкой партнёра, промокод
+ * Оформление — один заказ покупателя с одним счётом. В базе (HL-блок
+ * CabinetOrders) это части: по одной на поставщика, с общим UF_GROUP_ID,
+ * поставщик видит только свою (OrderRepository::mergeForBuyer() собирает
+ * их для покупателя). В части — цены со скидкой партнёра, промокод
  * поставщика, способ доставки/оплаты, данные покупателя из формы (как в
  * блоке «Данные покупателя» карточки заказа в кабинете). Оформленные
  * товары убираются из корзины, партнёру — уведомление в кабинете.
@@ -161,7 +163,7 @@ class CartCheckoutService
      *
      * @param int[] $productIds отмеченные товары (берутся из корзины на сервере с её количеством)
      * @param array $buyer name/phone/email/address/comment
-     * @return array [{id, order_number, partner_name, total}]
+     * @return array [{id, order_number, total}] — один заказ покупателя
      * @throws \RuntimeException понятная покупателю ошибка
      */
     public static function checkout(int $userId, array $productIds, array $codes, string $delivery, string $payment, array $buyer): array
@@ -230,7 +232,7 @@ class CartCheckoutService
         $orderRepo = new OrderRepository();
         $couponRepo = new CouponRepository();
         $notifications = new NotificationRepository();
-        $created = [];
+        $parts = [];
         foreach ($calc['groups'] as $group) {
             $partnerId = (int)$group['partner']['id'];
             $orderItems = array_map(static fn(array $item) => [
@@ -264,6 +266,9 @@ class CartCheckoutService
                 'discount_amount' => $discount,
                 'history' => [['date' => $now, 'text' => 'Заказ оформлен покупателем на сайте', 'author' => 'Покупатель']],
             ]);
+            // Номер и ссылка заказа покупателя — от первой части.
+            $order = $orderRepo->updateFields($order['id'], ['UF_GROUP_ID' => $parts ? $parts[0]['id'] : $order['id']]);
+            $parts[] = $order;
             if ($coupon) {
                 $couponRepo->incrementUsage($coupon['id']);
             }
@@ -274,64 +279,72 @@ class CartCheckoutService
                 'Покупатель ' . $customer['name'] . ' оформил заказ на сумму ' . number_format(OrderRepository::supplierTotal($order), 0, ',', ' ') . ' руб.',
                 self::orderLink($order['id'])
             );
-            BuyerNotificationService::orderCreated($order, $group['partner']['name']);
-            $created[] = [
-                'id' => $order['id'],
-                'order_number' => $order['order_number'],
-                'partner_name' => $group['partner']['name'],
-                'total' => $order['total'],
-            ];
         }
 
         $cart->remove($userId, array_column($items, 'id'));
 
-        return $created;
+        $buyerOrder = OrderRepository::mergeForBuyer($parts);
+        BuyerNotificationService::orderCreated($buyerOrder);
+
+        return [['id' => $buyerOrder['id'], 'order_number' => $buyerOrder['order_number'], 'total' => $buyerOrder['total']]];
     }
 
     /**
      * Отмена заказа покупателем («Ваши заказы», /local/ajax/order_cancel.php):
-     * только своего и только в статусе «Новый» (дальше заказ уже в работе
-     * у продавца). Статус — «Отменён», в историю — запись, купон заказа
-     * снова доступен, продавцу — уведомление.
+     * только своего и только пока все его части в статусе «Новый» (дальше
+     * заказ уже в работе у поставщика). Отменяются все части: статус —
+     * «Отменён», в историю — запись, купон снова доступен, поставщику —
+     * уведомление о его части.
      *
-     * @return array заказ после отмены (OrderRepository::toArray())
+     * @return array заказ покупателя после отмены (OrderRepository::mergeForBuyer())
      * @throws \RuntimeException понятная покупателю ошибка
      */
     public static function cancel(int $userId, int $orderId): array
     {
         $repo = new OrderRepository();
-        $order = $orderId ? $repo->get($orderId) : null;
-        if (!$order || $order['user_id'] !== $userId) {
+        $parts = $orderId ? $repo->groupOf($orderId) : [];
+        if (!$parts || $parts[0]['user_id'] !== $userId) {
             throw new \RuntimeException('Заказ не найден');
         }
-        if ($order['status'] === 'cancelled') {
+        $active = array_filter($parts, static fn($p) => $p['status'] !== 'cancelled');
+        if (!$active) {
             throw new \RuntimeException('Заказ уже отменён');
         }
-        if ($order['status'] !== 'new') {
-            throw new \RuntimeException('Заказ уже в работе у продавца — отменить его можно, только связавшись с продавцом');
-        }
-
-        $order['status'] = 'cancelled';
-        $order['history'][] = ['date' => date('c'), 'text' => 'Заказ отменён покупателем', 'author' => 'Покупатель'];
-        $saved = $repo->save($order['partner_id'], $order);
-
-        if ($order['coupon_code']) {
-            $couponRepo = new CouponRepository();
-            $coupon = $couponRepo->findByCode($order['coupon_code']);
-            if ($coupon && $coupon['partner_id'] === $order['partner_id']) {
-                $couponRepo->decrementUsage($coupon['id']);
+        foreach ($active as $part) {
+            if ($part['status'] !== 'new') {
+                throw new \RuntimeException('Заказ уже в работе — чтобы отменить его, напишите нам в чат');
             }
         }
-        (new NotificationRepository())->add(
-            $order['partner_id'],
-            'order',
-            'Заказ ' . $order['order_number'] . ' отменён',
-            'Покупатель ' . ($order['customer']['name'] ?? '') . ' отменил заказ на сумму ' . number_format($order['total'], 0, ',', ' ') . ' руб.',
-            self::orderLink($order['id'])
-        );
-        BuyerNotificationService::orderCancelledByBuyer($saved);
 
-        return $saved;
+        $couponRepo = new CouponRepository();
+        $saved = [];
+        foreach ($parts as $part) {
+            if ($part['status'] === 'cancelled') {
+                $saved[] = $part;
+                continue;
+            }
+            $part['status'] = 'cancelled';
+            $part['history'][] = ['date' => date('c'), 'text' => 'Заказ отменён покупателем', 'author' => 'Покупатель'];
+            $saved[] = $repo->save($part['partner_id'], $part);
+
+            if ($part['coupon_code']) {
+                $coupon = $couponRepo->findByCode($part['coupon_code']);
+                if ($coupon && $coupon['partner_id'] === $part['partner_id']) {
+                    $couponRepo->decrementUsage($coupon['id']);
+                }
+            }
+            (new NotificationRepository())->add(
+                $part['partner_id'],
+                'order',
+                'Заказ ' . $part['order_number'] . ' отменён',
+                'Покупатель ' . ($part['customer']['name'] ?? '') . ' отменил заказ на сумму ' . number_format($part['supplier_total'], 0, ',', ' ') . ' руб.',
+                self::orderLink($part['id'])
+            );
+        }
+        $buyerOrder = OrderRepository::mergeForBuyer($saved);
+        BuyerNotificationService::orderCancelledByBuyer($buyerOrder);
+
+        return $buyerOrder;
     }
 
     /** Текст записи в истории заказа — по ней видно, что покупатель уже сообщал об оплате. */
@@ -342,8 +355,8 @@ class CartCheckoutService
      * покупатель оплатил счёт. Счёт выставляет маркетплейс, и оплату
      * подтверждает он, а не продавец: уведомление с просьбой проверить
      * поступление — маркетплейсу (пока — в админку Bitrix, CAdminNotify;
-     * подтверждение оплаты будет отдельно), продавцу — только к сведению.
-     * В историю заказа — запись. Статус оплаты не меняется. Только свой
+     * подтверждение оплаты будет отдельно), поставщикам — к сведению, каждому
+     * о его части. В историю всех частей — запись. Статус оплаты не меняется. Только свой
      * неоплаченный и неотменённый заказ, один раз.
      *
      * @return string дата сообщения (ISO 8601)
@@ -352,10 +365,11 @@ class CartCheckoutService
     public static function reportPayment(int $userId, int $orderId): string
     {
         $repo = new OrderRepository();
-        $order = $orderId ? $repo->get($orderId) : null;
-        if (!$order || $order['user_id'] !== $userId) {
+        $parts = $orderId ? $repo->groupOf($orderId) : [];
+        if (!$parts || $parts[0]['user_id'] !== $userId) {
             throw new \RuntimeException('Заказ не найден');
         }
+        $order = OrderRepository::mergeForBuyer($parts);
         if ($order['status'] === 'cancelled') {
             throw new \RuntimeException('Заказ отменён');
         }
@@ -366,36 +380,42 @@ class CartCheckoutService
             throw new \RuntimeException('Счёт по заказу ещё не выставлен или аннулирован');
         }
         if (self::paymentNoticeDate($order) !== null) {
-            throw new \RuntimeException('Вы уже сообщили об оплате — продавец проверит поступление');
+            throw new \RuntimeException('Вы уже сообщили об оплате — мы проверим поступление');
         }
 
         $date = date('c');
-        $order['history'][] = ['date' => $date, 'text' => self::PAYMENT_NOTICE_TEXT, 'author' => 'Покупатель'];
-        $repo->save($order['partner_id'], $order);
-
         $sum = number_format($order['total'], 0, ',', ' ');
         $buyer = (string)($order['customer']['name'] ?? '');
-        $partner = self::partners([$order['partner_id']])[$order['partner_id']]['name'] ?? '';
+        $names = [];
+        foreach ($parts as $part) {
+            if ($part['status'] === 'cancelled') {
+                continue;
+            }
+            $part['history'][] = ['date' => $date, 'text' => self::PAYMENT_NOTICE_TEXT, 'author' => 'Покупатель'];
+            $repo->save($part['partner_id'], $part);
+            $names[] = self::partners([$part['partner_id']])[$part['partner_id']]['name'] ?? '';
+            (new NotificationRepository())->add(
+                $part['partner_id'],
+                'order',
+                'Оплата заказа ' . $part['order_number'],
+                'Покупатель ' . $buyer . ' сообщил об оплате заказа на сумму ' . number_format($part['supplier_total'], 0, ',', ' ') . ' руб. Оплату проверит и подтвердит маркетплейс.',
+                self::orderLink($part['id'])
+            );
+        }
+        $suppliers = implode(', ', array_filter($names));
         NotificationRepository::notifyAdmin(
             'finance',
             'Покупатель сообщил об оплате ' . $order['order_number'],
-            $buyer . ' — заказ ' . $order['order_number'] . ' (поставщик ' . $partner . ') на ' . $sum . ' руб. Проверьте поступление и отметьте оплату.',
+            $buyer . ' — заказ ' . $order['order_number'] . ' (поставщики: ' . $suppliers . ') на ' . $sum . ' руб. Проверьте поступление и отметьте оплату.',
             'orders/edit/' . $order['id'] . '/'
         );
         \CAdminNotify::Add([
             'MESSAGE' => 'Покупатель ' . $buyer . ' сообщил об оплате заказа ' . $order['order_number']
-                . ' (продавец ' . $partner . ') на сумму ' . $sum . ' руб. по счёту маркетплейса. Проверьте поступление.',
+                . ' (поставщики: ' . $suppliers . ') на сумму ' . $sum . ' руб. по счёту маркетплейса. Проверьте поступление.',
             'TAG' => 'formaro_payment_notice_' . $order['id'],
             'MODULE_ID' => 'main',
             'ENABLE_CLOSE' => 'Y',
         ]);
-        (new NotificationRepository())->add(
-            $order['partner_id'],
-            'order',
-            'Оплата заказа ' . $order['order_number'],
-            'Покупатель ' . $buyer . ' сообщил об оплате счета на сумму ' . $sum . ' руб. Оплату проверит и подтвердит маркетплейс.',
-            self::orderLink($order['id'])
-        );
         BuyerNotificationService::paymentReported($order);
 
         return $date;

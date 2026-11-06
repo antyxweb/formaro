@@ -7,12 +7,14 @@
    «Выставить счёт» (issue_invoice) — счёт действителен 3 рабочих дня.
    Отгрузка и выплата: трек-номер от поставщика — «Выплачено» (mark_payout). */
 var order = null;
+var groupParts = []; // все части заказа покупателя (одна — обычный заказ)
 var PAYMENT_LABELS = {awaiting: 'Ожидает оплаты', paid: 'Оплачен', refunded: 'Возврат'};
 
 $(function () {
     dsLoad('orders').done(function (rows) {
         var o = rows.find(function (x) { return x.id === ROUTE_ID; });
         if (!o) { showResult(false, 'Заказ не найден'); return; }
+        groupParts = rows.filter(function (x) { return x.group_id === o.group_id; }).sort(function (a, b) { return a.id - b.id; });
         render(o);
     });
 
@@ -160,9 +162,23 @@ function markPayout() {
     });
 }
 
+/** Сумма заказа покупателя без отменённых частей; у текущей части — свежая. */
+function groupTotal(o) {
+    return groupParts.reduce(function (s, p) {
+        var part = p.id === o.id ? o : p;
+        return s + (part.status === 'cancelled' ? 0 : part.total);
+    }, 0);
+}
+
 /** Карточка «Согласование и счёт»: подтверждение поставщика и состояние счёта. */
 function renderInvoiceFlow(o) {
     var lines = [];
+    if (groupParts.length > 1) {
+        var waiting = groupParts.filter(function (p) { return p.id !== o.id && !p.supplier_confirmed_at && p.status !== 'cancelled'; }).length;
+        lines.push('<i class="bi bi-diagram-3"></i> Часть заказа покупателя <b>' + esc(groupParts[0].order_number) + '</b>: частей ' + groupParts.length + ', всего ' + fmtMoney(groupTotal(o)) +
+            '. Счёт и оплата — общие на все части, возврат — только на эту.' +
+            (waiting ? ' Другие поставщики ещё не подтвердили: ' + waiting + '.' : ''));
+    }
     lines.push(o.supplier_confirmed_at
         ? '<i class="bi bi-check-circle text-success"></i> Поставщик подтвердил наличие ' + fmtDate(o.supplier_confirmed_at) + '. Срок отгрузки: <b>' + esc(o.supplier_lead_time) + '</b>'
         : '<i class="bi bi-hourglass-split text-warning"></i> Поставщик ещё не подтвердил наличие и срок отгрузки.');
@@ -184,8 +200,9 @@ function renderInvoiceFlow(o) {
 }
 
 function issueInvoice() {
-    var msg = 'Выставить счёт по заказу ' + order.order_number + ' на ' + fmtMoney(order.total) + '? Покупатель получит уведомление и письмо, счёт будет действителен 3 рабочих дня. Пока счёт действует, состав заказа не меняется.';
-    if (!order.supplier_confirmed_at) msg = 'Поставщик ещё не подтвердил наличие. ' + msg;
+    var msg = 'Выставить счёт по заказу ' + groupParts[0].order_number + ' на ' + fmtMoney(groupTotal(order)) + (groupParts.length > 1 ? ' (все части заказа)' : '') + '? Покупатель получит уведомление и письмо, счёт будет действителен 3 рабочих дня. Пока счёт действует, состав заказа не меняется.';
+    var unconfirmed = groupParts.some(function (p) { return p.status !== 'cancelled' && !(p.id === order.id ? order : p).supplier_confirmed_at; });
+    if (unconfirmed) msg = 'Подтвердили наличие не все поставщики. ' + msg;
     showConfirm(msg, function () {
         cabinetAjax({ajax_action: 'issue_invoice', id: order.id}).done(function (saved) {
             render(saved);
