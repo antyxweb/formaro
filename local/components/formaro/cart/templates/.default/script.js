@@ -180,8 +180,6 @@
                         '<button type="button" class="button-icon js-cart-delete" title="Удалить выбранные"><svg width="16" height="16"><use xlink:href="#icon-delete"></use></svg></button>' +
                     '</div>' +
                 '</div>' +
-                // Минимальная сумма заказа не набрана — оформить нельзя (updateActions).
-                '<div class="alert alert-warning small py-2 mb-3 d-none js-cart-min-order" role="status"></div>' +
                 '<div class="product-sizes cart-table">' +
                     '<table>' +
                         '<thead><tr>' +
@@ -268,7 +266,7 @@
         var button = el.groups.querySelector('.js-cart-delete');
         if (!button) return;
         button.classList.toggle('d-none', !selectedItems().length);
-        var note = el.groups.querySelector('.js-cart-min-order');
+        var note = el.minOrderNote;
         var short = belowMinOrder();
         note.classList.toggle('d-none', !short);
         if (short) {
@@ -541,6 +539,7 @@
             couponState: document.getElementById('cart-coupon-state'),
             couponInput: document.getElementById('cart-coupon-input'),
             checkoutNote: document.getElementById('cart-checkout-note'),
+            minOrderNote: document.getElementById('cart-min-order'),
             checkoutForm: document.getElementById('cart-checkout-form'),
             success: document.getElementById('cart-success'),
             address: document.getElementById('cart-address'),

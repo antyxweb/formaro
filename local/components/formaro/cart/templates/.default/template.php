@@ -153,6 +153,8 @@ $choices = static function (string $name, array $options): void {
                             <div class="price text-secondary">
                                 <b class="text-danger" id="cart-summary-total">0</b> <small class="mr-2">руб</small>
                             </div>
+                            <?php // Минимальная сумма заказа не набрана — оформить нельзя (script.js, updateActions). ?>
+                            <div class="small text-secondary mt-3 d-none" id="cart-min-order" role="status"></div>
                         </div>
 
                         <div class="product-card__actions">
