@@ -186,7 +186,7 @@
                             '<th class="cart-table__choose"></th>' +
                             '<th>Товар</th>' +
                             '<th>Цена</th>' +
-                            '<th>Доступно на складе</th>' +
+                            '<th>Доступно</th>' +
                             '<th>Количество</th>' +
                             '<th class="product-sizes__cart"><svg width="24" height="24" aria-label="Корзина"><use xlink:href="#icon-shopping"></use></svg></th>' +
                         '</tr></thead>' +
