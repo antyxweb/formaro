@@ -136,7 +136,7 @@ $propsTable = static function (array $props): string {
                         </div>
 
                         <?php if (!empty($arResult['SIZE_ROWS'])): ?>
-                        <a href="#product-sizes" class="f-button c-primary d-block text-center">Выбрать размер</a>
+                        <a href="javascript:void(0);" data-click-tab="sizes" class="f-button c-primary d-block text-center">Выбрать размер</a>
                         <?php else: ?>
                         <div class="product-card__actions" data-product-id="<?= (int)$arResult['ID'] ?>">
                             <div class="cart-cnt">
@@ -161,63 +161,16 @@ $propsTable = static function (array $props): string {
                 </div>
             </div>
 
-            <?php if (!empty($arResult['SIZE_ROWS'])): ?>
-            <div class="row">
-                <div class="col-12 col-xl-8 pt-5">
-                    <div id="product-sizes" class="product-sizes">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Параметры</th>
-                                    <th>Розничная цена</th>
-                                    <th>Доступно на складе</th>
-                                    <th>Количество</th>
-                                    <th class="product-sizes__cart"><svg width="24" height="24" aria-label="Корзина"><use xlink:href="#icon-shopping"></use></svg></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php foreach ($arResult['SIZE_ROWS'] as $row):
-                                    $canBuy = empty($arResult['PREVIEW']) && ($row['STOCK'] > 0 || $row['IS_PREORDER']);
-                                    $max = $row['IS_PREORDER'] ? 0 : (int)$row['STOCK'];
-                                ?>
-                                <tr class="js-size-row" data-product-id="<?= (int)$row['ID'] ?>" data-max="<?= $max ?>">
-                                    <td class="product-sizes__size">
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l9 5v10l-9 5-9-5V7z"/><path d="M3 7l9 5 9-5M12 12v10"/></svg>
-                                        <?= htmlspecialcharsbx($row['SIZE']) ?>
-                                    </td>
-                                    <td class="product-sizes__price">
-                                        <?= $fmt($row['PRICE']) ?> ₽
-                                        <?php if ($row['OLD_PRICE']): ?><s class="small"><?= $fmt($row['OLD_PRICE']) ?> ₽</s><?php endif; ?>
-                                    </td>
-                                    <td><?= $row['STOCK'] > 0 ? (int)$row['STOCK'] : ($row['IS_PREORDER'] ? 'Под заказ' : 'Нет в наличии') ?></td>
-                                    <td>
-                                        <div class="product-sizes__qty">
-                                            <button type="button" class="js-size-minus" aria-label="Меньше, размер <?= htmlspecialcharsbx($row['SIZE']) ?>"<?= $canBuy ? '' : ' disabled' ?>>−</button>
-                                            <input type="text" inputmode="numeric" class="js-size-qty" value="0" aria-label="Количество, размер <?= htmlspecialcharsbx($row['SIZE']) ?>"<?= $canBuy ? '' : ' disabled' ?>>
-                                            <button type="button" class="js-size-plus" aria-label="Больше, размер <?= htmlspecialcharsbx($row['SIZE']) ?>"<?= $canBuy ? '' : ' disabled' ?>>+</button>
-                                            <span>шт.</span>
-                                        </div>
-                                    </td>
-                                    <td class="product-sizes__cart">
-                                        <button type="button" class="js-size-remove d-none" title="Убрать из корзины" aria-label="Убрать из корзины, размер <?= htmlspecialcharsbx($row['SIZE']) ?>">
-                                            <svg width="20" height="20"><use xlink:href="#icon-delete"></use></svg>
-                                        </button>
-                                    </td>
-                                </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            <?php endif; ?>
-
+            <?php $hasSizes = !empty($arResult['SIZE_ROWS']); ?>
             <div class="row">
                 <div class="product-tabs-wrap col-12 col-xl-8">
 
                     <div class="tab-wrap">
                         <div class="tab-head d-flex flex-wrap pt-5 pb-4">
-                            <button class="f-button c-secondary mb-3" data-tab="description">Описание</button>
+                            <?php if ($hasSizes): ?>
+                            <button class="f-button c-secondary mb-3" data-tab="sizes">Размеры</button>
+                            <?php endif; ?>
+                            <button class="f-button <?= $hasSizes ? 'c-white' : 'c-secondary' ?> mb-3" data-tab="description">Описание</button>
                             <?php if ($arResult['PROPS']): ?>
                             <button class="f-button c-white mb-3" data-tab="features">Характеристики</button>
                             <?php endif; ?>
@@ -226,7 +179,55 @@ $propsTable = static function (array $props): string {
                         </div>
 
                         <div class="tab-body mr-xl-5">
-                            <div class="tab-content tab-description">
+                            <?php if ($hasSizes): ?>
+                            <div class="tab-content tab-sizes">
+                            <div class="product-sizes">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Параметры</th>
+                                            <th>Розничная цена</th>
+                                            <th>Доступно на складе</th>
+                                            <th>Количество</th>
+                                            <th class="product-sizes__cart"><svg width="24" height="24" aria-label="Корзина"><use xlink:href="#icon-shopping"></use></svg></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php foreach ($arResult['SIZE_ROWS'] as $row):
+                                            $canBuy = empty($arResult['PREVIEW']) && ($row['STOCK'] > 0 || $row['IS_PREORDER']);
+                                            $max = $row['IS_PREORDER'] ? 0 : (int)$row['STOCK'];
+                                        ?>
+                                        <tr class="js-size-row" data-product-id="<?= (int)$row['ID'] ?>" data-max="<?= $max ?>">
+                                            <td class="product-sizes__size">
+                                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l9 5v10l-9 5-9-5V7z"/><path d="M3 7l9 5 9-5M12 12v10"/></svg>
+                                                <?= htmlspecialcharsbx($row['SIZE']) ?>
+                                            </td>
+                                            <td class="product-sizes__price">
+                                                <?= $fmt($row['PRICE']) ?> ₽
+                                                <?php if ($row['OLD_PRICE']): ?><s class="small"><?= $fmt($row['OLD_PRICE']) ?> ₽</s><?php endif; ?>
+                                            </td>
+                                            <td><?= $row['STOCK'] > 0 ? (int)$row['STOCK'] : ($row['IS_PREORDER'] ? 'Под заказ' : 'Нет в наличии') ?></td>
+                                            <td>
+                                                <div class="product-sizes__qty">
+                                                    <button type="button" class="js-size-minus" aria-label="Меньше, размер <?= htmlspecialcharsbx($row['SIZE']) ?>"<?= $canBuy ? '' : ' disabled' ?>>−</button>
+                                                    <input type="text" inputmode="numeric" class="js-size-qty" value="0" aria-label="Количество, размер <?= htmlspecialcharsbx($row['SIZE']) ?>"<?= $canBuy ? '' : ' disabled' ?>>
+                                                    <button type="button" class="js-size-plus" aria-label="Больше, размер <?= htmlspecialcharsbx($row['SIZE']) ?>"<?= $canBuy ? '' : ' disabled' ?>>+</button>
+                                                    <span>шт.</span>
+                                                </div>
+                                            </td>
+                                            <td class="product-sizes__cart">
+                                                <button type="button" class="js-size-remove d-none" title="Убрать из корзины" aria-label="Убрать из корзины, размер <?= htmlspecialcharsbx($row['SIZE']) ?>">
+                                                    <svg width="20" height="20"><use xlink:href="#icon-delete"></use></svg>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <?php endforeach; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                            </div>
+                            <?php endif; ?>
+                            <div class="tab-content tab-description<?= $hasSizes ? ' d-none' : '' ?>">
                                 <?php if ($description !== ''): ?>
                                 <?= $description ?>
                                 <?php else: ?>
