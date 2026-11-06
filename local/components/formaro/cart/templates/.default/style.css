@@ -1,14 +1,32 @@
-/* Шапка группы поставщика: слева название ссылкой, справа выбор/удаление
-   (вместо сортировки из вёрстки /html/cart.html). */
+/* Шапка «Состав заказа»: справа выбор/удаление (вместо сортировки из вёрстки /html/cart.html). */
 .cart-group-title {
     font-weight: 500;
     color: #111;
 }
-.cart-group-title:hover {
-    color: #1976d2;
-}
-.cart-group .cart-group-actions .button-icon {
+.cart-group-actions .button-icon {
     margin-left: 0;
+}
+
+/* Таблица товаров; общие стили — .product-sizes в css/pages.css. */
+.product-sizes.cart-table table {
+    min-width: 760px;
+}
+.cart-table .cart-table__choose {
+    width: 44px;
+}
+.cart-table__link {
+    display: flex;
+    align-items: center;
+    color: #111;
+}
+.cart-table__img {
+    flex: 0 0 48px;
+    height: 48px;
+    margin-right: 12px;
+    background: center / contain no-repeat;
+}
+.cart-table-skeleton {
+    height: 240px;
 }
 
 /* Сообщение об оформленном заказе. */

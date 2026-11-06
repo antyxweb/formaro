@@ -44,11 +44,11 @@ $pager = static fn(string $key) => '<div class="table-footer-bar"><div class="tf
         <div class="d-flex flex-wrap gap-3 align-items-end">
             <div><label class="form-label small mb-1" for="markupRate">Наценка на цену поставщика, %</label>
                 <input type="number" class="form-control" id="markupRate" min="7" step="0.5" style="width:140px;"></div>
-            <div><label class="form-label small mb-1" for="minOrder">Минимальный заказ у поставщика, руб.</label>
+            <div><label class="form-label small mb-1" for="minOrder">Минимальная сумма заказа, руб.</label>
                 <input type="number" class="form-control" id="minOrder" min="0" step="100" style="width:200px;"></div>
             <button type="button" class="btn btn-primary" id="saveMarkupBtn">Сохранить</button>
         </div>
-        <div class="form-text" id="markupHint">Цена на сайте = цена поставщика + наценка, округляется вверх до рубля. Поставщик видит только свою цену. Скидки поставщика считаются от его цены — комиссия площадки не меняется. Если товаров одного поставщика в корзине меньше чем на минимальный заказ, оформить заказ нельзя.</div>
+        <div class="form-text" id="markupHint">Цена на сайте = цена поставщика + наценка, округляется вверх до рубля. Поставщик видит только свою цену. Скидки поставщика считаются от его цены — комиссия площадки не меняется. Если отмеченных товаров в корзине меньше чем на минимальную сумму, оформить заказ нельзя.</div>
     </div>
 </div>
 

@@ -3,7 +3,7 @@
  * Содержимое корзины для /personal/cart/ (formaro:cart).
  *
  * GET items=id:qty,id:qty,… (порядок — порядок добавления) →
- * {groups: [{partner: {id, name, url}, items: [...]}], items: [{id, qty}]}
+ * {groups: [{partner: {id, name, url}, items: [...]}], items: [{id, qty}], min_order}
  * items групп — как у catalog_grid.php плюс qty, max (0 — без
  * ограничения), sum и old_sum (за всё количество). Цена со скидкой
  * считается для этого количества (скидки «от N штук» и «от суммы»).
@@ -52,4 +52,4 @@ $coupons = array_map(static function (array $c) {
     return $c;
 }, $result['coupons']);
 
-echo json_encode(['groups' => $result['groups'], 'items' => $items, 'coupons' => $coupons], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+echo json_encode(['groups' => $result['groups'], 'items' => $items, 'coupons' => $coupons, 'min_order' => $result['min_order']], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);

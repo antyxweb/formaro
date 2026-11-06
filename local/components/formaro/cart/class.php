@@ -8,7 +8,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
  *
  * Состав корзины живёт в браузере или в аккаунте (js/cart.js,
  * window.FormaroCart), поэтому страницу целиком строит script.js шаблона:
- * товары и цены — /local/ajax/cart_list.php, сгруппированы по поставщикам.
+ * товары и цены — /local/ajax/cart_list.php, одной таблицей.
  * Сервер отдаёт только каркас со скелетонами и форму оформления, для
  * вошедшего — с предзаполненными «Данными покупателя»
  * (CartCheckoutService::buyerDefaults()).

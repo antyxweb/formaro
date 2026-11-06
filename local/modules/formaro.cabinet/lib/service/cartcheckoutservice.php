@@ -41,7 +41,7 @@ class CartCheckoutService
     /**
      * @param array $items [{id, qty}] — уже нормализованные (CartRepository::normalize)
      * @param string[] $codes коды промокодов
-     * @return array{groups: array, coupons: array}
+     * @return array{groups: array, coupons: array, min_order: float}
      *   groups: [{partner: {id, name, url}, items: [...]}] в порядке первого товара;
      *   coupons: [{code, valid, message, partner_id, partner_name, discount_type, value, id}]
      */
@@ -113,8 +113,6 @@ class CartCheckoutService
             $result[] = [
                 'partner' => $partners[$partnerId] ?? ['id' => $partnerId, 'name' => 'Другие продавцы', 'url' => ''],
                 'items' => $groupItems,
-                // Минимальный заказ у поставщика (MarkupService) — меньше оформить нельзя (checkout()).
-                'min_order' => MarkupService::minOrder(),
             ];
         }
 
@@ -126,7 +124,8 @@ class CartCheckoutService
         }
         unset($coupon);
 
-        return ['groups' => $result, 'coupons' => $coupons];
+        // Минимальная сумма — на весь заказ, меньше оформить нельзя (checkout()).
+        return ['groups' => $result, 'coupons' => $coupons, 'min_order' => MarkupService::minOrder()];
     }
 
     /** Расчёт корзины для браузера: без цен поставщика (только coupon_base). */
@@ -205,18 +204,18 @@ class CartCheckoutService
         }
 
         $calc = self::calculate($items, $codes);
-        // Минимальный заказ — по каждому поставщику, по ценам покупателя до
+        // Минимальная сумма — на все отмеченные товары, по ценам покупателя до
         // промокода (как в корзине, script.js belowMinOrder()).
+        $sum = 0;
         foreach ($calc['groups'] as $group) {
-            $sum = array_sum(array_column($group['items'], 'sum'));
-            if ($group['min_order'] > 0 && $sum < $group['min_order']) {
-                throw new \RuntimeException(sprintf(
-                    'Минимальный заказ у поставщика «%s» — %s руб. Добавьте товаров ещё на %s руб.',
-                    $group['partner']['name'],
-                    number_format($group['min_order'], 0, ',', ' '),
-                    number_format(ceil($group['min_order'] - $sum), 0, ',', ' ')
-                ));
-            }
+            $sum += array_sum(array_column($group['items'], 'sum'));
+        }
+        if ($calc['min_order'] > 0 && $sum < $calc['min_order']) {
+            throw new \RuntimeException(sprintf(
+                'Минимальная сумма заказа — %s руб. Добавьте товаров ещё на %s руб.',
+                number_format($calc['min_order'], 0, ',', ' '),
+                number_format(ceil($calc['min_order'] - $sum), 0, ',', ' ')
+            ));
         }
         // По одному действующему купону на поставщика (последний введённый).
         $couponByPartner = [];

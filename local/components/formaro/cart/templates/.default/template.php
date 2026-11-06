@@ -5,7 +5,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
 /** @var array $arParams */
 /** @var array $arResult */
 
-// Вёрстка — /html/cart.html. Группы поставщиков и итог строит script.js.
+// Вёрстка — /html/cart.html. Таблицу товаров и итог строит script.js.
 // Способы доставки и оплаты — плитки из вёрстки, выбор — радиокнопки
 // (коды — CartCheckoutService::DELIVERIES/PAYMENTS). Данные покупателя —
 // поля блока «Данные покупателя» карточки заказа в кабинете партнёра.
@@ -65,12 +65,8 @@ $choices = static function (string $name, array $options): void {
                     </div>
 
                     <div id="cart-groups">
-                        <?php // Скелетоны, пока грузится корзина. ?>
-                        <div class="cart-grid row product-list d-flex flex-wrap">
-                            <?php for ($i = 0; $i < 4; $i++): ?>
-                            <div class="product-item col-sm-6 col-md-4 col-xl-3 product-skeleton"><?php include $_SERVER['DOCUMENT_ROOT'] . SITE_TEMPLATE_PATH . '/include/product_card_skeleton.php'; ?></div>
-                            <?php endfor; ?>
-                        </div>
+                        <?php // Заглушка, пока грузится корзина. ?>
+                        <div class="product-sizes cart-table-skeleton mb-5"></div>
                     </div>
 
                     <form class="d-none" id="cart-checkout-form" autocomplete="on" novalidate>

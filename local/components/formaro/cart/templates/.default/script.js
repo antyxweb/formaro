@@ -1,21 +1,22 @@
 /* formaro:cart — страница корзины (/personal/cart/).
 
    Состав корзины — window.FormaroCart (js/cart.js: аккаунт или
-   localStorage), товары и цены — /local/ajax/cart_list.php. Товары
-   сгруппированы по поставщикам; у группы шапка: слева поставщик ссылкой,
-   справа «выбрать все», «снять выбор», «удалить выбранные». Итог справа —
+   localStorage), товары и цены — /local/ajax/cart_list.php. Товары — одной
+   таблицей «Состав заказа», без деления на поставщиков (стили таблицы —
+   .product-sizes, css/pages.css); в шапке «выбрать все», «снять выбор»,
+   «удалить выбранные». Минимальная сумма — на весь заказ. Итог справа —
    по отмеченным товарам; снятые с выбора товары запоминаются в браузере
    (localStorage). Под товарами — способ доставки (транспортные компании),
    данные покупателя (поля блока «Данные покупателя» заказа в кабинете;
    сервер предзаполняет их из последнего заказа или профиля) и способ
    оплаты (пока только по счёту); выбранные способы запоминаются в браузере,
    личные данные — нет. Кнопка оформления без отмеченных товаров — серая «Выберите
-   товары», иначе — «Оформить заказ»: по заказу на каждого поставщика
-   отмеченных товаров (/local/ajax/checkout.php, только для вошедших),
-   оформленные товары уходят из корзины, сверху — сообщение с номерами
-   заказов. Количество и «Удалить» в карточке работают через
-   cart.js; после изменения количества цены перезапрашиваются (скидки
-   «от N штук» и «от суммы»).
+   товары», иначе — «Оформить заказ»: на сервере по заказу на каждого
+   поставщика отмеченных товаров (/local/ajax/checkout.php, только для
+   вошедших), оформленные товары уходят из корзины, сверху — сообщение с
+   номерами заказов. Количество в строке — не меньше 1, убрать товар —
+   корзиной в конце строки; после изменения количества цены
+   перезапрашиваются (скидки «от N штук» и «от суммы»).
    Промокоды — купоны партнёров из кабинета: скидка на отмеченные товары
    своего поставщика (процент или сумма, не больше их стоимости). Можно
    несколько — по одному на поставщика (новый код того же поставщика
@@ -28,13 +29,16 @@
     var CHECKOUT_URL = '/local/ajax/checkout.php';
     var LOGIN_URL = '/personal/profile/?backurl=' + encodeURIComponent('/personal/cart/');
     var REFRESH_DELAY = 300;
+    var QTY_DELAY = 500; // как в js/cart.js
     var STICKY_TOP = 60;
     var COUPON_KEY = 'formaro_cart_coupons';
     var UNCHECKED_KEY = 'formaro_cart_unchecked';
     var CHECKOUT_KEY = 'formaro_cart_checkout';
 
     var el = {};
-    var groups = [];          // [{partner, items}]
+    var items = [];           // товары корзины (partner_id нужен промокодам)
+    var minOrder = 0;         // минимальная сумма заказа
+    var qtyTimers = {};       // id → таймер ещё не отправленного количества
     var unchecked = readUnchecked(); // id → true: снятые с выбора (по умолчанию выбрано всё)
     var requestId = 0;
     var refreshTimer = null;
@@ -71,7 +75,7 @@
      *  добавленный заново товар снова будет отмечен. */
     function writeUnchecked() {
         var present = {};
-        allItems().forEach(function (item) { present[item.id] = true; });
+        items.forEach(function (item) { present[item.id] = true; });
         Object.keys(unchecked).forEach(function (id) { if (!present[id]) delete unchecked[id]; });
         var ids = Object.keys(unchecked).map(Number);
         try {
@@ -109,9 +113,9 @@
         return many;
     }
 
-    function load(items, cb) {
+    function load(cartItems, cb) {
         var id = ++requestId;
-        var qs = items.map(function (item) { return item.id + ':' + item.qty; }).join(',');
+        var qs = cartItems.map(function (item) { return item.id + ':' + item.qty; }).join(',');
         var xhr = new XMLHttpRequest();
         xhr.open('GET', endpoint + '?items=' + encodeURIComponent(qs) + (couponCodes.length ? '&coupons=' + encodeURIComponent(couponCodes.join(',')) : ''), true);
         xhr.onload = function () {
@@ -123,54 +127,81 @@
         xhr.send();
     }
 
-    function allItems() {
-        return groups.reduce(function (list, g) { return list.concat(g.items); }, []);
+    function stockText(item) {
+        return item.stock > 0 ? String(item.stock) : (item.is_preorder ? 'Под заказ' : 'Нет в наличии');
     }
 
-    function itemHtml(item) {
-        var checked = !unchecked[item.id];
-        // Количество и «Удалить» в карточке выставит cart.js (класс in-cart).
+    function priceCellHtml(item) {
+        var fmt = card().fmtPrice;
+        return fmt(item.price) + ' ₽' + (item.old_price ? ' <s class="small">' + fmt(item.old_price) + ' ₽</s>' : '');
+    }
+
+    function rowHtml(item) {
+        var esc = card().escHtml;
+        var name = esc(item.name);
         return (
-            '<div class="product-item col-sm-6 col-md-4 col-xl-3" data-cart-item="' + item.id + '">' +
-                '<div class="cart-item-choose">' +
-                    '<div class="custom-control custom-checkbox mr-sm-2">' +
-                        '<input type="checkbox" class="custom-control-input js-cart-choose" id="cart-item-' + item.id + '" value="' + item.id + '"' + (checked ? ' checked' : '') + '>' +
+            '<tr data-cart-item="' + item.id + '">' +
+                '<td class="cart-table__choose">' +
+                    '<div class="custom-control custom-checkbox">' +
+                        '<input type="checkbox" class="custom-control-input js-cart-choose" id="cart-item-' + item.id + '" value="' + item.id + '" aria-label="Выбрать: ' + name + '"' + (unchecked[item.id] ? '' : ' checked') + '>' +
                         '<label class="custom-control-label text-muted" for="cart-item-' + item.id + '"></label>' +
                     '</div>' +
-                '</div>' +
-                card().html(item) +
-            '</div>'
+                '</td>' +
+                '<td><a href="' + esc(item.url) + '" class="cart-table__link">' +
+                    '<span class="cart-table__img" style="background-image: url(\'' + esc(item.image || '') + '\')"></span>' +
+                    '<span>' + name + '</span>' +
+                '</a></td>' +
+                '<td class="product-sizes__price js-cart-price">' + priceCellHtml(item) + '</td>' +
+                '<td class="js-cart-stock">' + esc(stockText(item)) + '</td>' +
+                '<td>' +
+                    '<div class="product-sizes__qty">' +
+                        '<button type="button" class="js-cart-minus" aria-label="Меньше: ' + name + '">−</button>' +
+                        '<input type="text" inputmode="numeric" class="js-cart-qty" value="' + item.qty + '" aria-label="Количество: ' + name + '">' +
+                        '<button type="button" class="js-cart-plus" aria-label="Больше: ' + name + '">+</button>' +
+                        '<span>шт.</span>' +
+                    '</div>' +
+                '</td>' +
+                '<td class="product-sizes__cart">' +
+                    '<button type="button" class="js-cart-remove" title="Убрать из корзины" aria-label="Убрать из корзины: ' + name + '">' +
+                        '<svg width="20" height="20"><use xlink:href="#icon-delete"></use></svg>' +
+                    '</button>' +
+                '</td>' +
+            '</tr>'
         );
     }
 
-    function groupHtml(group, index) {
-        var esc = card().escHtml;
-        var p = group.partner;
-        var title = p.url
-            ? '<a href="' + esc(p.url) + '" class="cart-group-title mr-auto">' + esc(p.name) + '</a>'
-            : '<span class="cart-group-title mr-auto">' + esc(p.name) + '</span>';
+    function tableHtml() {
         return (
-            '<div class="cart-group mb-5" data-cart-group="' + index + '">' +
+            '<div class="mb-5">' +
                 '<div class="catalog-options mb-3 mb-lg-4 d-flex align-items-center">' +
-                    title +
+                    '<span class="cart-group-title mr-auto">Состав заказа</span>' +
                     '<div class="cart-group-actions d-flex ml-3">' +
-                        '<button type="button" class="button-icon bg-light js-cart-check" title="Выбрать все товары поставщика"><svg width="16" height="16"><use xlink:href="#icon-checkbox-tick"></use></svg></button>' +
+                        '<button type="button" class="button-icon bg-light js-cart-check" title="Выбрать все товары"><svg width="16" height="16"><use xlink:href="#icon-checkbox-tick"></use></svg></button>' +
                         '<button type="button" class="button-icon js-cart-uncheck" title="Снять выбор"><svg width="16" height="16"><use xlink:href="#icon-close"></use></svg></button>' +
                         '<button type="button" class="button-icon js-cart-delete" title="Удалить выбранные"><svg width="16" height="16"><use xlink:href="#icon-delete"></use></svg></button>' +
                     '</div>' +
                 '</div>' +
-                // Минимальный заказ у поставщика не набран — оформить нельзя (updateGroupActions).
+                // Минимальная сумма заказа не набрана — оформить нельзя (updateActions).
                 '<div class="alert alert-warning small py-2 mb-3 d-none js-cart-min-order" role="status"></div>' +
-                '<div class="cart-grid row product-list d-flex flex-wrap">' +
-                    group.items.map(itemHtml).join('') +
+                '<div class="product-sizes cart-table">' +
+                    '<table>' +
+                        '<thead><tr>' +
+                            '<th class="cart-table__choose"></th>' +
+                            '<th>Товар</th>' +
+                            '<th>Розничная цена</th>' +
+                            '<th>Доступно на складе</th>' +
+                            '<th>Количество</th>' +
+                            '<th class="product-sizes__cart"><svg width="24" height="24" aria-label="Корзина"><use xlink:href="#icon-shopping"></use></svg></th>' +
+                        '</tr></thead>' +
+                        '<tbody>' + items.map(rowHtml).join('') + '</tbody>' +
+                    '</table>' +
                 '</div>' +
             '</div>'
         );
     }
 
     function render() {
-        var items = allItems();
-        el.groups.innerHTML = groups.map(groupHtml).join('');
+        el.groups.innerHTML = items.length ? tableHtml() : '';
         // После оформления вместо «корзина пуста» — сообщение о заказе.
         el.empty.classList.toggle('d-none', items.length > 0 || !el.success.classList.contains('d-none'));
         el.summaryWrap.classList.toggle('d-none', !items.length);
@@ -182,7 +213,7 @@
 
     function renderSummary() {
         var fmt = card().fmtPrice;
-        var selected = allItems().filter(function (item) { return !unchecked[item.id]; });
+        var selected = selectedItems();
         var sum = 0, total = 0;
         selected.forEach(function (item) {
             sum += item.old_sum;
@@ -207,59 +238,51 @@
         el.total.textContent = fmt(total);
         el.discount.textContent = '-' + fmt(sum - total - couponDiscount);
         el.discountWrap.classList.toggle('d-none', sum - total - couponDiscount <= 0);
-        var short = groups.some(belowMinOrder);
+        var short = belowMinOrder();
         var blocked = n === 0 || short;
         el.checkout.disabled = blocked;
         el.checkout.classList.toggle('c-gray', blocked);
         el.checkout.classList.toggle('text-secondary', blocked); // как «Удалить» в карточке
         el.checkout.classList.toggle('c-success', !blocked);
-        el.checkout.textContent = !n ? 'Выберите товары' : (short ? 'Не набран минимальный заказ' : 'Оформить заказ');
+        el.checkout.textContent = !n ? 'Выберите товары' : (short ? 'Не набрана минимальная сумма' : 'Оформить заказ');
         if (blocked) el.checkoutNote.classList.add('d-none');
-        updateGroupActions();
+        updateActions();
     }
 
-    /** Сумма отмеченных товаров поставщика (цены покупателя до промокода). */
-    function selectedSum(group) {
-        return group.items.filter(function (item) { return !unchecked[item.id]; })
-            .reduce(function (s, item) { return s + item.sum; }, 0);
+    function selectedItems() {
+        return items.filter(function (item) { return !unchecked[item.id]; });
     }
 
-    /** У поставщика что-то отмечено, но на сумму меньше минимального
-     *  заказа — оформить нельзя (сервер проверяет то же самое). */
-    function belowMinOrder(group) {
-        var min = Number(group.min_order) || 0;
-        var any = group.items.some(function (item) { return !unchecked[item.id]; });
-        return any && min > 0 && selectedSum(group) < min;
+    /** Сумма отмеченных товаров (цены покупателя до промокода). */
+    function selectedSum() {
+        return selectedItems().reduce(function (s, item) { return s + item.sum; }, 0);
     }
 
-    /** «Удалить выбранные» у группы — только если в ней что-то отмечено. */
-    function updateGroupActions() {
-        var fmt = card().fmtPrice;
-        groups.forEach(function (group, index) {
-            var box = el.groups.querySelector('[data-cart-group="' + index + '"]');
-            var button = box && box.querySelector('.js-cart-delete');
-            if (!button) return;
-            var any = group.items.some(function (item) { return !unchecked[item.id]; });
-            button.classList.toggle('d-none', !any);
-
-            // Сумма выбранных товаров поставщика меньше минимального заказа — оформить нельзя.
-            var note = box.querySelector('.js-cart-min-order');
-            var short = belowMinOrder(group);
-            note.classList.toggle('d-none', !short);
-            if (short) {
-                var min = Number(group.min_order) || 0;
-                note.textContent = 'Минимальный заказ у поставщика — ' + fmt(min) + ' руб. Добавьте товаров ещё на ' +
-                    fmt(min - selectedSum(group)) + ' руб., чтобы оформить заказ, или снимите отметку с его товаров.';
-            }
-        });
+    /** Что-то отмечено, но на сумму меньше минимальной — оформить нельзя
+     *  (сервер проверяет то же самое). */
+    function belowMinOrder() {
+        return selectedItems().length > 0 && minOrder > 0 && selectedSum() < minOrder;
     }
 
-    /** Партнёр товара — нужен для промокода (купон одного поставщика). */
-    function withPartners(list) {
-        list.forEach(function (g) {
-            g.items.forEach(function (item) { item.partner_id = g.partner.id; });
-        });
-        return list;
+    /** «Удалить выбранные» — только если что-то отмечено; подсказка о минимальной сумме. */
+    function updateActions() {
+        var button = el.groups.querySelector('.js-cart-delete');
+        if (!button) return;
+        button.classList.toggle('d-none', !selectedItems().length);
+        var note = el.groups.querySelector('.js-cart-min-order');
+        var short = belowMinOrder();
+        note.classList.toggle('d-none', !short);
+        if (short) {
+            var fmt = card().fmtPrice;
+            note.textContent = 'Минимальная сумма заказа — ' + fmt(minOrder) + ' руб. Добавьте товаров ещё на ' +
+                fmt(minOrder - selectedSum()) + ' руб., чтобы оформить заказ.';
+        }
+    }
+
+    /** Ответ сервера: товары поставщиков — одним списком. */
+    function setItems(data) {
+        minOrder = Number(data.min_order) || 0;
+        items = (data.groups || []).reduce(function (list, g) { return list.concat(g.items); }, []);
     }
 
     function renderCoupon() {
@@ -302,24 +325,24 @@
         renderCoupon();
     }
 
-    /** Данные с сервера → группы; если состав групп не менялся (только
-     *  количество/цены) — обновляем цены на месте, не перерисовывая
-     *  карточки (не сбиваем ввод количества). */
+    /** Данные с сервера; если состав не менялся (только количество/цены) —
+     *  обновляем строки на месте, не перерисовывая таблицу (не сбиваем ввод
+     *  количества). */
     function apply(data) {
         setCoupons(data);
-        var next = withPartners(data.groups || []);
-        var sameStructure = next.length === groups.length && next.every(function (g, i) {
-            return g.partner.id === groups[i].partner.id &&
-                g.items.map(function (x) { return x.id; }).join() === groups[i].items.map(function (x) { return x.id; }).join();
-        });
-        groups = next;
-        if (!sameStructure) {
+        var before = items.map(function (x) { return x.id; }).join();
+        setItems(data);
+        if (items.map(function (x) { return x.id; }).join() !== before) {
             render();
             return;
         }
-        allItems().forEach(function (item) {
-            var node = el.groups.querySelector('[data-cart-item="' + item.id + '"] .product-card__info .price');
-            if (node) node.innerHTML = card().priceHtml(item);
+        items.forEach(function (item) {
+            var row = el.groups.querySelector('[data-cart-item="' + item.id + '"]');
+            if (!row) return;
+            row.querySelector('.js-cart-price').innerHTML = priceCellHtml(item);
+            row.querySelector('.js-cart-stock').textContent = stockText(item);
+            var input = row.querySelector('.js-cart-qty');
+            if (!qtyTimers[item.id] && document.activeElement !== input) input.value = item.qty;
         });
         renderSummary();
     }
@@ -331,22 +354,34 @@
         }, REFRESH_DELAY);
     }
 
-    /** Удаление — сразу убираем карточки (и пустые группы), цены
-     *  перезапросим. */
+    /** Удаление — сразу убираем строки, цены перезапросим. */
     function removeLocally(ids) {
-        groups = groups.map(function (g) {
-            return {partner: g.partner, items: g.items.filter(function (item) { return ids.indexOf(item.id) === -1; })};
-        }).filter(function (g) { return g.items.length; });
+        ids.forEach(function (id) {
+            clearTimeout(qtyTimers[id]);
+            delete qtyTimers[id];
+        });
+        items = items.filter(function (item) { return ids.indexOf(item.id) === -1; });
         render();
     }
 
-    function groupItems(button) {
-        var group = groups[Number(button.closest('[data-cart-group]').getAttribute('data-cart-group'))];
-        return group ? group.items : [];
+    /** Количество из строки: не меньше 1 (убрать — корзиной в конце строки),
+     *  не больше остатка; не число — остаётся прежнее. */
+    function changeQty(row, value) {
+        var id = Number(row.getAttribute('data-cart-item'));
+        var item = items.filter(function (x) { return x.id === id; })[0];
+        if (!item) return;
+        var qty = Math.max(1, parseInt(value, 10) || item.qty);
+        if (item.max > 0 && qty > item.max) qty = item.max;
+        row.querySelector('.js-cart-qty').value = qty;
+        clearTimeout(qtyTimers[id]);
+        qtyTimers[id] = setTimeout(function () {
+            delete qtyTimers[id];
+            window.FormaroCart.set(id, qty);
+        }, QTY_DELAY);
     }
 
-    function setChecked(items, checked) {
-        items.forEach(function (item) {
+    function setChecked(list, checked) {
+        list.forEach(function (item) {
             if (checked) delete unchecked[item.id]; else unchecked[item.id] = true;
             var input = document.getElementById('cart-item-' + item.id);
             if (input) input.checked = checked;
@@ -415,7 +450,7 @@
             showNote('<a href="' + LOGIN_URL + '">Войдите</a>, чтобы оформить заказ — товары в корзине сохранятся.');
             return;
         }
-        var ids = allItems().filter(function (item) { return !unchecked[item.id]; }).map(function (item) { return item.id; });
+        var ids = selectedItems().map(function (item) { return item.id; });
         if (!ids.length) return;
 
         var form = el.checkoutForm;
@@ -521,6 +556,10 @@
         initCheckoutForm();
 
         root.addEventListener('change', function (e) {
+            if (e.target.classList.contains('js-cart-qty')) {
+                changeQty(e.target.closest('[data-cart-item]'), e.target.value);
+                return;
+            }
             if (!e.target.classList.contains('js-cart-choose')) return;
             var id = Number(e.target.value);
             if (e.target.checked) delete unchecked[id]; else unchecked[id] = true;
@@ -529,19 +568,24 @@
         });
 
         root.addEventListener('click', function (e) {
-            var button = e.target.closest && e.target.closest('.js-cart-check, .js-cart-uncheck, .js-cart-delete');
+            var button = e.target.closest && e.target.closest('.js-cart-check, .js-cart-uncheck, .js-cart-delete, .js-cart-minus, .js-cart-plus, .js-cart-remove');
             if (!button) return;
-            var items = groupItems(button);
+            var row = button.closest('[data-cart-item]');
             if (button.classList.contains('js-cart-check')) {
                 setChecked(items, true);
             } else if (button.classList.contains('js-cart-uncheck')) {
                 setChecked(items, false);
+            } else if (button.classList.contains('js-cart-remove')) {
+                window.FormaroCart.remove([Number(row.getAttribute('data-cart-item'))]);
+            } else if (row) {
+                var current = parseInt(row.querySelector('.js-cart-qty').value, 10) || 1;
+                changeQty(row, current + (button.classList.contains('js-cart-plus') ? 1 : -1));
             } else {
-                var ids = items.filter(function (item) { return !unchecked[item.id]; }).map(function (item) { return item.id; });
+                var ids = selectedItems().map(function (item) { return item.id; });
                 if (!ids.length) return;
                 window.FormaroConfirm({
                     title: 'Удалить выбранные товары?',
-                    message: 'Из корзины будут удалены отмеченные товары этого продавца (позиций: ' + ids.length + ').',
+                    message: 'Из корзины будут удалены отмеченные товары (позиций: ' + ids.length + ').',
                     okText: 'Удалить',
                     danger: true
                 }).then(function (ok) { if (ok) window.FormaroCart.remove(ids); });
@@ -580,22 +624,22 @@
 
         // Любое изменение корзины: удалённые карточки убираем сразу, цены и
         // итог перезапрашиваем.
-        window.FormaroCart.onChange(function (items) {
-            var present = items.map(function (item) { return item.id; });
-            var removed = allItems().map(function (item) { return item.id; }).filter(function (id) { return present.indexOf(id) === -1; });
+        window.FormaroCart.onChange(function (cartItems) {
+            var present = cartItems.map(function (item) { return item.id; });
+            var removed = items.map(function (item) { return item.id; }).filter(function (id) { return present.indexOf(id) === -1; });
             if (removed.length) removeLocally(removed);
             refresh();
         });
 
-        window.FormaroCart.onReady(function (items) {
-            if (!items.length) {
-                groups = [];
+        window.FormaroCart.onReady(function (cartItems) {
+            if (!cartItems.length) {
+                items = [];
                 render();
                 return;
             }
-            load(items, function (data) {
+            load(cartItems, function (data) {
                 setCoupons(data);
-                groups = withPartners(data.groups || []);
+                setItems(data);
                 render();
             });
         });
