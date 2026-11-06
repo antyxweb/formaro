@@ -6,7 +6,7 @@
  * (FormaroProductCard.html), держать их одинаковыми.
  *
  * Ожидает $item — строку ProductCardService::toItem(): ID, NAME, URL,
- * IMAGE, SKU, STOCK, IS_PREORDER, PRICE, OLD_PRICE, BADGES.
+ * IMAGE, SKU, STOCK, IS_PREORDER, PRICE, OLD_PRICE, BADGES, SIZES_COUNT.
  * Обёртку (.carousel-cell / .product-item) добавляет вызывающий шаблон.
  */
 /** @var array $item */
@@ -47,7 +47,11 @@ $name = htmlspecialcharsbx($item['NAME']);
     // скрыто (css/pages.css), но остаётся — js/cart.js берёт из него
     // количество при добавлении.
     ?>
-    <div class="product-card__actions" data-product-id="<?= (int)$item['ID'] ?>">
+    <?php
+    // Несколько размеров — какой класть в корзину, выбирают на странице товара.
+    $pickSize = ($item['SIZES_COUNT'] ?? 1) > 1;
+    ?>
+    <div class="product-card__actions"<?= $pickSize ? '' : ' data-product-id="' . (int)$item['ID'] . '"' ?>>
         <div class="price product-card__price">
             <?php // Артикул и остаток в карточке не показываем (они на странице товара) — только «Под заказ» / «Нет в наличии». ?>
             <?php if ($item['STOCK'] <= 0): ?>
@@ -58,6 +62,11 @@ $name = htmlspecialcharsbx($item['NAME']);
             <?php endif; ?>
             <span><b class="text-danger" data-price="<?= (float)$item['PRICE'] ?>"><?= $fmt($item['PRICE']) ?></b> <small>руб/шт.</small></span>
         </div>
+        <?php if ($pickSize): ?>
+        <a href="<?= $url ?>" class="f-button c-primary" title="Выбрать размер" aria-label="Выбрать размер">
+            <svg width="20" height="20"><use xlink:href="#icon-shopping"></use></svg>
+        </a>
+        <?php else: ?>
         <div class="cart-cnt">
             <div class="buttons">
                 <button class="cart-cnt-plus">
@@ -75,6 +84,7 @@ $name = htmlspecialcharsbx($item['NAME']);
         <button class="cart-remove f-button c-gray text-secondary d-none" title="Убрать из корзины" aria-label="Убрать из корзины">
             <svg width="20" height="20"><use xlink:href="#icon-delete"></use></svg>
         </button>
+        <?php endif; ?>
     </div>
     <a href="#" class="stretched-link"></a>
 </div>

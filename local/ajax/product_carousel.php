@@ -50,6 +50,7 @@ $items = array_map(static fn(array $item) => [
     'price' => $item['PRICE'],
     'old_price' => $item['OLD_PRICE'],
     'badges' => $item['BADGES'],
+    'sizes_count' => $item['SIZES_COUNT'],
 ], $page['items']);
 
 echo json_encode(['items' => $items, 'hasMore' => $page['hasMore']], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);

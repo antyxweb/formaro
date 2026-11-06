@@ -70,6 +70,7 @@ $items = array_map(static function (array $p) use ($activeDiscounts) {
         'price' => $display['price'],
         'old_price' => $display['old_price'],
         'badges' => $display['badges'],
+        'sizes_count' => (int)($p['card_sizes'] ?? 1),
     ];
 }, $products);
 

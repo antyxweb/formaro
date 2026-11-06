@@ -46,6 +46,8 @@
      *  .carousel-cell в карусели) добавляет вызывающий код. */
     function productCardHtml(item) {
         var url = item.url || '#';
+        // Несколько размеров — какой класть в корзину, выбирают на странице товара.
+        var pickSize = Number(item.sizes_count) > 1;
         return (
             '<div class="product-card">' +
                 '<div class="product-card__img">' +
@@ -61,12 +63,15 @@
                 '</div>' +
                 // Нижняя полоса как в include/product_card.php: цена и
                 // кнопка-иконка; .cart-cnt скрыт, но нужен js/cart.js.
-                '<div class="product-card__actions" data-product-id="' + Number(item.id) + '">' +
+                '<div class="product-card__actions"' + (pickSize ? '' : ' data-product-id="' + Number(item.id) + '"') + '>' +
                     '<div class="price product-card__price">' +
                         stockHtml(item) +
                         (item.old_price ? '<s>' + fmtPrice(item.old_price) + '</s>' : '') +
                         '<span><b class="text-danger" data-price="' + item.price + '">' + fmtPrice(item.price) + '</b> <small>руб/шт.</small></span>' +
                     '</div>' +
+                    (pickSize
+                        ? '<a href="' + escHtml(url) + '" class="f-button c-primary" title="Выбрать размер" aria-label="Выбрать размер"><svg width="20" height="20"><use xlink:href="#icon-shopping"></use></svg></a>'
+                        : (
                     '<div class="cart-cnt">' +
                         '<div class="buttons">' +
                             '<button class="cart-cnt-plus"><svg width="20" height="20"><use xlink:href="#icon-arrow-up"></use></svg></button>' +
@@ -79,7 +84,8 @@
                     '</button>' +
                     '<button class="cart-remove f-button c-gray text-secondary d-none" title="Убрать из корзины" aria-label="Убрать из корзины">' +
                         '<svg width="20" height="20"><use xlink:href="#icon-delete"></use></svg>' +
-                    '</button>' +
+                    '</button>'
+                    )) +
                 '</div>' +
                 '<a href="#" class="stretched-link"></a>' +
             '</div>'

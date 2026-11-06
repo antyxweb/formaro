@@ -163,7 +163,7 @@ class FormaroPreviewComponent extends CBitrixComponent
         if ($id) {
             $filter = ['SECTION_ID' => $id, 'INCLUDE_SUBSECTIONS' => 'Y'];
             $productRepo = new ProductRepository();
-            $products = ProductCardService::build($productRepo->findPublic($filter, ['SORT' => 'ASC', 'ID' => 'DESC'], self::PRODUCTS_LIMIT));
+            $products = ProductCardService::build($productRepo->listPublic(self::PRODUCTS_LIMIT, 0, $filter, 'popular'));
             $count = $productRepo->countPublic(ProductRepository::buildPublicFilter(['sections' => [$id]]));
         }
 

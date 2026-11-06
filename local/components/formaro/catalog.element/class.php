@@ -15,7 +15,9 @@ use Formaro\Cabinet\Service\ProductPricingService;
  *
  * Варианты — товары одной группы (свойство VARIANT_GROUP_ID, группы
  * собирает партнёр в кабинете): в блоке «Цвет» — по одному товару на цвет
- * (того же размера, если есть), в блоке «Размер» — размеры текущего цвета.
+ * (того же размера, если есть), в блоке «Размер» — размер текущего цвета.
+ * Несколько размеров одного цвета — одна карточка: таблица размеров вместо
+ * формы корзины (SIZE_ROWS), каждый размер кладётся в корзину отдельно.
  * Переход на вариант script.js делает без перезагрузки страницы.
  *
  * «Характеристики» — цвет, размер и доп. свойства товара (CUSTOM_PROPS_JSON).
@@ -87,6 +89,7 @@ class FormaroCatalogElementComponent extends CBitrixComponent
                 'PARTNER' => $this->loadPartner($product['partner_id']),
             ];
             $this->arResult += $this->buildVariants($repo, $product);
+            $this->applySizeTable($product);
 
             if (defined('BX_COMP_MANAGED_CACHE')) {
                 global $CACHE_MANAGER;
@@ -94,7 +97,7 @@ class FormaroCatalogElementComponent extends CBitrixComponent
                 $CACHE_MANAGER->RegisterTag('iblock_id_8');
             }
 
-            $this->setResultCacheKeys(['ID', 'NAME', 'PARTNER_ID', 'GALLERY', 'SHORT_DESCRIPTION']);
+            $this->setResultCacheKeys(['ID', 'NAME', 'PARTNER_ID', 'GALLERY', 'SHORT_DESCRIPTION', 'CANONICAL']);
             $this->includeComponentTemplate();
         }
 
@@ -102,6 +105,10 @@ class FormaroCatalogElementComponent extends CBitrixComponent
             $APPLICATION->SetTitle($this->arResult['NAME']);
             $APPLICATION->SetPageProperty('title', $this->arResult['NAME']);
             $APPLICATION->AddChainItem($this->arResult['NAME']);
+            // Страницы размеров одной карточки одинаковы — для поиска одна.
+            if (!empty($this->arResult['CANONICAL'])) {
+                $APPLICATION->AddHeadString('<link rel="canonical" href="' . htmlspecialcharsbx($this->arResult['CANONICAL']) . '">');
+            }
             // Превью ссылки (Open Graph): первое фото и краткое описание.
             \Formaro\Cabinet\Seo\OpenGraph::set(
                 (string)($this->arResult['GALLERY'][0]['SRC'] ?? ''),
@@ -156,10 +163,11 @@ class FormaroCatalogElementComponent extends CBitrixComponent
             'PREVIEW' => true,
         ];
         $this->arResult += $this->buildVariants(new ProductRepository(), $product);
+        $this->applySizeTable($product);
         $this->includeComponentTemplate();
 
-        $APPLICATION->SetTitle($product['name']);
-        $APPLICATION->AddChainItem($product['name']);
+        $APPLICATION->SetTitle($this->arResult['NAME']);
+        $APPLICATION->AddChainItem($this->arResult['NAME']);
 
         return (int)$product['partner_id'];
     }
@@ -278,7 +286,59 @@ class FormaroCatalogElementComponent extends CBitrixComponent
         $order = array_flip(CatalogFilterService::sortSizes(array_keys($sizes)));
         uksort($sizes, static fn($a, $b) => $order[$a] <=> $order[$b]);
 
-        return ['COLORS' => array_values($colors), 'SIZES' => array_values($sizes)];
+        // Все размеры этой карточки, с повторами: дубль размера иначе было бы не купить.
+        $cardKey = ProductRepository::cardKey($product['id'], $product['variant_group_id'], $product['color'], $product['size']);
+        $sameCard = array_values(array_filter($members, static fn(array $p) => ProductRepository::cardKey($p['id'], $p['variant_group_id'], $p['color'], $p['size']) === $cardKey));
+        $canonical = $sameCard[0]['public_url'] ?? '';
+        $sizeOrder = array_flip(CatalogFilterService::sortSizes(array_unique(array_map(static fn(array $p) => trim($p['size']), $sameCard))));
+        usort($sameCard, static fn($a, $b) => $sizeOrder[trim($a['size'])] <=> $sizeOrder[trim($b['size'])] ?: $a['id'] <=> $b['id']);
+
+        return ['COLORS' => array_values($colors), 'SIZES' => array_values($sizes), 'SAME_CARD' => $sameCard, 'CANONICAL_URL' => $canonical];
+    }
+
+    /**
+     * Несколько размеров — таблица вместо формы: название без размера, общий
+     * остаток, цена — наименьшая («от», если различаются). У одного размера
+     * всё как было.
+     */
+    private function applySizeTable(array $product): void
+    {
+        $members = $this->arResult['SAME_CARD'];
+        $canonical = $this->arResult['CANONICAL_URL'];
+        unset($this->arResult['SAME_CARD'], $this->arResult['CANONICAL_URL']);
+        if (count($members) < 2) {
+            return;
+        }
+
+        $discounts = (new DiscountRepository())->listActive();
+        $rows = array_map(static function (array $p) use ($discounts) {
+            $display = ProductPricingService::computeDisplay($p, $discounts);
+
+            return [
+                'ID' => $p['id'],
+                'SIZE' => trim($p['size']),
+                'PRICE' => $display['price'],
+                'OLD_PRICE' => $display['old_price'],
+                'STOCK' => $p['stock'],
+                'IS_PREORDER' => $p['is_preorder'],
+            ];
+        }, $members);
+
+        $prices = array_column($rows, 'PRICE');
+        $cheapest = $rows[array_search(min($prices), $prices)];
+        $this->arResult = array_merge($this->arResult, [
+            'SIZE_ROWS' => $rows,
+            'NAME' => ProductRepository::cardName($product['name'], $product['size']),
+            'SKU' => '',
+            'PRICE' => $cheapest['PRICE'],
+            'OLD_PRICE' => $cheapest['OLD_PRICE'],
+            'PRICE_FROM' => min($prices) != max($prices),
+            'STOCK' => array_sum(array_column($rows, 'STOCK')),
+            'IS_PREORDER' => in_array(true, array_column($rows, 'IS_PREORDER'), true),
+            'PROPS' => array_values(array_filter($this->arResult['PROPS'], static fn(array $prop) => $prop['NAME'] !== 'Размер')),
+            'CANONICAL' => $canonical,
+        ]);
+        $this->arResult['SHORT_PROPS'] = array_slice($this->arResult['PROPS'], 0, self::SHORT_PROPS);
     }
 
     /** Карточка «О продавце» — элемент инфоблока партнёров. */

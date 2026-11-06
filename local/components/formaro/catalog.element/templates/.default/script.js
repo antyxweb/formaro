@@ -6,6 +6,9 @@
      хлебные крошки, <title> и адрес (history.pushState); «Назад» в
      браузере возвращает предыдущий вариант так же. Галерею (Flickity)
      scripts.js включает при загрузке — для новой разметки включаем заново.
+   - Таблица размеров (#product-sizes): количество сразу кладётся в корзину
+     (FormaroCart), 0 — убирает. Обработчики делегированы: таблица заменяется
+     вместе с #product-detail при смене цвета.
    - Залипание блока цены — CSS sticky (style.css, класс is-sticky),
      только если блок целиком помещается в окно; сайдбар «О продавце» не
      залипает. sticky-kit, который scripts.js включает на обоих, снимаем —
@@ -19,6 +22,59 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Предпросмотр из кабинета (/preview/) — не просмотр товара покупателем.
     if (window.FormaroViewed && !root.hasAttribute('data-preview')) window.FormaroViewed.add(root.getAttribute('data-product-id'));
+
+    var QTY_DELAY = 500; // как в js/cart.js
+    var sizeTimers = {};
+
+    function renderSizeRows() {
+        if (!window.FormaroCart) return;
+        var qtyById = {};
+        window.FormaroCart.getItems().forEach(function (item) { qtyById[item.id] = item.qty; });
+        Array.prototype.forEach.call(root.querySelectorAll('.js-size-row'), function (row) {
+            var id = row.getAttribute('data-product-id');
+            var input = row.querySelector('.js-size-qty');
+            if (!sizeTimers[id] && document.activeElement !== input) input.value = qtyById[id] || 0;
+            row.querySelector('.js-size-remove').classList.toggle('d-none', !qtyById[id]);
+        });
+    }
+
+    function changeSizeQty(row, qty) {
+        var id = row.getAttribute('data-product-id');
+        var max = Number(row.getAttribute('data-max'));
+        qty = Math.max(0, parseInt(qty, 10) || 0);
+        if (max > 0 && qty > max) qty = max;
+        row.querySelector('.js-size-qty').value = qty;
+        clearTimeout(sizeTimers[id]);
+        sizeTimers[id] = setTimeout(function () {
+            delete sizeTimers[id];
+            window.FormaroCart.set(id, qty);
+            renderSizeRows();
+        }, QTY_DELAY);
+    }
+
+    document.addEventListener('click', function (e) {
+        var button = e.target.closest && e.target.closest('.js-size-minus, .js-size-plus, .js-size-remove');
+        if (!button || !window.FormaroCart) return;
+        var row = button.closest('.js-size-row');
+        var input = row.querySelector('.js-size-qty');
+        if (button.classList.contains('js-size-remove')) {
+            changeSizeQty(row, 0);
+        } else {
+            changeSizeQty(row, (parseInt(input.value, 10) || 0) + (button.classList.contains('js-size-plus') ? 1 : -1));
+        }
+    });
+
+    document.addEventListener('change', function (e) {
+        if (e.target.classList && e.target.classList.contains('js-size-qty') && window.FormaroCart) {
+            changeSizeQty(e.target.closest('.js-size-row'), e.target.value);
+        }
+    });
+
+    if (window.FormaroCart) {
+        window.FormaroCart.onReady(renderSizeRows);
+        window.FormaroCart.onChange(renderSizeRows);
+    }
+
     if (!$ || !window.DOMParser || !window.history || !history.pushState) return;
 
     var loading = false;
@@ -84,6 +140,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (push) history.pushState({productUrl: url}, '', url);
             initGallery();
             updateSticky();
+            renderSizeRows();
             if (window.FormaroViewed) window.FormaroViewed.add(root.getAttribute('data-product-id'));
         }).fail(function () {
             window.location.href = url;

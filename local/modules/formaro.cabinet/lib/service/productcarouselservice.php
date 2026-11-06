@@ -79,7 +79,7 @@ class ProductCarouselService
 
         switch (self::normalizeMode($mode)) {
             case self::MODE_DISCOUNT:
-                $items = self::loadDiscounted($activeDiscounts, $scopeFilter);
+                $items = self::loadDiscounted($activeDiscounts, $scopeFilter, null, true);
                 break;
             case self::MODE_VIEWED:
                 $items = self::loadByIds($activeDiscounts, $scopeFilter, (array)($scope['ids'] ?? []));
@@ -97,7 +97,7 @@ class ProductCarouselService
     /** Первые $top новинок — на одну больше страницы, чтобы узнать, есть ли ещё. */
     private static function loadNew(array $activeDiscounts, array $scopeFilter, int $top): array
     {
-        $products = (new ProductRepository())->findPublic($scopeFilter, ['DATE_CREATE' => 'DESC', 'ID' => 'DESC'], $top);
+        $products = (new ProductRepository())->listPublic($top, 0, $scopeFilter, 'new');
 
         return array_map(
             static fn(array $p) => ProductCardService::toItem($p, ProductPricingService::computeDisplay($p, $activeDiscounts)),
@@ -112,9 +112,11 @@ class ProductCarouselService
         if (!$ids) {
             return [];
         }
-        $products = (new ProductRepository())->findPublic(array_merge($scopeFilter, ['ID' => $ids]), ['ID' => 'DESC'], count($ids));
+        $repo = new ProductRepository();
+        $products = $repo->findPublic(array_merge($scopeFilter, ['ID' => $ids]), ['ID' => 'DESC'], count($ids));
         $position = array_flip($ids);
         usort($products, static fn($a, $b) => $position[$a['id']] <=> $position[$b['id']]);
+        $products = $repo->toCards($products);
 
         return array_map(
             static fn(array $p) => ProductCardService::toItem($p, ProductPricingService::computeDisplay($p, $activeDiscounts)),
@@ -126,9 +128,10 @@ class ProductCarouselService
      * Все товары со скидкой, отсортированные — страницу режет load().
      * $targetDiscounts — брать только товары этих скидок (дайджест по теме —
      * TopicDigestService: только новые акции); цену всё равно считаем по всем
-     * действующим.
+     * действующим. $asCards — размеры одного цвета одной карточкой (витрина);
+     * дайджест сворачивает варианты сам.
      */
-    public static function loadDiscounted(array $activeDiscounts, array $scopeFilter, ?array $targetDiscounts = null): array
+    public static function loadDiscounted(array $activeDiscounts, array $scopeFilter, ?array $targetDiscounts = null, bool $asCards = false): array
     {
         // Сужаем выборку до товаров, которых касается хоть одна активная
         // скидка (по её таргету); окончательно применимость (min_qty,
@@ -156,9 +159,11 @@ class ProductCarouselService
             return [];
         }
 
-        $candidates = (new ProductRepository())->findPublic(array_merge([$or], $scopeFilter), ['ID' => 'DESC'], self::MAX_DISCOUNT_CANDIDATES);
+        $repo = new ProductRepository();
+        $candidates = $repo->findPublic(array_merge([$or], $scopeFilter), ['ID' => 'DESC'], self::MAX_DISCOUNT_CANDIDATES);
 
         $items = [];
+        $rows = [];
         foreach ($candidates as $p) {
             $display = ProductPricingService::computeDisplay($p, $activeDiscounts);
             if ($display['old_price'] === null) {
@@ -167,9 +172,19 @@ class ProductCarouselService
             $item = ProductCardService::toItem($p, $display);
             $item['DISCOUNT_RATIO'] = 1 - $display['price'] / $display['old_price'];
             $items[] = $item;
+            $rows[$p['id']] = $p;
         }
 
         usort($items, static fn($a, $b) => $b['DISCOUNT_RATIO'] <=> $a['DISCOUNT_RATIO'] ?: $b['ID'] <=> $a['ID']);
+
+        if ($asCards) {
+            $cards = $repo->toCards(array_map(static fn(array $item) => $rows[$item['ID']], $items));
+
+            return array_map(
+                static fn(array $p) => ProductCardService::toItem($p, ProductPricingService::computeDisplay($p, $activeDiscounts)),
+                $cards
+            );
+        }
 
         return $items;
     }

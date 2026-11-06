@@ -34,6 +34,8 @@ class ProductRepository
     ];
 
     private int $iblockId;
+    /** cardIndex() за запрос: страницу и общее число считают подряд. */
+    private static array $cardIndexMemo = [];
 
     public function __construct()
     {
@@ -77,27 +79,123 @@ class ProductRepository
         return $rows;
     }
 
-    /** Публичная витрина (главная страница, #catalog-grid) — активные
-     *  товары всех партнёров, постранично. $offset ожидается кратным
-     *  $limit (используется ровно так — "покажи ещё N"), поэтому считаем
-     *  номер страницы напрямую, без честного произвольного OFFSET
-     *  (в классическом API инфоблоков его нет, только iNumPage/nPageSize). */
+    /** Публичная витрина (каталог, поиск, #catalog-grid) — карточки активных
+     *  товаров всех партнёров, постранично: размеры одного цвета в группе
+     *  вариантов — одна карточка (cardKey()). В карточку попадает первый
+     *  подходящий под фильтр и сортировку размер. */
     public function listPublic(int $limit, int $offset = 0, array $filter = [], string $sort = ''): array
     {
-        $rows = [];
-        $page = intdiv($offset, max(1, $limit)) + 1;
+        $ids = array_slice($this->cardIndex($filter, $sort), max(0, $offset), max(1, $limit));
+        if (!$ids) {
+            return [];
+        }
+        $rows = $this->findPublic(['ID' => $ids], ['ID' => 'ASC'], count($ids));
+        $position = array_flip($ids);
+        usort($rows, static fn($a, $b) => $position[$a['id']] <=> $position[$b['id']]);
+
+        return $this->toCards($rows);
+    }
+
+    /**
+     * ID товаров-карточек по порядку витрины. В классическом API инфоблоков нет
+     * GROUP BY с выбором строки, а фильтр должен видеть все размеры (карточка
+     * находится по любому из них) — поэтому проход по всем подходящим.
+     * shortcut: полный обход при каждом запросе, при заметной задержке на больших каталогах — тегированный кэш по фильтру.
+     *
+     * @return int[]
+     */
+    private function cardIndex(array $filter, string $sort): array
+    {
+        $memoKey = md5(serialize([$filter, $sort]));
+        if (isset(self::$cardIndexMemo[$memoKey])) {
+            return self::$cardIndexMemo[$memoKey];
+        }
+
+        $ids = [];
         $res = CIBlockElement::GetList(
             self::publicOrder($sort),
             array_merge($filter, ['IBLOCK_ID' => $this->iblockId, 'ACTIVE' => 'Y', 'CHECK_PERMISSIONS' => 'N']),
             false,
-            ['nPageSize' => $limit, 'iNumPage' => $page],
-            self::SELECT_FIELDS
+            false,
+            ['ID', 'PROPERTY_VARIANT_GROUP_ID', 'PROPERTY_COLOR', 'PROPERTY_SIZE']
         );
         while ($el = $res->Fetch()) {
-            $rows[] = $this->toArray($el);
+            $key = self::cardKey((int)$el['ID'], (int)$el['PROPERTY_VARIANT_GROUP_ID_VALUE'], (string)$el['PROPERTY_COLOR_VALUE'], (string)$el['PROPERTY_SIZE_VALUE']);
+            $ids[$key] ??= (int)$el['ID'];
         }
 
-        return $rows;
+        return self::$cardIndexMemo[$memoKey] = array_values($ids);
+    }
+
+    /** Карточка витрины: размеры одного цвета в группе вариантов — одна.
+     *  Товар без группы или без размера — всегда своя карточка, иначе его
+     *  было бы негде купить. */
+    public static function cardKey(int $id, int $groupId, string $color, string $size): string
+    {
+        return $groupId && trim($size) !== ''
+            ? 'g' . $groupId . '|' . mb_strtolower(trim($color))
+            : 'p' . $id;
+    }
+
+    /** Название без размера на конце: «Поло черный, M» → «Поло черный». */
+    public static function cardName(string $name, string $size): string
+    {
+        $size = trim($size);
+        if ($size === '') {
+            return $name;
+        }
+        $cut = preg_replace('/[\s,;\/-]+(?:\(\s*)?(?:размер\s*|р-р\.?\s*|р\.\s*)?' . preg_quote($size, '/') . '(?:\s*\))?\s*$/iu', '', $name);
+
+        return is_string($cut) && $cut !== '' ? $cut : $name;
+    }
+
+    /**
+     * Строки toArray() → карточки: первая строка на cardKey(); если размеров
+     * несколько — card_sizes, название без размера, общий остаток и «под заказ»,
+     * если под заказ хоть один размер.
+     */
+    public function toCards(array $rows): array
+    {
+        $cards = [];
+        $groupIds = [];
+        foreach ($rows as $p) {
+            $key = self::cardKey($p['id'], $p['variant_group_id'], $p['color'], $p['size']);
+            if (!isset($cards[$key])) {
+                $cards[$key] = $p + ['card_sizes' => 1];
+                if ($p['variant_group_id']) {
+                    $groupIds[$p['variant_group_id']] = $p['variant_group_id'];
+                }
+            }
+        }
+        if (!$groupIds) {
+            return array_values($cards);
+        }
+
+        $sizes = $stock = $preorder = [];
+        $res = CIBlockElement::GetList(
+            [],
+            ['IBLOCK_ID' => $this->iblockId, 'ACTIVE' => 'Y', 'CHECK_PERMISSIONS' => 'N', 'PROPERTY_VARIANT_GROUP_ID' => array_values($groupIds)],
+            false,
+            false,
+            ['ID', 'PROPERTY_VARIANT_GROUP_ID', 'PROPERTY_COLOR', 'PROPERTY_SIZE', 'PROPERTY_STOCK', 'PROPERTY_IS_PREORDER']
+        );
+        while ($el = $res->Fetch()) {
+            $key = self::cardKey((int)$el['ID'], (int)$el['PROPERTY_VARIANT_GROUP_ID_VALUE'], (string)$el['PROPERTY_COLOR_VALUE'], (string)$el['PROPERTY_SIZE_VALUE']);
+            $sizes[$key] = ($sizes[$key] ?? 0) + 1;
+            $stock[$key] = ($stock[$key] ?? 0) + (int)$el['PROPERTY_STOCK_VALUE'];
+            $preorder[$key] = ($preorder[$key] ?? false) || $el['PROPERTY_IS_PREORDER_VALUE'] === 'Y';
+        }
+        foreach ($cards as $key => &$card) {
+            if (($sizes[$key] ?? 1) > 1) {
+                $card['card_sizes'] = $sizes[$key];
+                $card['name'] = self::cardName($card['name'], $card['size']);
+                $card['stock'] = $stock[$key];
+                $card['is_preorder'] = $preorder[$key];
+            }
+        }
+        unset($card);
+
+        return array_values($cards);
     }
 
     /** Сортировки витрины (каталог, поиск на главной):
@@ -122,19 +220,10 @@ class ProductRepository
         }
     }
 
-    /** Сколько всего активных товаров публично — узнать, есть ли смысл
-     *  показывать кнопку "Показать ещё". */
+    /** Сколько карточек на витрине (listPublic) — для постранички и «Показать ещё». */
     public function countPublic(array $filter = []): int
     {
-        $res = CIBlockElement::GetList(
-            [],
-            array_merge($filter, ['IBLOCK_ID' => $this->iblockId, 'ACTIVE' => 'Y', 'CHECK_PERMISSIONS' => 'N']),
-            false,
-            false,
-            ['ID']
-        );
-
-        return (int)$res->SelectedRowsCount();
+        return count($this->cardIndex($filter, ''));
     }
 
     /** Фильтр витрины (поиск + попап фильтра на главной, компонент
