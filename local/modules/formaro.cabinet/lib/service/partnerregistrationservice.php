@@ -61,9 +61,6 @@ class PartnerRegistrationService
         if (!ctype_digit($inn) || !in_array(strlen($inn), [10, 12], true)) {
             throw new \RuntimeException('ИНН — 10 или 12 цифр');
         }
-        if ($field('name') === '') {
-            throw new \RuntimeException('Укажите имя контактного лица');
-        }
         if (!preg_match('/^\+?[\d\s\-()]{7,20}$/', $phone)) {
             throw new \RuntimeException('Проверьте телефон');
         }
@@ -106,7 +103,7 @@ class PartnerRegistrationService
         }
         PartnerContext::reset();
 
-        self::notifyMarketplace($iblockId, $partnerId, $company, 'ИНН ' . $inn . ', ' . $contactPerson . ', ' . $phone . ', ' . $email);
+        self::notifyMarketplace($iblockId, $partnerId, $company, implode(', ', array_filter(['ИНН ' . $inn, $contactPerson, $phone, $email])));
         self::mailPartner($userId, $company, $email);
 
         return $partnerId;

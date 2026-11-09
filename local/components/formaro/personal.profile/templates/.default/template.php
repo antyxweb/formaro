@@ -51,7 +51,7 @@ $field = static function (string $form, string $name, string $label, string $val
                             <h4 class="mb-4">Контактные данные</h4>
                             <div class="form-row">
                                 <?php $field('contacts', 'last_name', 'Фамилия', $c['last_name'], 'col-md-4', ['type' => 'text', 'autocomplete' => 'family-name', 'maxlength' => 50]); ?>
-                                <?php $field('contacts', 'name', 'Имя *', $c['name'], 'col-md-4', ['type' => 'text', 'autocomplete' => 'given-name', 'maxlength' => 50, 'required' => true]); ?>
+                                <?php $field('contacts', 'name', 'Имя', $c['name'], 'col-md-4', ['type' => 'text', 'autocomplete' => 'given-name', 'maxlength' => 50]); ?>
                                 <?php $field('contacts', 'second_name', 'Отчество', $c['second_name'], 'col-md-4', ['type' => 'text', 'autocomplete' => 'additional-name', 'maxlength' => 50]); ?>
                                 <?php $field('contacts', 'email', 'E-mail (логин для входа) *', $c['email'], 'col-md-6', ['type' => 'email', 'autocomplete' => 'email', 'maxlength' => 255, 'required' => true]); ?>
                                 <?php $field('contacts', 'phone', $arResult['partner'] ? 'Телефон (рабочий)' : 'Телефон', $c['phone'], 'col-md-6', ['type' => 'tel', 'autocomplete' => 'tel', 'maxlength' => 50, 'placeholder' => '+7 999 123-45-67']); ?>

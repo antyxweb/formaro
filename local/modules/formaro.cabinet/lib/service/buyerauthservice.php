@@ -61,9 +61,6 @@ class BuyerAuthService
         if (!ctype_digit($inn) || !in_array(strlen($inn), [10, 12], true)) {
             throw new \RuntimeException('ИНН — 10 или 12 цифр');
         }
-        if ($field('name') === '') {
-            throw new \RuntimeException('Укажите имя');
-        }
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             throw new \RuntimeException('Проверьте e-mail');
         }

@@ -62,7 +62,7 @@ $submit = static function (string $text): void {
             <?php $field('register', 'company', 'Название организации / ИП *', 'col-md-8', ['type' => 'text', 'autocomplete' => 'organization', 'maxlength' => 255, 'required' => true]); ?>
             <?php $field('register', 'inn', 'ИНН *', 'col-md-4', ['type' => 'text', 'inputmode' => 'numeric', 'maxlength' => 12, 'pattern' => '\d{10}|\d{12}', 'required' => true]); ?>
             <?php $field('register', 'last_name', 'Фамилия', 'col-md-6', ['type' => 'text', 'autocomplete' => 'family-name', 'maxlength' => 50]); ?>
-            <?php $field('register', 'name', 'Имя *', 'col-md-6', ['type' => 'text', 'autocomplete' => 'given-name', 'maxlength' => 50, 'required' => true]); ?>
+            <?php $field('register', 'name', 'Имя', 'col-md-6', ['type' => 'text', 'autocomplete' => 'given-name', 'maxlength' => 50]); ?>
             <?php $field('register', 'email', 'E-mail (логин для входа) *', 'col-md-6', ['type' => 'email', 'autocomplete' => 'email', 'maxlength' => 255, 'required' => true]); ?>
             <?php $field('register', 'phone', 'Телефон', 'col-md-6', ['type' => 'tel', 'autocomplete' => 'tel', 'maxlength' => 50, 'placeholder' => '+7 999 123-45-67']); ?>
             <?php $field('register', 'password', 'Пароль * (не короче 6 символов)', 'col-md-6', ['type' => 'password', 'autocomplete' => 'new-password', 'minlength' => 6, 'required' => true]); ?>

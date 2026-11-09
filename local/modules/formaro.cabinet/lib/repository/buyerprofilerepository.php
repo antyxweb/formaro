@@ -87,9 +87,6 @@ class BuyerProfileRepository
         $field = static fn(string $key) => trim((string)($data[$key] ?? ''));
         $email = $field('email');
         $phone = $field('phone');
-        if ($field('name') === '') {
-            throw new \RuntimeException('Укажите имя');
-        }
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             throw new \RuntimeException('Проверьте e-mail');
         }
