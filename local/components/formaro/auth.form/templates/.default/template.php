@@ -59,6 +59,8 @@ $submit = static function (string $text): void {
     <form class="js-auth-view" data-view="register" data-action="register" novalidate<?= $view === 'register' ? '' : ' hidden' ?>>
         <p class="mb-4">Зарегистрируйтесь, чтобы оформлять заказы и следить за ними.</p>
         <div class="form-row">
+            <?php $field('register', 'company', 'Название организации / ИП *', 'col-md-8', ['type' => 'text', 'autocomplete' => 'organization', 'maxlength' => 255, 'required' => true]); ?>
+            <?php $field('register', 'inn', 'ИНН *', 'col-md-4', ['type' => 'text', 'inputmode' => 'numeric', 'maxlength' => 12, 'pattern' => '\d{10}|\d{12}', 'required' => true]); ?>
             <?php $field('register', 'last_name', 'Фамилия', 'col-md-6', ['type' => 'text', 'autocomplete' => 'family-name', 'maxlength' => 50]); ?>
             <?php $field('register', 'name', 'Имя *', 'col-md-6', ['type' => 'text', 'autocomplete' => 'given-name', 'maxlength' => 50, 'required' => true]); ?>
             <?php $field('register', 'email', 'E-mail (логин для входа) *', 'col-md-6', ['type' => 'email', 'autocomplete' => 'email', 'maxlength' => 255, 'required' => true]); ?>

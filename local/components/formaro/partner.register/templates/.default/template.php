@@ -74,7 +74,7 @@ $field = static function (string $name, string $label, string $value, string $co
 
         <h3>Контактное лицо</h3>
         <div class="form-row">
-            <?php $field('last_name', 'Фамилия *', '', 'col-md-6', ['type' => 'text', 'autocomplete' => 'family-name', 'maxlength' => 50, 'required' => true]); ?>
+            <?php $field('last_name', 'Фамилия', '', 'col-md-6', ['type' => 'text', 'autocomplete' => 'family-name', 'maxlength' => 50]); ?>
             <?php $field('name', 'Имя *', '', 'col-md-6', ['type' => 'text', 'autocomplete' => 'given-name', 'maxlength' => 50, 'required' => true]); ?>
             <?php $field('phone', 'Телефон *', '', 'col-md-6', ['type' => 'tel', 'autocomplete' => 'tel', 'maxlength' => 50, 'placeholder' => '+7 999 123-45-67', 'required' => true]); ?>
             <?php $field('email', 'E-mail (логин для входа) *', '', 'col-md-6', ['type' => 'email', 'autocomplete' => 'email', 'maxlength' => 255, 'required' => true]); ?>

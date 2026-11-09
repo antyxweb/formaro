@@ -5,7 +5,7 @@
  *
  * POST sessid, action:
  *   login            + email, password, remember          → {ok}
- *   register         + last_name, name, email, phone,
+ *   register         + company, inn, last_name, name, email, phone,
  *                      password, password_repeat, consent  → {ok}
  *   forgot           + email                              → {message}
  *   change_password  + login, checkword, password,

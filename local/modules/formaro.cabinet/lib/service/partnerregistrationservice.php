@@ -61,8 +61,8 @@ class PartnerRegistrationService
         if (!ctype_digit($inn) || !in_array(strlen($inn), [10, 12], true)) {
             throw new \RuntimeException('ИНН — 10 или 12 цифр');
         }
-        if ($field('name') === '' || $field('last_name') === '') {
-            throw new \RuntimeException('Укажите фамилию и имя контактного лица');
+        if ($field('name') === '') {
+            throw new \RuntimeException('Укажите имя контактного лица');
         }
         if (!preg_match('/^\+?[\d\s\-()]{7,20}$/', $phone)) {
             throw new \RuntimeException('Проверьте телефон');
@@ -89,7 +89,7 @@ class PartnerRegistrationService
             throw new \RuntimeException('Регистрация партнёров временно недоступна');
         }
 
-        $contactPerson = $field('last_name') . ' ' . $field('name');
+        $contactPerson = trim($field('last_name') . ' ' . $field('name'));
         $partnerId = self::createPartner($iblockId, $company, [
             'LEGAL_INN' => $inn,
             'CONTACT_PHONE' => $phone,

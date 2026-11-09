@@ -39,7 +39,7 @@ class BuyerAuthService
     }
 
     /**
-     * @param array $data last_name, name, email, phone, password, password_repeat, consent
+     * @param array $data company, inn, last_name, name, email, phone, password, password_repeat, consent
      * @throws \RuntimeException
      */
     public static function register(array $data): void
@@ -52,6 +52,15 @@ class BuyerAuthService
         $email = $field('email');
         $phone = $field('phone');
         $password = (string)($data['password'] ?? '');
+        $company = mb_substr($field('company'), 0, 255);
+        $inn = preg_replace('/\s+/', '', $field('inn'));
+        // Реквизиты — как в форме партнёра; дальше они в профиле (UF_BUYER_*).
+        if ($company === '') {
+            throw new \RuntimeException('Укажите название организации или ИП');
+        }
+        if (!ctype_digit($inn) || !in_array(strlen($inn), [10, 12], true)) {
+            throw new \RuntimeException('ИНН — 10 или 12 цифр');
+        }
         if ($field('name') === '') {
             throw new \RuntimeException('Укажите имя');
         }
@@ -82,6 +91,8 @@ class BuyerAuthService
             'NAME' => $field('name'),
             'LAST_NAME' => $field('last_name'),
             'PERSONAL_PHONE' => $phone,
+            'UF_BUYER_COMPANY' => $company,
+            'UF_BUYER_INN' => $inn,
             'PASSWORD' => $password,
             'CONFIRM_PASSWORD' => $password,
             'ACTIVE' => 'Y',
