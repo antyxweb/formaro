@@ -158,6 +158,7 @@ $APPLICATION->SetPageProperty("title", "Интернет-магазин спец
         )
     );?>
 
+    <?php if (false): // Пока скрыт блок «Наши партнёры». ?>
     <?$APPLICATION->IncludeComponent("bitrix:news.list", "partners-slider", Array(
         "ACTIVE_DATE_FORMAT" => "d F Y",	// Формат показа даты
         "ADD_SECTIONS_CHAIN" => "N",	// Включать раздел в цепочку навигации
@@ -220,6 +221,7 @@ $APPLICATION->SetPageProperty("title", "Интернет-магазин спец
     ),
         false
     );?>
+    <?php endif; ?>
 
     <?$APPLICATION->IncludeComponent("bitrix:news.list", "news-slider", Array(
         "ACTIVE_DATE_FORMAT" => "d F Y",	// Формат показа даты
