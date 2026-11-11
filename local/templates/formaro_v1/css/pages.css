@@ -808,3 +808,18 @@
         color: #adb5bd;
     }
 }
+
+/* Телефон, карточка товара: заголовок меньше и ближе к товару
+   (класс — свойство TITLE_SECTION_CLASS из catalog/element.php). */
+@media (max-width: 575.98px) {
+    .section.section-first--product {
+        padding-bottom: 0 !important;
+    }
+    .section-first--product .section-header .d-flex {
+        margin-bottom: 0 !important;
+    }
+    .section-first--product #main-title {
+        margin-bottom: 0;
+        font-size: 1.5rem;
+    }
+}

@@ -23,6 +23,7 @@ $partnerId = (int)$APPLICATION->IncludeComponent(
 );
 // На телефоне крошки — под блоком товара, а не над ним (header.php).
 $APPLICATION->SetPageProperty('BREADCRUMBS_CLASS', 'd-none d-sm-block');
+$APPLICATION->SetPageProperty('TITLE_SECTION_CLASS', 'section-first--product');
 ?>
 <section class="section pt-0 pb-4 d-sm-none">
     <div class="section-header">

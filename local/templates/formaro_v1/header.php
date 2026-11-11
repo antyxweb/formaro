@@ -390,7 +390,7 @@ if($GLOBALS["APPLICATION"]->GetCurPage(false) == '/'
     <main id="main" class="flex-shrink-0 mb-auto">
 
         <?if($showTitleBlock):?>
-            <section class="section section-first pb-3">
+            <section class="section section-first pb-3 <?$APPLICATION->ShowProperty('TITLE_SECTION_CLASS')?>">
                 <div class="section-header">
                     <div class="container-fluid">
                         <div class="d-flex align-items-center mb-3 mb-lg-4">
