@@ -23,3 +23,24 @@
     height: 100%;
     object-fit: contain;
 }
+
+/* Телефон: вкладки (Описание, Характеристики, ...) мельче и в одну строку,
+   что не влезло — листается по горизонтали. */
+@media (max-width: 575.98px) {
+    .tab-wrap .tab-head {
+        flex-wrap: nowrap !important;
+        overflow-x: auto;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+    }
+    .tab-wrap .tab-head::-webkit-scrollbar {
+        display: none;
+    }
+    .tab-wrap .tab-head .f-button {
+        flex: 0 0 auto;
+        margin-right: 8px;
+        padding: 10px 12px 10px 16px;
+        font-size: .875rem;
+        white-space: nowrap;
+    }
+}
