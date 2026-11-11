@@ -47,14 +47,14 @@ if (!isset($headerActionsCounts)) {
     </a>
 
     <?if($USER->IsAuthorized()):?>
-        <a class="header__action-link d-none d-sm-flex" href="/personal/profile/" aria-label="Профиль" title="Профиль">
+        <a class="header__action-link" href="/personal/profile/" aria-label="Профиль" title="Профиль">
             <svg class="header__action-icon" width="20" height="20">
                 <use xlink:href="#icon-profile"></use>
             </svg>
             <span class="d-none d-sm-inline"><?=$USER->GetFirstName()?></span>
         </a>
     <?else:?>
-        <a class="header__action-link d-none d-sm-flex" href="/personal/profile/" aria-label="Войти" title="Войти">
+        <a class="header__action-link" href="/personal/profile/" aria-label="Войти" title="Войти">
             <svg class="header__action-icon" width="20" height="20">
                 <use xlink:href="#icon-profile"></use>
             </svg>

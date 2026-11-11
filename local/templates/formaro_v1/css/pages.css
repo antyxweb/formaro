@@ -772,3 +772,23 @@
     margin-left: 8px;
     color: #6c757d;
 }
+
+/* Телефон: в шапке поиск, корзина, профиль и меню — плотнее, чтобы
+   влезли рядом с логотипом (include/header_actions.php). */
+@media (max-width: 575.98px) {
+    #header .header .header__actions {
+        padding: 0 6px 0 0;
+    }
+    #header .header .header__actions .header__action-link {
+        padding: 0 7px;
+    }
+    #header .header .logo .name--tagline {
+        padding: 0 0 0 10px;
+    }
+    #header .header .logo .name--tagline .name__word span {
+        font-size: 1.5rem;
+    }
+    #header .header .logo .name--tagline .name__tagline {
+        font-size: .68rem;
+    }
+}
