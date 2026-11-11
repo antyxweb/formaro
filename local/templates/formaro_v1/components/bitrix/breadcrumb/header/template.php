@@ -35,7 +35,7 @@ for($index = 0; $index < $itemSize; $index++)
 
 	// Главная на телефоне — иконкой домика.
 	$label = $arResult[$index]["LINK"] === '/'
-		? '<svg class="d-sm-none mr-2 align-text-bottom" width="18" height="18" fill="none" aria-hidden="true"><use xlink:href="#icon-home"></use></svg><span class="d-none d-sm-inline" itemprop="title">'.$title.'</span>'
+		? '<svg class="d-sm-none mr-1 align-text-bottom" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 11 12 3.5 21 11M5.5 9v11.5h5V15h3v5.5h5V9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="d-none d-sm-inline" itemprop="title">'.$title.'</span>'
 		: '<span itemprop="title">'.$title.'</span>';
 
 	if($arResult[$index]["LINK"] <> "" && $index != $itemSize-1)
@@ -46,7 +46,7 @@ for($index = 0; $index < $itemSize; $index++)
 					'.$label.'
 				</a>
                 <meta itemprop="position" content="'.($index + 1).'">
-                <span class="d-none d-sm-inline">&mdash;</span><span class="d-sm-none">/</span>
+                <span class="d-none d-sm-inline">&mdash;</span><span class="d-sm-none breadcrumbs__slash">/</span>
 			</li>';
 	}
 	else

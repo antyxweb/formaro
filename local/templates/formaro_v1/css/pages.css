@@ -796,3 +796,15 @@
         font-size: .68rem;
     }
 }
+
+/* Телефон: хлебные крошки — разделитель «/» серый, отступы вокруг меньше
+   (breadcrumb/header/template.php; в styles.css у li и span по 10px). */
+@media (max-width: 575.98px) {
+    .section .section-header .breadcrumbs ul li,
+    .section .section-header .breadcrumbs ul li span {
+        padding-right: 5px;
+    }
+    .section .section-header .breadcrumbs ul li .breadcrumbs__slash {
+        color: #adb5bd;
+    }
+}
