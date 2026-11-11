@@ -46,7 +46,7 @@ for($index = 0; $index < $itemSize; $index++)
 					'.$label.'
 				</a>
                 <meta itemprop="position" content="'.($index + 1).'">
-                &mdash;
+                <span class="d-none d-sm-inline">&mdash;</span><span class="d-sm-none">/</span>
 			</li>';
 	}
 	else
