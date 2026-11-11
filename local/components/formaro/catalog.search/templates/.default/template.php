@@ -47,7 +47,7 @@ $priceMax = max($priceMin + 1, (int)$arResult['PRICE_MAX']);
             <h1 class="hero-search-title mb-3"><?= $arParams['~TITLE_HTML'] ?></h1>
             <?php endif; ?>
             <?php if ($arParams['BUTTON_TEXT'] !== ''): ?>
-            <a href="<?= htmlspecialcharsbx($arParams['~BUTTON_URL']) ?>" class="f-button c-warning text-uppercase ml-auto mb-3"><?= htmlspecialcharsbx($arParams['~BUTTON_TEXT']) ?></a>
+            <a href="<?= htmlspecialcharsbx($arParams['~BUTTON_URL']) ?>" class="f-button c-warning text-uppercase ml-auto mb-3 d-none d-sm-inline-block"><?= htmlspecialcharsbx($arParams['~BUTTON_TEXT']) ?></a>
             <?php endif; ?>
         </div>
     </div>
@@ -94,14 +94,14 @@ $priceMax = max($priceMin + 1, (int)$arResult['PRICE_MAX']);
                             <svg width="16" height="16">
                                 <use xlink:href="#icon-filter-white"></use>
                             </svg>
-                            <span class="pl-2 text-uppercase d-sm-none d-md-inline">Фильтры</span>
+                            <span class="pl-2 text-uppercase d-none d-md-inline">Фильтры</span>
                             <span class="badge badge-light ml-2 d-none" id="hero-filter-count"></span>
                         </button>
                         <button type="submit" class="f-button c-primary">
-                            <svg width="16" height="16" class="d-none d-sm-inline d-md-none">
+                            <svg width="16" height="16" class="d-md-none">
                                 <use xlink:href="#icon-arrow-control"></use>
                             </svg>
-                            <span class="pl-2 text-uppercase d-sm-none d-md-inline">Искать</span>
+                            <span class="pl-2 text-uppercase d-none d-md-inline">Искать</span>
                         </button>
                     </div>
                 </form>
