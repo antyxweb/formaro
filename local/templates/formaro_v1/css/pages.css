@@ -782,6 +782,10 @@
     #header .header .header__actions .header__action-link {
         padding: 0 7px;
     }
+    /* Счётчик — от левого края ссылки: отступ меньше на 8px, и он на 8px левее (styles.css: 27px). */
+    #header .header .header__actions .header__action-link .header__action-count {
+        left: 19px;
+    }
     #header .header .logo .name--tagline {
         padding: 0 0 0 10px;
     }
