@@ -396,7 +396,7 @@ if($GLOBALS["APPLICATION"]->GetCurPage(false) == '/'
                         <div class="d-flex align-items-center mb-3 mb-lg-4">
                             <h1 id="main-title" class="h2"><?$APPLICATION->ShowTitle(false);?></h1>
                         </div>
-                        <div class="breadcrumbs">
+                        <div class="breadcrumbs <?$APPLICATION->ShowProperty('BREADCRUMBS_CLASS')?>">
                             <?$APPLICATION->IncludeComponent(
                                 "bitrix:breadcrumb",
                                 "header",

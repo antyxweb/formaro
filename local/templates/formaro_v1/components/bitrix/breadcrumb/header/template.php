@@ -33,12 +33,17 @@ for($index = 0; $index < $itemSize; $index++)
 	$nextRef = ($index < $itemSize-2 && $arResult[$index+1]["LINK"] <> ""? ' itemref="bx_breadcrumb_'.($index+1).'"' : '');
 	$child = ($index > 0? ' itemprop="child"' : '');
 
+	// Главная на телефоне — иконкой домика.
+	$label = $arResult[$index]["LINK"] === '/'
+		? '<svg class="d-sm-none mr-2 align-text-bottom" width="18" height="18" fill="none" aria-hidden="true"><use xlink:href="#icon-home"></use></svg><span class="d-none d-sm-inline" itemprop="title">'.$title.'</span>'
+		: '<span itemprop="title">'.$title.'</span>';
+
 	if($arResult[$index]["LINK"] <> "" && $index != $itemSize-1)
 	{
 		$strReturn .= '
 			<li id="bx_breadcrumb_'.$index.'" itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb"'.$child.$nextRef.'>
 				<a href="'.$arResult[$index]["LINK"].'" title="'.$title.'" itemprop="url">
-					<span itemprop="title">'.$title.'</span>
+					'.$label.'
 				</a>
                 <meta itemprop="position" content="'.($index + 1).'">
                 &mdash;

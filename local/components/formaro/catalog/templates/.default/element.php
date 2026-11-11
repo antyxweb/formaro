@@ -21,7 +21,18 @@ $partnerId = (int)$APPLICATION->IncludeComponent(
     ],
     $component
 );
+// На телефоне крошки — под блоком товара, а не над ним (header.php).
+$APPLICATION->SetPageProperty('BREADCRUMBS_CLASS', 'd-none d-sm-block');
 ?>
+<section class="section pt-0 pb-4 d-sm-none">
+    <div class="section-header">
+        <div class="container-fluid">
+            <div class="breadcrumbs">
+                <?php $APPLICATION->IncludeComponent('bitrix:breadcrumb', 'header', ['PATH' => '', 'SITE_ID' => SITE_ID, 'START_FROM' => 0]); ?>
+            </div>
+        </div>
+    </div>
+</section>
 
 <?php if ($partnerId): ?>
 <?php $APPLICATION->IncludeComponent(
