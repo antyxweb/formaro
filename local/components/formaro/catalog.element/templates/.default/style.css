@@ -30,6 +30,10 @@
     .tab-wrap .tab-head {
         flex-wrap: nowrap !important;
         overflow-x: auto;
+        /* Лента до краёв экрана — вкладки не обрезаются полями контейнера (20px). */
+        margin: 0 -20px;
+        padding-left: 20px;
+        padding-right: 5px;
         scrollbar-width: none;
         -webkit-overflow-scrolling: touch;
     }
@@ -38,7 +42,7 @@
     }
     .tab-wrap .tab-head .f-button {
         flex: 0 0 auto;
-        margin-right: 8px;
+        margin-right: 23px; /* 15px занимает «ушко» ::after, видно 8px */
         padding: 10px 12px 10px 16px;
         font-size: .875rem;
         white-space: nowrap;
