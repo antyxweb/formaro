@@ -35,15 +35,26 @@ $this->setFrameMode(true);
                     <?
                     $this->AddEditAction($arItem['ID'], $arItem['EDIT_LINK'], CIBlock::GetArrayByID($arItem["IBLOCK_ID"], "ELEMENT_EDIT"));
                     $this->AddDeleteAction($arItem['ID'], $arItem['DELETE_LINK'], CIBlock::GetArrayByID($arItem["IBLOCK_ID"], "ELEMENT_DELETE"), array("CONFIRM" => GetMessage('CT_BNL_ELEMENT_DELETE_CONFIRM')));
+                    // Первая карточка (MAX) — двойная ширина: слева QR-код, справа текст с иконкой.
+                    $isWide = $arKey === 0 && $arItem['CODE'] === 'icon-max-white';
                     ?>
-                    <div class="col-12 col-lg-6 col-xl-3 mb-4 mb-xl-0">
-                        <a href="<?=$arItem['PROPERTIES']['LINK']['VALUE']?>" class="support__link" target="_blank">
+                    <div class="col-12 <?= $isWide ? 'col-lg-12 col-xl-6' : 'col-sm-6 col-xl-3' ?> mb-4 mb-xl-0">
+                        <a href="<?=$arItem['PROPERTIES']['LINK']['VALUE']?>" class="support__link<?= $isWide ? ' support__link--wide' : '' ?>" target="_blank">
+                            <?if ($isWide):?>
+                                <span class="support__qr">
+                                    <img src="<?=SITE_TEMPLATE_PATH?>/images/max-qr.jpg" alt="QR-код MAX" width="547" height="550">
+                                </span>
+                                <span class="support__link-body">
+                            <?endif?>
                                             <span class="support__icon-wrapper bg-primary">
                                                 <svg class="support__link-icon" width="24" height="24">
                                                     <use xlink:href="#<?=$arItem['CODE']?>"></use>
                                                 </svg>
                                             </span>
                             <?=$arItem['NAME']?>
+                            <?if ($isWide):?>
+                                </span>
+                            <?endif?>
                         </a>
                     </div>
                 <?endforeach;?>

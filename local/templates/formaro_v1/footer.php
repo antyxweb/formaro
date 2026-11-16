@@ -107,7 +107,7 @@ if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
                 "PARENT_SECTION_CODE" => "support-links",	// Код раздела
                 "PREVIEW_TRUNCATE_LEN" => "",	// Максимальная длина анонса для вывода (только для типа текст)
                 "PROPERTY_CODE" => array(	// Свойства
-                    0 => "",
+                    0 => "LINK",
                     1 => "",
                 ),
                 "SET_BROWSER_TITLE" => "N",	// Устанавливать заголовок окна браузера
@@ -651,13 +651,11 @@ if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
           <path d="M19.2 4.4 2.9 10.7c-1.1.4-1.1 1.1-.2 1.3l4.1 1.3 1.6 4.8c.2.5.1.7.6.7.4 0 .6-.2.8-.4l2-2 4.2 3.1c.8.4 1.3.2 1.5-.7l2.8-13.1c.3-1.1-.4-1.7-1.1-1.3zm-2.1 3-7.8 7.1-.3 3.3L7.4 13l9.2-5.8c.4-.3.8-.1.5.2z"></path>
                 <path d="M0 0h24v24H0z" fill="none"></path>
         </symbol>
-                <symbol fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" id="icon-max">
-                    <path d="M12 2.5c-5.25 0-9.5 3.95-9.5 8.82 0 2.62 1.23 4.97 3.18 6.58L5 21.5l4.1-1.98c.93.25 1.9.38 2.9.38 5.25 0 9.5-3.95 9.5-8.83S17.25 2.5 12 2.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path>
-                    <path d="M7.8 14.2V8.6l4.2 3.6 4.2-3.6v5.6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+                <symbol xmlns="http://www.w3.org/2000/svg" viewBox="0 0 42 42" id="icon-max">
+                    <path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" stroke="none" d="M21.47 41.88c-4.11 0-6.02-.6-9.34-3-2.1 2.7-8.75 4.81-9.04 1.2 0-2.71-.6-5-1.28-7.5C1 29.5.08 26.07.08 21.1.08 9.23 9.82.3 21.36.3c11.55 0 20.6 9.37 20.6 20.91a20.6 20.6 0 0 1-20.49 20.67m.17-31.32c-5.62-.29-10 3.6-10.97 9.7-.8 5.05.62 11.2 1.83 11.52.58.14 2.04-1.04 2.95-1.95a10.4 10.4 0 0 0 5.08 1.81 10.7 10.7 0 0 0 11.19-9.97 10.7 10.7 0 0 0-10.08-11.1Z"></path>
                 </symbol>
-                <symbol fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" id="icon-max-white">
-                    <path d="M12 2.5c-5.25 0-9.5 3.95-9.5 8.82 0 2.62 1.23 4.97 3.18 6.58L5 21.5l4.1-1.98c.93.25 1.9.38 2.9.38 5.25 0 9.5-3.95 9.5-8.83S17.25 2.5 12 2.5Z" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"></path>
-                    <path d="M7.8 14.2V8.6l4.2 3.6 4.2-3.6v5.6" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+                <symbol xmlns="http://www.w3.org/2000/svg" viewBox="0 0 42 42" id="icon-max-white">
+                    <path fill="#fff" fill-rule="evenodd" clip-rule="evenodd" stroke="none" d="M21.47 41.88c-4.11 0-6.02-.6-9.34-3-2.1 2.7-8.75 4.81-9.04 1.2 0-2.71-.6-5-1.28-7.5C1 29.5.08 26.07.08 21.1.08 9.23 9.82.3 21.36.3c11.55 0 20.6 9.37 20.6 20.91a20.6 20.6 0 0 1-20.49 20.67m.17-31.32c-5.62-.29-10 3.6-10.97 9.7-.8 5.05.62 11.2 1.83 11.52.58.14 2.04-1.04 2.95-1.95a10.4 10.4 0 0 0 5.08 1.81 10.7 10.7 0 0 0 11.19-9.97 10.7 10.7 0 0 0-10.08-11.1Z"></path>
                 </symbol>
                 <symbol fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" id="icon-tshirt">
                     <path d="M2 8V3c0-.552.398-1 .889-1h3.555c0 1 .712 3 3.556 3 2.844 0 3.556-2 3.556-3h3.555c.491 0 .889.448.889 1v5c0 .552-.398 1-.889 1h-.889c-.49 0-.889.448-.889 1v7c0 .552-.398 1-.889 1H5.556c-.491 0-.89-.448-.89-1v-7c0-.552-.397-1-.888-1h-.89C2.399 9 2 8.552 2 8Z" stroke="#000" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path>

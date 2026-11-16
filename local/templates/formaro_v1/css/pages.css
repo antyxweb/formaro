@@ -837,3 +837,42 @@
         width: auto;
     }
 }
+
+/* /about/contacts/ — контакты списком в стиле подвала (иконка + подпись), светлый фон.
+   Иконки (#icon-map-pin, #icon-clock) красятся в --primary через currentColor. */
+.text-page .contacts-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin: 1.5rem 0;
+}
+.text-page .contacts-list__item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+}
+.text-page .contacts-list__icon {
+    flex: 0 0 auto;
+    width: 26px;
+    height: 26px;
+    margin-top: 2px;
+    color: var(--primary);
+}
+.text-page .contacts-list__body {
+    min-width: 0;
+}
+.text-page .contacts-list__title {
+    margin-bottom: .15rem;
+    font-weight: 600;
+    color: #111111;
+}
+.text-page .contacts-list__text {
+    line-height: 1.45;
+    color: #333333;
+}
+.text-page .contacts-list__text a {
+    display: inline-block;
+    margin-top: .25rem;
+    color: var(--primary);
+    text-decoration: underline;
+}

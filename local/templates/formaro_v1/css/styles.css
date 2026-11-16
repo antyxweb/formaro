@@ -11030,6 +11030,46 @@ h1, h2, h3, h4, h5, h6,
 .full-menu .bg-menu__actions .header__action-link:hover {
   opacity: 0.6;
 }
+/* MAX в подвале: по наведению на строку показываем QR-код */
+.full-menu .bg-menu__actions .header__action-link--qr {
+  cursor: pointer;
+}
+.full-menu .bg-menu__actions .header__action-link--qr:hover {
+  opacity: 1;
+}
+.full-menu .bg-menu__actions .header__action-link .header__action-qr {
+  position: absolute;
+  left: 15px;
+  bottom: calc(100% + 10px);
+  z-index: 30;
+  display: block;
+  padding: 8px;
+  margin-right: 0;
+  background: #ffffff;
+  border-radius: 8px;
+  -webkit-box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
+          box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  -webkit-transform: translateY(6px);
+          transform: translateY(6px);
+  -webkit-transition: opacity 0.2s ease, -webkit-transform 0.2s ease, visibility 0.2s;
+  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+}
+.full-menu .bg-menu__actions .header__action-link .header__action-qr img {
+  display: block;
+  width: 160px;
+  height: 160px;
+}
+.full-menu .bg-menu__actions .header__action-link--qr:hover .header__action-qr,
+.full-menu .bg-menu__actions .header__action-link--qr:focus .header__action-qr,
+.full-menu .bg-menu__actions .header__action-link--qr:focus-within .header__action-qr {
+  opacity: 1;
+  visibility: visible;
+  -webkit-transform: translateY(0);
+          transform: translateY(0);
+}
 .full-menu .subscribe-form input {
   border: none;
   border-bottom: 1px solid #ffffff;
@@ -12001,6 +12041,73 @@ h1, h2, h3, h4, h5, h6,
 .support-list .support__link:hover .support__icon-wrapper {
   padding: 30px;
   margin: -5px 0;
+}
+/* «Мы всегда поможем»: первая карточка (MAX) — двойная ширина, QR слева, текст справа */
+.support-list .support__link--wide {
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: row;
+          flex-direction: row;
+  gap: 0;
+  -webkit-box-pack: start;
+      -ms-flex-pack: start;
+          justify-content: flex-start;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+.support-list .support__qr {
+  -webkit-box-flex: 1;
+      -ms-flex: 1 1 50%;
+          flex: 1 1 50%;
+  min-width: 0;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+.support-list .support__qr img {
+  display: block;
+  width: 200px;
+  max-width: 100%;
+  height: auto;
+}
+.support-list .support__link-body {
+  -webkit-box-flex: 1;
+      -ms-flex: 1 1 50%;
+          flex: 1 1 50%;
+  min-width: 0;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  gap: 1.25rem;
+}
+@media (max-width: 575.98px) {
+  .support-list .support__link--wide {
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+        -ms-flex-direction: column;
+            flex-direction: column;
+    gap: 1.25rem;
+  }
+  .support-list .support__link--wide .support__icon-wrapper {
+    display: none;
+  }
 }
 
 #footer {

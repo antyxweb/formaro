@@ -23,11 +23,17 @@ $this->setFrameMode(true);
             $this->AddEditAction($arItem['ID'], $arItem['EDIT_LINK'], CIBlock::GetArrayByID($arItem["IBLOCK_ID"], "ELEMENT_EDIT"));
             $this->AddDeleteAction($arItem['ID'], $arItem['DELETE_LINK'], CIBlock::GetArrayByID($arItem["IBLOCK_ID"], "ELEMENT_DELETE"), array("CONFIRM" => GetMessage('CT_BNL_ELEMENT_DELETE_CONFIRM')));
             ?>
-            <a class="header__action-link" href="<?=$arItem["PROPERTIES"]['LINK']['VALUE']?>" aria-label="<?=$arItem["NAME"]?>" target="_blank">
+            <?$isMax = ($arItem["CODE"] === 'icon-max');?>
+            <a class="header__action-link<?= $isMax ? ' header__action-link--qr' : '' ?>" href="<?=$arItem["PROPERTIES"]['LINK']['VALUE']?>" aria-label="<?=$arItem["NAME"]?>" target="_blank">
                 <svg class="header__action-icon" width="20" height="20">
                     <use xlink:href="#<?=$arItem["CODE"]?>"></use>
                 </svg>
                 <span><?=$arItem["NAME"]?></span>
+                <?if ($isMax):?>
+                    <span class="header__action-qr" aria-hidden="true">
+                        <img src="<?=SITE_TEMPLATE_PATH?>/images/max-qr.jpg" alt="QR-код MAX" width="160" height="160">
+                    </span>
+                <?endif?>
             </a>
         <?endforeach;?>
     </div>

@@ -35,6 +35,7 @@ final class MarketplaceRequisites
         'bik' => 'БИК',
         'account' => 'Расчётный счёт',
         'corr_account' => 'Корреспондентский счёт',
+        'edo_sbis' => 'ЭДО СБИС',
         'ceo_position' => 'Должность руководителя',
         'ceo_name' => 'Руководитель (ФИО)',
         'accountant_name' => 'Бухгалтер (ФИО), если есть',
@@ -97,6 +98,7 @@ final class MarketplaceRequisites
             'Расчётный счёт' => $r['account'],
             'Корреспондентский счёт' => $r['corr_account'],
             'БИК' => $r['bik'],
+            'ЭДО СБИС' => $r['edo_sbis'],
             ($r['ceo_position'] ?: 'Руководитель') => $r['ceo_name'],
             'Телефон' => $r['phone'],
             'E-mail' => $r['email'],
@@ -114,6 +116,7 @@ final class MarketplaceRequisites
             'Р/С' => trim($r['account'] . ($r['bank_name'] !== '' ? ' в ' . $r['bank_name'] : '')),
             'БИК' => $r['bik'],
             'К/С' => $r['corr_account'],
+            'ЭДО СБИС' => $r['edo_sbis'],
             ($r['ceo_position'] ?: 'Руководитель') => $r['ceo_name'],
             'Фактический адрес' => $r['actual_address'],
         ];
