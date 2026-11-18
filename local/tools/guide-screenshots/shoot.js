@@ -3,8 +3,8 @@ const puppeteer = require('puppeteer-core');
 const fs = require('fs');
 const [,, listFile, outDir, sid] = process.argv;
 const list = JSON.parse(fs.readFileSync(listFile, 'utf8'));
-// Локальный адрес сайта (dev-proxy): http://formaro.test; другой — переменной GUIDE_BASE.
-const BASE = process.env.GUIDE_BASE || 'http://formaro.test';
+// Локальный адрес сайта (dev-proxy): http://reppa.test; другой — переменной GUIDE_BASE.
+const BASE = process.env.GUIDE_BASE || 'http://reppa.test';
 const HOST = new URL(BASE).hostname;
 (async () => {
   const browser = await puppeteer.launch({
